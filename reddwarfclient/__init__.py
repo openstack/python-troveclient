@@ -41,6 +41,7 @@ class ReddwarfHTTPClient(HTTPClient):
                  service_url=None, timeout=None):
         super(ReddwarfHTTPClient, self).__init__(user, apikey, tenant,
                                                  auth_url, timeout=timeout)
+        self.api_key = apikey
         self.tenant = tenant
         self.service = service_name
         self.management_url = service_url
@@ -55,14 +56,15 @@ class ReddwarfHTTPClient(HTTPClient):
 
         # Auth against Keystone version 2.0
         if self.version == "v2.0":
-            req_body = {'passwordCredentials': {'username': self.user,
-                                                'password': self.apikey,
-                                                'tenantId': self.tenant}}
+            req_body = {'auth': {'passwordCredentials':
+                {'username': self.user,
+                 'password': self.api_key},
+                'tenantName': self.tenant }}
             self._get_token("/v2.0/tokens", req_body)
         # Auth against Keystone version 1.1
         elif self.version == "v1.1":
             req_body = {'credentials': {'username': self.user,
-                                        'key': self.apikey}}
+                                        'key': self.api_key}}
             self._get_token("/v1.1/auth", req_body)
         else:
             raise NotImplementedError("Version %s is not supported"
@@ -72,14 +74,24 @@ class ReddwarfHTTPClient(HTTPClient):
         """Set the management url and auth token"""
         token_url = urlparse.urljoin(self.auth_url, path)
         resp, body = self.request(token_url, "POST", body=req_body)
-        try:
+        if 'access' in body:
             if not self.management_url:
-                self.management_url = body['auth']['serviceCatalog'] \
-                                      [self.service][0]['publicURL']
-            self.auth_token = body['auth']['token']['id']
-        except KeyError:
-            raise NotImplementedError("Service: %s is not available"
-                                      % self.service)
+                # Assume the new Keystone lite:
+                catalog = body['access']['serviceCatalog']
+                for service in catalog:
+                    if service['name'] == self.service:
+                        self.management_url = service['adminURL']
+            self.auth_token = body['access']['token']['id']
+        else:
+            # Assume pre-Keystone Light:
+            try:
+                if not self.management_url:
+                    self.management_url = body['auth']['serviceCatalog'] \
+                                          [self.service][0]['publicURL']
+                self.auth_token = body['auth']['token']['id']
+            except KeyError:
+                raise NotImplementedError("Service: %s is not available"
+                                          % self.service)
 
 
 class Dbaas(Client):
@@ -101,10 +113,10 @@ class Dbaas(Client):
     &c.
     """
 
-    def __init__(self, username, apikey, tenant=None, auth_url=None,
+    def __init__(self, username, api_key, tenant=None, auth_url=None,
                  service_name='reddwarf', service_url=None):
-        super(Dbaas, self).__init__(self, username, apikey, tenant, auth_url)
-        self.client = ReddwarfHTTPClient(username, apikey, tenant, auth_url,
+        super(Dbaas, self).__init__(self, username, api_key, tenant, auth_url)
+        self.client = ReddwarfHTTPClient(username, api_key, tenant, auth_url,
                                          service_name, service_url)
         self.versions = Versions(self)
         self.databases = Databases(self)
