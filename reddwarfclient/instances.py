@@ -52,7 +52,7 @@ class Instances(base.ManagerWithFind):
     """
     resource_class = Instance
 
-    def create(self, name, flavor_id, volume, databases=None):
+    def create(self, name, flavor_id, volume, databases=None, users=None):
         """
         Create (boot) a new instance.
         """
@@ -63,6 +63,8 @@ class Instances(base.ManagerWithFind):
         }}
         if databases:
             body["instance"]["databases"] = databases
+        if users:
+            body["instance"]["users"] = users
 
         return self._create("/instances", body, "instance")
 

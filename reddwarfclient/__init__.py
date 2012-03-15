@@ -38,37 +38,16 @@ class ReddwarfHTTPClient(HTTPClient):
     """
 
     def __init__(self, user, apikey, tenant, auth_url, service_name,
-                 service_url=None, timeout=None):
+                 service_type=None, service_url=None, timeout=None):
         super(ReddwarfHTTPClient, self).__init__(user, apikey, tenant,
-                                                 auth_url, timeout=timeout)
+                                                 auth_url,
+                                                 service_type=service_type,
+                                                 timeout=timeout)
         self.api_key = apikey
         self.tenant = tenant
         self.service = service_name
         self.management_url = service_url
 
-    def authenticate(self):
-        scheme, netloc, path, query, frag = urlparse.urlsplit(self.auth_url)
-        path_parts = path.split('/')
-        for part in path_parts:
-            if len(part) > 0 and part[0] == 'v':
-                self.version = part
-                break
-
-        # Auth against Keystone version 2.0
-        if self.version == "v2.0":
-            req_body = {'auth': {'passwordCredentials':
-                {'username': self.user,
-                 'password': self.api_key},
-                'tenantName': self.tenant }}
-            self._get_token("/v2.0/tokens", req_body)
-        # Auth against Keystone version 1.1
-        elif self.version == "v1.1":
-            req_body = {'credentials': {'username': self.user,
-                                        'key': self.api_key}}
-            self._get_token("/v1.1/auth", req_body)
-        else:
-            raise NotImplementedError("Version %s is not supported"
-                                      % self.version)
 
     def _get_token(self, path, req_body):
         """Set the management url and auth token"""
@@ -114,10 +93,13 @@ class Dbaas(Client):
     """
 
     def __init__(self, username, api_key, tenant=None, auth_url=None,
-                 service_name='reddwarf', service_url=None):
+                 service_type='reddwarf', service_name='Reddwarf Service',
+                 service_url=None):
         super(Dbaas, self).__init__(self, username, api_key, tenant, auth_url)
         self.client = ReddwarfHTTPClient(username, api_key, tenant, auth_url,
-                                         service_name, service_url)
+                                         service_type=service_type,
+                                         service_name=service_name,
+                                         service_url=service_url)
         self.versions = Versions(self)
         self.databases = Databases(self)
         self.instances = Instances(self)

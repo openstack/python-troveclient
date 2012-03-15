@@ -92,3 +92,10 @@ class Management(base.ManagerWithFind):
         """
         body = {'reboot': {}}
         self._action(instance_id, body)
+
+    def update(self, instance_id):
+      """
+      Update the guest agent via apt-get.
+      """
+      body = {'update': {}}
+      self._action(instance_id, body)
