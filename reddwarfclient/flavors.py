@@ -65,7 +65,6 @@ class Flavors(base.ManagerWithFind):
 
         :rtype: list of :class:`Flavor`.
         """
-        #return self._get("/flavors/detail", "flavors")
         return self._list("/flavors/detail", "flavors")
 
     def get(self, flavor):
