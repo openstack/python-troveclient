@@ -21,7 +21,7 @@ from reddwarfclient.instances import Instance
 class RootHistory(base.Resource):
     def __repr__(self):
       return ("<Root History: Instance %s enabled at %s by %s>"
-            % (self.id, self.root_enabled_at, self.root_enabled_by))
+            % (self.id, self.created, self.user))
 
 class Management(base.ManagerWithFind):
     """
