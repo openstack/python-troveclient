@@ -18,10 +18,12 @@ from novaclient import base
 from reddwarfclient.common import check_for_exceptions
 from reddwarfclient.instances import Instance
 
+
 class RootHistory(base.Resource):
     def __repr__(self):
-      return ("<Root History: Instance %s enabled at %s by %s>"
-            % (self.id, self.created, self.user))
+        return ("<Root History: Instance %s enabled at %s by %s>"
+                % (self.id, self.created, self.user))
+
 
 class Management(base.ManagerWithFind):
     """
@@ -41,7 +43,7 @@ class Management(base.ManagerWithFind):
 
         :rtype: :class:`Instance`.
         """
-        
+
         return self._list("/mgmt/instances/%s" % base.getid(instance),
             'instance')
 
@@ -63,7 +65,8 @@ class Management(base.ManagerWithFind):
         resp, body = self.api.client.get(url)
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
-        return [self.resource_class(self, instance) for instance in body['instances']]
+        return [self.resource_class(self, instance)
+                for instance in body['instances']]
 
     def root_enabled_history(self, instance):
         """
@@ -94,8 +97,8 @@ class Management(base.ManagerWithFind):
         self._action(instance_id, body)
 
     def update(self, instance_id):
-      """
-      Update the guest agent via apt-get.
-      """
-      body = {'update': {}}
-      self._action(instance_id, body)
+        """
+        Update the guest agent via apt-get.
+        """
+        body = {'update': {}}
+        self._action(instance_id, body)

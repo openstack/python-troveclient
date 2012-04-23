@@ -43,7 +43,7 @@ class Users(base.ManagerWithFind):
 
     def delete(self, instance_id, user):
         """Delete an existing user in the specified instance"""
-        url = "/instances/%s/users/%s"% (instance_id, user)
+        url = "/instances/%s/users/%s" % (instance_id, user)
         resp, body = self.api.client.delete(url)
         check_for_exceptions(resp, body)
 

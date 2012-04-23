@@ -15,6 +15,7 @@
 
 from novaclient import base
 
+
 class Account(base.Resource):
     """
     Account is an opaque instance used to hold account information.
@@ -22,13 +23,14 @@ class Account(base.Resource):
     def __repr__(self):
         return "<Account: %s>" % self.name
 
+
 class Accounts(base.ManagerWithFind):
     """
     Manage :class:`Account` information.
     """
 
     resource_class = Account
-    
+
     def _list(self, url, response_key):
         resp, body = self.api.client.get(url)
         if not body:
@@ -41,7 +43,7 @@ class Accounts(base.ManagerWithFind):
 
         :rtype: :class:`Account`.
         """
-        
+
         acct_name = self._get_account_name(account)
         return self._list("/mgmt/accounts/%s" % acct_name, 'account')
 
@@ -52,4 +54,3 @@ class Accounts(base.ManagerWithFind):
                 return account.name
         except AttributeError:
             return account
-

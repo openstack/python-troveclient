@@ -15,6 +15,7 @@
 
 from novaclient import base
 
+
 class Version(base.Resource):
     """
     Version is an opaque instance used to hold version information.
@@ -22,13 +23,14 @@ class Version(base.Resource):
     def __repr__(self):
         return "<Version: %s>" % self.id
 
+
 class Versions(base.ManagerWithFind):
     """
     Manage :class:`Versions` information.
     """
 
     resource_class = Version
-    
+
     def index(self, url):
         """
         Get a list of all versions.
