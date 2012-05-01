@@ -102,6 +102,7 @@ class Dbaas(Client):
                                          service_url=service_url)
         self.versions = Versions(self)
         self.databases = Databases(self)
+        self.flavors = Flavors(self)
         self.instances = Instances(self)
         self.users = Users(self)
         self.root = Root(self)
@@ -116,6 +117,7 @@ class Dbaas(Client):
 from reddwarfclient.accounts import Accounts
 from reddwarfclient.config import  Configs
 from reddwarfclient.databases import Databases
+from reddwarfclient.flavors import Flavors
 from reddwarfclient.instances import Instances
 from reddwarfclient.hosts import Hosts
 from reddwarfclient.management import Management
