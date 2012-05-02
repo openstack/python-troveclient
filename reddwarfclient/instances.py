@@ -147,3 +147,14 @@ class Instances(base.ManagerWithFind):
         """
         body = {'restart': {}}
         self._action(instance_id, body)
+
+
+class InstanceStatus(object):
+
+    ACTIVE = "ACTIVE"
+    BLOCKED = "BLOCKED"
+    BUILD = "BUILD"
+    FAILED = "FAILED"
+    REBOOT = "REBOOT"
+    RESIZE = "RESIZE"
+    SHUTDOWN = "SHUTDOWN"

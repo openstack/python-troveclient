@@ -37,7 +37,10 @@ def from_response(response, body):
         if resp.status != 200:
             raise exception_from_response(resp, body)
     """
-    cls = _code_map.get(response.status, exceptions.ClientException)
+    cls = _code_map.get(response.status, None)
+    if not cls:
+        cls = exceptions._code_map.get(response.status,
+                                       exceptions.ClientException)
     if body:
         message = "n/a"
         details = "n/a"

@@ -16,8 +16,7 @@ import os
 import pickle
 import sys
 
-
-from reddwarfclient import Dbaas
+from reddwarfclient.client import Dbaas
 import exceptions
 
 
