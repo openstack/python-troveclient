@@ -95,7 +95,8 @@ class Auth(object):
     def __init__(self):
         pass
 
-    def login(self, user, apikey, tenant="dbaas", auth_url="http://localhost:5000/v1.1",
+    def login(self, user, apikey, tenant="dbaas",
+              auth_url="http://localhost:5000/v1.1",
               service_name="reddwarf", service_url=None):
         """Login to retrieve an auth token to use for other api calls"""
         try:

@@ -42,7 +42,7 @@ class Configs(base.ManagerWithFind):
         """
         Delete an existing configuration
         """
-        url = "/mgmt/configs/%s"% config
+        url = "/mgmt/configs/%s" % config
         self._delete(url)
 
     def list(self):

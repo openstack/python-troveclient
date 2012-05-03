@@ -1,7 +1,7 @@
-
 def isid(obj):
     """
-    Returns true if the given object can be converted to an ID, false otherwise.
+    Returns true if the given object can be converted to an ID,
+    false otherwise.
     """
     if hasattr(obj, "id"):
         return True
@@ -12,4 +12,3 @@ def isid(obj):
             return False
         else:
             return True
-

@@ -20,6 +20,7 @@ import exceptions
 
 from reddwarfclient.common import check_for_exceptions
 
+
 class Flavor(base.Resource):
     """
     A Flavor is an Instance type, specifying among other things, RAM size.
@@ -75,4 +76,3 @@ class Flavors(base.ManagerWithFind):
         """
         return self._get("/flavors/%s" % base.getid(flavor),
                         "flavor")
-

@@ -5,7 +5,8 @@ import exceptions
 
 class Database(base.Resource):
     """
-    According to Wikipedia, "A database is a system intended to organize, store, and retrieve
+    According to Wikipedia, "A database is a system intended to organize,
+    store, and retrieve
     large amounts of data easily."
     """
     def __repr__(self):

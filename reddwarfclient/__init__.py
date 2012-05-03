@@ -21,6 +21,7 @@ from reddwarfclient.flavors import Flavors
 from reddwarfclient.instances import Instances
 from reddwarfclient.hosts import Hosts
 from reddwarfclient.management import Management
+from reddwarfclient.management import RootHistory
 from reddwarfclient.root import Root
 from reddwarfclient.storage import StorageInfo
 from reddwarfclient.users import Users
