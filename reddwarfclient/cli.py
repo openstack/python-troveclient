@@ -260,7 +260,8 @@ COMMANDS = {'auth': common.Auth,
             'database': DatabaseCommands,
             'user': UserCommands,
             'root': RootCommands,
-            'version': VersionCommands}
+            'version': VersionCommands,
+            }
 
 
 def main():

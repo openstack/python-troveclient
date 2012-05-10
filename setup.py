@@ -50,6 +50,8 @@ setuptools.setup(
         "Programming Language :: Python"
     ],
     entry_points={
-        "console_scripts": ["reddwarf-cli = reddwarfclient.cli:main"]
+        "console_scripts": ["reddwarf-cli = reddwarfclient.cli:main",
+                            "reddwarf-mgmt-cli = reddwarfclient.mcli:main",
+                           ]
     }
 )
