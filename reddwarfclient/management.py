@@ -77,7 +77,7 @@ class Management(base.ManagerWithFind):
         resp, body = self.api.client.get(url)
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
-        return RootHistory(self, body['root_enabled_history'])
+        return RootHistory(self, body['root_history'])
 
     def _action(self, instance_id, body):
         """

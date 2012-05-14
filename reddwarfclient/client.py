@@ -27,6 +27,7 @@ from novaclient.v1_1.client import Client
 
 from reddwarfclient import exceptions
 
+
 class ReddwarfHTTPClient(HTTPClient):
     """
     Class for overriding the HTTP authenticate call and making it specific to
@@ -44,7 +45,6 @@ class ReddwarfHTTPClient(HTTPClient):
         self.service = service_name
         self.management_url = service_url
 
-
     def _get_token(self, path, req_body):
         """Set the management url and auth token"""
         token_url = urlparse.urljoin(self.auth_url, path)
@@ -61,8 +61,15 @@ class ReddwarfHTTPClient(HTTPClient):
             # Assume pre-Keystone Light:
             try:
                 if not self.management_url:
-                    self.management_url = body['auth']['serviceCatalog'] \
-                                          [self.service][0]['publicURL']
+                    keys = ['auth',
+                            'serviceCatalog',
+                            self.service,
+                            0,
+                            'publicURL']
+                    url = body
+                    for key in keys:
+                        url = url[key]
+                    self.management_url = url
                 self.auth_token = body['auth']['token']['id']
             except KeyError:
                 raise NotImplementedError("Service: %s is not available"
@@ -148,5 +155,3 @@ class Dbaas(Client):
         self.accounts = Accounts(self)
         self.configs = Configs(self)
         self.diagnostics = Interrogator(self)
-
-
