@@ -185,7 +185,7 @@ class Dbaas(Client):
         from reddwarfclient.config import Configs
         from reddwarfclient.diagnostics import Interrogator
 
-        super(Dbaas, self).__init__(self, username, api_key, tenant, auth_url)
+        super(Dbaas, self).__init__(username, api_key, tenant, auth_url)
         self.client = ReddwarfHTTPClient(username, api_key, tenant, auth_url,
                                          service_type=service_type,
                                          service_name=service_name,
