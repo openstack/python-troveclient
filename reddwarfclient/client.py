@@ -133,6 +133,9 @@ class ReddwarfHTTPClient(HTTPClient):
 
         resp, body = super(HTTPClient, self).request(*args, **kwargs)
 
+        # Save this in case anyone wants it.
+        self.last_response = (resp, body)
+
         self.http_log(args, kwargs, resp, body)
 
         if body:
