@@ -81,12 +81,18 @@ class InstanceCommands(object):
         except:
             print sys.exc_info()[1]
 
-    def list(self):
+    def list(self, limit=None, marker=None):
         """List all instances for account"""
         dbaas = common.get_client()
+        if limit:
+            limit = int(limit, 10)
         try:
-            for instance in dbaas.instances.list():
+            instances = dbaas.instances.list(limit, marker)
+            for instance in instances:
                 _pretty_print(instance._info)
+            if instances.links:
+                for link in instances.links:
+                    _pretty_print(link)
         except:
             print sys.exc_info()[1]
 
@@ -160,12 +166,16 @@ class DatabaseCommands(object):
         except:
             print sys.exc_info()[1]
 
-    def list(self, id):
+    def list(self, id, limit=None, marker=None):
         """List the databases"""
         dbaas = common.get_client()
         try:
-            for database in dbaas.databases.list(id):
+            databases = dbaas.databases.list(id, limit, marker)
+            for database in databases:
                 _pretty_print(database._info)
+            if databases.links:
+                for link in databases.links:
+                    _pretty_print(link)
         except:
             print sys.exc_info()[1]
 
@@ -196,12 +206,16 @@ class UserCommands(object):
         except:
             print sys.exc_info()[1]
 
-    def list(self, id):
+    def list(self, id, limit=None, marker=None):
         """List all the users for an instance"""
         dbaas = common.get_client()
         try:
-            for user in dbaas.users.list(id):
+            users = dbaas.users.list(id, limit, marker)
+            for user in users:
                 _pretty_print(user._info)
+            if users.next:
+                for link in users.next:
+                    _pretty_print(link)
         except:
             print sys.exc_info()[1]
 

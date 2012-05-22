@@ -74,6 +74,18 @@ def print_commands(commands):
     sys.exit(2)
 
 
+def limit_url(url, limit=None, marker=None):
+    if not limit and not marker:
+        return url
+    query = []
+    if marker:
+        query.append("marker=%s" % marker)
+    if limit:
+        query.append("limit=%s" % limit)
+    query = '?' + '&'.join(query)
+    return url + query
+
+
 class APIToken(object):
     """A token object containing the user, apikey and token which
        is pickleable."""
@@ -111,3 +123,34 @@ class Auth(object):
             print apitoken._token
         except:
             print sys.exc_info()[1]
+
+
+class Paginated(object):
+    """ Pretends to be a list if you iterate over it, but also keeps a
+        next property you can use to get the next page of data. """
+
+    def __init__(self, items=[], next_marker=None, links=[]):
+        self.items = items
+        self.next = next_marker
+        self.links = links
+
+    def __len__(self):
+        return len(self.items)
+
+    def __iter__(self):
+        return self.items.__iter__()
+
+    def __getitem__(self, key):
+        return self.items[key]
+
+    def __setitem__(self, key, value):
+        self.items[key] = value
+
+    def __delitem(self, key):
+        del self.items[key]
+
+    def __reversed__(self):
+        return reversed(self.items)
+
+    def __contains__(self, needle):
+        return needle in self.items
