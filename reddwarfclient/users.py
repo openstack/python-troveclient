@@ -15,7 +15,10 @@
 
 from novaclient import base
 from reddwarfclient.common import check_for_exceptions
+from reddwarfclient.common import limit_url
+from reddwarfclient.common import Paginated
 import exceptions
+import urlparse
 
 
 class User(base.Resource):
@@ -47,19 +50,28 @@ class Users(base.ManagerWithFind):
         resp, body = self.api.client.delete(url)
         check_for_exceptions(resp, body)
 
-    def _list(self, url, response_key):
-        resp, body = self.api.client.get(url)
+    def _list(self, url, response_key, limit=None, marker=None):
+        resp, body = self.api.client.get(limit_url(url, limit, marker))
         check_for_exceptions(resp, body)
         if not body:
             raise Exception("Call to " + url +
                             " did not return a body.")
-        return [self.resource_class(self, res) for res in body[response_key]]
+        links = body.get('links', [])
+        next_links = [link['href'] for link in links if link['rel'] == 'next']
+        next_marker = None
+        for link in next_links:
+            # Extract the marker from the url.
+            parsed_url = urlparse.urlparse(link)
+            query_dict = dict(urlparse.parse_qsl(parsed_url.query))
+            next_marker = query_dict.get('marker', None)
+        users = [self.resource_class(self, res) for res in body[response_key]]
+        return Paginated(users, next_marker=next_marker, links=links)
 
-    def list(self, instance):
+    def list(self, instance, limit=None, marker=None):
         """
         Get a list of all Users from the instance's Database.
 
         :rtype: list of :class:`User`.
         """
         return self._list("/instances/%s/users" % base.getid(instance),
-                          "users")
+                          "users", limit, marker)

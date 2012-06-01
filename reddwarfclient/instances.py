@@ -16,8 +16,11 @@
 from novaclient import base
 
 import exceptions
+import urlparse
 
 from reddwarfclient.common import check_for_exceptions
+from reddwarfclient.common import limit_url
+from reddwarfclient.common import Paginated
 
 
 REBOOT_SOFT, REBOOT_HARD = 'SOFT', 'HARD'
@@ -68,19 +71,29 @@ class Instances(base.ManagerWithFind):
 
         return self._create("/instances", body, "instance")
 
-    def _list(self, url, response_key):
-        resp, body = self.api.client.get(url)
+    def _list(self, url, response_key, limit=None, marker=None):
+        resp, body = self.api.client.get(limit_url(url, limit, marker))
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
-        return [self.resource_class(self, res) for res in body[response_key]]
+        links = body.get('links', [])
+        next_links = [link['href'] for link in links if link['rel'] == 'next']
+        next_marker = None
+        for link in next_links:
+            # Extract the marker from the url.
+            parsed_url = urlparse.urlparse(link)
+            query_dict = dict(urlparse.parse_qsl(parsed_url.query))
+            next_marker = query_dict.get('marker', None)
+        instances = body[response_key]
+        instances = [self.resource_class(self, res) for res in instances]
+        return Paginated(instances, next_marker=next_marker, links=links)
 
-    def list(self):
+    def list(self, limit=None, marker=None):
         """
         Get a list of all instances.
 
         :rtype: list of :class:`Instance`.
         """
-        return self._list("/instances/detail", "instances")
+        return self._list("/instances/detail", "instances", limit, marker)
 
     def index(self):
         """

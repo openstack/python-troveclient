@@ -37,7 +37,7 @@ class ReddwarfHTTPClient(HTTPClient):
 
     def __init__(self, user, apikey, tenant, auth_url, service_name,
                  service_url=None,
-                 auth_strategy=None,  **kwargs):
+                 auth_strategy=None, **kwargs):
         super(ReddwarfHTTPClient, self).__init__(user, apikey, tenant,
                                                  auth_url,
                                                  **kwargs)
