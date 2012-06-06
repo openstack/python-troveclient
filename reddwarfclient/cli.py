@@ -213,8 +213,8 @@ class UserCommands(object):
             users = dbaas.users.list(id, limit, marker)
             for user in users:
                 _pretty_print(user._info)
-            if users.next:
-                for link in users.next:
+            if users.links:
+                for link in users.links:
                     _pretty_print(link)
         except:
             print sys.exc_info()[1]
