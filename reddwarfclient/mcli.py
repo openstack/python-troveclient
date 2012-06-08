@@ -62,6 +62,21 @@ class RootCommands(object):
             print sys.exc_info()[1]
 
 
+class AccountCommands(object):
+    """Commands to list account info"""
+
+    def __init__(self):
+        pass
+
+    def get(self, acct):
+        """List details for the account provided"""
+        dbaas = common.get_client()
+        try:
+            _pretty_print(dbaas.accounts.show(acct)._info)
+        except:
+            print sys.exc_info()[1]
+
+
 def config_options():
     global oparser
     oparser.add_option("-u", "--url", default="http://localhost:5000/v1.1",
@@ -70,6 +85,7 @@ def config_options():
 
 
 COMMANDS = {'root': RootCommands,
+            'account': AccountCommands,
             }
 
 
