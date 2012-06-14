@@ -50,23 +50,7 @@ class Flavors(base.ManagerWithFind):
 
         :rtype: list of :class:`Flavor`.
         """
-        return self.detail()
-
-    def index(self):
-        """
-        Get a list of all flavors.
-
-        :rtype: list of :class:`Flavor`.
-        """
         return self._list("/flavors", "flavors")
-
-    def detail(self):
-        """
-        Get the details of all flavors.
-
-        :rtype: list of :class:`Flavor`.
-        """
-        return self._list("/flavors/detail", "flavors")
 
     def get(self, flavor):
         """
