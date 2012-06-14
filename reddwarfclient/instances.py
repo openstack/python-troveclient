@@ -93,23 +93,7 @@ class Instances(base.ManagerWithFind):
 
         :rtype: list of :class:`Instance`.
         """
-        return self._list("/instances/detail", "instances", limit, marker)
-
-    def index(self):
-        """
-        Get a list of all instances.
-
-        :rtype: list of :class:`Instance`.
-        """
-        return self._list("/instances", "instances")
-
-    def details(self):
-        """
-        Get details of all instances.
-
-        :rtype: list of :class:`Instance`.
-        """
-        return self._list("/instances/detail", "instances")
+        return self._list("/instances", "instances", limit, marker)
 
     def get(self, instance):
         """
