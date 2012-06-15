@@ -46,6 +46,30 @@ def _pretty_print(info):
     print json.dumps(info, sort_keys=True, indent=4)
 
 
+class HostCommands(object):
+    """Commands to list info on hosts"""
+
+    def __init__(self):
+        pass
+
+    def get(self, name):
+        """List details for the specified host"""
+        dbaas = common.get_client()
+        try:
+            _pretty_print(dbaas.hosts.get(name)._info)
+        except:
+            print sys.exc_info()[1]
+
+    def list(self):
+        """List all compute hosts"""
+        dbaas = common.get_client()
+        try:
+            for host in dbaas.hosts.index():
+                _pretty_print(host._info)
+        except:
+            print sys.exc_info()[1]
+
+
 class RootCommands(object):
     """List details about the root info for an instance."""
 
@@ -84,8 +108,9 @@ def config_options():
                             Default: http://localhost:5000/v1.1")
 
 
-COMMANDS = {'root': RootCommands,
-            'account': AccountCommands,
+COMMANDS = {'account': AccountCommands,
+            'host': HostCommands,
+            'root': RootCommands,
             }
 
 
