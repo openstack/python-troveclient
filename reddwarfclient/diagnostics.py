@@ -30,10 +30,10 @@ class Interrogator(base.ManagerWithFind):
     Manager class for Interrogator resource
     """
     resource_class = Diagnostics
-    url = "/mgmt/instances/%s/diagnostics"
 
-    def get(self, instance_id):
+    def get(self, instance):
         """
         Get the diagnostics of the guest on the instance.
         """
-        return self._get(self.url % base.getid(instance_id), "diagnostics")
+        return self._get("/mgmt/instances/%s/diagnostics" % base.getid(instance),
+                         "diagnostics")

@@ -101,6 +101,46 @@ class AccountCommands(object):
             print sys.exc_info()[1]
 
 
+class InstanceCommands(object):
+    """List details about an instance."""
+
+    def __init__(self):
+        pass
+
+    def get(self, id):
+        """List details for the instance."""
+        dbaas = common.get_client()
+        try:
+            result = dbaas.management.show(id)
+            _pretty_print(result._info)
+        except:
+            print sys.exc_info()[1]
+
+    def list(self, deleted=None, limit=None, marker=None):
+        """List all instances for account"""
+        dbaas = common.get_client()
+        if limit:
+            limit = int(limit, 10)
+        try:
+            instances = dbaas.management.index(deleted, limit, marker)
+            for instance in instances:
+                _pretty_print(instance._info)
+            if instances.links:
+                for link in instances.links:
+                    _pretty_print(link)
+        except:
+            print sys.exc_info()[1]
+
+    def diagnostic(self, id):
+        """List diagnostic details about an instance."""
+        dbaas = common.get_client()
+        try:
+            result = dbaas.diagnostics.get(id)
+            _pretty_print(result._info)
+        except:
+            print sys.exc_info()[1]
+
+
 def config_options():
     global oparser
     oparser.add_option("-u", "--url", default="http://localhost:5000/v1.1",
@@ -110,6 +150,7 @@ def config_options():
 
 COMMANDS = {'account': AccountCommands,
             'host': HostCommands,
+            'instance': InstanceCommands,
             'root': RootCommands,
             }
 

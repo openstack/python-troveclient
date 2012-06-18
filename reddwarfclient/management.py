@@ -14,8 +14,11 @@
 #    under the License.
 
 from novaclient import base
+import urlparse
 
 from reddwarfclient.common import check_for_exceptions
+from reddwarfclient.common import limit_url
+from reddwarfclient.common import Paginated
 from reddwarfclient.instances import Instance
 
 
@@ -31,11 +34,21 @@ class Management(base.ManagerWithFind):
     """
     resource_class = Instance
 
-    def _list(self, url, response_key):
-        resp, body = self.api.client.get(url)
+    def _list(self, url, response_key, limit=None, marker=None):
+        resp, body = self.api.client.get(limit_url(url, limit, marker))
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
-        return self.resource_class(self, body[response_key])
+        links = body.get('links', [])
+        next_links = [link['href'] for link in links if link['rel'] == 'next']
+        next_marker = None
+        for link in next_links:
+            # Extract the marker from the url.
+            parsed_url = urlparse.urlparse(link)
+            query_dict = dict(urlparse.parse_qsl(parsed_url.query))
+            next_marker = query_dict.get('marker', None)
+        instances = body[response_key]
+        instances = [self.resource_class(self, res) for res in instances]
+        return Paginated(instances, next_marker=next_marker, links=links)
 
     def show(self, instance):
         """
@@ -44,10 +57,10 @@ class Management(base.ManagerWithFind):
         :rtype: :class:`Instance`.
         """
 
-        return self._list("/mgmt/instances/%s" % base.getid(instance),
-            'instance')
+        return self._get("/mgmt/instances/%s" % base.getid(instance),
+                         'instance')
 
-    def index(self, deleted=None):
+    def index(self, deleted=None, limit=None, marker=None):
         """
         Show an overview of all local instances.
         Optionally, filter by deleted status.
@@ -62,11 +75,7 @@ class Management(base.ManagerWithFind):
                 form = "?deleted=false"
 
         url = "/mgmt/instances%s" % form
-        resp, body = self.api.client.get(url)
-        if not body:
-            raise Exception("Call to " + url + " did not return a body.")
-        return [self.resource_class(self, instance)
-                for instance in body['instances']]
+        return self._list(url, "instances", limit, marker)
 
     def root_enabled_history(self, instance):
         """
