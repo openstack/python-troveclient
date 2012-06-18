@@ -47,6 +47,8 @@ class ReddwarfHTTPClient(HTTPClient):
         self.management_url = service_url
         if auth_strategy == "basic":
             self.auth_strategy = self.basic_auth
+        elif auth_strategy == "rax":
+            self.auth_strategy = self._rax_auth
         else:
             self.auth_strategy = super(ReddwarfHTTPClient, self).authenticate
 
@@ -90,6 +92,32 @@ class ReddwarfHTTPClient(HTTPClient):
                 self.management_url = endpoint['publicURL']
                 return
         raise nova_exceptions.EndpointNotFound()
+
+    def _rax_auth(self):
+        """Authenticate against the Rackspace auth service."""
+        body = {'auth': {
+                   'RAX-KSKEY:apiKeyCredentials': {
+                        'username': self.user,
+                        'apiKey': self.password,
+                        'tenantName': self.projectid}}}
+
+        resp, resp_body = self._authenticate_without_tokens(self.auth_url, body)
+
+        try:
+            self.auth_token = resp_body['access']['token']['id']
+        except KeyError:
+            raise nova_exceptions.AuthorizationFailure()
+        if not self.management_url:
+            catalogs = resp_body['access']['serviceCatalog']
+            for catalog in catalogs:
+                if catalog['name'] == "cloudDatabases":
+                    endpoints = catalog['endpoints']
+                    for endpoint in endpoints:
+                        if self.region_name is None or \
+                                    endpoint['region'] == self.region_name:
+                            self.management_url = endpoint['publicURL']
+                            return
+            raise nova_exceptions.EndpointNotFound()
 
     def _get_token(self, path, req_body):
         """Set the management url and auth token"""

@@ -28,9 +28,12 @@ def get_client():
     try:
         with open(APITOKEN, 'rb') as token:
             apitoken = pickle.load(token)
-            dbaas = Dbaas(apitoken._user, apitoken._apikey, apitoken._tenant,
-                          apitoken._auth_url, apitoken._service_name,
-                          apitoken._service_url)
+            dbaas = Dbaas(apitoken._user, apitoken._apikey,
+                          tenant=apitoken._tenant, auth_url=apitoken._auth_url,
+                          auth_strategy=apitoken._auth_strategy,
+                          service_name=apitoken._service_name,
+                          service_url=apitoken._service_url,
+                          insecure=apitoken._insecure)
             dbaas.client.auth_token = apitoken._token
             return dbaas
     except IOError:
@@ -90,15 +93,18 @@ class APIToken(object):
     """A token object containing the user, apikey and token which
        is pickleable."""
 
-    def __init__(self, user, apikey, tenant, token, auth_url, service_name,
-                 service_url):
+    def __init__(self, user, apikey, tenant, token, auth_url, auth_strategy,
+                 service_name, service_url, region_name, insecure):
         self._user = user
         self._apikey = apikey
         self._tenant = tenant
         self._token = token
         self._auth_url = auth_url
+        self._auth_strategy = auth_strategy
         self._service_name = service_name
         self._service_url = service_url
+        self._region_name = region_name
+        self._insecure = insecure
 
 
 class Auth(object):
@@ -109,14 +115,18 @@ class Auth(object):
 
     def login(self, user, apikey, tenant="dbaas",
               auth_url="http://localhost:5000/v1.1",
-              service_name="reddwarf", service_url=None):
+              auth_strategy="basic", service_name="reddwarf",
+              region_name="default", service_url=None, insecure=True):
         """Login to retrieve an auth token to use for other api calls"""
         try:
             dbaas = Dbaas(user, apikey, tenant, auth_url=auth_url,
-                          service_name=service_name, service_url=service_url)
+                          auth_strategy=auth_strategy,
+                          service_name=service_name, region_name=None,
+                          service_url=service_url, insecure=insecure)
             dbaas.authenticate()
             apitoken = APIToken(user, apikey, tenant, dbaas.client.auth_token,
-                                auth_url, service_name, service_url)
+                                auth_url, auth_strategy, service_name,
+                                service_url, region_name, insecure)
 
             with open(APITOKEN, 'wb') as token:
                 pickle.dump(apitoken, token, protocol=2)
