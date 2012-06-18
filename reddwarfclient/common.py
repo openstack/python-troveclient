@@ -115,7 +115,7 @@ class Auth(object):
 
     def login(self, user, apikey, tenant="dbaas",
               auth_url="http://localhost:5000/v1.1",
-              auth_strategy="basic", service_name="reddwarf",
+              auth_strategy=None, service_name="reddwarf",
               region_name="default", service_url=None, insecure=True):
         """Login to retrieve an auth token to use for other api calls"""
         try:
