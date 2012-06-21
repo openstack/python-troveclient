@@ -141,6 +141,22 @@ class InstanceCommands(object):
             print sys.exc_info()[1]
 
 
+class StorageCommands(object):
+    """Commands to list devices info"""
+
+    def __init__(self):
+        pass
+
+    def list(self):
+        """List details for the storage device"""
+        dbaas = common.get_client()
+        try:
+            for storage in dbaas.storage.index():
+                _pretty_print(storage._info)
+        except:
+            print sys.exc_info()[1]
+
+
 def config_options():
     global oparser
     oparser.add_option("-u", "--url", default="http://localhost:5000/v1.1",
@@ -152,6 +168,7 @@ COMMANDS = {'account': AccountCommands,
             'host': HostCommands,
             'instance': InstanceCommands,
             'root': RootCommands,
+            'storage': StorageCommands,
             }
 
 
