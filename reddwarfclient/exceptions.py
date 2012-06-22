@@ -13,6 +13,20 @@
 #    under the License.
 
 from novaclient import exceptions
+from novaclient.exceptions import UnsupportedVersion
+from novaclient.exceptions import CommandError
+from novaclient.exceptions import AuthorizationFailure
+from novaclient.exceptions import NoUniqueMatch
+from novaclient.exceptions import NoTokenLookupException
+from novaclient.exceptions import EndpointNotFound
+from novaclient.exceptions import AmbiguousEndpoints
+from novaclient.exceptions import ClientException
+from novaclient.exceptions import BadRequest
+from novaclient.exceptions import Unauthorized
+from novaclient.exceptions import Forbidden
+from novaclient.exceptions import NotFound
+from novaclient.exceptions import OverLimit
+from novaclient.exceptions import HTTPNotImplemented
 
 
 class UnprocessableEntity(exceptions.ClientException):
