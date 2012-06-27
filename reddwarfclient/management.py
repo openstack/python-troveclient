@@ -96,6 +96,10 @@ class Management(base.ManagerWithFind):
         resp, body = self.api.client.post(url, body=body)
         check_for_exceptions(resp, body)
 
+    def stop(self, instance_id):
+        body = {'stop': {}}
+        self._action(instance_id, body)
+
     def reboot(self, instance_id):
         """
         Reboot the underlying OS.
