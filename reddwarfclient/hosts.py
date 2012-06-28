@@ -15,6 +15,8 @@
 
 from reddwarfclient import base
 
+from reddwarfclient.common import check_for_exceptions
+
 
 class Host(base.Resource):
     """
@@ -35,6 +37,21 @@ class Hosts(base.ManagerWithFind):
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
         return [self.resource_class(self, res) for res in body[response_key]]
+
+    def _action(self, host_id, body):
+        """
+        Perform a host "action" -- update
+        """
+        url = "/mgmt/hosts/%s/instances/action" % host_id
+        resp, body = self.api.client.post(url, body=body)
+        check_for_exceptions(resp, body)
+
+    def update_all(self, host_id):
+        """
+        Update all instances on a host.
+        """
+        body = {'update': ''}
+        self._action(host_id, body)
 
     def index(self):
         """
