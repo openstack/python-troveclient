@@ -30,6 +30,12 @@ class StorageInfo(base.ManagerWithFind):
     """
     resource_class = Device
 
+    def _list(self, url, response_key):
+        resp, body = self.api.client.get(url)
+        if not body:
+            raise Exception("Call to " + url + " did not return a body.")
+        return [self.resource_class(self, res) for res in body[response_key]]
+
     def index(self):
         """
         Get a list of all storages.

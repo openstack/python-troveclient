@@ -46,6 +46,30 @@ def _pretty_print(info):
     print json.dumps(info, sort_keys=True, indent=4)
 
 
+class HostCommands(object):
+    """Commands to list info on hosts"""
+
+    def __init__(self):
+        pass
+
+    def get(self, name):
+        """List details for the specified host"""
+        dbaas = common.get_client()
+        try:
+            _pretty_print(dbaas.hosts.get(name)._info)
+        except:
+            print sys.exc_info()[1]
+
+    def list(self):
+        """List all compute hosts"""
+        dbaas = common.get_client()
+        try:
+            for host in dbaas.hosts.index():
+                _pretty_print(host._info)
+        except:
+            print sys.exc_info()[1]
+
+
 class RootCommands(object):
     """List details about the root info for an instance."""
 
@@ -62,6 +86,77 @@ class RootCommands(object):
             print sys.exc_info()[1]
 
 
+class AccountCommands(object):
+    """Commands to list account info"""
+
+    def __init__(self):
+        pass
+
+    def get(self, acct):
+        """List details for the account provided"""
+        dbaas = common.get_client()
+        try:
+            _pretty_print(dbaas.accounts.show(acct)._info)
+        except:
+            print sys.exc_info()[1]
+
+
+class InstanceCommands(object):
+    """List details about an instance."""
+
+    def __init__(self):
+        pass
+
+    def get(self, id):
+        """List details for the instance."""
+        dbaas = common.get_client()
+        try:
+            result = dbaas.management.show(id)
+            _pretty_print(result._info)
+        except:
+            print sys.exc_info()[1]
+
+    def list(self, deleted=None, limit=None, marker=None):
+        """List all instances for account"""
+        dbaas = common.get_client()
+        if limit:
+            limit = int(limit, 10)
+        try:
+            instances = dbaas.management.index(deleted, limit, marker)
+            for instance in instances:
+                _pretty_print(instance._info)
+            if instances.links:
+                for link in instances.links:
+                    _pretty_print(link)
+        except:
+            print sys.exc_info()[1]
+
+    def diagnostic(self, id):
+        """List diagnostic details about an instance."""
+        dbaas = common.get_client()
+        try:
+            result = dbaas.diagnostics.get(id)
+            _pretty_print(result._info)
+        except:
+            print sys.exc_info()[1]
+
+
+class StorageCommands(object):
+    """Commands to list devices info"""
+
+    def __init__(self):
+        pass
+
+    def list(self):
+        """List details for the storage device"""
+        dbaas = common.get_client()
+        try:
+            for storage in dbaas.storage.index():
+                _pretty_print(storage._info)
+        except:
+            print sys.exc_info()[1]
+
+
 def config_options():
     global oparser
     oparser.add_option("-u", "--url", default="http://localhost:5000/v1.1",
@@ -69,7 +164,11 @@ def config_options():
                             Default: http://localhost:5000/v1.1")
 
 
-COMMANDS = {'root': RootCommands,
+COMMANDS = {'account': AccountCommands,
+            'host': HostCommands,
+            'instance': InstanceCommands,
+            'root': RootCommands,
+            'storage': StorageCommands,
             }
 
 
