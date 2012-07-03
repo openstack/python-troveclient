@@ -21,7 +21,7 @@ import setuptools
 import sys
 
 
-requirements = ["python-novaclient"]
+requirements = []
 
 
 def read_file(file_name):
