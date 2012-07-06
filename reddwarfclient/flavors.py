@@ -14,7 +14,7 @@
 #    under the License.
 
 
-from novaclient import base
+from reddwarfclient import base
 
 import exceptions
 

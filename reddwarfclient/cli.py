@@ -32,14 +32,9 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(possible_topdir, 'reddwarfclient',
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
-if os.path.exists(os.path.join(possible_topdir, 'nova', '__init__.py')):
-    sys.path.insert(0, possible_topdir)
 
 
 from reddwarfclient import common
-
-
-oparser = None
 
 
 def _pretty_print(info):
@@ -261,11 +256,29 @@ class VersionCommands(object):
             print sys.exc_info()[1]
 
 
-def config_options():
-    global oparser
-    oparser.add_option("-u", "--url", default="http://localhost:5000/v1.1",
+def config_options(oparser):
+    oparser.add_option("--auth_url", default="http://localhost:5000/v2.0",
                        help="Auth API endpoint URL with port and version. \
-                            Default: http://localhost:5000/v1.1")
+                            Default: http://localhost:5000/v2.0")
+    oparser.add_option("--username", help="Login username")
+    oparser.add_option("--apikey", help="Api key")
+    oparser.add_option("--tenant_id",
+                       help="Tenant Id associated with the account")
+    oparser.add_option("--auth_type", default="keystone",
+                       help="Auth type to support different auth environments, \
+                            Supported values are 'keystone', 'rax'.")
+    oparser.add_option("--service_type", default="reddwarf",
+                       help="Service type is a name associated for the catalog")
+    oparser.add_option("--service_name", default="Reddwarf",
+                       help="Service name as provided in the service catalog")
+    oparser.add_option("--service_url", default="",
+                       help="Service endpoint to use if the catalog doesn't \
+                            have one")
+    oparser.add_option("--region", default="RegionOne",
+                       help="Region the service is located in")
+    oparser.add_option("-i", "--insecure", action="store_true",
+                       dest="insecure", default=False,
+                       help="Run in insecure mode for https endpoints.")
 
 
 COMMANDS = {'auth': common.Auth,
@@ -280,10 +293,9 @@ COMMANDS = {'auth': common.Auth,
 
 def main():
     # Parse arguments
-    global oparser
     oparser = optparse.OptionParser("%prog [options] <cmd> <action> <args>",
                                     version='1.0')
-    config_options()
+    config_options(oparser)
     (options, args) = oparser.parse_args()
 
     if not args:
@@ -307,7 +319,12 @@ def main():
             fn = actions.get(action)
 
             try:
-                fn(*args)
+                # TODO(rnirmal): Fix when we have proper argument parsing for
+                # the rest of the commands.
+                if fn.__name__ == "login":
+                    fn(*args, options=options)
+                else:
+                    fn(*args)
                 sys.exit(0)
             except TypeError as err:
                 print "Possible wrong number of arguments supplied."

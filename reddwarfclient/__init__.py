@@ -15,7 +15,6 @@
 
 
 from reddwarfclient.accounts import Accounts
-from reddwarfclient.config import  Configs
 from reddwarfclient.databases import Databases
 from reddwarfclient.flavors import Flavors
 from reddwarfclient.instances import Instances

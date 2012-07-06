@@ -13,6 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import httplib2
+import logging
+import os
 import time
 import urlparse
 
@@ -21,137 +24,88 @@ try:
 except ImportError:
     import simplejson as json
 
+# Python 2.5 compat fix
+if not hasattr(urlparse, 'parse_qsl'):
+    import cgi
+    urlparse.parse_qsl = cgi.parse_qsl
 
-from novaclient.client import HTTPClient
-from novaclient.v1_1.client import Client
-
-from novaclient import exceptions as nova_exceptions
+from reddwarfclient import auth
 from reddwarfclient import exceptions
 
 
-class ReddwarfHTTPClient(HTTPClient):
-    """
-    Class for overriding the HTTP authenticate call and making it specific to
-    reddwarf
-    """
+_logger = logging.getLogger(__name__)
+if 'REDDWARFCLIENT_DEBUG' in os.environ and os.environ['REDDWARFCLIENT_DEBUG']:
+    ch = logging.StreamHandler()
+    _logger.setLevel(logging.DEBUG)
+    _logger.addHandler(ch)
 
-    def __init__(self, user, apikey, tenant, auth_url, service_name,
+
+class ReddwarfHTTPClient(httplib2.Http):
+
+    USER_AGENT = 'python-reddwarfclient'
+
+    def __init__(self, user, password, tenant, auth_url, service_name,
                  service_url=None,
-                 auth_strategy=None, **kwargs):
-        super(ReddwarfHTTPClient, self).__init__(user, apikey, tenant,
-                                                 auth_url,
-                                                 **kwargs)
-        self.api_key = apikey
+                 auth_strategy=None, insecure=False,
+                 timeout=None, proxy_tenant_id=None,
+                 proxy_token=None, region_name=None,
+                 endpoint_type='publicURL', service_type=None,
+                 timings=False):
+
+        super(ReddwarfHTTPClient, self).__init__(timeout=timeout)
+
+        self.username = user
+        self.password = password
         self.tenant = tenant
-        self.service = service_name
-        self.management_url = service_url
-        if auth_strategy == "basic":
-            self.auth_strategy = self.basic_auth
-        elif auth_strategy == "rax":
-            self.auth_strategy = self._rax_auth
-        else:
-            self.auth_strategy = super(ReddwarfHTTPClient, self).authenticate
+        self.auth_url = auth_url.rstrip('/')
+        self.region_name = region_name
+        self.endpoint_type = endpoint_type
+        self.service_url = service_url
+        self.service_type = service_type
+        self.service_name = service_name
+        self.timings = timings
 
-    def authenticate(self):
-        self.auth_strategy()
+        self.times = []  # [("item", starttime, endtime), ...]
 
-    def _authenticate_without_tokens(self, url, body):
-        """Authenticate and extract the service catalog."""
-        #TODO(tim.simpson): Copy pasta from Nova client's "_authenticate" but
-        # does not append "tokens" to the url.
+        self.auth_token = None
+        self.proxy_token = proxy_token
+        self.proxy_tenant_id = proxy_tenant_id
 
-        # Make sure we follow redirects when trying to reach Keystone
-        tmp_follow_all_redirects = self.follow_all_redirects
-        self.follow_all_redirects = True
+        # httplib2 overrides
+        self.force_exception_to_status_code = True
+        self.disable_ssl_certificate_validation = insecure
+        self.authenticator = auth.Authenticator(self, auth_strategy,
+                                                self.auth_url, self.username,
+                                                self.password, self.tenant,
+                                                region=region_name,
+                                                service_type=service_type,
+                                                service_name=service_name,
+                                                service_url=service_url)
 
-        try:
-            resp, body = self.request(url, "POST", body=body)
-        finally:
-            self.follow_all_redirects = tmp_follow_all_redirects
+    def get_timings(self):
+        return self.times
 
-        return resp, body
+    def http_log(self, args, kwargs, resp, body):
+        if not _logger.isEnabledFor(logging.DEBUG):
+            return
 
-    def basic_auth(self):
-        """Authenticate against a v2.0 auth service."""
-        auth_url = self.auth_url
-        body = {"credentials": {"username": self.user,
-                                "key": self.password}}
-        resp, resp_body = self._authenticate_without_tokens(auth_url, body)
+        string_parts = ['curl -i']
+        for element in args:
+            if element in ('GET', 'POST'):
+                string_parts.append(' -X %s' % element)
+            else:
+                string_parts.append(' %s' % element)
 
-        try:
-            self.auth_token = resp_body['auth']['token']['id']
-        except KeyError:
-            raise nova_exceptions.AuthorizationFailure()
-        catalog = resp_body['auth']['serviceCatalog']
-        if 'cloudDatabases' not in catalog:
-            raise nova_exceptions.EndpointNotFound()
-        endpoints = catalog['cloudDatabases']
-        for endpoint in endpoints:
-            if self.region_name is None or \
-                endpoint['region'] == self.region_name:
-                self.management_url = endpoint['publicURL']
-                return
-        raise nova_exceptions.EndpointNotFound()
+        for element in kwargs['headers']:
+            header = ' -H "%s: %s"' % (element, kwargs['headers'][element])
+            string_parts.append(header)
 
-    def _rax_auth(self):
-        """Authenticate against the Rackspace auth service."""
-        body = {'auth': {
-                   'RAX-KSKEY:apiKeyCredentials': {
-                        'username': self.user,
-                        'apiKey': self.password,
-                        'tenantName': self.projectid}}}
-
-        resp, resp_body = self._authenticate_without_tokens(self.auth_url, body)
-
-        try:
-            self.auth_token = resp_body['access']['token']['id']
-        except KeyError:
-            raise nova_exceptions.AuthorizationFailure()
-        if not self.management_url:
-            catalogs = resp_body['access']['serviceCatalog']
-            for catalog in catalogs:
-                if catalog['name'] == "cloudDatabases":
-                    endpoints = catalog['endpoints']
-                    for endpoint in endpoints:
-                        if self.region_name is None or \
-                                    endpoint['region'] == self.region_name:
-                            self.management_url = endpoint['publicURL']
-                            return
-            raise nova_exceptions.EndpointNotFound()
-
-    def _get_token(self, path, req_body):
-        """Set the management url and auth token"""
-        token_url = urlparse.urljoin(self.auth_url, path)
-        resp, body = self.request(token_url, "POST", body=req_body)
-        if 'access' in body:
-            if not self.management_url:
-                # Assume the new Keystone lite:
-                catalog = body['access']['serviceCatalog']
-                for service in catalog:
-                    if service['name'] == self.service:
-                        self.management_url = service['adminURL']
-            self.auth_token = body['access']['token']['id']
-        else:
-            # Assume pre-Keystone Light:
-            try:
-                if not self.management_url:
-                    keys = ['auth',
-                            'serviceCatalog',
-                            self.service,
-                            0,
-                            'publicURL']
-                    url = body
-                    for key in keys:
-                        url = url[key]
-                    self.management_url = url
-                self.auth_token = body['auth']['token']['id']
-            except KeyError:
-                raise NotImplementedError("Service: %s is not available"
-                                          % self.service)
+        _logger.debug("REQ: %s\n" % "".join(string_parts))
+        if 'body' in kwargs:
+            _logger.debug("REQ BODY: %s\n" % (kwargs['body']))
+        _logger.debug("RESP:%s %s\n", resp, body)
 
     def request(self, *args, **kwargs):
-        #TODO(tim.simpson): Copy and pasted from novaclient, since we raise
-        # extra exception subclasses not raised there.
         kwargs.setdefault('headers', kwargs.get('headers', {}))
         kwargs['headers']['User-Agent'] = self.USER_AGENT
         kwargs['headers']['Accept'] = 'application/json'
@@ -159,11 +113,10 @@ class ReddwarfHTTPClient(HTTPClient):
             kwargs['headers']['Content-Type'] = 'application/json'
             kwargs['body'] = json.dumps(kwargs['body'])
 
-        resp, body = super(HTTPClient, self).request(*args, **kwargs)
+        resp, body = super(ReddwarfHTTPClient, self).request(*args, **kwargs)
 
         # Save this in case anyone wants it.
         self.last_response = (resp, body)
-
         self.http_log(args, kwargs, resp, body)
 
         if body:
@@ -179,8 +132,60 @@ class ReddwarfHTTPClient(HTTPClient):
 
         return resp, body
 
+    def _time_request(self, url, method, **kwargs):
+        start_time = time.time()
+        resp, body = self.request(url, method, **kwargs)
+        self.times.append(("%s %s" % (method, url),
+                           start_time, time.time()))
+        return resp, body
 
-class Dbaas(Client):
+    def _cs_request(self, url, method, **kwargs):
+        if not self.auth_token or not self.service_url:
+            self.authenticate()
+
+        # Perform the request once. If we get a 401 back then it
+        # might be because the auth token expired, so try to
+        # re-authenticate and try again. If it still fails, bail.
+        try:
+            kwargs.setdefault('headers', {})['X-Auth-Token'] = self.auth_token
+            if self.tenant:
+                kwargs['headers']['X-Auth-Project-Id'] = self.tenant
+
+            resp, body = self._time_request(self.service_url + url, method,
+                                            **kwargs)
+            return resp, body
+        except exceptions.Unauthorized, ex:
+            try:
+                self.authenticate()
+                resp, body = self._time_request(self.service_url + url,
+                                                method, **kwargs)
+                return resp, body
+            except exceptions.Unauthorized:
+                raise ex
+
+    def get(self, url, **kwargs):
+        return self._cs_request(url, 'GET', **kwargs)
+
+    def post(self, url, **kwargs):
+        return self._cs_request(url, 'POST', **kwargs)
+
+    def put(self, url, **kwargs):
+        return self._cs_request(url, 'PUT', **kwargs)
+
+    def delete(self, url, **kwargs):
+        return self._cs_request(url, 'DELETE', **kwargs)
+
+    def authenticate(self):
+        catalog = self.authenticator.authenticate()
+        self.auth_token = catalog.get_token()
+        if not self.service_url:
+            if self.endpoint_type == "publicURL":
+                self.service_url = catalog.get_public_url()
+            elif self.endpoint_type == "adminURL":
+                self.service_url = catalog.get_management_url()
+
+
+class Dbaas(object):
     """
     Top-level object to access the Rackspace Database as a Service API.
 
@@ -200,8 +205,8 @@ class Dbaas(Client):
     """
 
     def __init__(self, username, api_key, tenant=None, auth_url=None,
-                 service_type='reddwarf', service_name='Reddwarf Service',
-                 service_url=None, insecure=False, auth_strategy=None,
+                 service_type='reddwarf', service_name='Reddwarf',
+                 service_url=None, insecure=False, auth_strategy='keystone',
                  region_name=None):
         from reddwarfclient.versions import Versions
         from reddwarfclient.databases import Databases
@@ -213,10 +218,8 @@ class Dbaas(Client):
         from reddwarfclient.storage import StorageInfo
         from reddwarfclient.management import Management
         from reddwarfclient.accounts import Accounts
-        from reddwarfclient.config import Configs
         from reddwarfclient.diagnostics import Interrogator
 
-        super(Dbaas, self).__init__(username, api_key, tenant, auth_url)
         self.client = ReddwarfHTTPClient(username, api_key, tenant, auth_url,
                                          service_type=service_type,
                                          service_name=service_name,
@@ -234,5 +237,21 @@ class Dbaas(Client):
         self.storage = StorageInfo(self)
         self.management = Management(self)
         self.accounts = Accounts(self)
-        self.configs = Configs(self)
         self.diagnostics = Interrogator(self)
+
+    def set_management_url(self, url):
+        self.client.management_url = url
+
+    def get_timings(self):
+        return self.client.get_timings()
+
+    def authenticate(self):
+        """
+        Authenticate against the server.
+
+        This is called to perform an authentication to retrieve a token.
+
+        Returns on success; raises :exc:`exceptions.Unauthorized` if the
+        credentials are wrong.
+        """
+        self.client.authenticate()

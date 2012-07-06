@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from novaclient import base
+from reddwarfclient import base
 import urlparse
 
 from reddwarfclient.common import check_for_exceptions
