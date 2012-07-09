@@ -138,6 +138,22 @@ class InstanceCommands(object):
         except:
             print sys.exc_info()[1]
 
+    def stop(self, id):
+        """Stop MySQL on the given instance."""
+        dbaas = common.get_client()
+        try:
+            result = dbaas.management.stop(id)
+        except:
+            print sys.exc_info()[1]
+
+    def reboot(self, id):
+        """Reboot the instance."""
+        dbaas = common.get_client()
+        try:
+            result = dbaas.management.reboot(id)
+        except:
+            print sys.exec_info()[1]
+
 
 class StorageCommands(object):
     """Commands to list devices info"""
