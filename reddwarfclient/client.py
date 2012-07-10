@@ -34,6 +34,9 @@ from reddwarfclient import exceptions
 
 
 _logger = logging.getLogger(__name__)
+RDC_PP = os.environ.get("RDC_PP", "False") == "True"
+
+
 if 'REDDWARFCLIENT_DEBUG' in os.environ and os.environ['REDDWARFCLIENT_DEBUG']:
     ch = logging.StreamHandler()
     _logger.setLevel(logging.DEBUG)
@@ -86,6 +89,12 @@ class ReddwarfHTTPClient(httplib2.Http):
         return self.times
 
     def http_log(self, args, kwargs, resp, body):
+        if not RDC_PP:
+            self.simple_log(args, kwargs, resp, body)
+        else:
+            self.pretty_log(args, kwargs, resp, body)
+
+    def simple_log(self, args, kwargs, resp, body):
         if not _logger.isEnabledFor(logging.DEBUG):
             return
 
@@ -104,6 +113,42 @@ class ReddwarfHTTPClient(httplib2.Http):
         if 'body' in kwargs:
             _logger.debug("REQ BODY: %s\n" % (kwargs['body']))
         _logger.debug("RESP:%s %s\n", resp, body)
+
+    def pretty_log(self, args, kwargs, resp, body):
+        from reddwarfclient import common
+        if not _logger.isEnabledFor(logging.DEBUG):
+            return
+
+        string_parts = ['curl -i']
+        for element in args:
+            if element in ('GET', 'POST'):
+                string_parts.append(' -X %s' % element)
+            else:
+                string_parts.append(' %s' % element)
+
+        for element in kwargs['headers']:
+            header = ' -H "%s: %s"' % (element, kwargs['headers'][element])
+            string_parts.append(header)
+
+        curl_cmd = "".join(string_parts)
+        _logger.debug("REQUEST:")
+        if 'body' in kwargs:
+            _logger.debug("%s -d '%s'" % (curl_cmd, kwargs['body']))
+            try:
+                req_body = json.dumps(json.loads(kwargs['body']),
+                                      sort_keys=True, indent=4)
+            except:
+                req_body = kwargs['body']
+            _logger.debug("BODY: %s\n" % (req_body))
+        else:
+            _logger.debug(curl_cmd)
+
+        try:
+            resp_body = json.dumps(json.loads(body), sort_keys=True, indent=4)
+        except:
+            resp_body = body
+        _logger.debug("RESPONSE HEADERS: %s" % resp)
+        _logger.debug("RESPONSE BODY   : %s" % resp_body)
 
     def request(self, *args, **kwargs):
         kwargs.setdefault('headers', kwargs.get('headers', {}))
