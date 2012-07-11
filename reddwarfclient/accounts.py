@@ -14,6 +14,7 @@
 #    under the License.
 
 from reddwarfclient import base
+from reddwarfclient.common import check_for_exceptions
 
 
 class Account(base.Resource):
@@ -36,6 +37,16 @@ class Accounts(base.ManagerWithFind):
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
         return self.resource_class(self, body[response_key])
+
+    def index(self):
+        """Get a list of all accounts with non-deleted instances"""
+
+        url = "/mgmt/accounts"
+        resp, body = self.api.client.get(url)
+        check_for_exceptions(resp, body)
+        if not body:
+            raise Exception("Call to " + url + " did not return a body.")
+        return base.Resource(self, body)
 
     def show(self, account):
         """
