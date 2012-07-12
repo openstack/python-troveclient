@@ -74,13 +74,16 @@ class ReddwarfHTTPClient(httplib2.Http):
         # httplib2 overrides
         self.force_exception_to_status_code = True
         self.disable_ssl_certificate_validation = insecure
-        self.authenticator = auth.Authenticator(self, auth_strategy,
-                                                self.auth_url, self.username,
-                                                self.password, self.tenant,
-                                                region=region_name,
-                                                service_type=service_type,
-                                                service_name=service_name,
-                                                service_url=service_url)
+
+        auth_cls = auth.get_authenticator_cls(auth_strategy)
+
+        self.authenticator = auth_cls(self, auth_strategy,
+                                      self.auth_url, self.username,
+                                      self.password, self.tenant,
+                                      region=region_name,
+                                      service_type=service_type,
+                                      service_name=service_name,
+                                      service_url=service_url)
 
     def get_timings(self):
         return self.times
@@ -176,6 +179,14 @@ class ReddwarfHTTPClient(httplib2.Http):
         return self._cs_request(url, 'DELETE', **kwargs)
 
     def authenticate(self):
+        """Auths the client and gets a token. May optionally set a service url.
+
+        The client will get auth errors until the authentication step
+        occurs. Additionally, if a service_url was not explicitly given in
+        the clients __init__ method, one will be obtained from the auth
+        service.
+
+        """
         catalog = self.authenticator.authenticate()
         self.auth_token = catalog.get_token()
         if not self.service_url:

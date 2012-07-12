@@ -15,9 +15,26 @@
 from reddwarfclient import exceptions
 
 
+def get_authenticator_cls(cls_or_name):
+    """Factory method to retrieve Authenticator class."""
+    if isinstance(cls_or_name, type):
+        return cls_or_name
+    elif isinstance(cls_or_name, basestring):
+        if cls_or_name == "keystone":
+            return KeyStoneV2Authenticator
+        elif cls_or_name == "rax":
+            return RaxAuthenticator
+    raise ValueError("Could not determine authenticator class from the given "
+                     "value %r." % cls_or_name)
+
+
 class Authenticator(object):
     """
     Helper class to perform Keystone or other miscellaneous authentication.
+
+    The "authenticate" method returns a ServiceCatalog, which can be used
+    to obtain a token.
+
     """
 
     def __init__(self, client, type, url, username, password, tenant,
@@ -67,10 +84,13 @@ class Authenticator(object):
             raise exceptions.from_response(resp, body)
 
     def authenticate(self):
-        if self.type == "keystone":
-            return self._v2_auth(self.url)
-        elif self.type == "rax":
-            return self._rax_auth(self.url)
+        raise NotImplementedError("Missing authenticate method.")
+
+
+class KeyStoneV2Authenticator(Authenticator):
+
+    def authenticate(self):
+        return self._v2_auth(self.url)
 
     def _v2_auth(self, url):
         """Authenticate against a v2.0 auth service."""
@@ -86,6 +106,12 @@ class Authenticator(object):
 
         return self._authenticate(url, body)
 
+
+class RaxAuthenticator(Authenticator):
+
+    def authenticate(self):
+        return self._rax_auth(self.url)
+
     def _rax_auth(self, url):
         """Authenticate against the Rackspace auth service."""
         body = {'auth': {
@@ -100,7 +126,12 @@ class Authenticator(object):
 
 
 class ServiceCatalog(object):
-    """Helper methods for dealing with a Keystone Service Catalog."""
+    """Represents a Keystone Service Catalog which describes a service.
+
+    This class has methods to obtain a valid token as well as a public service
+    url and a management url.
+
+    """
 
     def __init__(self, resource_dict, region=None, service_type=None,
                  service_name=None, service_url=None):
