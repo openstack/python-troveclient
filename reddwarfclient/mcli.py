@@ -90,6 +90,14 @@ class AccountCommands(object):
     def __init__(self):
         pass
 
+    def list(self):
+        """List all accounts with non-deleted instances"""
+        dbaas = common.get_client()
+        try:
+            _pretty_print(dbaas.accounts.index()._info)
+        except:
+            print sys.exc_info()[1]
+
     def get(self, acct):
         """List details for the account provided"""
         dbaas = common.get_client()
