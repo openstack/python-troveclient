@@ -37,7 +37,7 @@ setuptools.setup(
     version="2012.3",
     author="Rackspace",
     description="Rich client bindings for Reddwarf REST API.",
-    long_description=read_file("README.rst"),
+    long_description="""Rich client bindings for Reddwarf REST API.""",
     license="Apache License, Version 2.0",
     url="https://github.com/openstack/python-reddwarfclient",
     packages=["reddwarfclient"],
