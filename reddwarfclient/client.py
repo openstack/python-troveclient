@@ -156,10 +156,7 @@ class ReddwarfHTTPClient(httplib2.Http):
     def request(self, *args, **kwargs):
         kwargs.setdefault('headers', kwargs.get('headers', {}))
         kwargs['headers']['User-Agent'] = self.USER_AGENT
-        kwargs['headers']['Accept'] = 'application/json'
-        if 'body' in kwargs:
-            kwargs['headers']['Content-Type'] = 'application/json'
-            kwargs['body'] = json.dumps(kwargs['body'])
+        self.morph_request(kwargs)
 
         resp, body = super(ReddwarfHTTPClient, self).request(*args, **kwargs)
 
@@ -168,10 +165,7 @@ class ReddwarfHTTPClient(httplib2.Http):
         self.http_log(args, kwargs, resp, body)
 
         if body:
-            try:
-                body = json.loads(body)
-            except ValueError:
-                pass
+            body = self.morph_response_body(body)
         else:
             body = None
 
@@ -179,6 +173,15 @@ class ReddwarfHTTPClient(httplib2.Http):
             raise exceptions.from_response(resp, body)
 
         return resp, body
+
+    def morph_request(self, kwargs):
+       kwargs['headers']['Accept'] = 'application/json'
+       kwargs['headers']['Content-Type'] = 'application/json'
+       if 'body' in kwargs:
+            kwargs['body'] = json.dumps(kwargs['body'])
+
+    def morph_response_body(self, body_string):
+        return json.loads(body_string)
 
     def _time_request(self, url, method, **kwargs):
         start_time = time.time()
@@ -263,7 +266,7 @@ class Dbaas(object):
     def __init__(self, username, api_key, tenant=None, auth_url=None,
                  service_type='reddwarf', service_name='Reddwarf',
                  service_url=None, insecure=False, auth_strategy='keystone',
-                 region_name=None):
+                 region_name=None, client_cls=ReddwarfHTTPClient):
         from reddwarfclient.versions import Versions
         from reddwarfclient.databases import Databases
         from reddwarfclient.flavors import Flavors
@@ -276,13 +279,13 @@ class Dbaas(object):
         from reddwarfclient.accounts import Accounts
         from reddwarfclient.diagnostics import Interrogator
 
-        self.client = ReddwarfHTTPClient(username, api_key, tenant, auth_url,
-                                         service_type=service_type,
-                                         service_name=service_name,
-                                         service_url=service_url,
-                                         insecure=insecure,
-                                         auth_strategy=auth_strategy,
-                                         region_name=region_name)
+        self.client = client_cls(username, api_key, tenant, auth_url,
+                                 service_type=service_type,
+                                 service_name=service_name,
+                                 service_url=service_url,
+                                 insecure=insecure,
+                                 auth_strategy=auth_strategy,
+                                 region_name=region_name)
         self.versions = Versions(self)
         self.databases = Databases(self)
         self.flavors = Flavors(self)
@@ -294,6 +297,15 @@ class Dbaas(object):
         self.management = Management(self)
         self.accounts = Accounts(self)
         self.diagnostics = Interrogator(self)
+
+        class Mgmt(object):
+            def __init__(self, dbaas):
+                self.instances = dbaas.management
+                self.hosts = dbaas.hosts
+                self.accounts = dbaas.accounts
+                self.storage = dbaas.storage
+
+        self.mgmt = Mgmt(self)
 
     def set_management_url(self, url):
         self.client.management_url = url
