@@ -1,2 +1,5 @@
 *.pyc
+.tox/*
+build/*
+html/*
 python_reddwarfclient.egg*
