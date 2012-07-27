@@ -122,6 +122,7 @@ class Instances(base.ManagerWithFind):
         url = "/instances/%s/action" % instance_id
         resp, body = self.api.client.post(url, body=body)
         check_for_exceptions(resp, body)
+        return body
 
     def resize_volume(self, instance_id, volume_size):
         """
@@ -146,7 +147,15 @@ class Instances(base.ManagerWithFind):
         body = {'restart': {}}
         self._action(instance_id, body)
 
+    def reset_password(self, instance_id):
+        """
+        Resets the database instance root password.
 
+        :param instance_id: The :class:`Instance` (or its ID) to share onto.
+        """
+        body = {'reset-password': {}}
+        return self._action(instance_id, body)
+        
 class InstanceStatus(object):
 
     ACTIVE = "ACTIVE"

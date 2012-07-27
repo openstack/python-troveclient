@@ -121,7 +121,16 @@ class InstanceCommands(object):
         except:
             print sys.exc_info()[1]
 
-
+    def reset_password(self, id):
+        """Reset the root user Password"""
+        dbaas = common.get_client()
+        try:
+            result = dbaas.instances.reset_password(id)
+            if result:
+                _pretty_print(result)
+        except:
+            print sys.exc_info()[1]
+            
 class FlavorsCommands(object):
     """Commands for listing Flavors"""
 
