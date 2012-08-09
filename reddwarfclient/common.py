@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import os
 import pickle
 import sys
@@ -111,30 +112,112 @@ class APIToken(object):
         self._insecure = insecure
 
 
-class Auth(object):
-    """Authenticate with your username and api key"""
+class ArgumentRequired(Exception):
+    def __init__(self, param):
+        self.param = param
 
-    def __init__(self):
-        pass
+    def __str__(self):
+        return 'Argument "--%s" required.' % self.param
 
-    def login(self, options=None):
-        """Login to retrieve an auth token to use for other api calls"""
+
+class CommandsBase(object):
+    params = []
+
+    @classmethod
+    def _prepare_parser(cls, parser):
+        for param in cls.params:
+            parser.add_option("--%s" % param)
+
+    def __init__(self, parser):
+        self.dbaas = get_client()
+        self._parse_options(parser)
+
+    def _parse_options(self, parser):
+        opts, args = parser.parse_args()
+        for param in opts.__dict__:
+            value = getattr(opts, param)
+            setattr(self, param, value)
+
+    def _require(self, *params):
+        for param in params:
+            if any([param not in self.params,
+                    not hasattr(self, param)]):
+                    raise ArgumentRequired(param)
+            if not getattr(self, param):
+                raise ArgumentRequired(param)
+
+    def _make_list(self, *params):
+        # Convert the listed params to lists.
+        for param in params:
+            raw = getattr(self, param)
+            if isinstance(raw, list):
+                return
+            raw = [item.strip() for item in raw.split(',')]
+            setattr(self, param, raw)
+
+    def _pretty_print(self, func, *args, **kwargs):
         try:
-            dbaas = Dbaas(options.username, options.apikey, options.tenant_id,
-                          auth_url=options.auth_url,
-                          auth_strategy=options.auth_type,
-                          service_type=options.service_type,
-                          service_name=options.service_name,
-                          region_name=options.region,
-                          service_url=options.service_url,
-                          insecure=options.insecure)
-            dbaas.authenticate()
-            apitoken = APIToken(options.username, options.apikey,
-                                options.tenant_id, dbaas.client.auth_token,
-                                options.auth_url, options.auth_type,
-                                options.service_type, options.service_name,
-                                options.service_url, options.region,
-                                options.insecure)
+            result = func(*args, **kwargs)
+            print json.dumps(result._info, sort_keys=True, indent=4)
+        except:
+            print sys.exc_info()[1]
+
+    def _pretty_paged(self, func, *args, **kwargs):
+        try:
+            limit = self.limit
+            if limit:
+                limit = int(limit, 10)
+            result = func(*args, limit=limit, marker=self.marker, **kwargs)
+            for item in result:
+                print json.dumps(item._info, sort_keys=True, indent=4)
+            if result.links:
+                for link in result.links:
+                    print json.dumps(link, sort_keys=True, indent=4)
+        except:
+            print sys.exc_info()[1]
+
+
+class Auth(CommandsBase):
+    """Authenticate with your username and api key"""
+    params = [
+              'apikey',
+              'auth_strategy',
+              'auth_type',
+              'auth_url',
+              'insecure',
+              'options',
+              'region',
+              'service_name',
+              'service_type',
+              'service_url',
+              'tenant_id',
+              'username',
+             ]
+
+    def __init__(self, parser):
+        self.parser = parser
+        self.dbaas = None
+        self._parse_options(parser)
+
+    def login(self):
+        """Login to retrieve an auth token to use for other api calls"""
+        self._require('username', 'apikey', 'tenant_id')
+        try:
+            self.dbaas = Dbaas(self.username, self.apikey, self.tenant_id,
+                          auth_url=self.auth_url,
+                          auth_strategy=self.auth_type,
+                          service_type=self.service_type,
+                          service_name=self.service_name,
+                          region_name=self.region,
+                          service_url=self.service_url,
+                          insecure=self.insecure)
+            self.dbaas.authenticate()
+            apitoken = APIToken(self.username, self.apikey,
+                                self.tenant_id, self.dbaas.client.auth_token,
+                                self.auth_url, self.auth_type,
+                                self.service_type, self.service_name,
+                                self.service_url, self.region,
+                                self.insecure)
 
             with open(APITOKEN, 'wb') as token:
                 pickle.dump(apitoken, token, protocol=2)
