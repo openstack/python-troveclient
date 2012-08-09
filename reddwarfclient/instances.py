@@ -147,6 +147,8 @@ class Instances(base.ManagerWithFind):
         self._action(instance_id, body)
 
 
+Instances.resize_flavor = Instances.resize_instance
+
 class InstanceStatus(object):
 
     ACTIVE = "ACTIVE"

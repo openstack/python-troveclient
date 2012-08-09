@@ -24,6 +24,9 @@ def get_authenticator_cls(cls_or_name):
             return KeyStoneV2Authenticator
         elif cls_or_name == "rax":
             return RaxAuthenticator
+        elif cls_or_name == "fake":
+            return FakeAuth
+
     raise ValueError("Could not determine authenticator class from the given "
                      "value %r." % cls_or_name)
 
@@ -123,6 +126,24 @@ class RaxAuthenticator(Authenticator):
                }
 
         return self._authenticate(self.url, body)
+
+
+class FakeAuth(Authenticator):
+    """Useful for faking auth."""
+
+    def authenticate(self):
+        class FakeCatalog(object):
+            def __init__(self, auth):
+                self.auth = auth
+
+            def get_public_url(self):
+                return "%s/%s" % ('http://localhost:8779/v1.0',
+                                  self.auth.tenant)
+
+            def get_token(self):
+                return self.auth.tenant
+
+        return FakeCatalog(self)
 
 
 class ServiceCatalog(object):
