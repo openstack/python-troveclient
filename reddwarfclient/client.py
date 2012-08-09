@@ -18,6 +18,7 @@ import logging
 import os
 import time
 import urlparse
+import sys
 
 try:
     import json
@@ -37,10 +38,15 @@ _logger = logging.getLogger(__name__)
 RDC_PP = os.environ.get("RDC_PP", "False") == "True"
 
 
-if 'REDDWARFCLIENT_DEBUG' in os.environ and os.environ['REDDWARFCLIENT_DEBUG']:
-    ch = logging.StreamHandler()
+def log_to_streamhandler(stream=None):
+    stream = stream or sys.stderr
+    ch = logging.StreamHandler(stream)
     _logger.setLevel(logging.DEBUG)
     _logger.addHandler(ch)
+
+
+if 'REDDWARFCLIENT_DEBUG' in os.environ and os.environ['REDDWARFCLIENT_DEBUG']:
+    log_to_streamhandler()
 
 
 class ReddwarfHTTPClient(httplib2.Http):
@@ -60,7 +66,10 @@ class ReddwarfHTTPClient(httplib2.Http):
         self.username = user
         self.password = password
         self.tenant = tenant
-        self.auth_url = auth_url.rstrip('/')
+        if auth_url:
+            self.auth_url = auth_url.rstrip('/')
+        else:
+            self.auth_url = None
         self.region_name = region_name
         self.endpoint_type = endpoint_type
         self.service_url = service_url
@@ -165,7 +174,13 @@ class ReddwarfHTTPClient(httplib2.Http):
         self.http_log(args, kwargs, resp, body)
 
         if body:
-            body = self.morph_response_body(body)
+            try:
+                body = self.morph_response_body(body)
+            except exceptions.ResponseFormatError:
+                # Acceptable only if the response status is an error code.
+                # Otherwise its the API or client misbehaving.
+                self.raise_error_from_status(resp, None)
+                raise  # Not accepted!
         else:
             body = None
 
@@ -174,6 +189,10 @@ class ReddwarfHTTPClient(httplib2.Http):
 
         return resp, body
 
+    def raise_error_from_status(self, resp, body):
+        if resp.status in (400, 401, 403, 404, 408, 409, 413, 500, 501):
+            raise exceptions.from_response(resp, body)
+
     def morph_request(self, kwargs):
        kwargs['headers']['Accept'] = 'application/json'
        kwargs['headers']['Content-Type'] = 'application/json'
@@ -181,7 +200,10 @@ class ReddwarfHTTPClient(httplib2.Http):
             kwargs['body'] = json.dumps(kwargs['body'])
 
     def morph_response_body(self, body_string):
-        return json.loads(body_string)
+        try:
+            return json.loads(body_string)
+        except ValueError:
+            raise exceptions.ResponseFormatError()
 
     def _time_request(self, url, method, **kwargs):
         start_time = time.time()
@@ -236,12 +258,23 @@ class ReddwarfHTTPClient(httplib2.Http):
 
         """
         catalog = self.authenticator.authenticate()
-        self.auth_token = catalog.get_token()
-        if not self.service_url:
+        if self.service_url:
+            possible_service_url = None
+        else:
             if self.endpoint_type == "publicURL":
-                self.service_url = catalog.get_public_url()
+                possible_service_url = catalog.get_public_url()
             elif self.endpoint_type == "adminURL":
-                self.service_url = catalog.get_management_url()
+                possible_service_url = catalog.get_management_url()
+        self.authenticate_with_token(catalog.get_token(), possible_service_url)
+
+    def authenticate_with_token(self, token, service_url=None):
+        self.auth_token = token
+        if not self.service_url:
+            if not service_url:
+                raise exceptions.ServiceUrlNotGiven()
+            else:
+                self.service_url = service_url
+
 
 
 class Dbaas(object):

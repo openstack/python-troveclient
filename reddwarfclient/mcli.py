@@ -44,143 +44,112 @@ def _pretty_print(info):
     print json.dumps(info, sort_keys=True, indent=4)
 
 
-class HostCommands(object):
+class HostCommands(common.AuthedCommandsBase):
     """Commands to list info on hosts"""
 
-    def __init__(self):
-        pass
+    params = [
+              'name',
+             ]
 
-    def get(self, name):
+    def update_all(self):
+        """Update all instances on a host"""
+        self._require('name')
+        self.dbaas.hosts.update_all(self.name)
+
+    def get(self):
         """List details for the specified host"""
-        dbaas = common.get_client()
-        try:
-            _pretty_print(dbaas.hosts.get(name)._info)
-        except:
-            print sys.exc_info()[1]
+        self._require('name')
+        self._pretty_print(self.dbaas.hosts.get, self.name)
 
     def list(self):
         """List all compute hosts"""
-        dbaas = common.get_client()
-        try:
-            for host in dbaas.hosts.index():
-                _pretty_print(host._info)
-        except:
-            print sys.exc_info()[1]
+        self._pretty_list(self.dbaas.hosts.index)
 
 
-class RootCommands(object):
+class RootCommands(common.AuthedCommandsBase):
     """List details about the root info for an instance."""
 
-    def __init__(self):
-        pass
+    params = [
+              'id',
+             ]
 
-    def history(self, id):
+    def history(self):
         """List root history for the instance."""
-        dbaas = common.get_client()
-        try:
-            result = dbaas.management.root_enabled_history(id)
-            _pretty_print(result._info)
-        except:
-            print sys.exc_info()[1]
+        self._require('id')
+        self._pretty_print(self.dbaas.management.root_enabled_history, self.id)
 
 
-class AccountCommands(object):
+class AccountCommands(common.AuthedCommandsBase):
     """Commands to list account info"""
 
-    def __init__(self):
-        pass
+    params = [
+              'id',
+             ]
 
     def list(self):
         """List all accounts with non-deleted instances"""
-        dbaas = common.get_client()
-        try:
-            _pretty_print(dbaas.accounts.index()._info)
-        except:
-            print sys.exc_info()[1]
+        self._pretty_print(self.dbaas.accounts.index)
 
-    def get(self, acct):
+    def get(self):
         """List details for the account provided"""
-        dbaas = common.get_client()
-        try:
-            _pretty_print(dbaas.accounts.show(acct)._info)
-        except:
-            print sys.exc_info()[1]
+        self._require('id')
+        self._pretty_print(self.dbaas.accounts.show, self.id)
 
 
-class InstanceCommands(object):
+class InstanceCommands(common.AuthedCommandsBase):
     """List details about an instance."""
 
-    def __init__(self):
-        pass
+    params = [
+              'deleted',
+              'id',
+              'limit',
+              'marker',
+             ]
 
-    def get(self, id):
+    def get(self):
         """List details for the instance."""
-        dbaas = common.get_client()
-        try:
-            result = dbaas.management.show(id)
-            _pretty_print(result._info)
-        except:
-            print sys.exc_info()[1]
+        self._require('id')
+        self._pretty_print(self.dbaas.management.show, self.id)
 
-    def list(self, deleted=None, limit=None, marker=None):
+    def list(self):
         """List all instances for account"""
-        dbaas = common.get_client()
-        if limit:
-            limit = int(limit, 10)
-        try:
-            instances = dbaas.management.index(deleted, limit, marker)
-            for instance in instances:
-                _pretty_print(instance._info)
-            if instances.links:
-                for link in instances.links:
-                    _pretty_print(link)
-        except:
-            print sys.exc_info()[1]
+        deleted = None
+        if self.deleted is not None:
+            if self.deleted.lower() in ['true']:
+                deleted = True
+            elif self.deleted.lower() in ['false']:
+                deleted = False
+        self._pretty_paged(self.dbaas.management.index, deleted=deleted)
 
-    def diagnostic(self, id):
+    def diagnostic(self):
         """List diagnostic details about an instance."""
+        self._require('id')
         dbaas = common.get_client()
-        try:
-            result = dbaas.diagnostics.get(id)
-            _pretty_print(result._info)
-        except:
-            print sys.exc_info()[1]
+        self._pretty_print(self.dbaas.diagnostics.get, self.id)
 
-    def stop(self, id):
+    def stop(self):
         """Stop MySQL on the given instance."""
-        dbaas = common.get_client()
-        try:
-            result = dbaas.management.stop(id)
-        except:
-            print sys.exc_info()[1]
+        self._require('id')
+        self._pretty_print(self.dbaas.management.stop, self.id)
 
     def reboot(self, id):
         """Reboot the instance."""
-        dbaas = common.get_client()
-        try:
-            result = dbaas.management.reboot(id)
-        except:
-            print sys.exec_info()[1]
+        self._require('id')
+        self._pretty_print(self.dbaas.management.reboot, self.id)
 
 
-class StorageCommands(object):
+class StorageCommands(common.AuthedCommandsBase):
     """Commands to list devices info"""
 
-    def __init__(self):
-        pass
+    params = []
 
     def list(self):
         """List details for the storage device"""
         dbaas = common.get_client()
-        try:
-            for storage in dbaas.storage.index():
-                _pretty_print(storage._info)
-        except:
-            print sys.exc_info()[1]
+        self._pretty_list(self.dbaas.storage.index)
 
 
-def config_options():
-    global oparser
+def config_options(oparser):
     oparser.add_option("-u", "--url", default="http://localhost:5000/v1.1",
                        help="Auth API endpoint URL with port and version. \
                             Default: http://localhost:5000/v1.1")
@@ -196,10 +165,9 @@ COMMANDS = {'account': AccountCommands,
 
 def main():
     # Parse arguments
-    global oparser
-    oparser = optparse.OptionParser("%prog [options] <cmd> <action> <args>",
-                                    version='1.0')
-    config_options()
+    oparser = common.CliOptions.create_optparser()
+    for k, v in COMMANDS.items():
+        v._prepare_parser(oparser)
     (options, args) = oparser.parse_args()
 
     if not args:
@@ -209,7 +177,13 @@ def main():
     cmd = args.pop(0)
     if cmd in COMMANDS:
         fn = COMMANDS.get(cmd)
-        command_object = fn()
+        command_object = None
+        try:
+            command_object = fn(oparser)
+        except Exception as ex:
+            if options.debug:
+                raise
+            print(ex)
 
         # Get a list of supported actions for the command
         actions = common.methods_of(command_object)
@@ -220,20 +194,12 @@ def main():
         # Check for a valid action and perform that action
         action = args.pop(0)
         if action in actions:
-            fn = actions.get(action)
-
             try:
-                fn(*args)
-                sys.exit(0)
-            except TypeError as err:
-                print "Possible wrong number of arguments supplied."
-                print "%s %s: %s" % (cmd, action, fn.__doc__)
-                print "\t\t", [fn.func_code.co_varnames[i] for i in
-                                            range(fn.func_code.co_argcount)]
-                print "ERROR: %s" % err
-            except Exception:
-                print "Command failed, please check the log for more info."
-                raise
+                getattr(command_object, action)()
+            except Exception as ex:
+                if options.debug:
+                    raise
+                print ex
         else:
             common.print_actions(cmd, actions)
     else:
