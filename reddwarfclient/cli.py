@@ -50,7 +50,7 @@ class InstanceCommands(common.CommandsBase):
 
     def create(self):
         """Create a new instance"""
-        self._require('name', 'volume_size')
+        self._require('name', 'size')
         # flavorRef is not required.
         flavorRef = self.flavor or "http://localhost:8775/v1.0/flavors/1"
         volume = {"size": self.size}
