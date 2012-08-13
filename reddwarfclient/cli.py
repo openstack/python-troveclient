@@ -18,7 +18,6 @@
 Reddwarf Command line tool
 """
 
-import json
 import optparse
 import os
 import sys
@@ -37,232 +36,167 @@ if os.path.exists(os.path.join(possible_topdir, 'reddwarfclient',
 from reddwarfclient import common
 
 
-def _pretty_print(info):
-    print json.dumps(info, sort_keys=True, indent=4)
-
-
-class InstanceCommands(object):
+class InstanceCommands(common.CommandsBase):
     """Commands to perform various instances operations and actions"""
 
-    def __init__(self):
-        pass
+    params = [
+              'flavor',
+              'id',
+              'limit',
+              'marker',
+              'name',
+              'size',
+             ]
 
-    def create(self, name, volume_size,
-               flavorRef="http://localhost:8775/v1.0/flavors/1"):
+    def create(self):
         """Create a new instance"""
-        dbaas = common.get_client()
-        volume = {"size": volume_size}
-        try:
-            result = dbaas.instances.create(name, flavorRef, volume)
-            _pretty_print(result._info)
-        except:
-            print sys.exc_info()[1]
+        self._require('name', 'volume_size')
+        # flavorRef is not required.
+        flavorRef = self.flavor or "http://localhost:8775/v1.0/flavors/1"
+        volume = {"size": self.size}
+        self._pretty_print(self.dbaas.instances.create, self.name,
+                          flavorRef, volume)
 
-    def delete(self, id):
+    def delete(self):
         """Delete the specified instance"""
-        dbaas = common.get_client()
-        try:
-            result = dbaas.instances.delete(id)
-            if result:
-                print result
-        except:
-            print sys.exc_info()[1]
+        self._require('id')
+        print self.dbaas.instances.delete(self.id)
 
-    def get(self, id):
+    def get(self):
         """Get details for the specified instance"""
-        dbaas = common.get_client()
-        try:
-            _pretty_print(dbaas.instances.get(id)._info)
-        except:
-            print sys.exc_info()[1]
+        self._require('id')
+        self._pretty_print(self.dbaas.instances.get, self.id)
 
-    def list(self, limit=None, marker=None):
+    def list(self):
         """List all instances for account"""
-        dbaas = common.get_client()
+        # limit and marker are not required.
+        limit = self.limit or None
         if limit:
             limit = int(limit, 10)
-        try:
-            instances = dbaas.instances.list(limit, marker)
-            for instance in instances:
-                _pretty_print(instance._info)
-            if instances.links:
-                for link in instances.links:
-                    _pretty_print(link)
-        except:
-            print sys.exc_info()[1]
+        self._pretty_paged(self.dbaas.instances.list)
 
-    def resize_volume(self, id, size):
+    def resize_volume(self):
         """Resize an instance volume"""
-        dbaas = common.get_client()
-        try:
-            result = dbaas.instances.resize_volume(id, size)
-            if result:
-                print result
-        except:
-            print sys.exc_info()[1]
+        self._require('id', 'size')
+        self._pretty_print(self.dbaas.instances.resize_volume, self.id,
+                          self.size)
 
-    def resize_instance(self, id, flavor_id):
+    def resize_instance(self):
         """Resize an instance flavor"""
-        dbaas = common.get_client()
-        try:
-            result = dbaas.instances.resize_instance(id, flavor_id)
-            if result:
-                print result
-        except:
-            print sys.exc_info()[1]
+        self._require('id', 'flavor')
+        self._pretty_print(self.dbaas.instances.resize_instance, self.id,
+                          self.flavor_id)
 
-    def restart(self, id):
+    def restart(self):
         """Restart the database"""
-        dbaas = common.get_client()
-        try:
-            result = dbaas.instances.restart(id)
-            if result:
-                print result
-        except:
-            print sys.exc_info()[1]
+        self._require('id')
+        self._pretty_print(self.dbaas.instances.restart, self.id)
 
-    def reset_password(self, id):
+    def reset_password(self):
         """Reset the root user Password"""
-        dbaas = common.get_client()
-        try:
-            result = dbaas.instances.reset_password(id)
-            if result:
-                _pretty_print(result)
-        except:
-            print sys.exc_info()[1]
+        self._require('id')
+        self._pretty_print(self.dbaas.instances.reset_password, self.id)
             
-class FlavorsCommands(object):
+
+class FlavorsCommands(common.CommandsBase):
     """Commands for listing Flavors"""
 
-    def __init__(self):
-        pass
+    params = []
 
     def list(self):
         """List the available flavors"""
-        dbaas = common.get_client()
-        try:
-            for flavor in dbaas.flavors.list():
-                _pretty_print(flavor._info)
-        except:
-            print sys.exc_info()[1]
+        self._pretty_print(self.dbaas.flavors.list)
 
 
-class DatabaseCommands(object):
+class DatabaseCommands(common.CommandsBase):
     """Database CRUD operations on an instance"""
 
-    def __init__(self):
-        pass
+    params = [
+              'name',
+              'id',
+              'limit',
+              'marker',
+             ]
 
-    def create(self, id, dbname):
+    def create(self):
         """Create a database"""
-        dbaas = common.get_client()
-        try:
-            databases = [{'name': dbname}]
-            dbaas.databases.create(id, databases)
-        except:
-            print sys.exc_info()[1]
+        self._require('id', 'name')
+        databases = [{'name': self.name}]
+        print self.dbaas.databases.create(self.id, databases)
 
-    def delete(self, id, dbname):
+    def delete(self):
         """Delete a database"""
-        dbaas = common.get_client()
-        try:
-            dbaas.databases.delete(id, dbname)
-        except:
-            print sys.exc_info()[1]
+        self._require('id', 'name')
+        print self.dbaas.databases.delete(self.id, self.name)
 
-    def list(self, id, limit=None, marker=None):
+    def list(self):
         """List the databases"""
-        dbaas = common.get_client()
-        try:
-            databases = dbaas.databases.list(id, limit, marker)
-            for database in databases:
-                _pretty_print(database._info)
-            if databases.links:
-                for link in databases.links:
-                    _pretty_print(link)
-        except:
-            print sys.exc_info()[1]
+        self._require('id')
+        self._pretty_paged(self.dbaas.databases.list, self.id)
 
 
-class UserCommands(object):
+class UserCommands(common.CommandsBase):
     """User CRUD operations on an instance"""
+    params = [
+              'id',
+              'databases',
+              'name',
+              'password',
+             ]
 
-    def __init__(self):
-        pass
-
-    def create(self, id, username, password, dbname, *args):
+    def create(self):
         """Create a user in instance, with access to one or more databases"""
-        dbaas = common.get_client()
-        try:
-            databases = [{'name': dbname}]
-            [databases.append({"name": db}) for db in args]
-            users = [{'name': username, 'password': password,
-                      'databases': databases}]
-            dbaas.users.create(id, users)
-        except:
-            print sys.exc_info()[1]
+        self._require('id', 'name', 'password', 'databases')
+        self._make_list('databases')
+        databases = [{'name': dbname} for dbname in self.databases]
+        users = [{'name': self.username, 'password': self.password,
+                  'databases': databases}]
+        self.dbaas.users.create(self.id, users)
 
-    def delete(self, id, user):
+    def delete(self):
         """Delete the specified user"""
-        dbaas = common.get_client()
-        try:
-            dbaas.users.delete(id, user)
-        except:
-            print sys.exc_info()[1]
+        self._require('id', 'name')
+        self.users.delete(self.id, self.name)
 
-    def list(self, id, limit=None, marker=None):
+    def list(self):
         """List all the users for an instance"""
-        dbaas = common.get_client()
-        try:
-            users = dbaas.users.list(id, limit, marker)
-            for user in users:
-                _pretty_print(user._info)
-            if users.links:
-                for link in users.links:
-                    _pretty_print(link)
-        except:
-            print sys.exc_info()[1]
+        self._require('id')
+        self._pretty_paged(self.dbaas.users.list, self.id)
 
 
-class RootCommands(object):
+class RootCommands(common.CommandsBase):
     """Root user related operations on an instance"""
 
-    def __init__(self):
-        pass
+    params = [
+              'id',
+             ]
 
-    def create(self, id):
+    def create(self):
         """Enable the instance's root user."""
-        dbaas = common.get_client()
+        self._require('id')
         try:
-            user, password = dbaas.root.create(id)
+            user, password = self.dbaas.root.create(self.id)
             print "User:\t\t%s\nPassword:\t%s" % (user, password)
         except:
             print sys.exc_info()[1]
 
-    def enabled(self, id):
+    def enabled(self):
         """Check the instance for root access"""
-        dbaas = common.get_client()
-        try:
-            _pretty_print(dbaas.root.is_root_enabled(id))
-        except:
-            print sys.exc_info()[1]
+        self._require('id')
+        self._pretty_print(self.dbaas.root.is_root_enabled, self.id)
 
 
-class VersionCommands(object):
+class VersionCommands(common.CommandsBase):
     """List available versions"""
 
-    def __init__(self):
-        pass
+    params = [
+              'url',
+             ]
 
-    def list(self, url):
+    def list(self):
         """List all the supported versions"""
-        dbaas = common.get_client()
-        try:
-            versions = dbaas.versions.index(url)
-            for version in versions:
-                _pretty_print(version._info)
-        except:
-            print sys.exc_info()[1]
+        self._require('url')
+        self._pretty_print(self.dbaas.versions.index, self.url)
 
 
 def config_options(oparser):
@@ -299,12 +233,14 @@ COMMANDS = {'auth': common.Auth,
             'version': VersionCommands,
             }
 
-
 def main():
     # Parse arguments
-    oparser = optparse.OptionParser("%prog [options] <cmd> <action> <args>",
-                                    version='1.0')
+    oparser = optparse.OptionParser(usage="%prog [options] <cmd> <action> <args>",
+                                    version='1.0',
+                                    conflict_handler='resolve')
     config_options(oparser)
+    for k, v in COMMANDS.items():
+        v._prepare_parser(oparser)
     (options, args) = oparser.parse_args()
 
     if not args:
@@ -314,7 +250,7 @@ def main():
     cmd = args.pop(0)
     if cmd in COMMANDS:
         fn = COMMANDS.get(cmd)
-        command_object = fn()
+        command_object = fn(oparser)
 
         # Get a list of supported actions for the command
         actions = common.methods_of(command_object)
@@ -325,25 +261,10 @@ def main():
         # Check for a valid action and perform that action
         action = args.pop(0)
         if action in actions:
-            fn = actions.get(action)
-
             try:
-                # TODO(rnirmal): Fix when we have proper argument parsing for
-                # the rest of the commands.
-                if fn.__name__ == "login":
-                    fn(*args, options=options)
-                else:
-                    fn(*args)
-                sys.exit(0)
-            except TypeError as err:
-                print "Possible wrong number of arguments supplied."
-                print "%s %s: %s" % (cmd, action, fn.__doc__)
-                print "\t\t", [fn.func_code.co_varnames[i] for i in
-                                            range(fn.func_code.co_argcount)]
-                print "ERROR: %s" % err
-            except Exception:
-                print "Command failed, please check the log for more info."
-                raise
+                getattr(command_object, action)()
+            except Exception as ex:
+                print ex
         else:
             common.print_actions(cmd, actions)
     else:
