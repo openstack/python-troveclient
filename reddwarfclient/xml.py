@@ -2,6 +2,7 @@ from lxml import etree
 import json
 from numbers import Number
 
+from reddwarfclient import exceptions
 from reddwarfclient.client import ReddwarfHTTPClient
 
 
@@ -196,7 +197,10 @@ class ReddwarfXmlClient(ReddwarfHTTPClient):
         # The root XML element always becomes a dictionary with a single
         # field, which has the same key as the elements name.
         result = {}
-        root_element = etree.XML(body_string)
+        try:
+            root_element = etree.XML(body_string)
+        except etree.XMLSyntaxError:
+            raise exceptions.ResponseFormatError()
         root_name = normalize_tag(root_element)
         root_value, links = root_element_to_json(root_name, root_element)
         result = { root_name:root_value }

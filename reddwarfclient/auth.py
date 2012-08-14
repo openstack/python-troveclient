@@ -24,6 +24,8 @@ def get_authenticator_cls(cls_or_name):
             return KeyStoneV2Authenticator
         elif cls_or_name == "rax":
             return RaxAuthenticator
+        elif cls_or_name == "auth1.1":
+            return Auth1_1
         elif cls_or_name == "fake":
             return FakeAuth
 
@@ -40,6 +42,8 @@ class Authenticator(object):
 
     """
 
+    URL_REQUIRED=True
+
     def __init__(self, client, type, url, username, password, tenant,
                  region=None, service_type=None, service_name=None,
                  service_url=None):
@@ -54,7 +58,7 @@ class Authenticator(object):
         self.service_name = service_name
         self.service_url = service_url
 
-    def _authenticate(self, url, body):
+    def _authenticate(self, url, body, root_key='access'):
         """Authenticate and extract the service catalog."""
         # Make sure we follow redirects when trying to reach Keystone
         tmp_follow_all_redirects = self.client.follow_all_redirects
@@ -70,7 +74,8 @@ class Authenticator(object):
                 return ServiceCatalog(body, region=self.region,
                                       service_type=self.service_type,
                                       service_name=self.service_name,
-                                      service_url=self.service_url)
+                                      service_url=self.service_url,
+                                      root_key=root_key)
             except exceptions.AmbiguousEndpoints:
                 print "Found more than one valid endpoint. Use a more "\
                       "restrictive filter"
@@ -93,6 +98,8 @@ class Authenticator(object):
 class KeyStoneV2Authenticator(Authenticator):
 
     def authenticate(self):
+        if self.url is None:
+            raise exceptions.AuthUrlNotGiven()
         return self._v2_auth(self.url)
 
     def _v2_auth(self, url):
@@ -110,9 +117,40 @@ class KeyStoneV2Authenticator(Authenticator):
         return self._authenticate(url, body)
 
 
+class Auth1_1(Authenticator):
+
+    def authenticate(self):
+        """Authenticate against a v2.0 auth service."""
+        if self.url is None:
+            raise exceptions.AuthUrlNotGiven()
+        auth_url = self.url
+        body = {"credentials": {"username": self.username,
+                                "key": self.password}}
+        return self._authenticate(auth_url, body, root_key='auth')
+
+        try:
+            print(resp_body)
+            self.auth_token = resp_body['auth']['token']['id']
+        except KeyError:
+            raise nova_exceptions.AuthorizationFailure()
+
+        catalog = resp_body['auth']['serviceCatalog']
+        if 'cloudDatabases' not in catalog:
+            raise nova_exceptions.EndpointNotFound()
+        endpoints = catalog['cloudDatabases']
+        for endpoint in endpoints:
+            if self.region_name is None or \
+                endpoint['region'] == self.region_name:
+                self.management_url = endpoint['publicURL']
+                return
+        raise nova_exceptions.EndpointNotFound()
+
+
 class RaxAuthenticator(Authenticator):
 
     def authenticate(self):
+        if self.url is None:
+            raise exceptions.AuthUrlNotGiven()
         return self._rax_auth(self.url)
 
     def _rax_auth(self, url):
@@ -155,7 +193,7 @@ class ServiceCatalog(object):
     """
 
     def __init__(self, resource_dict, region=None, service_type=None,
-                 service_name=None, service_url=None):
+                 service_name=None, service_url=None, root_key='access'):
         self.catalog = resource_dict
         self.region = region
         self.service_type = service_type
@@ -163,6 +201,7 @@ class ServiceCatalog(object):
         self.service_url = service_url
         self.management_url = None
         self.public_url = None
+        self.root_key = root_key
         self._load()
 
     def _load(self):
@@ -178,7 +217,7 @@ class ServiceCatalog(object):
             self.management_url = self.service_url
 
     def get_token(self):
-        return self.catalog['access']['token']['id']
+        return self.catalog[self.root_key]['token']['id']
 
     def get_management_url(self):
         return self.management_url
@@ -202,11 +241,11 @@ class ServiceCatalog(object):
                 raise exceptions.EndpointNotFound()
 
         # We don't always get a service catalog back ...
-        if not 'serviceCatalog' in self.catalog['access']:
+        if not 'serviceCatalog' in self.catalog[self.root_key]:
             raise exceptions.EndpointNotFound()
 
         # Full catalog ...
-        catalog = self.catalog['access']['serviceCatalog']
+        catalog = self.catalog[self.root_key]['serviceCatalog']
 
         for service in catalog:
             if service.get("type") != self.service_type:

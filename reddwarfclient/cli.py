@@ -18,6 +18,7 @@
 Reddwarf Command line tool
 """
 
+#TODO(tim.simpson): optparse is deprecated. Replace with argparse.
 import optparse
 import os
 import sys
@@ -36,7 +37,7 @@ if os.path.exists(os.path.join(possible_topdir, 'reddwarfclient',
 from reddwarfclient import common
 
 
-class InstanceCommands(common.CommandsBase):
+class InstanceCommands(common.AuthedCommandsBase):
     """Commands to perform various instances operations and actions"""
 
     params = [
@@ -98,17 +99,17 @@ class InstanceCommands(common.CommandsBase):
         self._pretty_print(self.dbaas.instances.reset_password, self.id)
             
 
-class FlavorsCommands(common.CommandsBase):
+class FlavorsCommands(common.AuthedCommandsBase):
     """Commands for listing Flavors"""
 
     params = []
 
     def list(self):
         """List the available flavors"""
-        self._pretty_print(self.dbaas.flavors.list)
+        self._pretty_list(self.dbaas.flavors.list)
 
 
-class DatabaseCommands(common.CommandsBase):
+class DatabaseCommands(common.AuthedCommandsBase):
     """Database CRUD operations on an instance"""
 
     params = [
@@ -135,7 +136,7 @@ class DatabaseCommands(common.CommandsBase):
         self._pretty_paged(self.dbaas.databases.list, self.id)
 
 
-class UserCommands(common.CommandsBase):
+class UserCommands(common.AuthedCommandsBase):
     """User CRUD operations on an instance"""
     params = [
               'id',
@@ -164,7 +165,7 @@ class UserCommands(common.CommandsBase):
         self._pretty_paged(self.dbaas.users.list, self.id)
 
 
-class RootCommands(common.CommandsBase):
+class RootCommands(common.AuthedCommandsBase):
     """Root user related operations on an instance"""
 
     params = [
@@ -186,7 +187,7 @@ class RootCommands(common.CommandsBase):
         self._pretty_print(self.dbaas.root.is_root_enabled, self.id)
 
 
-class VersionCommands(common.CommandsBase):
+class VersionCommands(common.AuthedCommandsBase):
     """List available versions"""
 
     params = [
@@ -197,31 +198,6 @@ class VersionCommands(common.CommandsBase):
         """List all the supported versions"""
         self._require('url')
         self._pretty_print(self.dbaas.versions.index, self.url)
-
-
-def config_options(oparser):
-    oparser.add_option("--auth_url", default="http://localhost:5000/v2.0",
-                       help="Auth API endpoint URL with port and version. \
-                            Default: http://localhost:5000/v2.0")
-    oparser.add_option("--username", help="Login username")
-    oparser.add_option("--apikey", help="Api key")
-    oparser.add_option("--tenant_id",
-                       help="Tenant Id associated with the account")
-    oparser.add_option("--auth_type", default="keystone",
-                       help="Auth type to support different auth environments, \
-                            Supported values are 'keystone', 'rax'.")
-    oparser.add_option("--service_type", default="reddwarf",
-                       help="Service type is a name associated for the catalog")
-    oparser.add_option("--service_name", default="Reddwarf",
-                       help="Service name as provided in the service catalog")
-    oparser.add_option("--service_url", default="",
-                       help="Service endpoint to use if the catalog doesn't \
-                            have one")
-    oparser.add_option("--region", default="RegionOne",
-                       help="Region the service is located in")
-    oparser.add_option("-i", "--insecure", action="store_true",
-                       dest="insecure", default=False,
-                       help="Run in insecure mode for https endpoints.")
 
 
 COMMANDS = {'auth': common.Auth,
@@ -235,10 +211,7 @@ COMMANDS = {'auth': common.Auth,
 
 def main():
     # Parse arguments
-    oparser = optparse.OptionParser(usage="%prog [options] <cmd> <action> <args>",
-                                    version='1.0',
-                                    conflict_handler='resolve')
-    config_options(oparser)
+    oparser = common.CliOptions.create_optparser()
     for k, v in COMMANDS.items():
         v._prepare_parser(oparser)
     (options, args) = oparser.parse_args()
@@ -246,11 +219,21 @@ def main():
     if not args:
         common.print_commands(COMMANDS)
 
+    if options.verbose:
+        os.environ['RDC_PP']  = "True"
+        os.environ['REDDWARFCLIENT_DEBUG'] = "True"
+
     # Pop the command and check if it's in the known commands
     cmd = args.pop(0)
     if cmd in COMMANDS:
         fn = COMMANDS.get(cmd)
-        command_object = fn(oparser)
+        command_object = None
+        try:
+            command_object = fn(oparser)
+        except Exception as ex:
+            if options.debug:
+                raise
+            print(ex)
 
         # Get a list of supported actions for the command
         actions = common.methods_of(command_object)
@@ -261,10 +244,15 @@ def main():
         # Check for a valid action and perform that action
         action = args.pop(0)
         if action in actions:
-            try:
+            if not options.debug:
+                try:
+                    getattr(command_object, action)()
+                except Exception as ex:
+                    if options.debug:
+                        raise
+                    print ex
+            else:
                 getattr(command_object, action)()
-            except Exception as ex:
-                print ex
         else:
             common.print_actions(cmd, actions)
     else:

@@ -41,6 +41,20 @@ class EndpointNotFound(Exception):
     pass
 
 
+class AuthUrlNotGiven(EndpointNotFound):
+    """The auth url was not given."""
+    pass
+
+
+class ServiceUrlNotGiven(EndpointNotFound):
+    """The service url was not given."""
+    pass
+
+
+class ResponseFormatError(Exception):
+    """Could not parse the response format."""
+    pass
+
 class AmbiguousEndpoints(Exception):
     """Found more than one matching endpoint in Service Catalog."""
     def __init__(self, endpoints=None):
@@ -159,4 +173,5 @@ def from_response(response, body):
             details = error.get('details', None)
         return cls(code=response.status, message=message, details=details)
     else:
+        request_id = response.get('x-compute-request-id')
         return cls(code=response.status, request_id=request_id)
