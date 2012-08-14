@@ -85,7 +85,7 @@ class InstanceCommands(common.CommandsBase):
         """Resize an instance flavor"""
         self._require('id', 'flavor')
         self._pretty_print(self.dbaas.instances.resize_instance, self.id,
-                          self.flavor_id)
+                          self.flavor)
 
     def restart(self):
         """Restart the database"""
