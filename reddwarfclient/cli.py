@@ -92,6 +92,11 @@ class InstanceCommands(common.CommandsBase):
         self._require('id')
         self._pretty_print(self.dbaas.instances.restart, self.id)
 
+    def reset_password(self):
+        """Reset the root user Password"""
+        self._require('id')
+        self._pretty_print(self.dbaas.instances.reset_password, self.id)
+            
 
 class FlavorsCommands(common.CommandsBase):
     """Commands for listing Flavors"""
