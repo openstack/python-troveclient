@@ -310,7 +310,8 @@ class Dbaas(object):
         from reddwarfclient.storage import StorageInfo
         from reddwarfclient.management import Management
         from reddwarfclient.accounts import Accounts
-        from reddwarfclient.diagnostics import Interrogator
+        from reddwarfclient.diagnostics import DiagnosticsInterrogator
+        from reddwarfclient.diagnostics import HwInfoInterrogator
 
         self.client = client_cls(username, api_key, tenant, auth_url,
                                  service_type=service_type,
@@ -329,7 +330,8 @@ class Dbaas(object):
         self.storage = StorageInfo(self)
         self.management = Management(self)
         self.accounts = Accounts(self)
-        self.diagnostics = Interrogator(self)
+        self.diagnostics = DiagnosticsInterrogator(self)
+        self.hwinfo = HwInfoInterrogator(self)
 
         class Mgmt(object):
             def __init__(self, dbaas):

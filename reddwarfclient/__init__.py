@@ -25,6 +25,7 @@ from reddwarfclient.root import Root
 from reddwarfclient.storage import StorageInfo
 from reddwarfclient.users import Users
 from reddwarfclient.versions import Versions
-from reddwarfclient.diagnostics import Interrogator
+from reddwarfclient.diagnostics import DiagnosticsInterrogator
+from reddwarfclient.diagnostics import HwInfoInterrogator
 from reddwarfclient.client import Dbaas
 from reddwarfclient.client import ReddwarfHTTPClient

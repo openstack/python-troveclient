@@ -121,10 +121,14 @@ class InstanceCommands(common.AuthedCommandsBase):
                 deleted = False
         self._pretty_paged(self.dbaas.management.index, deleted=deleted)
 
+    def hwinfo(self):
+        """Show hardware information details about an instance."""
+        self._require('id')
+        self._pretty_print(self.dbaas.hwinfo.get, self.id)
+
     def diagnostic(self):
         """List diagnostic details about an instance."""
         self._require('id')
-        dbaas = common.get_client()
         self._pretty_print(self.dbaas.diagnostics.get, self.id)
 
     def stop(self):

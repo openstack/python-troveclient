@@ -25,7 +25,7 @@ class Diagnostics(base.Resource):
         return "<Diagnostics: %s>" % self.version
 
 
-class Interrogator(base.ManagerWithFind):
+class DiagnosticsInterrogator(base.ManagerWithFind):
     """
     Manager class for Interrogator resource
     """
@@ -37,3 +37,22 @@ class Interrogator(base.ManagerWithFind):
         """
         return self._get("/mgmt/instances/%s/diagnostics" % base.getid(instance),
                          "diagnostics")
+
+
+class HwInfo(base.Resource):
+
+    def __repr__(self):
+        return "<HwInfo: %s>" % self.version
+
+
+class HwInfoInterrogator(base.ManagerWithFind):
+    """
+    Manager class for HwInfo
+    """
+    resource_class = HwInfo
+
+    def get(self, instance):
+        """
+        Get the hardware information of the instance.
+        """
+        return self._get("/mgmt/instances/%s/hwinfo" % base.getid(instance))
