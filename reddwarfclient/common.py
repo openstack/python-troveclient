@@ -198,7 +198,6 @@ class CommandsBase(object):
             if self.verbose:
                 client.log_to_streamhandler(sys.stdout)
                 client.RDC_PP = True
-
             return client.Dbaas(self.username, self.apikey, self.tenant_id,
                           auth_url=self.auth_url,
                           auth_strategy=self.auth_type,
@@ -256,7 +255,10 @@ class CommandsBase(object):
             return  # Skip this, since the verbose stuff will show up anyway.
         def wrapped_func():
             result = func(*args, **kwargs)
-            print json.dumps(result._info, sort_keys=True, indent=4)
+            if result:
+                print(json.dumps(result._info, sort_keys=True, indent=4))
+            else:
+                print("OK")
         self._safe_exec(wrapped_func)
 
     def _dumps(self, item):
@@ -266,8 +268,11 @@ class CommandsBase(object):
         result = self._safe_exec(func, *args, **kwargs)
         if self.verbose:
             return
-        for item in result:
-            print self._dumps(item._info)
+        if result and len(result) > 0:
+            for item in result:
+                print(self._dumps(item._info))
+        else:
+            print("OK")
 
     def _pretty_paged(self, func, *args, **kwargs):
         try:
@@ -277,11 +282,15 @@ class CommandsBase(object):
             result = func(*args, limit=limit, marker=self.marker, **kwargs)
             if self.verbose:
                 return  # Verbose already shows the output, so skip this.
-            for item in result:
-                print self._dumps(item._info)
-            if result.links:
-                for link in result.links:
-                    print self._dumps((link))
+            if result and len(result) > 0:
+                for item in result:
+                    print self._dumps(item._info)
+                if result.links:
+                    print("Links:")
+                    for link in result.links:
+                        print self._dumps((link))
+            else:
+                print("OK")
         except:
             if self.debug:
                 raise
@@ -295,7 +304,6 @@ class Auth(CommandsBase):
               'auth_strategy',
               'auth_type',
               'auth_url',
-              'insecure',
               'options',
               'region',
               'service_name',
