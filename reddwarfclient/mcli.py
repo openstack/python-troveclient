@@ -132,7 +132,7 @@ class InstanceCommands(common.AuthedCommandsBase):
         self._require('id')
         self._pretty_print(self.dbaas.management.stop, self.id)
 
-    def reboot(self, id):
+    def reboot(self):
         """Reboot the instance."""
         self._require('id')
         self._pretty_print(self.dbaas.management.reboot, self.id)
