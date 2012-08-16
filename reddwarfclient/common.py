@@ -188,7 +188,7 @@ class CommandsBase(object):
     def __init__(self, parser):
         self._parse_options(parser)
 
-    def get_client(self):
+    def _get_client(self):
         """Creates the all important client object."""
         try:
             if self.xml:
@@ -321,7 +321,7 @@ class Auth(CommandsBase):
         """Login to retrieve an auth token to use for other api calls"""
         self._require('username', 'apikey', 'tenant_id', 'auth_url')
         try:
-            self.dbaas = self.get_client()
+            self.dbaas = self._get_client()
             self.dbaas.authenticate()
             self.token = self.dbaas.client.auth_token
             self.service_url = self.dbaas.client.service_url
@@ -354,7 +354,7 @@ class AuthedCommandsBase(CommandsBase):
                 raise
             print('No service_url given.\n')
             sys.exit(1)
-        self.dbaas = self.get_client()
+        self.dbaas = self._get_client()
         # Actually set the token to avoid a re-auth.
         self.dbaas.client.auth_token = self.token
         self.dbaas.client.authenticate_with_token(self.token, self.service_url)
