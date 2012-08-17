@@ -213,13 +213,7 @@ class ReddwarfHTTPClient(httplib2.Http):
         return resp, body
 
     def _cs_request(self, url, method, **kwargs):
-        if not self.auth_token or not self.service_url:
-            self.authenticate()
-
-        # Perform the request once. If we get a 401 back then it
-        # might be because the auth token expired, so try to
-        # re-authenticate and try again. If it still fails, bail.
-        try:
+        def request():
             kwargs.setdefault('headers', {})['X-Auth-Token'] = self.auth_token
             if self.tenant:
                 kwargs['headers']['X-Auth-Project-Id'] = self.tenant
@@ -227,14 +221,18 @@ class ReddwarfHTTPClient(httplib2.Http):
             resp, body = self._time_request(self.service_url + url, method,
                                             **kwargs)
             return resp, body
+
+        if not self.auth_token or not self.service_url:
+            self.authenticate()
+
+        # Perform the request once. If we get a 401 back then it
+        # might be because the auth token expired, so try to
+        # re-authenticate and try again. If it still fails, bail.
+        try:
+            return request()
         except exceptions.Unauthorized, ex:
-            try:
-                self.authenticate()
-                resp, body = self._time_request(self.service_url + url,
-                                                method, **kwargs)
-                return resp, body
-            except exceptions.Unauthorized:
-                raise ex
+            self.authenticate()
+            return request()
 
     def get(self, url, **kwargs):
         return self._cs_request(url, 'GET', **kwargs)
