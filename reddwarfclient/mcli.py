@@ -149,7 +149,6 @@ class StorageCommands(common.AuthedCommandsBase):
 
     def list(self):
         """List details for the storage device"""
-        dbaas = common.get_client()
         self._pretty_list(self.dbaas.storage.index)
 
 
