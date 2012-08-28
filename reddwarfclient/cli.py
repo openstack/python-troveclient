@@ -211,7 +211,13 @@ COMMANDS = {'auth': common.Auth,
 
 def main():
     # Parse arguments
-    oparser = common.CliOptions.create_optparser()
+    load_file=True
+    for arg, index in enumerate(sys.argv):
+        if (arg == "auth" and len(sys.argv) > index
+            and sys.argv[index]=="login"):
+            load_file = False
+
+    oparser = common.CliOptions.create_optparser(load_file)
     for k, v in COMMANDS.items():
         v._prepare_parser(oparser)
     (options, args) = oparser.parse_args()
