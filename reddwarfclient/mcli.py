@@ -168,7 +168,7 @@ COMMANDS = {'account': AccountCommands,
 
 def main():
     # Parse arguments
-    oparser = common.CliOptions.create_optparser()
+    oparser = common.CliOptions.create_optparser(True)
     for k, v in COMMANDS.items():
         v._prepare_parser(oparser)
     (options, args) = oparser.parse_args()

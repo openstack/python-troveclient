@@ -123,11 +123,14 @@ class CliOptions(object):
 
 
     @classmethod
-    def create_optparser(cls):
+    def create_optparser(cls, load_file):
         oparser = optparse.OptionParser(
             usage="%prog [options] <cmd> <action> <args>",
             version='1.0', conflict_handler='resolve')
-        file = cls.load_from_file()
+        if load_file:
+            file = cls.load_from_file()
+        else:
+            file = cls.default()
         def add_option(*args, **kwargs):
             if len(args) == 1:
                 name = args[0]
@@ -326,7 +329,9 @@ class Auth(CommandsBase):
             self.token = self.dbaas.client.auth_token
             self.service_url = self.dbaas.client.service_url
             CliOptions.save_from_instance_fields(self)
-            print(self.token)
+            print("Token aquired! Saving to %s..." % CliOptions.APITOKEN)
+            print("    service_url = %s" % self.service_url)
+            print("    token       = %s" % self.token)
         except:
             if self.debug:
                 raise
