@@ -105,7 +105,7 @@ as a list of links, each with a URL to use to reach that particular version.
 .. testoutput::
 
     v1.0
-        http://localhost:8779/v1.0
+        http://localhost:8779/v1.0/
 
 
 Instances
