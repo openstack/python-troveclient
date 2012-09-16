@@ -212,9 +212,9 @@ COMMANDS = {'auth': common.Auth,
 def main():
     # Parse arguments
     load_file=True
-    for arg, index in enumerate(sys.argv):
-        if (arg == "auth" and len(sys.argv) > index
-            and sys.argv[index]=="login"):
+    for index, arg in enumerate(sys.argv):
+        if (arg == "auth" and len(sys.argv) > (index + 1)
+            and sys.argv[index + 1]=="login"):
             load_file = False
 
     oparser = common.CliOptions.create_optparser(load_file)
