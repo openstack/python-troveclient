@@ -141,6 +141,11 @@ class InstanceCommands(common.AuthedCommandsBase):
         self._require('id')
         self._pretty_print(self.dbaas.management.reboot, self.id)
 
+    def migrate(self):
+        """Migrate the instance."""
+        self._require('id')
+        self._pretty_print(self.dbaas.management.migrate, self.id)
+
 
 class StorageCommands(common.AuthedCommandsBase):
     """Commands to list devices info"""
