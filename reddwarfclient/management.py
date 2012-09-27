@@ -109,6 +109,15 @@ class Management(base.ManagerWithFind):
         body = {'reboot': {}}
         self._action(instance_id, body)
 
+    def migrate(self, instance_id):
+        """
+        Migrate the instance.
+
+        :param instance_id: The :class:`Instance` (or its ID) to share onto.
+        """
+        body = {'migrate': {}}
+        self._action(instance_id, body)
+
     def update(self, instance_id):
         """
         Update the guest agent via apt-get.
