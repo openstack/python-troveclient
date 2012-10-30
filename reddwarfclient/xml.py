@@ -6,15 +6,15 @@ from reddwarfclient import exceptions
 from reddwarfclient.client import ReddwarfHTTPClient
 
 
-XML_NS = { None: "http://docs.openstack.org/database/api/v1.0" }
+XML_NS = {None: "http://docs.openstack.org/database/api/v1.0"}
 
 # This dictionary contains XML paths of things that should become list items.
 LISTIFY = {
-    "accounts":[[]],
-    "databases":[[]],
+    "accounts": [[]],
+    "databases": [[]],
     "flavors": [[]],
     "instances": [[]],
-    "links" : [["flavor", "instance", "instances"],
+    "links": [["flavor", "instance", "instances"],
                ["instance", "instances"]],
     "hosts": [[]],
     "devices": [[]],
@@ -23,6 +23,7 @@ LISTIFY = {
 }
 
 REQUEST_AS_LIST = set(['databases', 'users'])
+
 
 def element_ancestors_match_list(element, list):
     """
@@ -55,9 +56,10 @@ def element_to_json(name, element):
     else:
         return element_to_dict(element)
 
+
 def root_element_to_json(name, element):
     """Returns a tuple of the root JSON value, plus the links if found."""
-    if name == "rootEnabled": # Why oh why were we inconsistent here? :'(
+    if name == "rootEnabled":  # Why oh why were we inconsistent here? :'(
         return bool(element.text), None
     elif element_must_be_list(element, name):
         return element_to_list(element, True)
@@ -203,7 +205,7 @@ class ReddwarfXmlClient(ReddwarfHTTPClient):
             raise exceptions.ResponseFormatError()
         root_name = normalize_tag(root_element)
         root_value, links = root_element_to_json(root_name, root_element)
-        result = { root_name:root_value }
+        result = {root_name: root_value}
         if links:
             result['links'] = links
         return result

@@ -42,7 +42,7 @@ class Authenticator(object):
 
     """
 
-    URL_REQUIRED=True
+    URL_REQUIRED = True
 
     def __init__(self, client, type, url, username, password, tenant,
                  region=None, service_type=None, service_name=None,

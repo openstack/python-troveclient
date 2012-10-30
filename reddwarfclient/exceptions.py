@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+
 class UnsupportedVersion(Exception):
     """Indicates that the user is trying to use an unsupported
     version of the API"""
@@ -54,6 +55,7 @@ class ServiceUrlNotGiven(EndpointNotFound):
 class ResponseFormatError(Exception):
     """Could not parse the response format."""
     pass
+
 
 class AmbiguousEndpoints(Exception):
     """Found more than one matching endpoint in Service Catalog."""

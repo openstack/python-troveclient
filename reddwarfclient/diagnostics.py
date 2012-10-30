@@ -35,8 +35,8 @@ class DiagnosticsInterrogator(base.ManagerWithFind):
         """
         Get the diagnostics of the guest on the instance.
         """
-        return self._get("/mgmt/instances/%s/diagnostics" % base.getid(instance),
-                         "diagnostics")
+        return self._get("/mgmt/instances/%s/diagnostics" %
+                         base.getid(instance), "diagnostics")
 
 
 class HwInfo(base.Resource):

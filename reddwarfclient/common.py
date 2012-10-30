@@ -75,20 +75,20 @@ class CliOptions(object):
     APITOKEN = os.path.expanduser("~/.apitoken")
 
     DEFAULT_VALUES = {
-        'username':None,
-        'apikey':None,
-        'tenant_id':None,
-        'auth_url':None,
-        'auth_type':'keystone',
-        'service_type':'reddwarf',
-        'service_name':'Reddwarf',
-        'region':'RegionOne',
-        'service_url':None,
-        'insecure':False,
-        'verbose':False,
-        'debug':False,
-        'token':None,
-        'xml':None,
+        'username': None,
+        'apikey': None,
+        'tenant_id': None,
+        'auth_url': None,
+        'auth_type': 'keystone',
+        'service_type': 'reddwarf',
+        'service_name': 'Reddwarf',
+        'region': 'RegionOne',
+        'service_url': None,
+        'insecure': False,
+        'verbose': False,
+        'debug': False,
+        'token': None,
+        'xml': None,
     }
 
     def __init__(self, **kwargs):
@@ -111,7 +111,6 @@ class CliOptions(object):
             print("ERROR: Token file found at %s was corrupt." % cls.APITOKEN)
         return cls.default()
 
-
     @classmethod
     def save_from_instance_fields(cls, instance):
         apitoken = cls.default()
@@ -120,7 +119,6 @@ class CliOptions(object):
             setattr(apitoken, key, final_value)
         with open(cls.APITOKEN, 'wb') as token:
             pickle.dump(apitoken, token, protocol=2)
-
 
     @classmethod
     def create_optparser(cls, load_file):
@@ -131,6 +129,7 @@ class CliOptions(object):
             file = cls.load_from_file()
         else:
             file = cls.default()
+
         def add_option(*args, **kwargs):
             if len(args) == 1:
                 name = args[0]
@@ -164,7 +163,6 @@ class CliOptions(object):
                    help="Run in insecure mode for https endpoints.")
         add_option("token", help="Token from a prior login.")
         add_option("xml", action="store_true", help="Changes format to XML.")
-
 
         oparser.add_option("--secure", action="store_false", dest="insecure",
                    help="Run in insecure mode for https endpoints.")
@@ -256,6 +254,7 @@ class CommandsBase(object):
         if self.verbose:
             self._safe_exec(func, *args, **kwargs)
             return  # Skip this, since the verbose stuff will show up anyway.
+
         def wrapped_func():
             result = func(*args, **kwargs)
             if result:

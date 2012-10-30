@@ -194,9 +194,9 @@ class ReddwarfHTTPClient(httplib2.Http):
             raise exceptions.from_response(resp, body)
 
     def morph_request(self, kwargs):
-       kwargs['headers']['Accept'] = 'application/json'
-       kwargs['headers']['Content-Type'] = 'application/json'
-       if 'body' in kwargs:
+        kwargs['headers']['Accept'] = 'application/json'
+        kwargs['headers']['Content-Type'] = 'application/json'
+        if 'body' in kwargs:
             kwargs['body'] = json.dumps(kwargs['body'])
 
     def morph_response_body(self, body_string):
@@ -272,7 +272,6 @@ class ReddwarfHTTPClient(httplib2.Http):
                 raise exceptions.ServiceUrlNotGiven()
             else:
                 self.service_url = service_url
-
 
 
 class Dbaas(object):

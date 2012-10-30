@@ -209,12 +209,13 @@ COMMANDS = {'auth': common.Auth,
             'version': VersionCommands,
             }
 
+
 def main():
     # Parse arguments
-    load_file=True
+    load_file = True
     for index, arg in enumerate(sys.argv):
         if (arg == "auth" and len(sys.argv) > (index + 1)
-            and sys.argv[index + 1]=="login"):
+            and sys.argv[index + 1] == "login"):
             load_file = False
 
     oparser = common.CliOptions.create_optparser(load_file)
@@ -226,7 +227,7 @@ def main():
         common.print_commands(COMMANDS)
 
     if options.verbose:
-        os.environ['RDC_PP']  = "True"
+        os.environ['RDC_PP'] = "True"
         os.environ['REDDWARFCLIENT_DEBUG'] = "True"
 
     # Pop the command and check if it's in the known commands
