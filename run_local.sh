@@ -4,32 +4,51 @@
 # This script will create a .pid file and report in the current directory.
 
 set -e
+
+me=${0##*/}
+
+function print_usage() {
+  cat >&2 <<EOS
+Run tests against a local instance of reddwarf
+
+Usage: $me reddwarf_path [logfile]
+EOS
+}
+
+# parse options
+while getopts ":h" opt; do
+    case "$opt" in
+        h|\?) print_usage; exit 5 ;;
+    esac
+done
+shift $((OPTIND-1))
+
 if [ $# -lt 1 ]; then
-    echo "Please give the path to the RDL repo as argument one."
+    print_usage
     exit 5
-else
-    RDL_PATH=$1
 fi
 
+reddwarf_path=$1
+reddwarf_pid_file="`pwd`.pid"
 
-PID_FILE="`pwd`.pid"
-
+# the funmaker
 function start_server() {
-    pushd $RDL_PATH
-    bin/start_server.sh --pid_file=$PID_FILE
+    pushd $reddwarf_path
+    bin/start_server.sh --pid_file=$reddwarf_pid_file
     popd
 }
 
 function stop_server() {
-    if [ -f $PID_FILE ];
+    if [ -f $reddwarf_pid_file ];
     then
-        pushd $RDL_PATH
-        bin/stop_server.sh $PID_FILE
+        pushd $reddwarf_path
+        bin/stop_server.sh $reddwarf_pid_file
         popd
     else
         echo "The pid file did not exist, so not stopping server."
     fi
 }
+
 function on_error() {
     echo "Something went wrong!"
     stop_server
