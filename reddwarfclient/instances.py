@@ -122,6 +122,8 @@ class Instances(base.ManagerWithFind):
         url = "/instances/%s/action" % instance_id
         resp, body = self.api.client.post(url, body=body)
         check_for_exceptions(resp, body)
+        if body:
+            return self.resource_class(self, body, loaded=True)
         return body
 
     def resize_volume(self, instance_id, volume_size):
