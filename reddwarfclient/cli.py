@@ -157,7 +157,7 @@ class UserCommands(common.AuthedCommandsBase):
     def delete(self):
         """Delete the specified user"""
         self._require('id', 'name')
-        self.users.delete(self.id, self.name)
+        self.dbaas.users.delete(self.id, self.name)
 
     def list(self):
         """List all the users for an instance"""
