@@ -150,7 +150,7 @@ class UserCommands(common.AuthedCommandsBase):
         self._require('id', 'name', 'password', 'databases')
         self._make_list('databases')
         databases = [{'name': dbname} for dbname in self.databases]
-        users = [{'name': self.username, 'password': self.password,
+        users = [{'name': self.name, 'password': self.password,
                   'databases': databases}]
         self.dbaas.users.create(self.id, users)
 
