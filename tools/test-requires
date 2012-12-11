@@ -5,3 +5,4 @@ pep8==1.1
 sphinx>=1.1.2
 unittest2>=0.5.1
 testtools
+mock>=1.0.1
