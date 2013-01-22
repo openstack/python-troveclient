@@ -385,7 +385,7 @@ class Paginated(object):
     def __setitem__(self, key, value):
         self.items[key] = value
 
-    def __delitem(self, key):
+    def __delitem__(self, key):
         del self.items[key]
 
     def __reversed__(self):
