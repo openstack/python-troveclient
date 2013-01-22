@@ -14,11 +14,13 @@
 #    under the License.
 
 from reddwarfclient import base
+from reddwarfclient import databases
 from reddwarfclient.common import check_for_exceptions
 from reddwarfclient.common import limit_url
 from reddwarfclient.common import Paginated
 import exceptions
 import urlparse
+from urllib import quote
 
 
 class User(base.Resource):
@@ -75,3 +77,52 @@ class Users(base.ManagerWithFind):
         """
         return self._list("/instances/%s/users" % base.getid(instance),
                           "users", limit, marker)
+
+    def get(self, instance_id, user):
+        """
+        Get a single User from the instance's Database.
+
+        :rtype: :class:`User`.
+        """
+        username = quote(user)
+        url = "/instances/%s/users/%s" % (instance_id, username)
+        resp, body = self.api.client.get(url)
+        check_for_exceptions(resp, body)
+        return self.resource_class(self, body)
+
+    def list_access(self, instance, user):
+        """Show all databases the given user has access to. """
+        instance_id = base.getid(instance)
+        username = quote(user)
+        url = "/instances/%(instance_id)s/users/%(username)s/databases"
+        resp, body = self.api.client.get(url % locals())
+        check_for_exceptions(resp, body)
+        if not body:
+            raise Exception("Call to %s did not return to a body" % url)
+        return [databases.Database(self, db) for db in body['databases']]
+
+    def grant(self, instance, user, databases):
+        """Allow an existing user permissions to access a database."""
+        instance_id = base.getid(instance)
+        username = quote(user)
+        url = "/instances/%(instance_id)s/users/%(username)s/databases"
+        dbs = {'databases': [{'name': db} for db in databases]}
+        resp, body = self.api.client.put(url % locals(), body=dbs)
+        check_for_exceptions(resp, body)
+
+    def revoke(self, instance, user, database):
+        """Revoke from an existing user access permissions to a database."""
+        instance_id = base.getid(instance)
+        username = quote(user)
+        url = ("/instances/%(instance_id)s/users/%(username)s/"
+               "databases/%(database)s")
+        resp, body = self.api.client.delete(url % locals())
+        check_for_exceptions(resp, body)
+
+    def change_passwords(self, instance, users):
+        """Change the password for one or more users."""
+        instance_id = base.getid(instance)
+        user_dict = {"users": users}
+        url = "/instances/%s/users" % instance_id
+        resp, body = self.api.client.put(url, body=user_dict)
+        check_for_exceptions(resp, body)

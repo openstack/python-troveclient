@@ -140,6 +140,7 @@ class UserCommands(common.AuthedCommandsBase):
     """User CRUD operations on an instance"""
     params = [
               'id',
+              'database',
               'databases',
               'name',
               'password',
@@ -159,10 +160,39 @@ class UserCommands(common.AuthedCommandsBase):
         self._require('id', 'name')
         self.dbaas.users.delete(self.id, self.name)
 
+    def get(self):
+        """Get a single user."""
+        self._require('id', 'name')
+        self._pretty_print(self.dbaas.users.get, self.id, self.name)
+
     def list(self):
         """List all the users for an instance"""
         self._require('id')
         self._pretty_paged(self.dbaas.users.list, self.id)
+
+    def access(self):
+        """Show all databases the user has access to."""
+        self._require('id', 'name')
+        self._pretty_list(self.dbaas.users.list_access, self.id, self.name)
+
+    def grant(self):
+        """Allow an existing user permissions to access one or more
+        databases."""
+        self._require('id', 'name', 'databases')
+        self._make_list('databases')
+        self.dbaas.users.grant(self.id, self.name, self.databases)
+
+    def revoke(self):
+        """Revoke from an existing user access permissions to a database."""
+        self._require('id', 'name', 'database')
+        self.dbaas.users.revoke(self.id, self.name, self.database)
+
+    def change_password(self):
+        """Change the password of a single user."""
+        self._require('id', 'name', 'password')
+        users = [{'name': self.name,
+                 'password': self.password}]
+        self.dbaas.users.change_passwords(self.id, users)
 
 
 class RootCommands(common.AuthedCommandsBase):
