@@ -37,6 +37,20 @@ class XmlTest(TestCase):
                                                           ['instances',
                                                            'instance']))
 
+    def test_populate_element_from_dict(self):
+        # Test populate_element_from_dict with a None in the data
+        ele = '''
+        <instance>
+            <volume>
+                <value size="5"/>
+            </volume>
+        </instance>
+            '''
+        rt = etree.fromstring(ele)
+
+        self.assertEqual(None, xml.populate_element_from_dict(rt,
+            {'size': None}))
+
     def test_element_must_be_list(self):
         # Test for when name isn't in the dictionary
         self.assertFalse(xml.element_must_be_list(self.ROOT, "not_in_list"))
@@ -66,9 +80,15 @@ class XmlTest(TestCase):
         self.assertEqual((exp, None),
                          xml.root_element_to_json("not_in_list", self.ROOT))
 
-        # Test rootEnabled:
+        # Test rootEnabled True:
+        t_element = etree.fromstring('''<rootEnabled> True </rootEnabled>''')
         self.assertEqual((True, None),
-                         xml.root_element_to_json("rootEnabled", self.ROOT))
+                         xml.root_element_to_json("rootEnabled", t_element))
+
+        # Test rootEnabled False:
+        f_element = etree.fromstring('''<rootEnabled> False </rootEnabled>''')
+        self.assertEqual((False, None),
+                         xml.root_element_to_json("rootEnabled", f_element))
 
     def test_element_to_list(self):
         # Test w/ no child elements
@@ -89,8 +109,18 @@ class XmlTest(TestCase):
                                              check_for_links=True))
 
     def test_element_to_dict(self):
+        # Test when there is not a None
         exp = {'instance': {'flavor': {'links': [], 'value': {'value': '5'}}}}
         self.assertEqual(exp, xml.element_to_dict(self.ROOT))
+
+        # Test when there is a None
+        element = '''
+                <server>
+                    None
+                </server>
+            '''
+        rt = etree.fromstring(element)
+        self.assertEqual(None, xml.element_to_dict(rt))
 
     def test_standarize_json(self):
         xml.standardize_json_lists(self.JSON)
@@ -153,6 +183,27 @@ class XmlTest(TestCase):
             self.fail("TypeError exception expected")
         except TypeError:
             pass
+
+    def test_modify_response_types(self):
+        TYPE_MAP = {
+            "Int": int,
+            "Bool": bool
+            }
+        #Is a string True
+        self.assertEqual(True, xml.modify_response_types('True', TYPE_MAP))
+
+        #Is a string False
+        self.assertEqual(False, xml.modify_response_types('False', TYPE_MAP))
+
+        #Is a dict
+        test_dict = {"Int": "5"}
+        test_dict = xml.modify_response_types(test_dict, TYPE_MAP)
+        self.assertEqual(int, test_dict["Int"].__class__)
+
+        #Is a list
+        test_list = {"a_list": [{"Int": "5"}, {"Str": "A"}]}
+        test_list = xml.modify_response_types(test_list["a_list"], TYPE_MAP)
+        self.assertEqual([{'Int': 5}, {'Str': 'A'}], test_list)
 
     def test_reddwarfxmlclient(self):
         from reddwarfclient import exceptions

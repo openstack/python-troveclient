@@ -5,22 +5,51 @@ from numbers import Number
 from reddwarfclient import exceptions
 from reddwarfclient.client import ReddwarfHTTPClient
 
-
 XML_NS = {None: "http://docs.openstack.org/database/api/v1.0"}
 
-# This dictionary contains XML paths of things that should become list items.
+# If XML element is listed here then this searches through the ancestors.
 LISTIFY = {
     "accounts": [[]],
     "databases": [[]],
     "flavors": [[]],
     "instances": [[]],
-    "links": [["flavor", "instance", "instances"],
-               ["instance", "instances"]],
+    "links": [[]],
     "hosts": [[]],
     "devices": [[]],
     "users": [[]],
     "versions": [[]],
+    "attachments": [[]]
 }
+
+TYPE_MAP = {
+    "instance": {
+        "volume": {
+            "used": float,
+            "size": int,
+        },
+        "deleted": bool,
+        "server": {
+            "local_id": int,
+            "deleted": bool,
+        },
+    },
+    "instances": {
+        "deleted": bool,
+    },
+    "deleted": bool,
+    "flavor": {
+        "ram": int,
+    },
+    "diagnostics": {
+        "vmHwm": int,
+        "vmPeak": int,
+        "vmSize": int,
+        "threads": int,
+        "vmRss": int,
+        "fdSize": int,
+    },
+}
+TYPE_MAP["flavors"] = TYPE_MAP["flavor"]
 
 REQUEST_AS_LIST = set(['databases', 'users'])
 
@@ -60,8 +89,11 @@ def element_to_json(name, element):
 def root_element_to_json(name, element):
     """Returns a tuple of the root JSON value, plus the links if found."""
     if name == "rootEnabled":  # Why oh why were we inconsistent here? :'(
-        return bool(element.text), None
-    elif element_must_be_list(element, name):
+        if element.text.strip() == "False":
+            return False, None
+        elif element.text.strip() == "True":
+            return True, None
+    if element_must_be_list(element, name):
         return element_to_list(element, True)
     else:
         return element_to_dict(element), None
@@ -93,6 +125,12 @@ def element_to_dict(element):
     for child_element in element:
         name = normalize_tag(child_element)
         result[name] = element_to_json(name, child_element)
+    if len(result) == 0 and element.text:
+        string_value = element.text.strip()
+        if len(string_value):
+            if string_value == 'None':
+                return None
+            return string_value
     return result
 
 
@@ -177,8 +215,34 @@ def populate_element_from_dict(element, dict):
             element.set(key, value)
         elif isinstance(value, Number):
             element.set(key, str(value))
+        elif isinstance(value, None.__class__):
+            element.set(key, '')
         else:
             create_subelement(element, key, value)
+
+
+def modify_response_types(value, type_translator):
+    """
+    This will convert some string in response dictionary to ints or bool
+    so that our respose is compatiable with code expecting JSON style responses
+    """
+    if isinstance(value, str):
+        if value == 'True':
+            return True
+        elif value == 'False':
+            return False
+        else:
+            return type_translator(value)
+    elif isinstance(value, dict):
+        for k, v in value.iteritems():
+            if v.__class__ is dict and v.__len__() == 0:
+                value[k] = None
+            if k in type_translator:
+                value[k] = modify_response_types(value[k], type_translator[k])
+        return value
+    elif isinstance(value, list):
+        return [modify_response_types(element, type_translator)
+                for element in value]
 
 
 class ReddwarfXmlClient(ReddwarfHTTPClient):
@@ -208,4 +272,5 @@ class ReddwarfXmlClient(ReddwarfHTTPClient):
         result = {root_name: root_value}
         if links:
             result['links'] = links
+        modify_response_types(result, TYPE_MAP)
         return result
