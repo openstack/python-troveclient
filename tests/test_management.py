@@ -129,3 +129,9 @@ class ManagementTest(TestCase):
         self.management.update(1)
         self.assertEqual(1, self.management._action.call_count)
         self.assertEqual({'update': {}}, self.body_)
+
+    def test_reset_task_status(self):
+        self._mock_action()
+        self.management.reset_task_status(1)
+        self.assertEqual(1, self.management._action.call_count)
+        self.assertEqual({'reset-task-status': {}}, self.body_)

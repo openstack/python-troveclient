@@ -146,6 +146,11 @@ class InstanceCommands(common.AuthedCommandsBase):
         self._require('id')
         self._pretty_print(self.dbaas.management.migrate, self.id)
 
+    def reset_task_status(self):
+        """Set the instance's task status to NONE."""
+        self._require('id')
+        self._pretty_print(self.dbaas.management.reset_task_status, self.id)
+
 
 class StorageCommands(common.AuthedCommandsBase):
     """Commands to list devices info"""

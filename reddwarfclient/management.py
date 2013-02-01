@@ -124,3 +124,10 @@ class Management(base.ManagerWithFind):
         """
         body = {'update': {}}
         self._action(instance_id, body)
+
+    def reset_task_status(self, instance_id):
+        """
+        Set the task status to NONE.
+        """
+        body = {'reset-task-status': {}}
+        self._action(instance_id, body)
