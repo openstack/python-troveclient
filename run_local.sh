@@ -31,10 +31,14 @@ fi
 reddwarf_path=$1
 reddwarf_pid_file="`pwd`.pid"
 
-# the funmaker
 function start_server() {
+    server_log=`pwd`/rdserver.txt
+    set +e
+    rm $server_log
+    set -e
     pushd $reddwarf_path
-    bin/start_server.sh --pid_file=$reddwarf_pid_file
+    bin/start_server.sh --pid-file=$reddwarf_pid_file \
+                        --override-logfile=$server_log
     popd
 }
 
@@ -57,7 +61,10 @@ function on_error() {
 trap on_error EXIT  # Proceed to trap - END in event of failure.
 
 start_server
-tox
+tox -edocs
+mkdir -p .tox/docs/html
+.tox/docs/bin/sphinx-build -b doctest docs/source .tox/docs/html
+.tox/docs/bin/sphinx-build -b html docs/source .tox/docs/html
 stop_server
 
 
