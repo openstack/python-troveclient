@@ -197,7 +197,7 @@ class VersionCommands(common.AuthedCommandsBase):
     def list(self):
         """List all the supported versions"""
         self._require('url')
-        self._pretty_print(self.dbaas.versions.index, self.url)
+        self._pretty_list(self.dbaas.versions.index, self.url)
 
 
 COMMANDS = {'auth': common.Auth,
