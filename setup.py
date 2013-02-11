@@ -67,11 +67,11 @@ def read_file(file_name):
 setuptools.setup(
     name="python-reddwarfclient",
     version="2013.2.6",
-    author="Rackspace",
+    author="OpenStack",
     description="Rich client bindings for Reddwarf REST API.",
     long_description="""Rich client bindings for Reddwarf REST API.""",
     license="Apache License, Version 2.0",
-    url="https://github.com/openstack/python-reddwarfclient",
+    url="https://github.com/stackforge/python-reddwarfclient",
     packages=["reddwarfclient"],
     install_requires=parse_requirements(),
     test_suite="nose.collector",
