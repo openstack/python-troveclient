@@ -66,7 +66,7 @@ def read_file(file_name):
 
 setuptools.setup(
     name="python-reddwarfclient",
-    version="2013.2.6",
+    version="0.1.0",
     author="OpenStack",
     description="Rich client bindings for Reddwarf REST API.",
     long_description="""Rich client bindings for Reddwarf REST API.""",
