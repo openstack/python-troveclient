@@ -66,6 +66,27 @@ class HostCommands(common.AuthedCommandsBase):
         self._pretty_list(self.dbaas.hosts.index)
 
 
+class QuotaCommands(common.AuthedCommandsBase):
+    """List and update quota limits for a tenant."""
+
+    params = [
+              'id',
+              'instances',
+              'volume_size',
+             ]
+
+    def list(self):
+        """List all quotas for a tenant"""
+        self._require('id')
+        self._pretty_print(self.dbaas.quota.show, self.id)
+
+    def update(self):
+        """Update quota limits for a tenant"""
+        self._require('id', 'instances', 'volume_size')
+        self._pretty_print(self.dbaas.quota.update, self.id,
+                           self.instances, self.volume_size)
+
+
 class RootCommands(common.AuthedCommandsBase):
     """List details about the root info for an instance."""
 
@@ -173,6 +194,7 @@ COMMANDS = {'account': AccountCommands,
             'instance': InstanceCommands,
             'root': RootCommands,
             'storage': StorageCommands,
+            'quotas': QuotaCommands
             }
 
 
