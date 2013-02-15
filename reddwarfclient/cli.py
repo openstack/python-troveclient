@@ -51,12 +51,10 @@ class InstanceCommands(common.AuthedCommandsBase):
 
     def create(self):
         """Create a new instance"""
-        self._require('name', 'size')
-        # flavorRef is not required.
-        flavorRef = self.flavor or "http://localhost:8775/v1.0/flavors/1"
+        self._require('name', 'size', 'flavor')
         volume = {"size": self.size}
         self._pretty_print(self.dbaas.instances.create, self.name,
-                          flavorRef, volume)
+                           self.flavor, volume)
 
     def delete(self):
         """Delete the specified instance"""
