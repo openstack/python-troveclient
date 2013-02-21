@@ -294,7 +294,7 @@ class Dbaas(object):
     """
 
     def __init__(self, username, api_key, tenant=None, auth_url=None,
-                 service_type='reddwarf', service_name='Reddwarf',
+                 service_type='database', service_name='reddwarf',
                  service_url=None, insecure=False, auth_strategy='keystone',
                  region_name=None, client_cls=ReddwarfHTTPClient):
         from reddwarfclient.versions import Versions
