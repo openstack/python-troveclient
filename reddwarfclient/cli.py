@@ -228,10 +228,19 @@ class VersionCommands(common.AuthedCommandsBase):
         self._pretty_list(self.dbaas.versions.index, self.url)
 
 
+class LimitsCommands(common.AuthedCommandsBase):
+    """Show the rate limits and absolute limits"""
+
+    def list(self):
+        """List the rate limits and absolute limits"""
+        self._pretty_list(self.dbaas.limits.index)
+
+
 COMMANDS = {'auth': common.Auth,
             'instance': InstanceCommands,
             'flavor': FlavorsCommands,
             'database': DatabaseCommands,
+            'limit': LimitsCommands,
             'user': UserCommands,
             'root': RootCommands,
             'version': VersionCommands,

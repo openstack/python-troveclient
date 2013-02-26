@@ -301,6 +301,7 @@ class Dbaas(object):
         from reddwarfclient.databases import Databases
         from reddwarfclient.flavors import Flavors
         from reddwarfclient.instances import Instances
+        from reddwarfclient.limits import Limits
         from reddwarfclient.users import Users
         from reddwarfclient.root import Root
         from reddwarfclient.hosts import Hosts
@@ -322,6 +323,7 @@ class Dbaas(object):
         self.databases = Databases(self)
         self.flavors = Flavors(self)
         self.instances = Instances(self)
+        self.limits = Limits(self)
         self.users = Users(self)
         self.root = Root(self)
         self.hosts = Hosts(self)
