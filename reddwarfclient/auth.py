@@ -251,7 +251,7 @@ class ServiceCatalog(object):
             if service.get("type") != self.service_type:
                 continue
 
-            if (self.service_name and self.service_type == 'reddwarf' and
+            if (self.service_name and self.service_type == 'database' and
                 service.get('name') != self.service_name):
                 continue
 
