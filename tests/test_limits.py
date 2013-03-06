@@ -2,12 +2,11 @@ from testtools import TestCase
 from mock import Mock
 from reddwarfclient import limits
 
-"""
-This class tests the calling code for the Limits API
-"""
-
 
 class LimitsTest(TestCase):
+    """
+    This class tests the calling code for the Limits API
+    """
 
     def setUp(self):
         super(LimitsTest, self).setUp()
@@ -22,38 +21,43 @@ class LimitsTest(TestCase):
 
         resp = Mock()
         resp.status = 200
-        body = {RESPONSE_KEY: {'rate': [
-            {'limit': [
-                {
-                    "next-available": "2013-02-26T00:00:13Z",
-                    "remaining": 100,
-                    "unit": "MINUTE",
-                    "value": 100,
-                    "verb": "POST"
+        body = {RESPONSE_KEY: {
+                "absolute": {
+                    "maxTotalInstances": 55,
+                    "maxTotalVolumes": 100
                 },
-                {
-                    "next-available": "2013-02-26T00:00:13Z",
-                    "remaining": 100,
-                    "unit": "MINUTE",
-                    "value": 100,
-                    "verb": "PUT"
-                },
-                {
-                    "next-available": "2013-02-26T00:00:13Z",
-                    "remaining": 100,
-                    "unit": "MINUTE",
-                    "value": 100,
-                    "verb": "DELETE"
-                },
-                {
-                    "next-available": "2013-02-26T00:00:13Z",
-                    "remaining": 99,
-                    "unit": "MINUTE",
-                    "value": 100,
-                    "verb": "GET"
-                }
-                       ]
-            }]}}
+                'rate': [
+                {'limit': [
+                    {
+                        "next-available": "2013-02-26T00:00:13Z",
+                        "remaining": 100,
+                        "unit": "MINUTE",
+                        "value": 100,
+                        "verb": "POST"
+                    },
+                    {
+                        "next-available": "2013-02-26T00:00:13Z",
+                        "remaining": 100,
+                        "unit": "MINUTE",
+                        "value": 100,
+                        "verb": "PUT"
+                    },
+                    {
+                        "next-available": "2013-02-26T00:00:13Z",
+                        "remaining": 100,
+                        "unit": "MINUTE",
+                        "value": 100,
+                        "verb": "DELETE"
+                    },
+                    {
+                        "next-available": "2013-02-26T00:00:13Z",
+                        "remaining": 99,
+                        "unit": "MINUTE",
+                        "value": 100,
+                        "verb": "GET"
+                    }
+                ]
+                }]}}
         response = (resp, body)
 
         mock_get = Mock(return_value=response)
@@ -71,9 +75,11 @@ class LimitsTest(TestCase):
 
         resp = Mock()
         resp.status = status_code
-        body = {RESPONSE_KEY: {'rate': [
+        body = {RESPONSE_KEY: {
+            'absolute': {},
+            'rate': [
             {'limit': []
-            }]}}
+             }]}}
         response = (resp, body)
 
         mock_get = Mock(return_value=response)

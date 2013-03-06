@@ -4,3 +4,4 @@ build/*
 html/*
 python_reddwarfclient.egg*
 rdserver.txt
+python-reddwarfclient.iml

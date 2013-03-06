@@ -16,6 +16,11 @@
 from reddwarfclient import base
 import exceptions
 
+RESPONSE_KEY = "limits"
+ABSOLUTE = "absolute"
+RATE = "rate"
+LIMIT = 'limit'
+
 
 class Limits(base.ManagerWithFind):
     """
@@ -27,7 +32,6 @@ class Limits(base.ManagerWithFind):
         """
         Retrieve the limits
         """
-        RESPONSE_KEY = "limits"
         URL = "/limits"
         resp, body = self.api.client.get(URL)
 
@@ -37,5 +41,14 @@ class Limits(base.ManagerWithFind):
         if not body:
             raise Exception("Call to " + URL + " did not return a body.")
 
-        rates = body[RESPONSE_KEY]['rate'][0]['limit']
+        absolute_rates = self._get_absolute_rates(body)
+        rates = self._get_rates(body)
+        return absolute_rates + rates
+
+    def _get_rates(self, body):
+        rates = body[RESPONSE_KEY][RATE][0].get(LIMIT, {})
         return [self.resource_class(self, res) for res in rates]
+
+    def _get_absolute_rates(self, body):
+        absolute_rates = body[RESPONSE_KEY].get(ABSOLUTE, {})
+        return [self.resource_class(self, absolute_rates)]
