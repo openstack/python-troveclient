@@ -400,7 +400,7 @@ class ServiceCatalogTest(TestCase):
         scObj.catalog[scObj.root_key]['serviceCatalog'] = [service1]
         self.assertRaises(exceptions.EndpointNotFound, scObj._url_for)
 
-        scObj.service_type = "reddwarf"
+        scObj.service_type = "database"
         scObj.service_name = "no_match"
         self.assertRaises(exceptions.EndpointNotFound, scObj._url_for)
 

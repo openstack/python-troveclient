@@ -86,9 +86,7 @@ class Users(base.ManagerWithFind):
         """
         username = quote(user)
         url = "/instances/%s/users/%s" % (instance_id, username)
-        resp, body = self.api.client.get(url)
-        check_for_exceptions(resp, body)
-        return self.resource_class(self, body)
+        return self._get(url, "user")
 
     def list_access(self, instance, user):
         """Show all databases the given user has access to. """
