@@ -23,6 +23,8 @@ from reddwarfclient import client
 from reddwarfclient.xml import ReddwarfXmlClient
 from reddwarfclient import exceptions
 
+from urllib import quote
+
 
 def methods_of(obj):
     """Get all callable methods of an object that don't start with underscore
@@ -66,6 +68,15 @@ def limit_url(url, limit=None, marker=None):
         query.append("limit=%s" % limit)
     query = '?' + '&'.join(query)
     return url + query
+
+
+def quote_user_host(user, host):
+    quoted = ''
+    if host:
+        quoted = quote("%s@%s" % (user, host))
+    else:
+        quoted = quote("%s@%%" % user)
+    return quoted.replace('.', '%2e')
 
 
 class CliOptions(object):
