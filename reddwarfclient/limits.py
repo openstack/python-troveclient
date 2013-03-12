@@ -16,39 +16,35 @@
 from reddwarfclient import base
 import exceptions
 
-RESPONSE_KEY = "limits"
-ABSOLUTE = "absolute"
-RATE = "rate"
-LIMIT = 'limit'
+
+class Limit(base.Resource):
+
+    def __repr__(self):
+        return "<Limit: %s>" % self.verb
 
 
 class Limits(base.ManagerWithFind):
     """
     Manages :class `Limit` resources
     """
-    resource_class = base.Resource
+    resource_class = Limit
 
-    def index(self):
-        """
-        Retrieve the limits
-        """
-        URL = "/limits"
-        resp, body = self.api.client.get(URL)
+    def __repr__(self):
+        return "<Limit Manager at %s>" % id(self)
+
+    def _list(self, url, response_key):
+        resp, body = self.api.client.get(url)
 
         if resp is None or resp.status != 200:
             raise exceptions.from_response(resp, body)
 
         if not body:
-            raise Exception("Call to " + URL + " did not return a body.")
+            raise Exception("Call to " + url + " did not return a body.")
 
-        absolute_rates = self._get_absolute_rates(body)
-        rates = self._get_rates(body)
-        return absolute_rates + rates
+        return [self.resource_class(self, res) for res in body[response_key]]
 
-    def _get_rates(self, body):
-        rates = body[RESPONSE_KEY][RATE][0].get(LIMIT, {})
-        return [self.resource_class(self, res) for res in rates]
-
-    def _get_absolute_rates(self, body):
-        absolute_rates = body[RESPONSE_KEY].get(ABSOLUTE, {})
-        return [self.resource_class(self, absolute_rates)]
+    def list(self):
+        """
+        Retrieve the limits
+        """
+        return self._list("/limits", "limits")

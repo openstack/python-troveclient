@@ -233,7 +233,7 @@ class LimitsCommands(common.AuthedCommandsBase):
 
     def list(self):
         """List the rate limits and absolute limits"""
-        self._pretty_list(self.dbaas.limits.index)
+        self._pretty_list(self.dbaas.limits.list)
 
 
 COMMANDS = {'auth': common.Auth,

@@ -16,56 +16,48 @@ class LimitsTest(TestCase):
     def tearDown(self):
         super(LimitsTest, self).tearDown()
 
-    def test_index(self):
-        RESPONSE_KEY = "limits"
-
+    def test_list(self):
         resp = Mock()
         resp.status = 200
-        body = {RESPONSE_KEY: {
-                "absolute": {
-                    "maxTotalInstances": 55,
-                    "maxTotalVolumes": 100
-                },
-                'rate': [
-                {'limit': [
-                    {
-                        "next-available": "2013-02-26T00:00:13Z",
-                        "remaining": 100,
-                        "unit": "MINUTE",
-                        "value": 100,
-                        "verb": "POST"
-                    },
-                    {
-                        "next-available": "2013-02-26T00:00:13Z",
-                        "remaining": 100,
-                        "unit": "MINUTE",
-                        "value": 100,
-                        "verb": "PUT"
-                    },
-                    {
-                        "next-available": "2013-02-26T00:00:13Z",
-                        "remaining": 100,
-                        "unit": "MINUTE",
-                        "value": 100,
-                        "verb": "DELETE"
-                    },
-                    {
-                        "next-available": "2013-02-26T00:00:13Z",
-                        "remaining": 99,
-                        "unit": "MINUTE",
-                        "value": 100,
-                        "verb": "GET"
-                    }
-                ]
-                }]}}
+        body = {"limits":
+                [
+                    {'maxTotalInstances': 55,
+                     'verb': 'ABSOLUTE',
+                     'maxTotalVolumes': 100},
+                    {'regex': '.*',
+                     'nextAvailable': '2011-07-21T18:17:06Z',
+                     'uri': '*',
+                     'value': 10,
+                     'verb': 'POST',
+                     'remaining': 2, 'unit': 'MINUTE'},
+                    {'regex': '.*',
+                     'nextAvailable': '2011-07-21T18:17:06Z',
+                     'uri': '*',
+                     'value': 10,
+                     'verb': 'PUT',
+                     'remaining': 2,
+                     'unit': 'MINUTE'},
+                    {'regex': '.*',
+                     'nextAvailable': '2011-07-21T18:17:06Z',
+                     'uri': '*',
+                     'value': 10,
+                     'verb': 'DELETE',
+                     'remaining': 2,
+                     'unit': 'MINUTE'},
+                    {'regex': '.*',
+                     'nextAvailable': '2011-07-21T18:17:06Z',
+                     'uri': '*',
+                     'value': 10,
+                     'verb': 'GET',
+                     'remaining': 2, 'unit': 'MINUTE'}]}
         response = (resp, body)
 
         mock_get = Mock(return_value=response)
         self.limits.api.client.get = mock_get
-        self.assertIsNotNone(self.limits.index())
+        self.assertIsNotNone(self.limits.list())
         mock_get.assert_called_once_with("/limits")
 
-    def test_index_errors(self):
+    def test_list_errors(self):
         status_list = [400, 401, 403, 404, 408, 409, 413, 500, 501]
         for status_code in status_list:
             self._check_error_response(status_code)
@@ -84,4 +76,4 @@ class LimitsTest(TestCase):
 
         mock_get = Mock(return_value=response)
         self.limits.api.client.get = mock_get
-        self.assertRaises(Exception, self.limits.index)
+        self.assertRaises(Exception, self.limits.list)

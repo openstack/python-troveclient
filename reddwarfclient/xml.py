@@ -18,7 +18,8 @@ LISTIFY = {
     "devices": [[]],
     "users": [[]],
     "versions": [[]],
-    "attachments": [[]]
+    "attachments": [[]],
+    "limits": [[]]
 }
 
 TYPE_MAP = {
