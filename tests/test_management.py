@@ -124,6 +124,13 @@ class ManagementTest(TestCase):
         self.assertEqual(1, self.management._action.call_count)
         self.assertEqual({'migrate': {}}, self.body_)
 
+    def test_migrate_to_host(self):
+        hostname = 'hostname2'
+        self._mock_action()
+        self.management.migrate(1, host=hostname)
+        self.assertEqual(1, self.management._action.call_count)
+        self.assertEqual({'migrate': {'host': hostname}}, self.body_)
+
     def test_update(self):
         self._mock_action()
         self.management.update(1)
