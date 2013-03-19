@@ -194,7 +194,7 @@ COMMANDS = {'account': AccountCommands,
             'instance': InstanceCommands,
             'root': RootCommands,
             'storage': StorageCommands,
-            'quotas': QuotaCommands
+            'quotas': QuotaCommands,
             }
 
 
