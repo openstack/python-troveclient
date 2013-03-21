@@ -19,7 +19,8 @@ LISTIFY = {
     "users": [[]],
     "versions": [[]],
     "attachments": [[]],
-    "limits": [[]]
+    "limits": [[]],
+    "security_groups": [[]]
 }
 
 TYPE_MAP = {
