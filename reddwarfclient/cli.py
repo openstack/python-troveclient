@@ -140,6 +140,7 @@ class UserCommands(common.AuthedCommandsBase):
               'id',
               'database',
               'databases',
+              'hostname',
               'name',
               'password',
              ]
@@ -149,19 +150,20 @@ class UserCommands(common.AuthedCommandsBase):
         self._require('id', 'name', 'password', 'databases')
         self._make_list('databases')
         databases = [{'name': dbname} for dbname in self.databases]
-        users = [{'name': self.name, 'password': self.password,
-                  'databases': databases}]
+        users = [{'name': self.name, 'host': self.hostname,
+                  'password': self.password, 'databases': databases}]
         self.dbaas.users.create(self.id, users)
 
     def delete(self):
         """Delete the specified user"""
         self._require('id', 'name')
-        self.dbaas.users.delete(self.id, self.name)
+        self.dbaas.users.delete(self.id, self.name, self.hostname)
 
     def get(self):
         """Get a single user."""
         self._require('id', 'name')
-        self._pretty_print(self.dbaas.users.get, self.id, self.name)
+        self._pretty_print(self.dbaas.users.get, self.id,
+                           self.name, self.hostname)
 
     def list(self):
         """List all the users for an instance"""
@@ -171,25 +173,29 @@ class UserCommands(common.AuthedCommandsBase):
     def access(self):
         """Show all databases the user has access to."""
         self._require('id', 'name')
-        self._pretty_list(self.dbaas.users.list_access, self.id, self.name)
+        self._pretty_list(self.dbaas.users.list_access, self.id,
+                          self.name, self.hostname)
 
     def grant(self):
         """Allow an existing user permissions to access one or more
         databases."""
         self._require('id', 'name', 'databases')
         self._make_list('databases')
-        self.dbaas.users.grant(self.id, self.name, self.databases)
+        self.dbaas.users.grant(self.id, self.name, self.databases,
+                               self.hostname)
 
     def revoke(self):
         """Revoke from an existing user access permissions to a database."""
         self._require('id', 'name', 'database')
-        self.dbaas.users.revoke(self.id, self.name, self.database)
+        self.dbaas.users.revoke(self.id, self.name, self.database,
+                                self.hostname)
 
     def change_password(self):
         """Change the password of a single user."""
         self._require('id', 'name', 'password')
         users = [{'name': self.name,
-                 'password': self.password}]
+                  'host': self.hostname,
+                  'password': self.password}]
         self.dbaas.users.change_passwords(self.id, users)
 
 

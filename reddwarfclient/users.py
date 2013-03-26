@@ -18,9 +18,9 @@ from reddwarfclient import databases
 from reddwarfclient.common import check_for_exceptions
 from reddwarfclient.common import limit_url
 from reddwarfclient.common import Paginated
+from reddwarfclient.common import quote_user_host
 import exceptions
 import urlparse
-from urllib import quote
 
 
 class User(base.Resource):
@@ -46,8 +46,9 @@ class Users(base.ManagerWithFind):
         resp, body = self.api.client.post(url, body=body)
         check_for_exceptions(resp, body)
 
-    def delete(self, instance_id, user):
+    def delete(self, instance_id, username, hostname=None):
         """Delete an existing user in the specified instance"""
+        user = quote_user_host(username, hostname)
         url = "/instances/%s/users/%s" % (instance_id, user)
         resp, body = self.api.client.delete(url)
         check_for_exceptions(resp, body)
@@ -78,41 +79,41 @@ class Users(base.ManagerWithFind):
         return self._list("/instances/%s/users" % base.getid(instance),
                           "users", limit, marker)
 
-    def get(self, instance_id, user):
+    def get(self, instance_id, username, hostname=None):
         """
         Get a single User from the instance's Database.
 
         :rtype: :class:`User`.
         """
-        username = quote(user)
-        url = "/instances/%s/users/%s" % (instance_id, username)
+        user = quote_user_host(username, hostname)
+        url = "/instances/%s/users/%s" % (instance_id, user)
         return self._get(url, "user")
 
-    def list_access(self, instance, user):
+    def list_access(self, instance, username, hostname=None):
         """Show all databases the given user has access to. """
         instance_id = base.getid(instance)
-        username = quote(user)
-        url = "/instances/%(instance_id)s/users/%(username)s/databases"
+        user = quote_user_host(username, hostname)
+        url = "/instances/%(instance_id)s/users/%(user)s/databases"
         resp, body = self.api.client.get(url % locals())
         check_for_exceptions(resp, body)
         if not body:
             raise Exception("Call to %s did not return to a body" % url)
         return [databases.Database(self, db) for db in body['databases']]
 
-    def grant(self, instance, user, databases):
+    def grant(self, instance, username, databases, hostname=None):
         """Allow an existing user permissions to access a database."""
         instance_id = base.getid(instance)
-        username = quote(user)
-        url = "/instances/%(instance_id)s/users/%(username)s/databases"
+        user = quote_user_host(username, hostname)
+        url = "/instances/%(instance_id)s/users/%(user)s/databases"
         dbs = {'databases': [{'name': db} for db in databases]}
         resp, body = self.api.client.put(url % locals(), body=dbs)
         check_for_exceptions(resp, body)
 
-    def revoke(self, instance, user, database):
+    def revoke(self, instance, username, database, hostname=None):
         """Revoke from an existing user access permissions to a database."""
         instance_id = base.getid(instance)
-        username = quote(user)
-        url = ("/instances/%(instance_id)s/users/%(username)s/"
+        user = quote_user_host(username, hostname)
+        url = ("/instances/%(instance_id)s/users/%(user)s/"
                "databases/%(database)s")
         resp, body = self.api.client.delete(url % locals())
         check_for_exceptions(resp, body)

@@ -56,20 +56,48 @@ class UsersTest(TestCase):
 
         return Mock(side_effect=side_effect_func)
 
+    def _build_fake_user(self, name, hostname=None, password=None,
+                         databases=None):
+        return {'name': name,
+                'password': password if password else 'password',
+                'host': hostname,
+                'databases': databases if databases else [],
+               }
+
     def test_create(self):
         self.users.api.client.post = self._get_mock_method()
         self._resp.status = 200
-        self.users.create(23, 'user1')
+        user = self._build_fake_user('user1')
+
+        self.users.create(23, [user])
         self.assertEqual('/instances/23/users', self._url)
-        self.assertEqual({"users": 'user1'}, self._body)
+        self.assertEqual({"users": [user]}, self._body)
+
+        # Even if host isn't supplied originally,
+        # the default is supplied.
+        del user['host']
+        self.users.create(23, [user])
+        self.assertEqual('/instances/23/users', self._url)
+        user['host'] = '%'
+        self.assertEqual({"users": [user]}, self._body)
+
+        # If host is supplied, of course it's put into the body.
+        user['host'] = '127.0.0.1'
+        self.users.create(23, [user])
+        self.assertEqual({"users": [user]}, self._body)
+
+        # Make sure that response of 400 is recognized as an error.
+        user['host'] = '%'
         self._resp.status = 400
-        self.assertRaises(Exception, self.users.create, 12, ['user1'])
+        self.assertRaises(Exception, self.users.create, 12, [user])
 
     def test_delete(self):
         self.users.api.client.delete = self._get_mock_method()
         self._resp.status = 200
         self.users.delete(27, 'user1')
-        self.assertEqual('/instances/27/users/user1', self._url)
+        # The client appends the host to remove ambiguity.
+        # urllib.unquote('%40%25') == '@%'
+        self.assertEqual('/instances/27/users/user1%40%25', self._url)
         self._resp.status = 400
         self.assertRaises(Exception, self.users.delete, 34, 'user1')
 
