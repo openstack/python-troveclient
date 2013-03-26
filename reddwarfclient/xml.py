@@ -50,6 +50,10 @@ TYPE_MAP = {
         "vmRss": int,
         "fdSize": int,
     },
+    "security_group_rule": {
+        "from_port": int,
+        "to_port": int,
+    },
 }
 TYPE_MAP["flavors"] = TYPE_MAP["flavor"]
 
