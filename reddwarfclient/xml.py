@@ -20,7 +20,8 @@ LISTIFY = {
     "versions": [[]],
     "attachments": [[]],
     "limits": [[]],
-    "security_groups": [[]]
+    "security_groups": [[]],
+    "backups": [[]]
 }
 
 TYPE_MAP = {

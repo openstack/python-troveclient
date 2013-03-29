@@ -55,7 +55,8 @@ class Instances(base.ManagerWithFind):
     """
     resource_class = Instance
 
-    def create(self, name, flavor_id, volume, databases=None, users=None):
+    def create(self, name, flavor_id, volume, databases=None, users=None,
+               restorePoint=None):
         """
         Create (boot) a new instance.
         """
@@ -68,6 +69,8 @@ class Instances(base.ManagerWithFind):
             body["instance"]["databases"] = databases
         if users:
             body["instance"]["users"] = users
+        if restorePoint:
+            body["instance"]["restorePoint"] = restorePoint
 
         return self._create("/instances", body, "instance")
 
@@ -102,7 +105,16 @@ class Instances(base.ManagerWithFind):
         :rtype: :class:`Instance`
         """
         return self._get("/instances/%s" % base.getid(instance),
-                        "instance")
+                         "instance")
+
+    def backups(self, instance):
+        """
+        Get the list of backups for a specific instance.
+
+        :rtype: list of :class:`Backups`.
+        """
+        return self._list("/instances/%s/backups" % base.getid(instance),
+                          "backups")
 
     def delete(self, instance):
         """

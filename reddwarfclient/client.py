@@ -306,6 +306,7 @@ class Dbaas(object):
         from reddwarfclient.root import Root
         from reddwarfclient.hosts import Hosts
         from reddwarfclient.quota import Quotas
+        from reddwarfclient.backups import Backups
         from reddwarfclient.security_groups import SecurityGroups
         from reddwarfclient.security_groups import SecurityGroupRules
         from reddwarfclient.storage import StorageInfo
@@ -330,6 +331,7 @@ class Dbaas(object):
         self.root = Root(self)
         self.hosts = Hosts(self)
         self.quota = Quotas(self)
+        self.backups = Backups(self)
         self.security_groups = SecurityGroups(self)
         self.security_group_rules = SecurityGroupRules(self)
         self.storage = StorageInfo(self)

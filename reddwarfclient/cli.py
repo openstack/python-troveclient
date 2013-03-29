@@ -47,14 +47,18 @@ class InstanceCommands(common.AuthedCommandsBase):
               'marker',
               'name',
               'size',
-             ]
+              'backupRef'
+    ]
 
     def create(self):
         """Create a new instance"""
         self._require('name', 'size', 'flavor')
         volume = {"size": self.size}
+        restorePoint = None
+        if self.backupRef is not None:
+            restorePoint = {"backupRef": self.backupRef}
         self._pretty_print(self.dbaas.instances.create, self.name,
-                           self.flavor, volume)
+                           self.flavor, volume, restorePoint=restorePoint)
 
     def delete(self):
         """Delete the specified instance"""
@@ -65,6 +69,11 @@ class InstanceCommands(common.AuthedCommandsBase):
         """Get details for the specified instance"""
         self._require('id')
         self._pretty_print(self.dbaas.instances.get, self.id)
+
+    def backups(self):
+        """Get a list of backups for the specified instance"""
+        self._require('id')
+        self._pretty_list(self.dbaas.instances.backups, self.id)
 
     def list(self):
         """List all instances for account"""
@@ -242,6 +251,26 @@ class LimitsCommands(common.AuthedCommandsBase):
         self._pretty_list(self.dbaas.limits.list)
 
 
+class BackupsCommands(common.AuthedCommandsBase):
+    """Command to manage and show backups"""
+    params = ['name', 'instance', 'description']
+
+    def list(self):
+        """List backups"""
+        self._pretty_list(self.dbaas.backups.list)
+
+    def create(self):
+        """Create a new backup"""
+        self._require('name', 'instance')
+        self._pretty_print(self.dbaas.backups.create, self.name,
+                           self.instance, self.description)
+
+    def delete(self):
+        """Delete a backup"""
+        self._require('id')
+        self._pretty_print(self.dbaas.backups.delete, self.id)
+
+
 class SecurityGroupCommands(common.AuthedCommandsBase):
     """Commands to list and show Security Groups For an Instance and """
     """create and delete security group rules for them. """
@@ -281,6 +310,7 @@ COMMANDS = {'auth': common.Auth,
             'flavor': FlavorsCommands,
             'database': DatabaseCommands,
             'limit': LimitsCommands,
+            'backup': BackupsCommands,
             'user': UserCommands,
             'root': RootCommands,
             'version': VersionCommands,
