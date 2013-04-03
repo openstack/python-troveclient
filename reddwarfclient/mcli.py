@@ -69,11 +69,9 @@ class HostCommands(common.AuthedCommandsBase):
 class QuotaCommands(common.AuthedCommandsBase):
     """List and update quota limits for a tenant."""
 
-    params = [
-              'id',
+    params = ['id',
               'instances',
-              'volume_size',
-             ]
+              'volumes']
 
     def list(self):
         """List all quotas for a tenant"""
@@ -82,9 +80,10 @@ class QuotaCommands(common.AuthedCommandsBase):
 
     def update(self):
         """Update quota limits for a tenant"""
-        self._require('id', 'instances', 'volume_size')
+        self._require('id')
         self._pretty_print(self.dbaas.quota.update, self.id,
-                           self.instances, self.volume_size)
+                           dict((param, getattr(self, param))
+                                for param in self.params if param != 'id'))
 
 
 class RootCommands(common.AuthedCommandsBase):
@@ -194,7 +193,7 @@ COMMANDS = {'account': AccountCommands,
             'instance': InstanceCommands,
             'root': RootCommands,
             'storage': StorageCommands,
-            'quotas': QuotaCommands,
+            'quota': QuotaCommands,
             }
 
 

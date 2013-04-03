@@ -42,12 +42,12 @@ class Quotas(base.ManagerWithFind):
             raise Exception("Call to " + url + " did not return a body.")
         return base.Resource(self, body)
 
-    def update(self, tenant_id, instances, volume_size):
+    def update(self, id, quotas):
         """
         Set limits for quotas
         """
-        url = "/mgmt/quotas/%s" % tenant_id
-        body = {"quotas": {"instances": instances, "volumes": volume_size}}
+        url = "/mgmt/quotas/%s" % id
+        body = {"quotas": quotas}
         resp, body = self.api.client.put(url, body=body)
         check_for_exceptions(resp, body)
         if not body:
