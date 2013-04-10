@@ -24,6 +24,11 @@ LISTIFY = {
     "backups": [[]]
 }
 
+
+class IntDict(object):
+    pass
+
+
 TYPE_MAP = {
     "instance": {
         "volume": {
@@ -55,6 +60,7 @@ TYPE_MAP = {
         "from_port": int,
         "to_port": int,
     },
+    "quotas": IntDict,
 }
 TYPE_MAP["flavors"] = TYPE_MAP["flavor"]
 
@@ -242,10 +248,14 @@ def modify_response_types(value, type_translator):
             return type_translator(value)
     elif isinstance(value, dict):
         for k, v in value.iteritems():
-            if v.__class__ is dict and v.__len__() == 0:
-                value[k] = None
-            if k in type_translator:
-                value[k] = modify_response_types(value[k], type_translator[k])
+            if type_translator is not IntDict:
+                if v.__class__ is dict and v.__len__() == 0:
+                    value[k] = None
+                elif k in type_translator:
+                    value[k] = modify_response_types(value[k],
+                                                     type_translator[k])
+            else:
+                value[k] = int(value[k])
         return value
     elif isinstance(value, list):
         return [modify_response_types(element, type_translator)

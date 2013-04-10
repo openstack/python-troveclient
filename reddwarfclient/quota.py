@@ -17,20 +17,12 @@ from reddwarfclient import base
 from reddwarfclient.common import check_for_exceptions
 
 
-class Quota(base.Resource):
-    """
-    Quota is a resource used to hold quota information.
-    """
-    def __repr__(self):
-        return "<Quota: %s>" % self.name
-
-
 class Quotas(base.ManagerWithFind):
     """
     Manage :class:`Quota` information.
     """
 
-    resource_class = Quota
+    resource_class = base.Resource
 
     def show(self, tenant_id):
         """Get a list of all quotas for a tenant id"""
@@ -40,7 +32,9 @@ class Quotas(base.ManagerWithFind):
         check_for_exceptions(resp, body)
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
-        return base.Resource(self, body)
+        if 'quotas' not in body:
+            raise Exception("Missing key value 'quotas' in response body.")
+        return body['quotas']
 
     def update(self, id, quotas):
         """
@@ -52,4 +46,6 @@ class Quotas(base.ManagerWithFind):
         check_for_exceptions(resp, body)
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
-        return base.Resource(self, body)
+        if 'quotas' not in body:
+            raise Exception("Missing key value 'quotas' in response body.")
+        return body['quotas']
