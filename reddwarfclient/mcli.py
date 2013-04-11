@@ -71,7 +71,8 @@ class QuotaCommands(common.AuthedCommandsBase):
 
     params = ['id',
               'instances',
-              'volumes']
+              'volumes',
+              'backups']
 
     def list(self):
         """List all quotas for a tenant"""
