@@ -75,7 +75,7 @@ def quote_user_host(user, host):
     if host:
         quoted = quote("%s@%s" % (user, host))
     else:
-        quoted = quote("%s@%%" % user)
+        quoted = quote("%s" % user)
     return quoted.replace('.', '%2e')
 
 
