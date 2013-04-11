@@ -125,6 +125,7 @@ class InstanceCommands(common.AuthedCommandsBase):
               'id',
               'limit',
               'marker',
+              'host',
              ]
 
     def get(self):
@@ -165,7 +166,7 @@ class InstanceCommands(common.AuthedCommandsBase):
     def migrate(self):
         """Migrate the instance."""
         self._require('id')
-        self._pretty_print(self.dbaas.management.migrate, self.id)
+        self._pretty_print(self.dbaas.management.migrate, self.id, self.host)
 
     def reset_task_status(self):
         """Set the instance's task status to NONE."""

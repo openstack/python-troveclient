@@ -109,13 +109,16 @@ class Management(base.ManagerWithFind):
         body = {'reboot': {}}
         self._action(instance_id, body)
 
-    def migrate(self, instance_id):
+    def migrate(self, instance_id, host=None):
         """
         Migrate the instance.
 
         :param instance_id: The :class:`Instance` (or its ID) to share onto.
         """
-        body = {'migrate': {}}
+        if host:
+            body = {'migrate': {'host': host}}
+        else:
+            body = {'migrate': {}}
         self._action(instance_id, body)
 
     def update(self, instance_id):
