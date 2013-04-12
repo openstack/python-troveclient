@@ -47,7 +47,7 @@ class InstanceCommands(common.AuthedCommandsBase):
               'marker',
               'name',
               'size',
-              'backupId'
+              'backup'
     ]
 
     def create(self):
@@ -55,8 +55,8 @@ class InstanceCommands(common.AuthedCommandsBase):
         self._require('name', 'size', 'flavor')
         volume = {"size": self.size}
         restorePoint = None
-        if self.backupId is not None:
-            restorePoint = {"backupId": self.backupId}
+        if self.backup is not None:
+            restorePoint = {"backupRef": self.backup}
         self._pretty_print(self.dbaas.instances.create, self.name,
                            self.flavor, volume, restorePoint=restorePoint)
 
