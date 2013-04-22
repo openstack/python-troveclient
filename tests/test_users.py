@@ -95,9 +95,7 @@ class UsersTest(TestCase):
         self.users.api.client.delete = self._get_mock_method()
         self._resp.status = 200
         self.users.delete(27, 'user1')
-        # The client appends the host to remove ambiguity.
-        # urllib.unquote('%40%25') == '@%'
-        self.assertEqual('/instances/27/users/user1%40%25', self._url)
+        self.assertEqual('/instances/27/users/user1', self._url)
         self._resp.status = 400
         self.assertRaises(Exception, self.users.delete, 34, 'user1')
 
