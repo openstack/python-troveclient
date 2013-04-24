@@ -38,6 +38,9 @@ _logger = logging.getLogger(__name__)
 RDC_PP = os.environ.get("RDC_PP", "False") == "True"
 
 
+expected_errors = (400, 401, 403, 404, 408, 409, 413, 422, 500, 501)
+
+
 def log_to_streamhandler(stream=None):
     stream = stream or sys.stderr
     ch = logging.StreamHandler(stream)
@@ -184,13 +187,13 @@ class ReddwarfHTTPClient(httplib2.Http):
         else:
             body = None
 
-        if resp.status in (400, 401, 403, 404, 408, 409, 413, 422, 500, 501):
+        if resp.status in expected_errors:
             raise exceptions.from_response(resp, body)
 
         return resp, body
 
     def raise_error_from_status(self, resp, body):
-        if resp.status in (400, 401, 403, 404, 408, 409, 413, 500, 501):
+        if resp.status in expected_errors:
             raise exceptions.from_response(resp, body)
 
     def morph_request(self, kwargs):
