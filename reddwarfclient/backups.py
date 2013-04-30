@@ -32,6 +32,15 @@ class Backups(base.ManagerWithFind):
 
     resource_class = Backup
 
+    def get(self, backup):
+        """
+        Get a specific backup.
+
+        :rtype: :class:`Backups`
+        """
+        return self._get("/backups/%s" % base.getid(backup),
+                         "backup")
+
     def list(self, limit=None, marker=None):
         """
         Get a list of all backups.

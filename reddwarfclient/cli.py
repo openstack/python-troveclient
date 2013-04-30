@@ -255,6 +255,11 @@ class BackupsCommands(common.AuthedCommandsBase):
     """Command to manage and show backups"""
     params = ['name', 'instance', 'description']
 
+    def get(self):
+        """Get details for the specified backup"""
+        self._require('id')
+        self._pretty_print(self.dbaas.backups.get, self.id)
+
     def list(self):
         """List backups"""
         self._pretty_list(self.dbaas.backups.list)
