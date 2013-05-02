@@ -52,8 +52,10 @@ class InstanceCommands(common.AuthedCommandsBase):
 
     def create(self):
         """Create a new instance"""
-        self._require('name', 'size', 'flavor')
-        volume = {"size": self.size}
+        self._require('name', 'flavor')
+        volume = None
+        if self.size is not None:
+            volume = {"size": self.size}
         restorePoint = None
         if self.backup is not None:
             restorePoint = {"backupRef": self.backup}
