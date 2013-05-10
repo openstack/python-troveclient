@@ -55,16 +55,17 @@ class Instances(base.ManagerWithFind):
     """
     resource_class = Instance
 
-    def create(self, name, flavor_id, volume, databases=None, users=None,
+    def create(self, name, flavor_id, volume=None, databases=None, users=None,
                restorePoint=None):
         """
         Create (boot) a new instance.
         """
         body = {"instance": {
             "name": name,
-            "flavorRef": flavor_id,
-            "volume": volume
+            "flavorRef": flavor_id
         }}
+        if volume:
+            body["instance"]["volume"] = volume
         if databases:
             body["instance"]["databases"] = databases
         if users:
