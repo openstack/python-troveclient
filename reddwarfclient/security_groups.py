@@ -59,7 +59,8 @@ class SecurityGroups(base.ManagerWithFind):
 
         :rtype: list of :class:`SecurityGroup`.
         """
-        return self._list("/security_groups", "security_groups", limit, marker)
+        return self._list("/security-groups", "security_groups", limit,
+                          marker)
 
     def get(self, security_group):
         """
@@ -67,7 +68,7 @@ class SecurityGroups(base.ManagerWithFind):
 
         :rtype: :class:`SecurityGroup`
         """
-        return self._get("/security_groups/%s" % base.getid(security_group),
+        return self._get("/security-groups/%s" % base.getid(security_group),
                          "security_group")
 
 
@@ -104,16 +105,16 @@ class SecurityGroupRules(base.ManagerWithFind):
             "to_port": to_port,
             "cidr": cidr
         }}
-        return self._create("/security_group_rules", body,
+        return self._create("/security-group-rules", body,
                             "security_group_rule")
 
     def delete(self, security_group_rule):
         """
-        Delete the specified security group.
+        Delete the specified security group rule.
 
-        :param security_group_id: The security group id to delete
+        :param security_group_rule: The security group rule to delete
         """
-        resp, body = self.api.client.delete("/security_group_rules/%s" %
+        resp, body = self.api.client.delete("/security-group-rules/%s" %
                                             base.getid(security_group_rule))
         if resp.status in (422, 500):
             raise exceptions.from_response(resp, body)

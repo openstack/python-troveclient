@@ -38,7 +38,7 @@ class SecGroupTest(TestCase):
 
         self.security_groups._get = Mock(side_effect=side_effect_func)
         self.security_group.id = 1
-        self.assertEqual(('/security_groups/1', 'security_group'),
+        self.assertEqual(('/security-groups/1', 'security_group'),
                          self.security_groups.get(self.security_group))
 
 
@@ -80,7 +80,7 @@ class SecGroupRuleTest(TestCase):
         self.security_group_rules._create = Mock(side_effect=side_effect_func)
         p, b, i = self.security_group_rules.create(1, "tcp",
                                                    80, 80, "0.0.0.0//0")
-        self.assertEqual("/security_group_rules", p)
+        self.assertEqual("/security-group-rules", p)
         self.assertEqual("security_group_rule", i)
         self.assertEqual(1, b["security_group_rule"]["group_id"])
         self.assertEqual("tcp", b["security_group_rule"]["protocol"])
