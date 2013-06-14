@@ -1,4 +1,4 @@
 [gerrit]
 host=review.openstack.org
 port=29418
-project=stackforge/python-reddwarfclient.git
+project=openstack/python-troveclient.git

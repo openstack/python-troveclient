@@ -65,13 +65,13 @@ def read_file(file_name):
 
 
 setuptools.setup(
-    name="python-reddwarfclient",
+    name="python-troveclient",
     version="0.1.2",
     author="OpenStack",
-    description="Rich client bindings for Reddwarf REST API.",
-    long_description="""Rich client bindings for Reddwarf REST API.""",
+    description="Rich client bindings for Trove REST API.",
+    long_description="""Rich client bindings for Trove REST API.""",
     license="Apache License, Version 2.0",
-    url="https://github.com/stackforge/python-reddwarfclient",
+    url="https://openstack.org",
     packages=["reddwarfclient"],
     install_requires=parse_requirements(),
     test_suite="nose.collector",
