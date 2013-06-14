@@ -386,7 +386,7 @@ class ResourceTest(TestCase):
         robj._add_details(info_)
 
         expected = "<Resource name=test-human-id, test_attr=5>"
-        self.assertEqual(expected,  robj.__repr__())
+        self.assertEqual(expected, robj.__repr__())
 
     def test_get(self):
         robj = self.get_mock_resource_obj()
