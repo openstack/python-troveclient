@@ -1,7 +1,10 @@
 *.pyc
 .tox/*
+dist/*
 build/*
 html/*
-python_reddwarfclient.egg*
+python_troveclient.egg*
 rdserver.txt
-python-reddwarfclient.iml
+python-troveclient.iml
+AUTHORS
+ChangeLog
