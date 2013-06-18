@@ -1,4 +1,5 @@
 *.pyc
+.testrepository
 .tox/*
 dist/*
 build/*

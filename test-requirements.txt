@@ -4,12 +4,10 @@ pyflakes==0.7.2
 flake8==2.0
 hacking>=0.5.3,<0.6
 
-nose>=1.2.1
-nosexcover>=1.0.7
-openstack.nose_plugin>=0.11
+discover
 sphinx>=1.1.2
-unittest2>=0.5.1
-testtools
+testrepository>=0.0.13
+testtools>=0.9.29
 # This used to be but openstack/requirements is set to [below].
 # If this breaks we 1) fix tests to use [below] or
 # 2) petition to use mock>=1.0.1
