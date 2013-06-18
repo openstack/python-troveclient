@@ -9,9 +9,9 @@ me=${0##*/}
 
 function print_usage() {
   cat >&2 <<EOS
-Run tests against a local instance of reddwarf
+Run tests against a local instance of trove
 
-Usage: $me reddwarf_path [logfile]
+Usage: $me trove_path [logfile]
 EOS
 }
 
@@ -28,25 +28,25 @@ if [ $# -lt 1 ]; then
     exit 5
 fi
 
-reddwarf_path=$1
-reddwarf_pid_file="`pwd`.pid"
+trove_path=$1
+trove_pid_file="`pwd`.pid"
 
 function start_server() {
     server_log=`pwd`/rdserver.txt
     set +e
     rm $server_log
     set -e
-    pushd $reddwarf_path
-    bin/start_server.sh --pid-file=$reddwarf_pid_file \
+    pushd $trove_path
+    bin/start_server.sh --pid-file=$trove_pid_file \
                         --override-logfile=$server_log
     popd
 }
 
 function stop_server() {
-    if [ -f $reddwarf_pid_file ];
+    if [ -f $trove_pid_file ];
     then
-        pushd $reddwarf_path
-        bin/stop_server.sh $reddwarf_pid_file
+        pushd $trove_path
+        bin/stop_server.sh $trove_pid_file
         popd
     else
         echo "The pid file did not exist, so not stopping server."

@@ -8,7 +8,5 @@ discover
 sphinx>=1.1.2
 testrepository>=0.0.13
 testtools>=0.9.29
-# This used to be but openstack/requirements is set to [below].
-# If this breaks we 1) fix tests to use [below] or
-# 2) petition to use mock>=1.0.1
 mock>=0.8.0
+
