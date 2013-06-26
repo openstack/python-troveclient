@@ -1,7 +1,6 @@
 import os
 from testtools import TestCase
 from troveclient import utils
-from troveclient import versions
 
 
 class UtilsTest(TestCase):
@@ -34,7 +33,7 @@ class UtilsTest(TestCase):
         self.assertEqual('', utils.env('test_abcd'))
 
     def test_slugify(self):
-        import unicodedata
+        import unicodedata  # noqa
 
         self.assertEqual('not_unicode', utils.slugify('not_unicode'))
         self.assertEqual('unicode', utils.slugify(unicode('unicode')))

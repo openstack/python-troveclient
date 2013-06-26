@@ -2,7 +2,6 @@ from troveclient import base
 from troveclient.common import check_for_exceptions
 from troveclient.common import limit_url
 from troveclient.common import Paginated
-import exceptions
 import urlparse
 
 

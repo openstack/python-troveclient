@@ -128,23 +128,6 @@ class Auth1_1(Authenticator):
                                 "key": self.password}}
         return self._authenticate(auth_url, body, root_key='auth')
 
-        try:
-            print(resp_body)
-            self.auth_token = resp_body['auth']['token']['id']
-        except KeyError:
-            raise nova_exceptions.AuthorizationFailure()
-
-        catalog = resp_body['auth']['serviceCatalog']
-        if 'cloudDatabases' not in catalog:
-            raise nova_exceptions.EndpointNotFound()
-        endpoints = catalog['cloudDatabases']
-        for endpoint in endpoints:
-            if self.region_name is None or \
-                endpoint['region'] == self.region_name:
-                self.management_url = endpoint['publicURL']
-                return
-        raise nova_exceptions.EndpointNotFound()
-
 
 class RaxAuthenticator(Authenticator):
 

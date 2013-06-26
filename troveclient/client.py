@@ -130,7 +130,6 @@ class TroveHTTPClient(httplib2.Http):
         _logger.debug("RESP:%s %s\n", resp, body)
 
     def pretty_log(self, args, kwargs, resp, body):
-        from troveclient import common
         if not _logger.isEnabledFor(logging.DEBUG):
             return
 
@@ -283,7 +282,7 @@ class Dbaas(object):
 
     Create an instance with your creds::
 
-        >>> red = Dbaas(USERNAME, API_KEY, TENANT, AUTH_URL, SERVICE_NAME,
+        >>> red = Dbaas(USERNAME, API_KEY, TENANT, AUTH_URL, SERVICE_NAME, \
                         SERVICE_URL)
 
     Then call methods on its managers::

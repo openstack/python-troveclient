@@ -14,7 +14,6 @@
 #    under the License.
 
 from troveclient import base
-import exceptions
 
 
 class Diagnostics(base.Resource):

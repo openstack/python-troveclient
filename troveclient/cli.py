@@ -18,8 +18,6 @@
 Trove Command line tool
 """
 
-#TODO(tim.simpson): optparse is deprecated. Replace with argparse.
-import optparse
 import os
 import sys
 

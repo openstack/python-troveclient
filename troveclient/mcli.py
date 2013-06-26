@@ -19,7 +19,6 @@ Trove Management Command line tool
 """
 
 import json
-import optparse
 import os
 import sys
 

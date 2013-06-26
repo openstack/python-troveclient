@@ -1,5 +1,3 @@
-import contextlib
-import os
 import logging
 import httplib2
 import time
@@ -9,7 +7,6 @@ from mock import Mock
 
 from troveclient import client
 from troveclient import exceptions
-from troveclient import utils
 
 """
 Unit tests for client.py
