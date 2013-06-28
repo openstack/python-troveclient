@@ -152,6 +152,9 @@ class UserCommands(common.AuthedCommandsBase):
               'hostname',
               'name',
               'password',
+              'new_name',
+              'new_host',
+              'new_password',
              ]
 
     def create(self):
@@ -175,6 +178,20 @@ class UserCommands(common.AuthedCommandsBase):
         self._require('id', 'name')
         self._pretty_print(self.dbaas.users.get, self.id,
                            self.name, self.hostname)
+
+    def update_attributes(self):
+        """Update attributes of a single user."""
+        self._require('id', 'name')
+        self._require_at_least_one_of('new_name', 'new_host', 'new_password')
+        user_new = {}
+        if self.new_name:
+            user_new['name'] = self.new_name
+        if self.new_host:
+            user_new['host'] = self.new_host
+        if self.new_password:
+            user_new['password'] = self.new_password
+        self.dbaas.users.update_attributes(self.id, self.name, user_new,
+                                           self.hostname)
 
     def list(self):
         """List all the users for an instance"""

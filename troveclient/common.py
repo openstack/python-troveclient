@@ -194,6 +194,17 @@ class ArgumentRequired(Exception):
         return 'Argument "--%s" required.' % self.param
 
 
+class ArgumentsRequired(ArgumentRequired):
+    def __init__(self, *params):
+        self.params = params
+
+    def __str__(self):
+        returnstring = 'Specify at least one of these arguments: '
+        for param in self.params:
+            returnstring = returnstring + '"--%s" ' % param
+        return returnstring
+
+
 class CommandsBase(object):
     params = []
 
@@ -251,6 +262,16 @@ class CommandsBase(object):
                 raise ArgumentRequired(param)
             if not getattr(self, param):
                 raise ArgumentRequired(param)
+
+    def _require_at_least_one_of(self, *params):
+        # One or more of params is required to be present.
+        argument_present = False
+        for param in params:
+            if hasattr(self, param):
+                if getattr(self, param):
+                    argument_present = True
+        if argument_present is False:
+            raise ArgumentsRequired(*params)
 
     def _make_list(self, *params):
         # Convert the listed params to lists.

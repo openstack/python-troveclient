@@ -88,6 +88,24 @@ class Users(base.ManagerWithFind):
         url = "/instances/%s/users/%s" % (instance_id, user)
         return self._get(url, "user")
 
+    def update_attributes(self, instance, username, newuserattr=None,
+                          hostname=None):
+        """
+        Update attributes of a single User in an instance.
+
+        :rtype: :class:`User`.
+        """
+        instance_id = base.getid(instance)
+        user = quote_user_host(username, hostname)
+        user_dict = {}
+        if not newuserattr:
+            newuserattr = {}
+        else:
+            user_dict['user'] = newuserattr
+        url = "/instances/%s/users/%s" % (instance_id, user)
+        resp, body = self.api.client.put(url, body=user_dict)
+        check_for_exceptions(resp, body)
+
     def list_access(self, instance, username, hostname=None):
         """Show all databases the given user has access to. """
         instance_id = base.getid(instance)
