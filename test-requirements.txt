@@ -3,10 +3,8 @@ pep8==1.4.5
 pyflakes==0.7.2
 flake8==2.0
 hacking>=0.5.3,<0.6
-
 discover
 sphinx>=1.1.2
 testrepository>=0.0.13
-testtools>=0.9.29
+testtools>=0.9.32
 mock>=0.8.0
-
