@@ -6,7 +6,6 @@ from mock import Mock
 
 from troveclient import base
 from troveclient import exceptions
-from troveclient import utils
 
 """
 Unit tests for base.py

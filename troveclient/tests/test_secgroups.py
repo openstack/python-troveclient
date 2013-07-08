@@ -2,7 +2,6 @@ from testtools import TestCase
 from mock import Mock
 
 from troveclient import security_groups
-from troveclient import base
 
 """
 Unit tests for security_groups.py

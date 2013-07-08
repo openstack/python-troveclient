@@ -17,7 +17,6 @@ from troveclient import base
 
 from troveclient import users
 from troveclient.common import check_for_exceptions
-import exceptions
 
 
 class Root(base.ManagerWithFind):

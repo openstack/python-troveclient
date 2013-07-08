@@ -1,4 +1,3 @@
-import contextlib
 
 from testtools import TestCase
 from troveclient import auth

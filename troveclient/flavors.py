@@ -16,10 +16,6 @@
 
 from troveclient import base
 
-import exceptions
-
-from troveclient.common import check_for_exceptions
-
 
 class Flavor(base.Resource):
     """

@@ -1,5 +1,4 @@
 from lxml import etree
-import json
 from numbers import Number
 
 from troveclient import exceptions
