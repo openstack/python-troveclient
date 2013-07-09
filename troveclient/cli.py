@@ -159,8 +159,10 @@ class UserCommands(common.AuthedCommandsBase):
         self._require('id', 'name', 'password', 'databases')
         self._make_list('databases')
         databases = [{'name': dbname} for dbname in self.databases]
-        users = [{'name': self.name, 'host': self.hostname,
-                  'password': self.password, 'databases': databases}]
+        users = [{'name': self.name, 'password': self.password,
+                  'databases': databases}]
+        if self.hostname:
+            users[0]['host'] = self.hostname
         self.dbaas.users.create(self.id, users)
 
     def delete(self):
