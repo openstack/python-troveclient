@@ -52,10 +52,10 @@ class InstanceCommands(common.AuthedCommandsBase):
         """Create a new instance"""
         self._require('name', 'flavor')
         volume = None
-        if self.size is not None:
+        if self.size:
             volume = {"size": self.size}
         restorePoint = None
-        if self.backup is not None:
+        if self.backup:
             restorePoint = {"backupRef": self.backup}
         self._pretty_print(self.dbaas.instances.create, self.name,
                            self.flavor, volume, restorePoint=restorePoint)

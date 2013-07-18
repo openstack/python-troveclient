@@ -53,11 +53,14 @@ class Backups(base.ManagerWithFind):
         """
         Create a new backup from the given instance.
         """
-        body = {"backup": {
-            "name": name,
-            "instance": instance,
-            "description": description,
-        }}
+        body = {
+            "backup": {
+                "name": name,
+                "instance": instance
+            }
+        }
+        if description:
+            body['backup']['description'] = description
         return self._create("/backups", body, "backup")
 
     def delete(self, backup_id):
