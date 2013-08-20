@@ -157,12 +157,6 @@ class InstancesTest(TestCase):
         self.assertEqual(253, self._instance_id)
         self.assertEqual({'restart': {}}, self._body)
 
-    def test_reset_password(self):
-        self._set_action_mock()
-        self.instances.reset_password(634)
-        self.assertEqual(634, self._instance_id)
-        self.assertEqual({'reset-password': {}}, self._body)
-
 
 class InstanceStatusTest(TestCase):
 

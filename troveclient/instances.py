@@ -162,14 +162,6 @@ class Instances(base.ManagerWithFind):
         body = {'restart': {}}
         self._action(instance_id, body)
 
-    def reset_password(self, instance_id):
-        """
-        Resets the database instance root password.
-
-        :param instance_id: The :class:`Instance` (or its ID) to share onto.
-        """
-        body = {'reset-password': {}}
-        return self._action(instance_id, body)
 
 Instances.resize_flavor = Instances.resize_instance
 
