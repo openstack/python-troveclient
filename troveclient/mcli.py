@@ -26,12 +26,11 @@ import sys
 # If ../trove/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
 possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                   os.pardir,
-                                   os.pardir))
+                                                os.pardir,
+                                                os.pardir))
 if os.path.exists(os.path.join(possible_topdir, 'troveclient',
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
-
 
 from troveclient import common
 
@@ -47,8 +46,8 @@ class HostCommands(common.AuthedCommandsBase):
     """Commands to list info on hosts"""
 
     params = [
-              'name',
-             ]
+        'name',
+    ]
 
     def update_all(self):
         """Update all instances on a host"""
@@ -90,8 +89,8 @@ class RootCommands(common.AuthedCommandsBase):
     """List details about the root info for an instance."""
 
     params = [
-              'id',
-             ]
+        'id',
+    ]
 
     def history(self):
         """List root history for the instance."""
@@ -103,8 +102,8 @@ class AccountCommands(common.AuthedCommandsBase):
     """Commands to list account info"""
 
     params = [
-              'id',
-             ]
+        'id',
+    ]
 
     def list(self):
         """List all accounts with non-deleted instances"""
@@ -120,12 +119,12 @@ class InstanceCommands(common.AuthedCommandsBase):
     """List details about an instance."""
 
     params = [
-              'deleted',
-              'id',
-              'limit',
-              'marker',
-              'host',
-             ]
+        'deleted',
+        'id',
+        'limit',
+        'marker',
+        'host',
+    ]
 
     def get(self):
         """List details for the instance."""
@@ -189,13 +188,14 @@ def config_options(oparser):
                             Default: http://localhost:5000/v1.1")
 
 
-COMMANDS = {'account': AccountCommands,
-            'host': HostCommands,
-            'instance': InstanceCommands,
-            'root': RootCommands,
-            'storage': StorageCommands,
-            'quota': QuotaCommands,
-            }
+COMMANDS = {
+    'account': AccountCommands,
+    'host': HostCommands,
+    'instance': InstanceCommands,
+    'root': RootCommands,
+    'storage': StorageCommands,
+    'quota': QuotaCommands,
+}
 
 
 def main():

@@ -14,14 +14,12 @@ Unit tests for client.py
 
 
 class ClientTest(TestCase):
-
     def test_log_to_streamhandler(self):
         client.log_to_streamhandler()
         self.assertTrue(client._logger.level == logging.DEBUG)
 
 
 class TroveHTTPClientTest(TestCase):
-
     def setUp(self):
         super(TroveHTTPClientTest, self).setUp()
         self.orig__init = client.TroveHTTPClient.__init__
@@ -63,12 +61,12 @@ class TroveHTTPClientTest(TestCase):
                           password, tenant, auth_url, service_name)
 
         hc = client.TroveHTTPClient(user, password, tenant, auth_url,
-                                       service_name, auth_strategy="fake")
+                                    service_name, auth_strategy="fake")
         self.assertEqual("http://test-auth-url", hc.auth_url)
 
         #  auth_url is none
         hc = client.TroveHTTPClient(user, password, tenant, None,
-                                       service_name, auth_strategy="fake")
+                                    service_name, auth_strategy="fake")
         self.assertEqual(None, hc.auth_url)
 
     def test_get_timings(self):
@@ -206,6 +204,7 @@ class TroveHTTPClientTest(TestCase):
     def mock_time_request_func(self):
         def side_effect_func(url, method, **kwargs):
             return url, method
+
         self.hc._time_request = Mock(side_effect=side_effect_func)
 
     def test__cs_request(self):
@@ -287,7 +286,6 @@ class TroveHTTPClientTest(TestCase):
 
 
 class DbaasTest(TestCase):
-
     def setUp(self):
         super(DbaasTest, self).setUp()
         self.orig__init = client.TroveHTTPClient.__init__

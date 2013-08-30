@@ -10,7 +10,6 @@ Unit tests for users.py
 
 
 class UserTest(TestCase):
-
     def setUp(self):
         super(UserTest, self).setUp()
         self.orig__init = users.User.__init__
@@ -27,7 +26,6 @@ class UserTest(TestCase):
 
 
 class UsersTest(TestCase):
-
     def setUp(self):
         super(UsersTest, self).setUp()
         self.orig__init = users.Users.__init__
@@ -58,11 +56,12 @@ class UsersTest(TestCase):
 
     def _build_fake_user(self, name, hostname=None, password=None,
                          databases=None):
-        return {'name': name,
-                'password': password if password else 'password',
-                'host': hostname,
-                'databases': databases if databases else [],
-               }
+        return {
+            'name': name,
+            'password': password if password else 'password',
+            'host': hostname,
+            'databases': databases if databases else [],
+        }
 
     def test_create(self):
         self.users.api.client.post = self._get_mock_method()

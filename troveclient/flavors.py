@@ -21,6 +21,7 @@ class Flavor(base.Resource):
     """
     A Flavor is an Instance type, specifying among other things, RAM size.
     """
+
     def __repr__(self):
         return "<Flavor: %s>" % self.name
 
@@ -55,4 +56,4 @@ class Flavors(base.ManagerWithFind):
         :rtype: :class:`Flavor`
         """
         return self._get("/flavors/%s" % base.getid(flavor),
-                        "flavor")
+                         "flavor")

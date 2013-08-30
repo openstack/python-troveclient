@@ -25,12 +25,11 @@ import sys
 # If ../trove/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
 possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
-                                   os.pardir,
-                                   os.pardir))
+                                                os.pardir,
+                                                os.pardir))
 if os.path.exists(os.path.join(possible_topdir, 'troveclient',
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
-
 
 from troveclient import common
 
@@ -39,13 +38,13 @@ class InstanceCommands(common.AuthedCommandsBase):
     """Commands to perform various instances operations and actions"""
 
     params = [
-              'flavor',
-              'id',
-              'limit',
-              'marker',
-              'name',
-              'size',
-              'backup'
+        'flavor',
+        'id',
+        'limit',
+        'marker',
+        'name',
+        'size',
+        'backup'
     ]
 
     def create(self):
@@ -87,13 +86,13 @@ class InstanceCommands(common.AuthedCommandsBase):
         """Resize an instance volume"""
         self._require('id', 'size')
         self._pretty_print(self.dbaas.instances.resize_volume, self.id,
-                          self.size)
+                           self.size)
 
     def resize_instance(self):
         """Resize an instance flavor"""
         self._require('id', 'flavor')
         self._pretty_print(self.dbaas.instances.resize_instance, self.id,
-                          self.flavor)
+                           self.flavor)
 
     def restart(self):
         """Restart the database"""
@@ -120,11 +119,11 @@ class DatabaseCommands(common.AuthedCommandsBase):
     """Database CRUD operations on an instance"""
 
     params = [
-              'name',
-              'id',
-              'limit',
-              'marker',
-             ]
+        'name',
+        'id',
+        'limit',
+        'marker',
+    ]
 
     def create(self):
         """Create a database"""
@@ -146,16 +145,16 @@ class DatabaseCommands(common.AuthedCommandsBase):
 class UserCommands(common.AuthedCommandsBase):
     """User CRUD operations on an instance"""
     params = [
-              'id',
-              'database',
-              'databases',
-              'hostname',
-              'name',
-              'password',
-              'new_name',
-              'new_host',
-              'new_password',
-             ]
+        'id',
+        'database',
+        'databases',
+        'hostname',
+        'name',
+        'password',
+        'new_name',
+        'new_host',
+        'new_password',
+    ]
 
     def create(self):
         """Create a user in instance, with access to one or more databases"""
@@ -231,8 +230,8 @@ class RootCommands(common.AuthedCommandsBase):
     """Root user related operations on an instance"""
 
     params = [
-              'id',
-             ]
+        'id',
+    ]
 
     def create(self):
         """Enable the instance's root user."""
@@ -253,8 +252,8 @@ class VersionCommands(common.AuthedCommandsBase):
     """List available versions"""
 
     params = [
-              'url',
-             ]
+        'url',
+    ]
 
     def list(self):
         """List all the supported versions"""
@@ -298,13 +297,14 @@ class BackupsCommands(common.AuthedCommandsBase):
 class SecurityGroupCommands(common.AuthedCommandsBase):
     """Commands to list and show Security Groups For an Instance and """
     """create and delete security group rules for them. """
-    params = ['id',
-              'secgroup_id',
-              'protocol',
-              'from_port',
-              'to_port',
-              'cidr'
-              ]
+    params = [
+        'id',
+        'secgroup_id',
+        'protocol',
+        'from_port',
+        'to_port',
+        'cidr'
+    ]
 
     def get(self):
         """Get a security group associated with an instance."""
@@ -329,17 +329,18 @@ class SecurityGroupCommands(common.AuthedCommandsBase):
         self.dbaas.security_group_rules.delete(self.id)
 
 
-COMMANDS = {'auth': common.Auth,
-            'instance': InstanceCommands,
-            'flavor': FlavorsCommands,
-            'database': DatabaseCommands,
-            'limit': LimitsCommands,
-            'backup': BackupsCommands,
-            'user': UserCommands,
-            'root': RootCommands,
-            'version': VersionCommands,
-            'secgroup': SecurityGroupCommands,
-            }
+COMMANDS = {
+    'auth': common.Auth,
+    'instance': InstanceCommands,
+    'flavor': FlavorsCommands,
+    'database': DatabaseCommands,
+    'limit': LimitsCommands,
+    'backup': BackupsCommands,
+    'user': UserCommands,
+    'root': RootCommands,
+    'version': VersionCommands,
+    'secgroup': SecurityGroupCommands,
+}
 
 
 def main():
@@ -347,7 +348,7 @@ def main():
     load_file = True
     for index, arg in enumerate(sys.argv):
         if (arg == "auth" and len(sys.argv) > (index + 1)
-            and sys.argv[index + 1] == "login"):
+                and sys.argv[index + 1] == "login"):
             load_file = False
 
     oparser = common.CliOptions.create_optparser(load_file)
