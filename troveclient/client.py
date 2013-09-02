@@ -313,6 +313,7 @@ class Dbaas(object):
         from troveclient.security_groups import SecurityGroupRules
         from troveclient.storage import StorageInfo
         from troveclient.management import Management
+        from troveclient.management import MgmtFlavors
         from troveclient.accounts import Accounts
         from troveclient.diagnostics import DiagnosticsInterrogator
         from troveclient.diagnostics import HwInfoInterrogator
@@ -338,6 +339,7 @@ class Dbaas(object):
         self.security_group_rules = SecurityGroupRules(self)
         self.storage = StorageInfo(self)
         self.management = Management(self)
+        self.mgmt_flavor = MgmtFlavors(self)
         self.accounts = Accounts(self)
         self.diagnostics = DiagnosticsInterrogator(self)
         self.hwinfo = HwInfoInterrogator(self)
