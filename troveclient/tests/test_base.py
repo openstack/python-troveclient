@@ -376,7 +376,7 @@ class ResourceTest(TestCase):
         robj._add_details(info_)
         self.assertEqual(info_["test_attr"], robj.__getattr__("test_attr"))
 
-        # TODO: looks like causing infinite recursive calls
+        #TODO(dmakogon): looks like causing infinite recursive calls
         #robj.__getattr__("test_non_exist_attr")
 
     def test___repr__(self):

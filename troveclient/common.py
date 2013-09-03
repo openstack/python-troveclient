@@ -38,7 +38,7 @@ def methods_of(obj):
 
 def check_for_exceptions(resp, body):
     if resp.status in (400, 422, 500):
-            raise exceptions.from_response(resp, body)
+        raise exceptions.from_response(resp, body)
 
 
 def print_actions(cmd, actions):
@@ -151,24 +151,25 @@ class CliOptions(object):
 
         add_option("verbose", action="store_true",
                    help="Show equivalent curl statement along "
-            "with actual HTTP communication.")
+                        "with actual HTTP communication.")
         add_option("debug", action="store_true",
                    help="Show the stack trace on errors.")
         add_option("auth_url", help="Auth API endpoint URL with port and "
-            "version. Default: http://localhost:5000/v2.0")
+                   "version. Default: http://localhost:5000/v2.0")
         add_option("username", help="Login username")
         add_option("apikey", help="Api key")
         add_option("tenant_id",
                    help="Tenant Id associated with the account")
         add_option("auth_type",
-            help="Auth type to support different auth environments, \
+                   help="Auth type to support different auth environments, \
                                 Supported values are 'keystone', 'rax'.")
         add_option("service_type",
-            help="Service type is a name associated for the catalog")
+                   help="Service type is a name associated for the catalog")
         add_option("service_name",
-            help="Service name as provided in the service catalog")
+                   help="Service name as provided in the service catalog")
         add_option("service_url",
-            help="Service endpoint to use if the catalog doesn't have one.")
+                   help="Service endpoint to use "
+                        "if the catalog doesn't have one.")
         add_option("region", help="Region the service is located in")
         add_option("insecure", action="store_true",
                    help="Run in insecure mode for https endpoints.")
@@ -176,13 +177,13 @@ class CliOptions(object):
         add_option("xml", action="store_true", help="Changes format to XML.")
 
         oparser.add_option("--secure", action="store_false", dest="insecure",
-                   help="Run in insecure mode for https endpoints.")
+                           help="Run in insecure mode for https endpoints.")
         oparser.add_option("--json", action="store_false", dest="xml",
-                   help="Changes format to JSON.")
+                           help="Changes format to JSON.")
         oparser.add_option("--terse", action="store_false", dest="verbose",
-                   help="Toggles verbose mode off.")
+                           help="Toggles verbose mode off.")
         oparser.add_option("--hide-debug", action="store_false", dest="debug",
-                   help="Toggles debug mode off.")
+                           help="Toggles debug mode off.")
         return oparser
 
 
@@ -222,14 +223,14 @@ class CommandsBase(object):
                 client.log_to_streamhandler(sys.stdout)
                 client.RDC_PP = True
             return client.Dbaas(self.username, self.apikey, self.tenant_id,
-                          auth_url=self.auth_url,
-                          auth_strategy=self.auth_type,
-                          service_type=self.service_type,
-                          service_name=self.service_name,
-                          region_name=self.region,
-                          service_url=self.service_url,
-                          insecure=self.insecure,
-                          client_cls=client_cls)
+                                auth_url=self.auth_url,
+                                auth_strategy=self.auth_type,
+                                service_type=self.service_type,
+                                service_name=self.service_name,
+                                region_name=self.region,
+                                service_url=self.service_url,
+                                insecure=self.insecure,
+                                client_cls=client_cls)
         except:
             if self.debug:
                 raise
@@ -293,6 +294,7 @@ class CommandsBase(object):
                 print(json.dumps(result._info, sort_keys=True, indent=4))
             else:
                 print("OK")
+
         self._safe_exec(wrapped_func)
 
     def _dumps(self, item):
@@ -334,18 +336,18 @@ class CommandsBase(object):
 class Auth(CommandsBase):
     """Authenticate with your username and api key"""
     params = [
-              'apikey',
-              'auth_strategy',
-              'auth_type',
-              'auth_url',
-              'options',
-              'region',
-              'service_name',
-              'service_type',
-              'service_url',
-              'tenant_id',
-              'username',
-             ]
+        'apikey',
+        'auth_strategy',
+        'auth_type',
+        'auth_url',
+        'options',
+        'region',
+        'service_name',
+        'service_type',
+        'service_url',
+        'tenant_id',
+        'username',
+    ]
 
     def __init__(self, parser):
         super(Auth, self).__init__(parser)

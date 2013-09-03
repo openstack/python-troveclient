@@ -77,7 +77,7 @@ class Authenticator(object):
                                       service_url=self.service_url,
                                       root_key=root_key)
             except exceptions.AmbiguousEndpoints:
-                print "Found more than one valid endpoint. Use a more "\
+                print "Found more than one valid endpoint. Use a more " \
                       "restrictive filter"
                 raise
             except KeyError:
@@ -96,7 +96,6 @@ class Authenticator(object):
 
 
 class KeyStoneV2Authenticator(Authenticator):
-
     def authenticate(self):
         if self.url is None:
             raise exceptions.AuthUrlNotGiven()
@@ -105,11 +104,11 @@ class KeyStoneV2Authenticator(Authenticator):
     def _v2_auth(self, url):
         """Authenticate against a v2.0 auth service."""
         body = {"auth": {
-                    "passwordCredentials": {
-                            "username": self.username,
-                            "password": self.password}
-                    }
-               }
+            "passwordCredentials": {
+                "username": self.username,
+                "password": self.password}
+        }
+        }
 
         if self.tenant:
             body['auth']['tenantName'] = self.tenant
@@ -118,19 +117,20 @@ class KeyStoneV2Authenticator(Authenticator):
 
 
 class Auth1_1(Authenticator):
-
     def authenticate(self):
         """Authenticate against a v2.0 auth service."""
         if self.url is None:
             raise exceptions.AuthUrlNotGiven()
         auth_url = self.url
-        body = {"credentials": {"username": self.username,
-                                "key": self.password}}
+        body = {
+            "credentials": {
+                "username": self.username,
+                "key": self.password
+            }}
         return self._authenticate(auth_url, body, root_key='auth')
 
 
 class RaxAuthenticator(Authenticator):
-
     def authenticate(self):
         if self.url is None:
             raise exceptions.AuthUrlNotGiven()
@@ -139,12 +139,12 @@ class RaxAuthenticator(Authenticator):
     def _rax_auth(self, url):
         """Authenticate against the Rackspace auth service."""
         body = {'auth': {
-                    'RAX-KSKEY:apiKeyCredentials': {
-                            'username': self.username,
-                            'apiKey': self.password,
-                            'tenantName': self.tenant}
-                    }
-               }
+            'RAX-KSKEY:apiKeyCredentials': {
+                'username': self.username,
+                'apiKey': self.password,
+                'tenantName': self.tenant}
+        }
+        }
 
         return self._authenticate(self.url, body)
 
@@ -224,7 +224,7 @@ class ServiceCatalog(object):
                 raise exceptions.EndpointNotFound()
 
         # We don't always get a service catalog back ...
-        if not 'serviceCatalog' in self.catalog[self.root_key]:
+        if 'serviceCatalog' not in self.catalog[self.root_key]:
             raise exceptions.EndpointNotFound()
 
         # Full catalog ...
@@ -235,7 +235,7 @@ class ServiceCatalog(object):
                 continue
 
             if (self.service_name and self.service_type == 'database' and
-                service.get('name') != self.service_name):
+                    service.get('name') != self.service_name):
                 continue
 
             endpoints = service['endpoints']

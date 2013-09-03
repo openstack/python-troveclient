@@ -167,6 +167,7 @@ class ManagerWithFind(Manager):
     """
     Like a `Manager`, but with additional `find()`/`findall()` methods.
     """
+
     def find(self, **kwargs):
         """
         Find a single item with attributes matching ``**kwargs``.
@@ -197,7 +198,7 @@ class ManagerWithFind(Manager):
         for obj in self.list():
             try:
                 if all(getattr(obj, attr) == value
-                    for (attr, value) in searches):
+                       for (attr, value) in searches):
                     found.append(obj)
             except AttributeError:
                 continue
@@ -264,8 +265,8 @@ class Resource(object):
             return self.__dict__[k]
 
     def __repr__(self):
-        reprkeys = sorted(k for k in self.__dict__.keys() if k[0] != '_' and
-                                                             k != 'manager')
+        reprkeys = sorted(k for k in self.__dict__.keys()
+                          if k[0] != '_' and k != 'manager')
         info = ", ".join("%s=%s" % (k, getattr(self, k)) for k in reprkeys)
         return "<%s %s>" % (self.__class__.__name__, info)
 
