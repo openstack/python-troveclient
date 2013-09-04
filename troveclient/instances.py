@@ -56,7 +56,7 @@ class Instances(base.ManagerWithFind):
     resource_class = Instance
 
     def create(self, name, flavor_id, volume=None, databases=None, users=None,
-               restorePoint=None):
+               restorePoint=None, availability_zone=None):
         """
         Create (boot) a new instance.
         """
@@ -72,6 +72,8 @@ class Instances(base.ManagerWithFind):
             body["instance"]["users"] = users
         if restorePoint:
             body["instance"]["restorePoint"] = restorePoint
+        if availability_zone:
+            body["instance"]["availability_zone"] = availability_zone
 
         return self._create("/instances", body, "instance")
 
