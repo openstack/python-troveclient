@@ -169,6 +169,24 @@ class InstancesTest(testtools.TestCase):
         self.assertEqual(253, self._instance_id)
         self.assertEqual({'restart': {}}, self._body)
 
+    def test_modify(self):
+        resp = mock.Mock()
+        resp.status_code = 200
+        body = None
+        self.instances.api.client.put = mock.Mock(return_value=(resp, body))
+        self.instances.modify(123)
+        self.instances.modify(123, 321)
+        resp.status_code = 500
+        self.assertRaises(Exception, self.instances.modify, 'instance1')
+
+    def test_configuration(self):
+        def side_effect_func(path, inst):
+            return path, inst
+
+        self.instances._get = mock.Mock(side_effect=side_effect_func)
+        self.assertEqual(('/instances/instance1/configuration', 'instance'),
+                         self.instances.configuration(1))
+
 
 class InstanceStatusTest(testtools.TestCase):
 
@@ -180,3 +198,5 @@ class InstanceStatusTest(testtools.TestCase):
         self.assertEqual("REBOOT", instances.InstanceStatus.REBOOT)
         self.assertEqual("RESIZE", instances.InstanceStatus.RESIZE)
         self.assertEqual("SHUTDOWN", instances.InstanceStatus.SHUTDOWN)
+        self.assertEqual("RESTART_REQUIRED",
+                         instances.InstanceStatus.RESTART_REQUIRED)

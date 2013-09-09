@@ -55,7 +55,7 @@ class Instances(base.ManagerWithFind):
 
     def create(self, name, flavor_id, volume=None, databases=None, users=None,
                restorePoint=None, availability_zone=None, datastore=None,
-               datastore_version=None, nics=None):
+               datastore_version=None, nics=None, configuration=None):
         """
         Create (boot) a new instance.
         """
@@ -82,8 +82,21 @@ class Instances(base.ManagerWithFind):
             body["instance"]["datastore"] = datastore_obj
         if nics:
             body["instance"]["nics"] = nics
+        if configuration:
+            body["instance"]["configuration"] = configuration
 
         return self._create("/instances", body, "instance")
+
+    def modify(self, instance_id, configuration=None):
+        body = {
+            "instance": {
+            }
+        }
+        if configuration is not None:
+            body["instance"]["configuration"] = configuration
+        url = "/instances/%s" % instance_id
+        resp, body = self.api.client.put(url, body=body)
+        common.check_for_exceptions(resp, body, url)
 
     def list(self, limit=None, marker=None):
         """
@@ -155,6 +168,15 @@ class Instances(base.ManagerWithFind):
         body = {'restart': {}}
         self._action(instance_id, body)
 
+    def configuration(self, instance):
+        """
+        Get a configuration on instances.
+
+        :rtype: :class:`Instance`
+        """
+        return self._get("/instances/%s/configuration" % base.getid(instance),
+                         "instance")
+
 
 Instances.resize_flavor = Instances.resize_instance
 
@@ -168,3 +190,4 @@ class InstanceStatus(object):
     REBOOT = "REBOOT"
     RESIZE = "RESIZE"
     SHUTDOWN = "SHUTDOWN"
+    RESTART_REQUIRED = "RESTART_REQUIRED"

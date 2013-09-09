@@ -45,8 +45,23 @@ class InstanceCommands(common.AuthedCommandsBase):
         'name',
         'size',
         'backup',
-        'availability_zone'
+        'availability_zone',
+        'configuration_id',
     ]
+
+    def _get_configuration_ref(self):
+        configuration_ref = None
+        if self.configuration_id is not None:
+            if self.configuration_id == "":
+                configuration_ref = self.configuration_id
+            else:
+                configuration_ref = "/".join(
+                    [
+                        self.dbaas.client.service_url,
+                        self.configuration_id,
+                    ]
+                )
+        return configuration_ref
 
     def create(self):
         """Create a new instance"""
@@ -59,7 +74,15 @@ class InstanceCommands(common.AuthedCommandsBase):
             restorePoint = {"backupRef": self.backup}
         self._pretty_print(self.dbaas.instances.create, self.name,
                            self.flavor, volume, restorePoint=restorePoint,
-                           availability_zone=self.availability_zone)
+                           availability_zone=self.availability_zone,
+                           configuration_ref=self._get_configuration_ref())
+
+    # TODO(pdmars): is this actually what this should be named?
+    def modify(self):
+        """Modify an instance"""
+        self._require('id')
+        self._pretty_print(self.dbaas.instances.modify, self.id,
+                           configuration_ref=self._get_configuration_ref())
 
     def delete(self):
         """Delete the specified instance"""
@@ -100,6 +123,11 @@ class InstanceCommands(common.AuthedCommandsBase):
         """Restart the database"""
         self._require('id')
         self._pretty_print(self.dbaas.instances.restart, self.id)
+
+    def configuration(self):
+        """Get configuration for the specified instance"""
+        self._require('id')
+        self._pretty_print(self.dbaas.instances.configuration, self.id)
 
 
 class FlavorsCommands(common.AuthedCommandsBase):
@@ -292,6 +320,65 @@ class BackupsCommands(common.AuthedCommandsBase):
         self._pretty_print(self.dbaas.backups.delete, self.id)
 
 
+class DatastoreConfigurationParameters(common.AuthedCommandsBase):
+    """Command to show configuration parameters for a datastore"""
+    params = ['datastore', 'parameter']
+
+    def parameters(self):
+        """List parameters that can be set"""
+        self._require('datastore')
+        self._pretty_print(self.dbaas.configuration_parameters.parameters,
+                           self.datastore)
+
+    def get_parameter(self):
+        """List parameters that can be set"""
+        self._require('datastore', 'parameter')
+        self._pretty_print(self.dbaas.configuration_parameters.get_parameter,
+                           self.datastore, self.parameter)
+
+
+class ConfigurationsCommands(common.AuthedCommandsBase):
+    """Command to manage and show configurations"""
+    params = ['name', 'instances', 'values', 'description', 'parameter']
+
+    def get(self):
+        """Get details for the specified configuration"""
+        self._require('id')
+        self._pretty_print(self.dbaas.configurations.get, self.id)
+
+    def list_instances(self):
+        """Get details for the specified configuration"""
+        self._require('id')
+        self._pretty_list(self.dbaas.configurations.instances, self.id)
+
+    def list(self):
+        """List configurations"""
+        self._pretty_list(self.dbaas.configurations.list)
+
+    def create(self):
+        """Create a new configuration"""
+        self._require('name', 'values')
+        self._pretty_print(self.dbaas.configurations.create, self.name,
+                           self.values, self.description)
+
+    def update(self):
+        """Update an existing configuration"""
+        self._require('id', 'values')
+        self._pretty_print(self.dbaas.configurations.update, self.id,
+                           self.values, self.name, self.description)
+
+    def edit(self):
+        """Edit an existing configuration values"""
+        self._require('id', 'values')
+        self._pretty_print(self.dbaas.configurations.edit, self.id,
+                           self.values)
+
+    def delete(self):
+        """Delete a configuration"""
+        self._require('id')
+        self._pretty_print(self.dbaas.configurations.delete, self.id)
+
+
 class SecurityGroupCommands(common.AuthedCommandsBase):
     """Commands to list and show Security Groups For an Instance and """
     """create and delete security group rules for them. """
@@ -334,6 +421,7 @@ COMMANDS = {
     'database': DatabaseCommands,
     'limit': LimitsCommands,
     'backup': BackupsCommands,
+    'configuration': ConfigurationsCommands,
     'user': UserCommands,
     'root': RootCommands,
     'version': VersionCommands,

@@ -128,6 +128,8 @@ def do_show(cs, args):
     if hasattr(instance, 'datastore'):
         instance._info['datastore'] = instance.datastore['type']
         instance._info['datastore_version'] = instance.datastore['version']
+    if hasattr(instance, 'configuration'):
+        instance._info['configuration'] = instance.configuration['id']
     _print_instance(instance)
 
 
@@ -184,6 +186,10 @@ def do_delete(cs, args):
                 "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
                 "port-id: attach NIC to port with this UUID "
                 "(required if no net-id)")
+@utils.arg('--configuration',
+           metavar='<configuration>',
+           default=None,
+           help='UUID of the configuration group to attach to the instance')
 @utils.service_type('database')
 def do_create(cs, args):
     """Creates a new instance."""
@@ -216,7 +222,8 @@ def do_create(cs, args):
                                    availability_zone=args.availability_zone,
                                    datastore=args.datastore,
                                    datastore_version=args.datastore_version,
-                                   nics=nics)
+                                   nics=nics,
+                                   configuration=args.configuration)
     instance._info['flavor'] = instance.flavor['id']
     if hasattr(instance, 'volume'):
         instance._info['volume'] = instance.volume['size']
@@ -224,7 +231,8 @@ def do_create(cs, args):
         instance._info['datastore'] = instance.datastore['type']
         instance._info['datastore_version'] = instance.datastore['version']
     del(instance._info['links'])
-
+    if hasattr(instance, 'configuration'):
+        instance._info['configuration'] = instance.configuration['id']
     _print_instance(instance)
 
 
@@ -626,3 +634,178 @@ def do_datastore_version_show(cs, args):
                                        ' to retrieve a datastore version'
                                        ' by name.')
     _print_instance(datastore_version)
+
+
+# configuration group related functions
+
+@utils.arg('configuration',
+           metavar='<configuration>',
+           type=str,
+           help='UUID of the configuration group to attach to the instance')
+@utils.arg('instance',
+           metavar='<instance>',
+           type=str,
+           help='UUID of the instance')
+@utils.service_type('database')
+def do_configuration_attach(cs, args):
+    """Attaches a configuration group to an instance."""
+    cs.instances.modify(args.instance, args.configuration)
+
+
+@utils.arg('name', metavar='<name>', help='Name of the configuration group.')
+@utils.arg('values', metavar='<values>',
+           help='Dictionary of the values to set.')
+@utils.arg('--datastore', metavar='<datastore>',
+           help='Datastore assigned to the configuration group.')
+@utils.arg('--datastore_version', metavar='<datastore_version>',
+           help='Datastore version UUID assigned to the configuration group.')
+@utils.arg('--description', metavar='<description>',
+           default=None,
+           help='An optional description for the configuration group.')
+@utils.service_type('database')
+def do_configuration_create(cs, args):
+    """Creates a configuration group."""
+    config_grp = cs.configurations.create(
+        args.name,
+        args.values,
+        description=args.description,
+        datastore=args.datastore,
+        datastore_version=args.datastore_version)
+    _print_instance(config_grp)
+
+
+@utils.arg('instance',
+           metavar='<instance>',
+           type=str,
+           help='UUID of the instance')
+@utils.service_type('database')
+def do_configuration_default(cs, args):
+    """Shows the default configuration of an instance."""
+    configs = cs.instances.configuration(args.instance)
+    utils.print_dict(configs._info['configuration'])
+
+
+@utils.arg('configuration_group', metavar='<configuration_group>',
+           help='ID of the configuration group.')
+@utils.service_type('database')
+def do_configuration_delete(cs, args):
+    """Deletes a configuration group."""
+    cs.configurations.delete(args.configuration_group)
+
+
+@utils.arg('instance',
+           metavar='<instance>',
+           type=str,
+           help='UUID of the instance')
+@utils.service_type('database')
+def do_configuration_detach(cs, args):
+    """Detaches a configuration group from an instance."""
+    cs.instances.modify(args.instance)
+
+
+@utils.arg('--datastore', metavar='<datastore>',
+           default=None,
+           help='UUID or name of the datastore to list configuration '
+                'parameters for. Optional if UUID of the'
+                ' datastore_version is provided.')
+@utils.arg('datastore_version',
+           metavar='<datastore_version>',
+           help='Datastore version name or UUID assigned to the '
+                'configuration group.')
+@utils.arg('parameter', metavar='<parameter>',
+           help='Name of the configuration parameter.')
+@utils.service_type('database')
+def do_configuration_parameter_show(cs, args):
+    """Shows details of a configuration parameter."""
+    if args.datastore:
+        param = cs.configuration_parameters.get_parameter(
+            args.datastore,
+            args.datastore_version,
+            args.parameter)
+    elif utils.is_uuid_like(args.datastore_version):
+        param = cs.configuration_parameters.get_parameter_by_version(
+            args.datastore_version,
+            args.parameter)
+    _print_instance(param)
+
+
+@utils.arg('--datastore', metavar='<datastore>',
+           default=None,
+           help='UUID or name of the datastore to list configuration '
+                'parameters for. Optional if UUID of the'
+                ' datastore_version is provided.')
+@utils.arg('datastore_version',
+           metavar='<datastore_version>',
+           help='Datastore version name or UUID assigned to the '
+                'configuration group.')
+@utils.service_type('database')
+def do_configuration_parameter_list(cs, args):
+    """Lists available parameters for a configuration group."""
+    if args.datastore:
+        params = cs.configuration_parameters.parameters(
+            args.datastore,
+            args.datastore_version)
+    elif utils.is_uuid_like(args.datastore_version):
+        params = cs.configuration_parameters.parameters_by_version(
+            args.datastore_version)
+    else:
+        raise exceptions.NoUniqueMatch('The datastore name or id is required'
+                                       ' to retrieve the parameters for the'
+                                       ' configuration group by name.')
+    utils.print_list(params, ['name', 'type', 'min', 'max',
+                              'restart_required'])
+
+
+@utils.arg('configuration_group', metavar='<configuration_group>',
+           help='ID of the configuration group.')
+@utils.arg('values', metavar='<values>',
+           help='Dictionary of the values to set.')
+@utils.service_type('database')
+def do_configuration_patch(cs, args):
+    """Patches a configuration group."""
+    cs.configurations.edit(args.configuration_group,
+                           args.values)
+
+
+@utils.arg('configuration_group', metavar='<configuration_group>',
+           help='ID of the configuration group.')
+@utils.service_type('database')
+def do_configuration_instances(cs, args):
+    """Lists all instances associated with a configuration group."""
+    params = cs.configurations.instances(args.configuration_group)
+    utils.print_list(params, ['id', 'name'])
+
+
+@utils.service_type('database')
+def do_configuration_list(cs, args):
+    """Lists all configuration groups."""
+    config_grps = cs.configurations.list()
+    utils.print_list(config_grps, ['id', 'name', 'description',
+                                   'datastore_version_id'])
+
+
+@utils.arg('configuration_group', metavar='<configuration_group>',
+           help='ID of the configuration group.')
+@utils.service_type('database')
+def do_configuration_show(cs, args):
+    """Shows details of a configuration group."""
+    config_grp = cs.configurations.get(args.configuration_group)
+    _print_instance(config_grp)
+
+
+@utils.arg('configuration_group', metavar='<configuration_group>',
+           help='ID of the configuration group.')
+@utils.arg('values', metavar='<values>',
+           help='Dictionary of the values to set.')
+@utils.arg('--name', metavar='<name>', default=None,
+           help='Name of the configuration group.')
+@utils.arg('--description', metavar='<description>',
+           default=None,
+           help='An optional description for the configuration group.')
+@utils.service_type('database')
+def do_configuration_update(cs, args):
+    """Updates a configuration group."""
+    cs.configurations.update(args.configuration_group,
+                             args.values,
+                             args.name,
+                             args.description)

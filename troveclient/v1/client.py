@@ -18,6 +18,7 @@
 
 from troveclient import client as trove_client
 from troveclient.v1 import backups
+from troveclient.v1 import configurations
 from troveclient.v1 import databases
 from troveclient.v1 import datastores
 from troveclient.v1 import flavors
@@ -65,6 +66,9 @@ class Client(object):
         self.security_groups = security_groups.SecurityGroups(self)
         self.datastores = datastores.Datastores(self)
         self.datastore_versions = datastores.DatastoreVersions(self)
+        self.configurations = configurations.Configurations(self)
+        config_parameters = configurations.ConfigurationParameters(self)
+        self.configuration_parameters = config_parameters
 
         #self.hosts = Hosts(self)
         #self.quota = Quotas(self)

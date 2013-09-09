@@ -236,6 +236,9 @@ class TroveHTTPClient(httplib2.Http):
     def get(self, url, **kwargs):
         return self._cs_request(url, 'GET', **kwargs)
 
+    def patch(self, url, **kwargs):
+        return self._cs_request(url, 'PATCH', **kwargs)
+
     def post(self, url, **kwargs):
         return self._cs_request(url, 'POST', **kwargs)
 
@@ -300,6 +303,7 @@ class Dbaas(object):
         from troveclient.compat import versions
         from troveclient.v1 import accounts
         from troveclient.v1 import backups
+        from troveclient.v1 import configurations
         from troveclient.v1 import databases
         from troveclient.v1 import datastores
         from troveclient.v1 import diagnostics
@@ -341,6 +345,9 @@ class Dbaas(object):
         self.accounts = accounts.Accounts(self)
         self.diagnostics = diagnostics.DiagnosticsInterrogator(self)
         self.hwinfo = diagnostics.HwInfoInterrogator(self)
+        self.configurations = configurations.Configurations(self)
+        config_parameters = configurations.ConfigurationParameters(self)
+        self.configuration_parameters = config_parameters
 
         class Mgmt(object):
             def __init__(self, dbaas):

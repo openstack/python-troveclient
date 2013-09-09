@@ -37,7 +37,8 @@ LISTIFY = {
     "security_groups": [[]],
     "backups": [[]],
     "datastores": [[]],
-    "datastore_versions": [[]]
+    "datastore_versions": [[]],
+    "configuration_parameters": [[]],
 }
 
 
@@ -78,6 +79,10 @@ TYPE_MAP = {
         "to_port": int,
     },
     "quotas": IntDict,
+    "configuration_parameter": {
+        "max": int,
+        "min": int,
+    },
 }
 TYPE_MAP["flavors"] = TYPE_MAP["flavor"]
 
