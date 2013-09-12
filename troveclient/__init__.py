@@ -21,6 +21,7 @@ from troveclient.instances import Instances  # noqa
 from troveclient.hosts import Hosts    # noqa
 from troveclient.management import Management   # noqa
 from troveclient.management import RootHistory  # noqa
+from troveclient.management import MgmtFlavors  # noqa
 from troveclient.root import Root   # noqa
 from troveclient.storage import StorageInfo    # noqa
 from troveclient.users import Users   # noqa
