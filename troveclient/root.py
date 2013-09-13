@@ -40,4 +40,4 @@ class Root(base.ManagerWithFind):
         False otherwise"""
         resp, body = self.api.client.get(self.url % instance_id)
         check_for_exceptions(resp, body)
-        return body['rootEnabled']
+        return self.resource_class(self, body, loaded=True)
