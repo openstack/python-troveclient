@@ -44,7 +44,8 @@ class InstanceCommands(common.AuthedCommandsBase):
         'marker',
         'name',
         'size',
-        'backup'
+        'backup',
+        'availability_zone'
     ]
 
     def create(self):
@@ -57,7 +58,8 @@ class InstanceCommands(common.AuthedCommandsBase):
         if self.backup:
             restorePoint = {"backupRef": self.backup}
         self._pretty_print(self.dbaas.instances.create, self.name,
-                           self.flavor, volume, restorePoint=restorePoint)
+                           self.flavor, volume, restorePoint=restorePoint,
+                           availability_zone=self.availability_zone)
 
     def delete(self):
         """Delete the specified instance"""
