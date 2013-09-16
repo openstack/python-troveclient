@@ -1,16 +1,16 @@
 PyDocs
 =================
 
-reddwarfclient
+troveclient
 --------------
 
 
-.. automodule:: reddwarfclient
+.. automodule:: troveclient
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: reddwarfclient.client.Dbaas
+.. autoclass:: troveclient.client.Dbaas
     :members:
     :undoc-members:
     :show-inheritance:

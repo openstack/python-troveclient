@@ -7,8 +7,8 @@ Using the Client Programmatically
     # Creates some vars we don't show in the docs.
     AUTH_URL="http://localhost:8779/v1.0/auth"
 
-    from reddwarfclient import Dbaas
-    from reddwarfclient import auth
+    from troveclient import Dbaas
+    from troveclient import auth
     class FakeAuth(auth.Authenticator):
 
         def authenticate(self):
@@ -25,7 +25,7 @@ Using the Client Programmatically
 
             return FakeCatalog(self)
 
-    from reddwarfclient import Dbaas
+    from troveclient import Dbaas
     OLD_INIT = Dbaas.__init__
     def new_init(*args, **kwargs):
         kwargs['auth_strategy'] = FakeAuth
@@ -68,7 +68,7 @@ call to the constructor.
 
 .. testcode::
 
-    from reddwarfclient import Dbaas
+    from troveclient import Dbaas
     global AUTH_URL
 
     client = Dbaas("jsmith", "abcdef", tenant="12345",
@@ -148,7 +148,7 @@ or by using the delete method on "instances."
 
     # Wait for the instance to be ready before we delete it.
     import time
-    from reddwarfclient.exceptions import NotFound
+    from troveclient.exceptions import NotFound
 
     while instance.status == "BUILD":
         instance.get()
