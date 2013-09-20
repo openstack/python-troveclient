@@ -82,7 +82,6 @@ class CliOptionsTest(TestCase):
         self.assertEqual(None, co.auth_url)
         self.assertEqual('keystone', co.auth_type)
         self.assertEqual('database', co.service_type)
-        self.assertEqual('trove', co.service_name)
         self.assertEqual('RegionOne', co.region)
         self.assertEqual(None, co.service_url)
         self.assertFalse(co.insecure)

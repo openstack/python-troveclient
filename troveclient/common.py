@@ -92,7 +92,7 @@ class CliOptions(object):
         'auth_url': None,
         'auth_type': 'keystone',
         'service_type': 'database',
-        'service_name': 'trove',
+        'service_name': '',
         'region': 'RegionOne',
         'service_url': None,
         'insecure': False,

@@ -296,7 +296,7 @@ class Dbaas(object):
     """
 
     def __init__(self, username, api_key, tenant=None, auth_url=None,
-                 service_type='database', service_name='trove',
+                 service_type='database', service_name=None,
                  service_url=None, insecure=False, auth_strategy='keystone',
                  region_name=None, client_cls=TroveHTTPClient):
         from troveclient.versions import Versions
