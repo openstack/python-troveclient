@@ -18,15 +18,12 @@
 """
 Base utilities to build API operation managers and objects on top of.
 """
-import abc
+
 import contextlib
 import hashlib
 import os
-
-import six
-
-from troveclient.openstack.common.apiclient import exceptions
-from troveclient import utils
+from troveclient.compat import exceptions
+from troveclient.compat import utils
 
 
 # Python 2.4 compat
@@ -95,15 +92,14 @@ class Manager(utils.HookableMixin):
         Delete is not handled because listings are assumed to be performed
         often enough to keep the cache reasonably up-to-date.
         """
-        base_dir = utils.env('TROVECLIENT_UUID_CACHE_DIR',
+        base_dir = utils.env('REDDWARFCLIENT_ID_CACHE_DIR',
                              default="~/.troveclient")
 
         # NOTE(sirp): Keep separate UUID caches for each username + endpoint
         # pair
-        username = utils.env('OS_USERNAME', 'TROVE_USERNAME')
-        url = utils.env('OS_URL', 'TROVE_URL')
-        uniqifier = hashlib.md5(username.encode('utf-8') +
-                                url.encode('utf-8')).hexdigest()
+        username = utils.env('OS_USERNAME', 'USERNAME')
+        url = utils.env('OS_URL', 'SERVICE_URL')
+        uniqifier = hashlib.md5(username + url).hexdigest()
 
         cache_dir = os.path.expanduser(os.path.join(base_dir, uniqifier))
 
@@ -167,14 +163,10 @@ class Manager(utils.HookableMixin):
         return body
 
 
-class ManagerWithFind(six.with_metaclass(abc.ABCMeta, Manager)):
+class ManagerWithFind(Manager):
     """
     Like a `Manager`, but with additional `find()`/`findall()` methods.
     """
-
-    @abc.abstractmethod
-    def list(self):
-        pass
 
     def find(self, **kwargs):
         """
@@ -201,7 +193,7 @@ class ManagerWithFind(six.with_metaclass(abc.ABCMeta, Manager)):
         the Python side.
         """
         found = []
-        searches = list(kwargs.items())
+        searches = kwargs.items()
 
         for obj in self.list():
             try:
@@ -212,6 +204,9 @@ class ManagerWithFind(six.with_metaclass(abc.ABCMeta, Manager)):
                 continue
 
         return found
+
+    def list(self):
+        raise NotImplementedError
 
 
 class Resource(object):
@@ -251,7 +246,7 @@ class Resource(object):
         return None
 
     def _add_details(self, info):
-        for (k, v) in six.iteritems(info):
+        for (k, v) in info.iteritems():
             try:
                 setattr(self, k, v)
             except AttributeError:
@@ -270,8 +265,8 @@ class Resource(object):
             return self.__dict__[k]
 
     def __repr__(self):
-        reprkeys = sorted(k for k in list(self.__dict__.keys()) if k[0] != '_'
-                          and k != 'manager')
+        reprkeys = sorted(k for k in self.__dict__.keys()
+                          if k[0] != '_' and k != 'manager')
         info = ", ".join("%s=%s" % (k, getattr(self, k)) for k in reprkeys)
         return "<%s %s>" % (self.__class__.__name__, info)
 

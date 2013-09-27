@@ -1,7 +1,7 @@
 from testtools import TestCase
 from mock import Mock
 
-from troveclient import security_groups
+from troveclient.v1 import security_groups
 
 """
 Unit tests for security_groups.py
@@ -96,6 +96,6 @@ class SecGroupRuleTest(TestCase):
         self.security_group_rules.api.client.delete = \
             Mock(return_value=(resp, body))
         self.security_group_rules.delete(self.id)
-        resp.status = 500
+        resp.status_code = 500
         self.assertRaises(Exception, self.security_group_rules.delete,
                           self.id)

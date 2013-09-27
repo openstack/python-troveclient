@@ -49,3 +49,7 @@ class Quotas(base.ManagerWithFind):
         if 'quotas' not in body:
             raise Exception("Missing key value 'quotas' in response body.")
         return body['quotas']
+
+    # Appease the abc gods
+    def list(self):
+        pass

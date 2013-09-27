@@ -32,15 +32,6 @@ class Flavors(base.ManagerWithFind):
     """
     resource_class = Flavor
 
-    def __repr__(self):
-        return "<Flavors Manager at %s>" % id(self)
-
-    def _list(self, url, response_key):
-        resp, body = self.api.client.get(url)
-        if not body:
-            raise Exception("Call to " + url + " did not return a body.")
-        return [self.resource_class(self, res) for res in body[response_key]]
-
     def list(self):
         """
         Get a list of all flavors.

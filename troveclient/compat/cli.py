@@ -31,7 +31,7 @@ if os.path.exists(os.path.join(possible_topdir, 'troveclient',
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
-from troveclient import common
+from troveclient.compat import common
 
 
 class InstanceCommands(common.AuthedCommandsBase):
@@ -342,6 +342,7 @@ COMMANDS = {
 
 def main():
     # Parse arguments
+    import pdb
     load_file = True
     for index, arg in enumerate(sys.argv):
         if (arg == "auth" and len(sys.argv) > (index + 1)

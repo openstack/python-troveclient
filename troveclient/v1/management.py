@@ -19,8 +19,8 @@ import urlparse
 from troveclient.common import check_for_exceptions
 from troveclient.common import limit_url
 from troveclient.common import Paginated
-from troveclient.instances import Instance
-from troveclient.flavors import Flavor
+from troveclient.v1.instances import Instance
+from troveclient.v1.flavors import Flavor
 
 
 class RootHistory(base.Resource):
@@ -34,6 +34,10 @@ class Management(base.ManagerWithFind):
     Manage :class:`Instances` resources.
     """
     resource_class = Instance
+
+    # Appease the abc gods
+    def list(self):
+        pass
 
     def _list(self, url, response_key, limit=None, marker=None):
         resp, body = self.api.client.get(limit_url(url, limit, marker))
@@ -145,6 +149,10 @@ class MgmtFlavors(base.ManagerWithFind):
 
     def __repr__(self):
         return "<Flavors Manager at %s>" % id(self)
+
+    # Appease the abc gods
+    def list(self):
+        pass
 
     def create(self, name, ram, disk, vcpus,
                flavorid="auto", ephemeral=None, swap=None, rxtx_factor=None,

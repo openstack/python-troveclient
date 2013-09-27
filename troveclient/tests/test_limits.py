@@ -1,6 +1,6 @@
 from testtools import TestCase
 from mock import Mock
-from troveclient import limits
+from troveclient.v1 import limits
 
 
 class LimitsTest(TestCase):
@@ -18,7 +18,7 @@ class LimitsTest(TestCase):
 
     def test_list(self):
         resp = Mock()
-        resp.status = 200
+        resp.status_code = 200
         body = {"limits":
                 [
                     {'maxTotalInstances': 55,
@@ -66,7 +66,7 @@ class LimitsTest(TestCase):
         RESPONSE_KEY = "limits"
 
         resp = Mock()
-        resp.status = status_code
+        resp.status_code = status_code
         body = {RESPONSE_KEY: {
             'absolute': {},
             'rate': [

@@ -15,7 +15,7 @@
 
 from troveclient import base
 
-from troveclient import users
+from troveclient.v1 import users
 from troveclient.common import check_for_exceptions
 
 
@@ -41,3 +41,7 @@ class Root(base.ManagerWithFind):
         resp, body = self.api.client.get(self.url % instance_id)
         check_for_exceptions(resp, body)
         return self.resource_class(self, body, loaded=True)
+
+    # Appease the abc gods
+    def list(self):
+        pass

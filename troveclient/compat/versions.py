@@ -13,33 +13,29 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from troveclient import base
+from troveclient.compat import base
 
 
-class Device(base.Resource):
+class Version(base.Resource):
     """
-    Storage is an opaque instance used to hold storage information.
+    Version is an opaque instance used to hold version information.
     """
     def __repr__(self):
-        return "<Device: %s>" % self.name
+        return "<Version: %s>" % self.id
 
 
-class StorageInfo(base.ManagerWithFind):
+class Versions(base.ManagerWithFind):
     """
-    Manage :class:`Storage` resources.
+    Manage :class:`Versions` information.
     """
-    resource_class = Device
 
-    def _list(self, url, response_key):
-        resp, body = self.api.client.get(url)
-        if not body:
-            raise Exception("Call to " + url + " did not return a body.")
-        return [self.resource_class(self, res) for res in body[response_key]]
+    resource_class = Version
 
-    def index(self):
+    def index(self, url):
         """
-        Get a list of all storages.
+        Get a list of all versions.
 
-        :rtype: list of :class:`Storages`.
+        :rtype: list of :class:`Versions`.
         """
-        return self._list("/mgmt/storage", "devices")
+        resp, body = self.api.client.request(url, "GET")
+        return [self.resource_class(self, res) for res in body['versions']]

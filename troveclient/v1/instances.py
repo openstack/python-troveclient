@@ -127,7 +127,7 @@ class Instances(base.ManagerWithFind):
         """
         resp, body = self.api.client.delete("/instances/%s" %
                                             base.getid(instance))
-        if resp.status in (422, 500):
+        if resp.status_code in (422, 500):
             raise exceptions.from_response(resp, body)
 
     def _action(self, instance_id, body):

@@ -37,6 +37,10 @@ class DiagnosticsInterrogator(base.ManagerWithFind):
         return self._get("/mgmt/instances/%s/diagnostics" %
                          base.getid(instance), "diagnostics")
 
+    # Appease the abc gods
+    def list(self):
+        pass
+
 
 class HwInfo(base.Resource):
 
@@ -55,3 +59,7 @@ class HwInfoInterrogator(base.ManagerWithFind):
         Get the hardware information of the instance.
         """
         return self._get("/mgmt/instances/%s/hwinfo" % base.getid(instance))
+
+    # Appease the abc gods
+    def list(self):
+        pass

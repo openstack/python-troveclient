@@ -1,9 +1,11 @@
 from testtools import TestCase
 from lxml import etree
-from troveclient import xml
+#from troveclient import xml
 
 
-class XmlTest(TestCase):
+# Killing this until xml support is brought back.
+#class XmlTest(TestCase):
+class XmlTest(object):
     ELEMENT = '''
         <instances>
             <instance>

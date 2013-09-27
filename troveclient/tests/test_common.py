@@ -6,7 +6,7 @@ import collections
 from testtools import TestCase
 from mock import Mock
 
-from troveclient import common
+from troveclient.compat import common
 from troveclient import client
 
 """
@@ -40,13 +40,14 @@ class CommonTest(TestCase):
         status = [400, 422, 500]
         for s in status:
             resp = Mock()
+            #compat still uses status
             resp.status = s
             self.assertRaises(Exception,
                               common.check_for_exceptions, resp, "body")
 
         # a no-exception case
         resp = Mock()
-        resp.status = 200
+        resp.status_code = 200
         common.check_for_exceptions(resp, "body")
 
     def test_print_actions(self):
@@ -155,26 +156,6 @@ class CommandsBaseTest(TestCase):
 
     def test___init__(self):
         self.assertNotEqual(None, self.cmd_base)
-
-    def test__get_client(self):
-        client.log_to_streamhandler = Mock(return_value=None)
-        expected = Mock()
-        client.Dbaas = Mock(return_value=expected)
-
-        self.cmd_base.xml = Mock()
-        self.cmd_base.verbose = False
-        r = self.cmd_base._get_client()
-        self.assertEqual(expected, r)
-
-        self.cmd_base.xml = None
-        self.cmd_base.verbose = True
-        r = self.cmd_base._get_client()
-        self.assertEqual(expected, r)
-
-        # test debug true
-        self.cmd_base.debug = True
-        client.Dbaas = Mock(side_effect=ValueError)
-        self.assertRaises(ValueError, self.cmd_base._get_client)
 
     def test__safe_exec(self):
         func = Mock(return_value="test")

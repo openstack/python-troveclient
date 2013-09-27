@@ -5,11 +5,14 @@ from testtools import TestCase
 from mock import Mock
 
 from troveclient import base
-from troveclient import exceptions
+from troveclient.openstack.common.apiclient import exceptions
+from troveclient import utils
 
 """
 Unit tests for base.py
 """
+
+UUID = '8e8ec658-c7b0-4243-bdf8-6f7f2952c0d0'
 
 
 def obj_class(self, res, loaded=True):
@@ -234,69 +237,72 @@ class ManagerListTest(ManagerTest):
         self.assertEqual(len(data_), len(l))
 
 
-class ManagerWithFind(TestCase):
+class FakeResource(object):
+
+    def __init__(self, _id, properties):
+        self.id = _id
+        try:
+            self.name = properties['name']
+        except KeyError:
+            pass
+        try:
+            self.display_name = properties['display_name']
+        except KeyError:
+            pass
+
+
+class FakeManager(base.ManagerWithFind):
+
+    resource_class = FakeResource
+
+    resources = [
+        FakeResource('1234', {'name': 'entity_one'}),
+        FakeResource(UUID, {'name': 'entity_two'}),
+        FakeResource('4242', {'display_name': 'entity_three'}),
+        FakeResource('5678', {'name': '9876'})
+    ]
+
+    def get(self, resource_id):
+        for resource in self.resources:
+            if resource.id == str(resource_id):
+                return resource
+        raise exceptions.NotFound(resource_id)
+
+    def list(self):
+        return self.resources
+
+
+class FindResourceTestCase(TestCase):
 
     def setUp(self):
-        super(ManagerWithFind, self).setUp()
-        self.orig__init = base.ManagerWithFind.__init__
-        base.ManagerWithFind.__init__ = Mock(return_value=None)
-        self.manager = base.ManagerWithFind()
+        super(FindResourceTestCase, self).setUp()
+        self.manager = FakeManager(None)
 
-    def tearDown(self):
-        super(ManagerWithFind, self).tearDown()
-        base.ManagerWithFind.__init__ = self.orig__init
+    def test_find_none(self):
+        self.assertRaises(exceptions.CommandError,
+                          utils.find_resource,
+                          self.manager,
+                          'asdf')
 
-    def test_find(self):
-        obj1 = Mock()
-        obj1.attr1 = "v1"
-        obj1.attr2 = "v2"
-        obj1.attr3 = "v3"
+    def test_find_by_integer_id(self):
+        output = utils.find_resource(self.manager, 1234)
+        self.assertEqual(output, self.manager.get('1234'))
 
-        obj2 = Mock()
-        obj2.attr1 = "v1"
-        obj2.attr2 = "v2"
+    def test_find_by_str_id(self):
+        output = utils.find_resource(self.manager, '1234')
+        self.assertEqual(output, self.manager.get('1234'))
 
-        self.manager.list = Mock(return_value=[obj1, obj2])
-        self.manager.resource_class = Mock
+    def test_find_by_uuid(self):
+        output = utils.find_resource(self.manager, UUID)
+        self.assertEqual(output, self.manager.get(UUID))
 
-        # exactly one match case
-        found = self.manager.find(attr1="v1", attr2="v2", attr3="v3")
-        self.assertEqual(obj1, found)
+    def test_find_by_str_name(self):
+        output = utils.find_resource(self.manager, 'entity_one')
+        self.assertEqual(output, self.manager.get('1234'))
 
-        # no match case
-        self.assertRaises(exceptions.NotFound, self.manager.find,
-                          attr1="v2", attr2="v2", attr3="v3")
-
-        # multiple matches case
-        obj2.attr3 = "v3"
-        self.assertRaises(exceptions.NoUniqueMatch, self.manager.find,
-                          attr1="v1", attr2="v2", attr3="v3")
-
-    def test_findall(self):
-        obj1 = Mock()
-        obj1.attr1 = "v1"
-        obj1.attr2 = "v2"
-        obj1.attr3 = "v3"
-
-        obj2 = Mock()
-        obj2.attr1 = "v1"
-        obj2.attr2 = "v2"
-
-        self.manager.list = Mock(return_value=[obj1, obj2])
-
-        found = self.manager.findall(attr1="v1", attr2="v2", attr3="v3")
-        self.assertEqual(1, len(found))
-        self.assertEqual(obj1, found[0])
-
-        found = self.manager.findall(attr1="v2", attr2="v2", attr3="v3")
-        self.assertEqual(0, len(found))
-
-        found = self.manager.findall(attr7="v1", attr2="v2")
-        self.assertEqual(0, len(found))
-
-    def test_list(self):
-        # this method is not yet implemented, exception expected
-        self.assertRaises(NotImplementedError, self.manager.list)
+    def test_find_by_str_displayname(self):
+        output = utils.find_resource(self.manager, 'entity_three')
+        self.assertEqual(output, self.manager.get('4242'))
 
 
 class ResourceTest(TestCase):

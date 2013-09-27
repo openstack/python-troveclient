@@ -1,7 +1,7 @@
 from testtools import TestCase
 from mock import Mock
 
-from troveclient import management
+from troveclient.v1 import management
 from troveclient import base
 
 """
@@ -92,10 +92,10 @@ class ManagementTest(TestCase):
     def test__action(self):
         resp = Mock()
         self.management.api.client.post = Mock(return_value=(resp, 'body'))
-        resp.status = 200
+        resp.status_code = 200
         self.management._action(1, 'body')
         self.assertEqual(1, self.management.api.client.post.call_count)
-        resp.status = 400
+        resp.status_code = 400
         self.assertRaises(Exception, self.management._action, 1, 'body')
         self.assertEqual(2, self.management.api.client.post.call_count)
 

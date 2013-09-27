@@ -116,5 +116,9 @@ class SecurityGroupRules(base.ManagerWithFind):
         """
         resp, body = self.api.client.delete("/security-group-rules/%s" %
                                             base.getid(security_group_rule))
-        if resp.status in (422, 500):
+        if resp.status_code in (422, 500):
             raise exceptions.from_response(resp, body)
+
+    # Appease the abc gods
+    def list(self):
+        pass

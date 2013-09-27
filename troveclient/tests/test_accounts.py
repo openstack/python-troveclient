@@ -1,7 +1,7 @@
 from testtools import TestCase
 from mock import Mock
 
-from troveclient import accounts
+from troveclient.v1 import accounts
 from troveclient import base
 
 """
@@ -55,11 +55,11 @@ class AccountsTest(TestCase):
 
     def test_index(self):
         resp = Mock()
-        resp.status = 400
+        resp.status_code = 400
         body = {"Accounts": {}}
         self.accounts.api.client.get = Mock(return_value=(resp, body))
         self.assertRaises(Exception, self.accounts.index)
-        resp.status = 200
+        resp.status_code = 200
         self.assertTrue(isinstance(self.accounts.index(), base.Resource))
         self.accounts.api.client.get = Mock(return_value=(resp, None))
         self.assertRaises(Exception, self.accounts.index)

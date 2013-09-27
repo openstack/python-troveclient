@@ -1,7 +1,7 @@
 from testtools import TestCase
 from mock import Mock
 
-from troveclient import instances
+from troveclient.v1 import instances
 from troveclient import base
 
 """
@@ -113,17 +113,17 @@ class InstancesTest(TestCase):
 
     def test_delete(self):
         resp = Mock()
-        resp.status = 200
+        resp.status_code = 200
         body = None
         self.instances.api.client.delete = Mock(return_value=(resp, body))
         self.instances.delete('instance1')
-        resp.status = 500
+        resp.status_code = 500
         self.assertRaises(Exception, self.instances.delete, 'instance1')
 
     def test__action(self):
         body = Mock()
         resp = Mock()
-        resp.status = 200
+        resp.status_code = 200
         self.instances.api.client.post = Mock(return_value=(resp, body))
         self.assertEqual('instance-1', self.instances._action(1, body))
 

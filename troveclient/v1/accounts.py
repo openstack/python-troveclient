@@ -58,6 +58,10 @@ class Accounts(base.ManagerWithFind):
         acct_name = self._get_account_name(account)
         return self._list("/mgmt/accounts/%s" % acct_name, 'account')
 
+    # Appease the abc gods
+    def list(self):
+        pass
+
     @staticmethod
     def _get_account_name(account):
         try:

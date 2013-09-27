@@ -70,5 +70,5 @@ class Backups(base.ManagerWithFind):
         :param backup_id: The backup id to delete
         """
         resp, body = self.api.client.delete("/backups/%s" % backup_id)
-        if resp.status in (422, 500):
+        if resp.status_code in (422, 500):
             raise exceptions.from_response(resp, body)

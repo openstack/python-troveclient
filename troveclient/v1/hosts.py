@@ -76,3 +76,7 @@ class Hosts(base.ManagerWithFind):
                 return host.name
         except AttributeError:
             return host
+
+    # Appease the abc gods
+    def list(self):
+        pass

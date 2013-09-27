@@ -1,4 +1,4 @@
-# Copyright (c) 2013 OpenStack Foundation
+# Copyright (c) 2011 OpenStack Foundation
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,37 +14,36 @@
 #    under the License.
 
 from troveclient import base
-import exceptions
 
 
-class Limit(base.Resource):
-
-    def __repr__(self):
-        return "<Limit: %s>" % self.verb
-
-
-class Limits(base.ManagerWithFind):
+class Device(base.Resource):
     """
-    Manages :class `Limit` resources
+    Storage is an opaque instance used to hold storage information.
     """
-    resource_class = Limit
-
     def __repr__(self):
-        return "<Limit Manager at %s>" % id(self)
+        return "<Device: %s>" % self.name
+
+
+class StorageInfo(base.ManagerWithFind):
+    """
+    Manage :class:`Storage` resources.
+    """
+    resource_class = Device
 
     def _list(self, url, response_key):
         resp, body = self.api.client.get(url)
-
-        if resp is None or resp.status != 200:
-            raise exceptions.from_response(resp, body)
-
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
-
         return [self.resource_class(self, res) for res in body[response_key]]
 
+    def index(self):
+        """
+        Get a list of all storages.
+
+        :rtype: list of :class:`Storages`.
+        """
+        return self._list("/mgmt/storage", "devices")
+
+    # Appease the abc gods
     def list(self):
-        """
-        Retrieve the limits
-        """
-        return self._list("/limits", "limits")
+        pass
