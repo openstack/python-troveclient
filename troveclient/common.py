@@ -20,7 +20,6 @@ import pickle
 import sys
 
 from troveclient import client
-#from troveclient.xml import TroveXmlClient
 from troveclient import exceptions
 
 from urllib import quote
