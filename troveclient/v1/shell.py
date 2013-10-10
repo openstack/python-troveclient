@@ -67,7 +67,7 @@ def _find_backup(cs, backup):
 # Flavor related calls
 
 @utils.service_type('database')
-def do_list_flavors(cs, args):
+def do_flavor_list(cs, args):
     """Lists available flavors."""
     flavors = cs.flavors.list()
     utils.print_list(flavors, ['id', 'name', 'ram'])
@@ -75,7 +75,7 @@ def do_list_flavors(cs, args):
 
 @utils.arg('flavor', metavar='<flavor>', help='ID of the flavor.')
 @utils.service_type('database')
-def do_show_flavor(cs, args):
+def do_flavor_show(cs, args):
     """Show details of a flavor."""
     flavor = _find_flavor(cs, args.flavor)
     _print_instance(flavor)
@@ -142,7 +142,7 @@ def do_delete(cs, args):
            help='The Zone hint to give to nova')
 @utils.service_type('database')
 def do_create(cs, args):
-    """Add a new instance."""
+    """Creates a new instance."""
     volume = None
     if args.size:
         volume = {"size": args.size}
@@ -209,7 +209,7 @@ def do_restart(cs, args):
 
 @utils.arg('backup', metavar='<backup>', help='ID of the backup.')
 @utils.service_type('database')
-def do_show_backup(cs, args):
+def do_backup_show(cs, args):
     """Show details of a backup."""
     backup = _find_backup(cs, args.backup)
     _print_instance(backup)
@@ -217,7 +217,7 @@ def do_show_backup(cs, args):
 
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
 @utils.service_type('database')
-def do_list_instance_backups(cs, args):
+def do_backup_list_instance(cs, args):
     """List available backups for an instance."""
     backups = cs.instances.backups(args.instance)
     utils.print_list(backups, ['id', 'instance_id',
@@ -225,7 +225,7 @@ def do_list_instance_backups(cs, args):
 
 
 @utils.service_type('database')
-def do_list_backups(cs, args):
+def do_backup_list(cs, args):
     """List available backups."""
     backups = cs.backups.list()
     utils.print_list(backups, ['id', 'instance_id',
@@ -234,7 +234,7 @@ def do_list_backups(cs, args):
 
 @utils.arg('backup', metavar='<backup>', help='ID of the backup.')
 @utils.service_type('database')
-def do_delete_backup(cs, args):
+def do_backup_delete(cs, args):
     """Deletes a backup."""
     cs.backups.delete(args.backup)
 
@@ -245,7 +245,7 @@ def do_delete_backup(cs, args):
            default=None,
            help='An optional description for the backup.')
 @utils.service_type('database')
-def do_create_backup(cs, args):
+def do_backup_create(cs, args):
     """Deletes a backup."""
     backup = cs.backups.create(args.name, args.instance,
                                description=args.description)
@@ -262,7 +262,7 @@ def do_create_backup(cs, args):
 @utils.arg('--collate', metavar='<collate>', default=None,
            help='Optional collation type for database')
 @utils.service_type('database')
-def do_create_database(cs, args):
+def do_database_create(cs, args):
     """Creates a database on an instance."""
     database_dict = {'name': args.name}
     if args.collate:
@@ -275,7 +275,7 @@ def do_create_database(cs, args):
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
 @utils.service_type('database')
-def do_list_databases(cs, args):
+def do_database_list(cs, args):
     """Lists available databases on an instance."""
     wrapper = cs.databases.list(args.instance)
     databases = wrapper.items
@@ -289,7 +289,7 @@ def do_list_databases(cs, args):
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
 @utils.arg('database', metavar='<database>', help='Name of the database.')
 @utils.service_type('database')
-def do_delete_database(cs, args):
+def do_database_delete(cs, args):
     """Deletes a database."""
     cs.databases.delete(args.instance, args.database)
 
@@ -305,7 +305,7 @@ def do_delete_database(cs, args):
            help='Optional list of databases.',
            nargs="+", default=[])
 @utils.service_type('database')
-def do_create_user(cs, args):
+def do_user_create(cs, args):
     """Creates a user."""
     databases = [{'name': value} for value in args.databases]
     user = {'name': args.name, 'password': args.password,
@@ -317,7 +317,7 @@ def do_create_user(cs, args):
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
 @utils.service_type('database')
-def do_list_users(cs, args):
+def do_user_list(cs, args):
     """Lists the users for a instance."""
     wrapper = cs.users.list(args.instance)
     users = wrapper.items
@@ -333,7 +333,7 @@ def do_list_users(cs, args):
 @utils.arg('--host', metavar='<host>', default=None,
            help='Optional host of user')
 @utils.service_type('database')
-def do_delete_user(cs, args):
+def do_user_delete(cs, args):
     """Deletes a user from the instance."""
     cs.users.delete(args.instance, args.name, hostname=args.host)
 
@@ -345,7 +345,7 @@ def do_delete_user(cs, args):
 @utils.service_type('database')
 # Quoting is not working now that we arent using httplib2
 # anymore and instead are using requests
-def do_get_user(cs, args):
+def do_user_show(cs, args):
     """Gets a user from the instance."""
     user = cs.users.get(args.instance, args.name, hostname=args.host)
     _print_instance(user)
@@ -358,7 +358,7 @@ def do_get_user(cs, args):
 @utils.service_type('database')
 # Quoting is not working now that we arent using httplib2
 # anymore and instead are using requests
-def do_get_user_access(cs, args):
+def do_user_show_access(cs, args):
     """Gets a users access from the instance."""
     access = cs.users.list_access(args.instance, args.name, hostname=args.host)
     utils.print_list(access, ['name'])
@@ -377,7 +377,7 @@ def do_get_user_access(cs, args):
 @utils.service_type('database')
 # Quoting is not working now that we arent using httplib2
 # anymore and instead are using requests
-def do_update_user_attributes(cs, args):
+def do_user_update_attributes(cs, args):
     """Updates a users attributes from the instance."""
     new_attrs = {}
     if args.new_name:
@@ -398,7 +398,7 @@ def do_update_user_attributes(cs, args):
            help='List of databases.',
            nargs="+", default=[])
 @utils.service_type('database')
-def do_grant_user_access(cs, args):
+def do_user_grant_access(cs, args):
     """Grants access to a atabase(s) for a user."""
     cs.users.grant(args.instance, args.name,
                    args.databases, hostname=args.host)
@@ -410,7 +410,7 @@ def do_grant_user_access(cs, args):
 @utils.arg('--host', metavar='<host>', default=None,
            help='Optional host of user')
 @utils.service_type('database')
-def do_revoke_user_access(cs, args):
+def do_user_revoke_access(cs, args):
     """Revokes access to a database for a  user."""
     cs.users.revoke(args.instance, args.name,
                     args.database, hostname=args.host)
@@ -419,7 +419,7 @@ def do_revoke_user_access(cs, args):
 # Limits related commands
 
 @utils.service_type('database')
-def do_list_limits(cs, args):
+def do_limit_list(cs, args):
     """Lists the limits for a tenant."""
     limits = cs.limits.list()
     # Pop the first one, its absolute limits
@@ -432,7 +432,7 @@ def do_list_limits(cs, args):
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
 @utils.service_type('database')
-def do_enable_root(cs, args):
+def do_root_enable(cs, args):
     """Enables root for a instance."""
     root = cs.root.create(args.instance)
     utils.print_dict({'name': root[0], 'password': root[1]})
@@ -440,7 +440,7 @@ def do_enable_root(cs, args):
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
 @utils.service_type('database')
-def do_get_root(cs, args):
+def do_root_show(cs, args):
     """Gets root enabled status for a instance."""
     root = cs.root.is_root_enabled(args.instance)
     utils.print_dict({'is_root_enabled': root.rootEnabled})
@@ -449,7 +449,7 @@ def do_get_root(cs, args):
 # security group related functions
 
 @utils.service_type('database')
-def do_list_security_groups(cs, args):
+def do_secgroup_list(cs, args):
     """Lists all security gropus."""
     wrapper = cs.security_groups.list()
     sec_grps = wrapper.items
@@ -463,7 +463,7 @@ def do_list_security_groups(cs, args):
 @utils.arg('security_group', metavar='<security_group>',
            help='ID of the security group.')
 @utils.service_type('database')
-def do_show_security_group(cs, args):
+def do_secgroup_show(cs, args):
     """Shows details about a security group."""
     sec_grp = cs.security_groups.get(args.security_group)
     _print_instance(sec_grp)
@@ -476,7 +476,7 @@ def do_show_security_group(cs, args):
 @utils.arg('to_port', metavar='<to_port>', help='to port')
 @utils.arg('cidr', metavar='<cidr>', help='CIDR address')
 @utils.service_type('database')
-def do_create_security_group_rule(cs, args):
+def do_secgroup_add_rule(cs, args):
     """Creates a security group rule."""
     rule = cs.security_group_rules.create(args.security_group,
                                           args.protocol,
@@ -490,6 +490,6 @@ def do_create_security_group_rule(cs, args):
 @utils.arg('security_group_rule', metavar='<security_group_rule>',
            help='Security group rule')
 @utils.service_type('database')
-def do_delete_security_group_rule(cs, args):
+def do_secgroup_delete_rule(cs, args):
     """Deletes a security group rule."""
     cs.security_group_rules.delete(args.security_group_rule)

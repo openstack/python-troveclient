@@ -1,21 +1,155 @@
-Python bindings to the Trove API
-==================================================
+Python bindings to the OpenStack Trove API
+===========================================
 
-This is a client for the Trove API. There's a Python API (the
+This is a client for the OpenStack Trove API. There's a Python API (the
 ``troveclient`` module), and a command-line script (``trove``). Each
-implements 100% (or less ;) ) of the Trove API.
+implements 100% of the OpenStack Trove API.
+
+See the `OpenStack CLI guide`_ for information on how to use the ``trove``
+command-line tool. You may also want to look at the
+`OpenStack API documentation`_.
+
+.. _OpenStack CLI Guide: http://docs.openstack.org/cli/quick-start/content/
+.. _OpenStack API documentation: http://docs.openstack.org/api/
+
+The project is hosted on `Launchpad`_, where bugs can be filed. The code is
+hosted on `Github`_. Patches must be submitted using `Gerrit`_, *not* Github
+pull requests.
+
+.. _Github: https://github.com/openstack/python-troveclient
+.. _Launchpad: https://launchpad.net/python-troveclient
+.. _Gerrit: http://wiki.openstack.org/GerritWorkflow
+
+This code a fork of `Jacobian's python-cloudservers`__ If you need API support
+for the Rackspace API solely or the BSD license, you should use that repository.
+python-troveclient is licensed under the Apache License like the rest of OpenStack.
+
+__ http://github.com/jacobian/python-cloudservers
+
+.. contents:: Contents:
+   :local:
 
 Command-line API
 ----------------
 
-To use the command line API, first log in using your user name, api key,
-tenant, and appropriate auth url.
+Installing this package gets you a shell command, ``trove``, that you
+can use to interact with any Rackspace compatible API (including OpenStack).
 
-.. code-block:: bash
+You'll need to provide your OpenStack username and password. You can do this
+with the ``--os-username``, ``--os-password`` and  ``--os-tenant-name``
+params, but it's easier to just set them as environment variables::
 
-    $ trove-cli --username=jsmith --apikey=abcdefg --tenant=12345 --auth_url=http://trove_auth:35357/v2.0/tokens auth login
+    export OS_USERNAME=openstack
+    export OS_PASSWORD=yadayada
+    export OS_TENANT_NAME=myproject
 
-At this point you will be authenticated and given a token, which is stored
-at ~/.apitoken. From there you can make other calls to the CLI.
+You will also need to define the authentication url with ``--os-auth-url``
+and the version of the API with ``--version``.  Or set them as an environment
+variables as well::
 
-TODO: Add docs
+    export OS_AUTH_URL=http://example.com:5000/v2.0/
+
+Since Keystone can return multiple regions in the Service Catalog, you
+can specify the one you want with ``--os-region-name`` (or
+``export OS_REGION_NAME``). It defaults to the first in the list returned.
+
+You'll find complete documentation on the shell by running
+``trove help``::
+
+     usage: trove [--version] [--debug] [--os-username <auth-user-name>]
+                  [--os-password <auth-password>]
+                  [--os-tenant-name <auth-tenant-name>]
+                  [--os-tenant-id <auth-tenant-id>] [--os-auth-url <auth-url>]
+                  [--os-region-name <region-name>] [--service-type <service-type>]
+                  [--service-name <service-name>]
+                  [--database-service-name <database-service-name>]
+                  [--endpoint-type <endpoint-type>]
+                  [--os-database-api-version <database-api-ver>]
+                  [--os-cacert <ca-certificate>] [--retries <retries>]
+                  <subcommand> ...
+
+     Command-line interface to the OpenStack Trove API.
+
+     Positional arguments:
+       <subcommand>
+         backup-create       Deletes a backup.
+         backup-delete       Deletes a backup.
+         backup-list         List available backups.
+         backup-list-instance
+                             List available backups for an instance.
+         backup-show         Show details of a backup.
+         create              Creates a new instance.
+         database-create     Creates a database on an instance.
+         database-delete     Deletes a database.
+         database-list       Lists available databases on an instance.
+         delete              Deletes an instance.
+         flavor-list         Lists available flavors.
+         flavor-show         Show details of a flavor.
+         limit-list          Lists the limits for a tenant.
+         list                List all the instances.
+         resize-flavor       Resizes the flavor of an instance.
+         resize-volume       Resizes the volume size of an instance.
+         restart             Restarts the instance.
+         root-enable         Enables root for a instance.
+         root-show           Gets root enabled status for a instance.
+         secgroup-add-rule   Creates a security group rule.
+         secgroup-delete-rule
+                             Deletes a security group rule.
+         secgroup-list       Lists all security gropus.
+         secgroup-show       Shows details about a security group.
+         show                Show details of an instance.
+         user-create         Creates a user.
+         user-delete         Deletes a user from the instance.
+         user-grant-access   Grants access to a atabase(s) for a user.
+         user-list           Lists the users for a instance.
+         user-revoke-access  Revokes access to a database for a user.
+         user-show           Gets a user from the instance.
+         user-show-access    Gets a users access from the instance.
+         user-update-attributes
+                             Updates a users attributes from the instance.
+         bash-completion     Print arguments for bash_completion.
+         help                Display help about this program or one of its
+                             subcommands.
+
+     Optional arguments:
+       --version             show program's version number and exit
+       --debug               Print debugging output
+       --os-username <auth-user-name>
+                             Defaults to env[OS_USERNAME].
+       --os-password <auth-password>
+                             Defaults to env[OS_PASSWORD].
+       --os-tenant-name <auth-tenant-name>
+                             Defaults to env[OS_TENANT_NAME].
+       --os-tenant-id <auth-tenant-id>
+                             Defaults to env[OS_TENANT_ID].
+       --os-auth-url <auth-url>
+                             Defaults to env[OS_AUTH_URL].
+       --os-region-name <region-name>
+                             Defaults to env[OS_REGION_NAME].
+       --service-type <service-type>
+                             Defaults to database for most actions
+       --service-name <service-name>
+                             Defaults to env[TROVE_SERVICE_NAME]
+       --database-service-name <database-service-name>
+                             Defaults to env[TROVE_DATABASE_SERVICE_NAME]
+       --endpoint-type <endpoint-type>
+                             Defaults to env[TROVE_ENDPOINT_TYPE] or publicURL.
+       --os-database-api-version <database-api-ver>
+                             Accepts 1,defaults to env[OS_DATABASE_API_VERSION].
+       --os-cacert <ca-certificate>
+                             Specify a CA bundle file to use in verifying a TLS
+                             (https) server certificate. Defaults to env[OS_CACERT]
+       --retries <retries>   Number of retries.
+
+Python API
+----------
+
+There's also a complete Python API, but it has not yet been documented.
+
+Quick-start using keystone::
+
+    # use v2.0 auth with http://example.com:5000/v2.0/")
+    >>> from troveclient.v1 import client
+    >>> nt = client.Client(USER, PASS, TENANT, AUTH_URL, service_type="database")
+    >>> nt.instances.list()
+    [...]
