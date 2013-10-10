@@ -174,7 +174,8 @@ def do_create(cs, args):
 @utils.arg('flavor_id',
            metavar='<flavor_id>',
            help='Flavor of the instance')
-def resize_flavor(cs, args):
+@utils.service_type('database')
+def do_resize_flavor(cs, args):
     """Resizes the flavor of an instance."""
     cs.instances.resize_flavor(args.instance, args.flavor_id)
 
@@ -188,7 +189,8 @@ def resize_flavor(cs, args):
            type=int,
            default=None,
            help='Size of the instance disk in GB')
-def resize_volume(cs, args):
+@utils.service_type('database')
+def do_resize_volume(cs, args):
     """Resizes the volume size of an instance."""
     cs.instances.resize_volume(args.instance, args.size)
 
@@ -197,7 +199,8 @@ def resize_volume(cs, args):
            metavar='<instance>',
            type=str,
            help='UUID of the instance')
-def restart(cs, args):
+@utils.service_type('database')
+def do_restart(cs, args):
     """Restarts the instance."""
     cs.instances.restart(args.instance)
 
