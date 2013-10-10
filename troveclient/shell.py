@@ -145,6 +145,8 @@ class OpenStackTroveShell(object):
 
         parser.add_argument('--service-type',
                             metavar='<service-type>',
+                            default=utils.env('OS_SERVICE_TYPE',
+                                              'TROVE_SERVICE_TYPE'),
                             help='Defaults to database for most actions')
         parser.add_argument('--service_type',
                             help=argparse.SUPPRESS)
