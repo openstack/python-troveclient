@@ -1,10 +1,6 @@
-# Install bounded pep8/pyflakes first, then let flake8 install
-pep8==1.4.5
-pyflakes==0.7.2
-flake8==2.0
-hacking>=0.5.6,<0.7
+hacking>=0.5.6,<0.8
 discover
 sphinx>=1.1.2
 testrepository>=0.0.17
 testtools>=0.9.32
-mock>=0.8.0
+mock>=1.0
