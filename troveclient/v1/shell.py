@@ -211,7 +211,7 @@ def do_restart(cs, args):
 @utils.service_type('database')
 def do_show_backup(cs, args):
     """Show details of a backup."""
-    backups = _find_backup(args.backup)
+    backup = _find_backup(cs, args.backup)
     _print_instance(backup)
 
 
