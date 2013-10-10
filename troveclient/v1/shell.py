@@ -148,7 +148,7 @@ def do_create(cs, args):
         volume = {"size": args.size}
     restore_point = None
     if args.backup:
-        restore_point = {"backupRef": self.backup}
+        restore_point = {"backupRef": args.backup}
     databases = [{'name': value} for value in args.databases]
     users = [{'name': n, 'password': p} for (n, p) in
              [z.split(':')[:2] for z in args.users]]
