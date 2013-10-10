@@ -246,7 +246,7 @@ def do_backup_delete(cs, args):
            help='An optional description for the backup.')
 @utils.service_type('database')
 def do_backup_create(cs, args):
-    """Deletes a backup."""
+    """Creates a backup."""
     backup = cs.backups.create(args.name, args.instance,
                                description=args.description)
     _print_instance(backup)

@@ -72,7 +72,7 @@ You'll find complete documentation on the shell by running
 
      Positional arguments:
        <subcommand>
-         backup-create       Deletes a backup.
+         backup-create       Creates a backup.
          backup-delete       Deletes a backup.
          backup-list         List available backups.
          backup-list-instance
