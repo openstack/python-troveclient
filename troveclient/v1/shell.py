@@ -1,12 +1,8 @@
 from __future__ import print_function
 
-import argparse
-import copy
-import os
 import sys
 import time
 
-from troveclient import exceptions
 from troveclient import utils
 
 
@@ -399,7 +395,7 @@ def do_user_update_attributes(cs, args):
            nargs="+", default=[])
 @utils.service_type('database')
 def do_user_grant_access(cs, args):
-    """Grants access to a atabase(s) for a user."""
+    """Grants access to a database(s) for a user."""
     cs.users.grant(args.instance, args.name,
                    args.databases, hostname=args.host)
 
@@ -450,7 +446,7 @@ def do_root_show(cs, args):
 
 @utils.service_type('database')
 def do_secgroup_list(cs, args):
-    """Lists all security gropus."""
+    """Lists all security groups."""
     wrapper = cs.security_groups.list()
     sec_grps = wrapper.items
     while (wrapper.next):
