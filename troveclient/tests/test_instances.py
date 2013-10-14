@@ -98,10 +98,10 @@ class InstancesTest(TestCase):
             return path, inst, limit, marker
 
         self.instances._list = Mock(side_effect=side_effect_func)
-        limit_ = "test-limit"
-        marker_ = "test-marker"
-        expected = ("/instances", "instances", limit_, marker_)
-        self.assertEqual(expected, self.instances.list(limit_, marker_))
+        limit = "test-limit"
+        marker = "test-marker"
+        expected = ("/instances", "instances", limit, marker)
+        self.assertEqual(expected, self.instances.list(limit, marker))
 
     def test_get(self):
         def side_effect_func(path, inst):

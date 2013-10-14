@@ -15,16 +15,16 @@ class CommonTest(TestCase):
                               common.check_for_exceptions, resp, "body")
 
     def test_limit_url(self):
-        url_ = "test-url"
-        limit_ = None
-        marker_ = None
-        self.assertEqual(url_, common.limit_url(url_))
+        url = "test-url"
+        limit = None
+        marker = None
+        self.assertEqual(url, common.limit_url(url))
 
-        limit_ = "test-limit"
-        marker_ = "test-marker"
+        limit = "test-limit"
+        marker = "test-marker"
         expected = "test-url?marker=test-marker&limit=test-limit"
         self.assertEqual(expected,
-                         common.limit_url(url_, limit=limit_, marker=marker_))
+                         common.limit_url(url, limit=limit, marker=marker))
 
 
 class PaginatedTest(TestCase):
