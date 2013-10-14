@@ -1,4 +1,5 @@
 import os
+import six
 from testtools import TestCase
 from troveclient import utils
 
@@ -36,5 +37,5 @@ class UtilsTest(TestCase):
         import unicodedata  # noqa
 
         self.assertEqual('not_unicode', utils.slugify('not_unicode'))
-        self.assertEqual('unicode', utils.slugify(unicode('unicode')))
+        self.assertEqual('unicode', utils.slugify(six.u('unicode')))
         self.assertEqual('slugify-test', utils.slugify('SLUGIFY% test!'))
