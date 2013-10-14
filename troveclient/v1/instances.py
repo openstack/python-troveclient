@@ -59,7 +59,8 @@ class Instances(base.ManagerWithFind):
     resource_class = Instance
 
     def create(self, name, flavor_id, volume=None, databases=None, users=None,
-               restorePoint=None, availability_zone=None):
+               restorePoint=None, availability_zone=None, datastore=None,
+               datastore_version=None):
         """
         Create (boot) a new instance.
         """
@@ -67,6 +68,7 @@ class Instances(base.ManagerWithFind):
             "name": name,
             "flavorRef": flavor_id
         }}
+        datastore_obj = {}
         if volume:
             body["instance"]["volume"] = volume
         if databases:
@@ -77,6 +79,12 @@ class Instances(base.ManagerWithFind):
             body["instance"]["restorePoint"] = restorePoint
         if availability_zone:
             body["instance"]["availability_zone"] = availability_zone
+        if datastore:
+            datastore_obj["type"] = datastore
+        if datastore_version:
+            datastore_obj["version"] = datastore_version
+        if datastore_obj:
+            body["instance"]["datastore"] = datastore_obj
 
         return self._create("/instances", body, "instance")
 

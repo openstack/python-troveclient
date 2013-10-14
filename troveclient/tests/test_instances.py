@@ -90,13 +90,18 @@ class InstancesTest(TestCase):
 
         self.instances._create = Mock(side_effect=side_effect_func)
         p, b, i = self.instances.create("test-name", 103, "test-volume",
-                                        ['db1', 'db2'], ['u1', 'u2'])
+                                        ['db1', 'db2'], ['u1', 'u2'],
+                                        datastore="datastore",
+                                        datastore_version="datastore-version")
         self.assertEqual("/instances", p)
         self.assertEqual("instance", i)
         self.assertEqual(['db1', 'db2'], b["instance"]["databases"])
         self.assertEqual(['u1', 'u2'], b["instance"]["users"])
         self.assertEqual("test-name", b["instance"]["name"])
         self.assertEqual("test-volume", b["instance"]["volume"])
+        self.assertEqual("datastore", b["instance"]["datastore"]["type"])
+        self.assertEqual("datastore-version",
+                         b["instance"]["datastore"]["version"])
         self.assertEqual(103, b["instance"]["flavorRef"])
 
     def test__list(self):

@@ -308,6 +308,8 @@ class Dbaas(object):
         from troveclient.v1.backups import Backups
         from troveclient.v1.security_groups import SecurityGroups
         from troveclient.v1.security_groups import SecurityGroupRules
+        from troveclient.v1.datastores import Datastores
+        from troveclient.v1.datastores import DatastoreVersions
         from troveclient.v1.storage import StorageInfo
         from troveclient.v1.management import Management
         from troveclient.v1.management import MgmtFlavors
@@ -334,6 +336,8 @@ class Dbaas(object):
         self.backups = Backups(self)
         self.security_groups = SecurityGroups(self)
         self.security_group_rules = SecurityGroupRules(self)
+        self.datastores = Datastores(self)
+        self.datastore_versions = DatastoreVersions(self)
         self.storage = StorageInfo(self)
         self.management = Management(self)
         self.mgmt_flavor = MgmtFlavors(self)

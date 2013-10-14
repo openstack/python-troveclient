@@ -28,6 +28,8 @@ from troveclient.v1.quota import Quotas
 from troveclient.v1.backups import Backups
 from troveclient.v1.security_groups import SecurityGroups
 from troveclient.v1.security_groups import SecurityGroupRules
+from troveclient.v1.datastores import Datastores
+from troveclient.v1.datastores import DatastoreVersions
 from troveclient.v1.storage import StorageInfo
 from troveclient.v1.management import Management
 from troveclient.v1.management import MgmtFlavors
@@ -71,6 +73,8 @@ class Client(object):
         self.root = Root(self)
         self.security_group_rules = SecurityGroupRules(self)
         self.security_groups = SecurityGroups(self)
+        self.datastores = Datastores(self)
+        self.datastore_versions = DatastoreVersions(self)
 
         #self.hosts = Hosts(self)
         #self.quota = Quotas(self)

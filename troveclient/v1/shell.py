@@ -154,6 +154,14 @@ def do_delete(cs, args):
            metavar='<availability_zone>',
            default=None,
            help='The Zone hint to give to nova')
+@utils.arg('--datastore',
+           metavar='<datastore>',
+           default=None,
+           help='A datastore name or UUID')
+@utils.arg('--datastore_version',
+           metavar='<datastore_version>',
+           default=None,
+           help='A datastore version name or UUID')
 @utils.service_type('database')
 def do_create(cs, args):
     """Creates a new instance."""
@@ -172,7 +180,9 @@ def do_create(cs, args):
                                    databases=databases,
                                    users=users,
                                    restorePoint=restore_point,
-                                   availability_zone=args.availability_zone)
+                                   availability_zone=args.availability_zone,
+                                   datastore=args.datastore,
+                                   datastore_version=args.datastore_version)
     instance._info['flavor'] = instance.flavor['id']
     if hasattr(instance, 'volume'):
         instance._info['volume'] = instance.volume['size']
@@ -509,3 +519,40 @@ def do_secgroup_add_rule(cs, args):
 def do_secgroup_delete_rule(cs, args):
     """Deletes a security group rule."""
     cs.security_group_rules.delete(args.security_group_rule)
+
+
+@utils.service_type('database')
+def do_datastore_list(cs, args):
+    """List all the datastores."""
+    datastores = cs.datastores.list()
+    utils.print_list(datastores, ['id', 'name'])
+
+
+@utils.arg('datastore', metavar='<datastore>',
+           help='ID of the datastore.')
+@utils.service_type('database')
+def do_datastore_show(cs, args):
+    """Show details of an datastore."""
+    datastore = cs.datastores.get(args.datastore)
+    _print_instance(datastore)
+
+
+@utils.arg('datastore', metavar='<datastore>',
+           help='ID of the datastore.')
+@utils.service_type('database')
+def do_datastore_version_list(cs, args):
+    """List all the datastore versions."""
+    datastore_versions = cs.datastore_versions.list(args.datastore)
+    utils.print_list(datastore_versions, ['id', 'name'])
+
+
+@utils.arg('datastore', metavar='<datastore>',
+           help='ID of the datastore.')
+@utils.arg('datastore_version', metavar='<datastore_version>',
+           help='ID of the datastore version.')
+@utils.service_type('database')
+def do_datastore_version_show(cs, args):
+    """Show details of an datastore version."""
+    datastore_version = cs.datastore_versions.get(args.datastore,
+                                                  args.datastore_version)
+    _print_instance(datastore_version)

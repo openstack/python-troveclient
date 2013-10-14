@@ -20,7 +20,9 @@ LISTIFY = {
     "attachments": [[]],
     "limits": [[]],
     "security_groups": [[]],
-    "backups": [[]]
+    "backups": [[]],
+    "datastores": [[]],
+    "datastore_versions": [[]]
 }
 
 
