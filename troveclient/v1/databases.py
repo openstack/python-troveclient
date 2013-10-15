@@ -2,7 +2,7 @@ from troveclient import base
 from troveclient.common import check_for_exceptions
 from troveclient.common import limit_url
 from troveclient.common import Paginated
-import urlparse
+from troveclient.openstack.common.py3kcompat import urlutils
 
 
 class Database(base.Resource):
@@ -47,8 +47,8 @@ class Databases(base.ManagerWithFind):
         next_marker = None
         for link in next_links:
             # Extract the marker from the url.
-            parsed_url = urlparse.urlparse(link)
-            query_dict = dict(urlparse.parse_qsl(parsed_url.query))
+            parsed_url = urlutils.urlparse(link)
+            query_dict = dict(urlutils.parse_qsl(parsed_url.query))
             next_marker = query_dict.get('marker', None)
         databases = body[response_key]
         databases = [self.resource_class(self, res) for res in databases]
