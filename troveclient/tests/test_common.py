@@ -51,10 +51,10 @@ class PaginatedTest(TestCase):
     def test___iter__(self):
         itr_expected = self.items_.__iter__()
         itr = self.pgn.__iter__()
-        self.assertEqual(itr_expected.next(), itr.next())
-        self.assertEqual(itr_expected.next(), itr.next())
-        self.assertRaises(StopIteration, itr_expected.next)
-        self.assertRaises(StopIteration, itr.next)
+        self.assertEqual(next(itr_expected), next(itr))
+        self.assertEqual(next(itr_expected), next(itr))
+        self.assertRaises(StopIteration, next, itr_expected)
+        self.assertRaises(StopIteration, next, itr)
 
     def test___getitem__(self):
         self.assertEqual(self.items_[0], self.pgn.__getitem__(0))
@@ -70,9 +70,9 @@ class PaginatedTest(TestCase):
     def test___reversed__(self):
         itr = self.pgn.__reversed__()
         expected = ["item2", "item1"]
-        self.assertEqual("item2", itr.next())
-        self.assertEqual("item1", itr.next())
-        self.assertRaises(StopIteration, itr.next)
+        self.assertEqual("item2", next(itr))
+        self.assertEqual("item1", next(itr))
+        self.assertRaises(StopIteration, next, itr)
 
     def test___contains__(self):
         self.assertTrue(self.pgn.__contains__("item1"))
