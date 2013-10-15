@@ -15,12 +15,12 @@
 
 from troveclient import base
 
-import exceptions
 import urlparse
 
 from troveclient.common import check_for_exceptions
 from troveclient.common import limit_url
 from troveclient.common import Paginated
+from troveclient.openstack.common.apiclient import exceptions
 
 
 REBOOT_SOFT, REBOOT_HARD = 'SOFT', 'HARD'

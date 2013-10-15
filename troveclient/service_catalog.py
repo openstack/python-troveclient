@@ -16,7 +16,7 @@
 # limitations under the License.
 
 
-from openstack.common.apiclient import exceptions
+from troveclient.openstack.common.apiclient import exceptions
 
 
 class ServiceCatalog(object):

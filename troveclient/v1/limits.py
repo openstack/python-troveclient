@@ -14,7 +14,7 @@
 #    under the License.
 
 from troveclient import base
-import exceptions
+from troveclient.openstack.common.apiclient import exceptions
 
 
 class Limit(base.Resource):
