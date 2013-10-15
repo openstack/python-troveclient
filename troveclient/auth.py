@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from __future__ import print_function
 from troveclient import exceptions
 
 
@@ -77,13 +78,13 @@ class Authenticator(object):
                                       service_url=self.service_url,
                                       root_key=root_key)
             except exceptions.AmbiguousEndpoints:
-                print "Found more than one valid endpoint. Use a more " \
-                      "restrictive filter"
+                print("Found more than one valid endpoint. Use a more "
+                      "restrictive filter")
                 raise
             except KeyError:
                 raise exceptions.AuthorizationFailure()
             except exceptions.EndpointNotFound:
-                print "Could not find any suitable endpoint. Correct region?"
+                print("Could not find any suitable endpoint. Correct region?")
                 raise
 
         elif resp.status == 305:
