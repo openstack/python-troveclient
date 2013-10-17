@@ -40,7 +40,7 @@ class Client(object):
                  service_type='database', service_name=None,
                  database_service_name=None, retries=None,
                  http_log_debug=False,
-                 cacert=None):
+                 cacert=None, bypass_url=None):
         # self.limits = limits.LimitsManager(self)
 
         # extensions
@@ -87,7 +87,8 @@ class Client(object):
             database_service_name=database_service_name,
             retries=retries,
             http_log_debug=http_log_debug,
-            cacert=cacert)
+            cacert=cacert,
+            bypass_url=bypass_url)
 
     def authenticate(self):
         """
