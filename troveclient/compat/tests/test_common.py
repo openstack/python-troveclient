@@ -147,12 +147,15 @@ class CommandsBaseTest(TestCase):
         super(CommandsBaseTest, self).setUp()
         self.orig_sys_exit = sys.exit
         sys.exit = Mock(return_value=None)
+        self.orig_sys_argv = sys.argv
+        sys.argv = ['fakecmd']
         parser = common.CliOptions().create_optparser(False)
         self.cmd_base = common.CommandsBase(parser)
 
     def tearDown(self):
         super(CommandsBaseTest, self).tearDown()
         sys.exit = self.orig_sys_exit
+        sys.argv = self.orig_sys_argv
 
     def test___init__(self):
         self.assertNotEqual(None, self.cmd_base)
@@ -266,12 +269,15 @@ class AuthTest(TestCase):
         super(AuthTest, self).setUp()
         self.orig_sys_exit = sys.exit
         sys.exit = Mock(return_value=None)
+        self.orig_sys_argv = sys.argv
+        sys.argv = ['fakecmd']
         self.parser = common.CliOptions().create_optparser(False)
         self.auth = common.Auth(self.parser)
 
     def tearDown(self):
         super(AuthTest, self).tearDown()
         sys.exit = self.orig_sys_exit
+        sys.argv = self.orig_sys_argv
 
     def test___init__(self):
         self.assertEqual(None, self.auth.dbaas)
@@ -304,10 +310,13 @@ class AuthedCommandsBaseTest(TestCase):
         super(AuthedCommandsBaseTest, self).setUp()
         self.orig_sys_exit = sys.exit
         sys.exit = Mock(return_value=None)
+        self.orig_sys_argv = sys.argv
+        sys.argv = ['fakecmd']
 
     def tearDown(self):
         super(AuthedCommandsBaseTest, self).tearDown()
         sys.exit = self.orig_sys_exit
+        self.orig_sys_argv = sys.argv
 
     def test___init__(self):
         parser = common.CliOptions().create_optparser(False)
