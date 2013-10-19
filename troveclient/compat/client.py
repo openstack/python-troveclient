@@ -17,7 +17,6 @@ import httplib2
 import logging
 import os
 import time
-import urlparse
 import sys
 
 try:
@@ -25,10 +24,6 @@ try:
 except ImportError:
     import simplejson as json
 
-# Python 2.5 compat fix
-if not hasattr(urlparse, 'parse_qsl'):
-    import cgi
-    urlparse.parse_qsl = cgi.parse_qsl
 
 from troveclient.compat import auth
 from troveclient.compat import exceptions
@@ -234,7 +229,7 @@ class TroveHTTPClient(httplib2.Http):
         # re-authenticate and try again. If it still fails, bail.
         try:
             return request()
-        except exceptions.Unauthorized, ex:
+        except exceptions.Unauthorized as ex:
             self.authenticate()
             return request()
 

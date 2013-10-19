@@ -23,7 +23,7 @@ from troveclient.compat import client
 from troveclient.compat.xml import TroveXmlClient
 from troveclient.compat import exceptions
 
-from urllib import quote
+from troveclient.openstack.common.py3kcompat import urlutils
 
 
 def methods_of(obj):
@@ -43,18 +43,18 @@ def check_for_exceptions(resp, body):
 
 def print_actions(cmd, actions):
     """Print help for the command with list of options and description"""
-    print ("Available actions for '%s' cmd:") % cmd
+    print(("Available actions for '%s' cmd:") % cmd)
     for k, v in actions.iteritems():
-        print "\t%-20s%s" % (k, v.__doc__)
+        print("\t%-20s%s" % (k, v.__doc__))
     sys.exit(2)
 
 
 def print_commands(commands):
     """Print the list of available commands and description"""
 
-    print "Available commands"
+    print("Available commands")
     for k, v in commands.iteritems():
-        print "\t%-20s%s" % (k, v.__doc__)
+        print("\t%-20s%s" % (k, v.__doc__))
     sys.exit(2)
 
 
@@ -73,9 +73,9 @@ def limit_url(url, limit=None, marker=None):
 def quote_user_host(user, host):
     quoted = ''
     if host:
-        quoted = quote("%s@%s" % (user, host))
+        quoted = urlutils.quote("%s@%s" % (user, host))
     else:
-        quoted = quote("%s" % user)
+        quoted = urlutils.quote("%s" % user)
     return quoted.replace('.', '%2e')
 
 
@@ -234,7 +234,7 @@ class CommandsBase(object):
         except:
             if self.debug:
                 raise
-            print sys.exc_info()[1]
+            print(sys.exc_info()[1])
 
     def _safe_exec(self, func, *args, **kwargs):
         if not self.debug:
@@ -320,17 +320,17 @@ class CommandsBase(object):
                 return  # Verbose already shows the output, so skip this.
             if result and len(result) > 0:
                 for item in result:
-                    print self._dumps(item._info)
+                    print(self._dumps(item._info))
                 if result.links:
                     print("Links:")
                     for link in result.links:
-                        print self._dumps((link))
+                        print(self._dumps((link)))
             else:
                 print("OK")
         except:
             if self.debug:
                 raise
-            print sys.exc_info()[1]
+            print(sys.exc_info()[1])
 
 
 class Auth(CommandsBase):
@@ -368,7 +368,7 @@ class Auth(CommandsBase):
         except:
             if self.debug:
                 raise
-            print sys.exc_info()[1]
+            print(sys.exc_info()[1])
 
 
 class AuthedCommandsBase(CommandsBase):
