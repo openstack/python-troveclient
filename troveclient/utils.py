@@ -1,4 +1,8 @@
-#    Copyright 2012 OpenStack Foundation
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+# Copyright 2011 OpenStack Foundation
+# Copyright 2013 Rackspace Hosting
+# All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
