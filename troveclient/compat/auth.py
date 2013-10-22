@@ -13,6 +13,7 @@
 #    under the License.
 
 from __future__ import print_function
+from six import string_types
 from troveclient.compat import exceptions
 
 
@@ -20,7 +21,7 @@ def get_authenticator_cls(cls_or_name):
     """Factory method to retrieve Authenticator class."""
     if isinstance(cls_or_name, type):
         return cls_or_name
-    elif isinstance(cls_or_name, basestring):
+    elif isinstance(cls_or_name, string_types):
         if cls_or_name == "keystone":
             return KeyStoneV2Authenticator
         elif cls_or_name == "rax":

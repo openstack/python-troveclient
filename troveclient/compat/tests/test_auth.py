@@ -18,10 +18,10 @@
 #    under the License.
 
 from testtools import TestCase
-from troveclient import auth
+from troveclient.compat import auth
 from mock import Mock
 
-from troveclient import exceptions
+from troveclient.compat import exceptions
 
 """
 Unit tests for the classes and functions in auth.py.
