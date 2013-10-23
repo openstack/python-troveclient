@@ -15,6 +15,8 @@
 import os
 import re
 
+from troveclient.openstack.common import strutils
+
 
 class HookableMixin(object):
     """Mixin so classes can register and run hooks."""
@@ -46,10 +48,6 @@ def env(*vars, **kwargs):
     return kwargs.get('default', '')
 
 
-_slugify_strip_re = re.compile(r'[^\w\s-]')
-_slugify_hyphenate_re = re.compile(r'[-\s]+')
-
-
 # http://code.activestate.com/recipes/
 #   577257-slugify-make-a-string-usable-in-a-url-or-filename/
 def slugify(value):
@@ -58,10 +56,7 @@ def slugify(value):
     and converts spaces to hyphens.
 
     From Django's "django/template/defaultfilters.py".
+
+    Make use of strutils.to_slug from openstack common
     """
-    import unicodedata
-    if not isinstance(value, unicode):
-        value = unicode(value)
-    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
-    value = unicode(_slugify_strip_re.sub('', value).strip().lower())
-    return _slugify_hyphenate_re.sub('-', value)
+    return strutils.to_slug(value, incoming=None, errors="strict")
