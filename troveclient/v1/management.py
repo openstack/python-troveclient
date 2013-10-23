@@ -17,11 +17,11 @@
 #    under the License.
 
 from troveclient import base
-import urlparse
 
 from troveclient.common import check_for_exceptions
 from troveclient.common import limit_url
 from troveclient.common import Paginated
+from troveclient.openstack.common.py3kcompat import urlutils
 from troveclient.v1.instances import Instance
 from troveclient.v1.flavors import Flavor
 
@@ -51,8 +51,8 @@ class Management(base.ManagerWithFind):
         next_marker = None
         for link in next_links:
             # Extract the marker from the url.
-            parsed_url = urlparse.urlparse(link)
-            query_dict = dict(urlparse.parse_qsl(parsed_url.query))
+            parsed_url = urlutils.urlparse(link)
+            query_dict = dict(urlutils.parse_qsl(parsed_url.query))
             next_marker = query_dict.get('marker', None)
         instances = body[response_key]
         instances = [self.resource_class(self, res) for res in instances]

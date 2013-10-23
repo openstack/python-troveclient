@@ -19,12 +19,11 @@
 
 from troveclient import base
 
-import urlparse
-
 from troveclient.common import check_for_exceptions
 from troveclient.common import limit_url
 from troveclient.common import Paginated
 from troveclient.openstack.common.apiclient import exceptions
+from troveclient.openstack.common.py3kcompat import urlutils
 
 
 REBOOT_SOFT, REBOOT_HARD = 'SOFT', 'HARD'
@@ -90,8 +89,8 @@ class Instances(base.ManagerWithFind):
         next_marker = None
         for link in next_links:
             # Extract the marker from the url.
-            parsed_url = urlparse.urlparse(link)
-            query_dict = dict(urlparse.parse_qsl(parsed_url.query))
+            parsed_url = urlutils.urlparse(link)
+            query_dict = dict(urlutils.parse_qsl(parsed_url.query))
             next_marker = query_dict.get('marker', None)
         instances = body[response_key]
         instances = [self.resource_class(self, res) for res in instances]
