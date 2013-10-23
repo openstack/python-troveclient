@@ -19,11 +19,11 @@
 
 from troveclient import base
 
-import exceptions
 import urlparse
 
 from troveclient.common import limit_url
 from troveclient.common import Paginated
+from troveclient.openstack.common.apiclient import exceptions
 
 
 class SecurityGroup(base.Resource):
