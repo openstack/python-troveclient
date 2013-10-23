@@ -95,12 +95,12 @@ You'll find complete documentation on the shell by running
          secgroup-add-rule   Creates a security group rule.
          secgroup-delete-rule
                              Deletes a security group rule.
-         secgroup-list       Lists all security gropus.
+         secgroup-list       Lists all security groups.
          secgroup-show       Shows details about a security group.
          show                Show details of an instance.
          user-create         Creates a user.
          user-delete         Deletes a user from the instance.
-         user-grant-access   Grants access to a atabase(s) for a user.
+         user-grant-access   Grants access to a database(s) for a user.
          user-list           Lists the users for a instance.
          user-revoke-access  Revokes access to a database for a user.
          user-show           Gets a user from the instance.
