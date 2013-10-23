@@ -4,3 +4,5 @@ sphinx>=1.1.2
 testrepository>=0.0.17
 testtools>=0.9.32
 mock>=1.0
+httplib2
+lxml>=2.3
