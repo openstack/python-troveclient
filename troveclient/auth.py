@@ -15,12 +15,14 @@
 from __future__ import print_function
 from troveclient import exceptions
 
+import six
+
 
 def get_authenticator_cls(cls_or_name):
     """Factory method to retrieve Authenticator class."""
     if isinstance(cls_or_name, type):
         return cls_or_name
-    elif isinstance(cls_or_name, basestring):
+    elif isinstance(cls_or_name, six.string_types):
         if cls_or_name == "keystone":
             return KeyStoneV2Authenticator
         elif cls_or_name == "rax":
