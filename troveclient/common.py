@@ -26,7 +26,7 @@ import sys
 from troveclient import client
 from troveclient import exceptions
 
-from urllib import quote
+from troveclient.openstack.common.py3kcompat import urlutils
 
 
 def check_for_exceptions(resp, body):
@@ -49,9 +49,9 @@ def limit_url(url, limit=None, marker=None):
 def quote_user_host(user, host):
     quoted = ''
     if host:
-        quoted = quote("%s@%s" % (user, host))
+        quoted = urlutils.quote("%s@%s" % (user, host))
     else:
-        quoted = quote("%s" % user)
+        quoted = urlutils.quote("%s" % user)
     return quoted.replace('.', '%2e')
 
 
