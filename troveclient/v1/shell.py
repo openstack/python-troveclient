@@ -338,7 +338,9 @@ def do_user_list(cs, args):
     while (wrapper.next):
         wrapper = cs.users.list(args.instance, marker=wrapper.next)
         users += wrapper.items
-
+    for user in users:
+        db_names = [db['name'] for db in user.databases]
+        user.databases = ', '.join(db_names)
     utils.print_list(users, ['name', 'host', 'databases'])
 
 
