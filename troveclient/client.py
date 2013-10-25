@@ -63,7 +63,7 @@ class HTTPClient(object):
                  proxy_token=None, region_name=None,
                  endpoint_type='publicURL', service_type=None,
                  service_name=None, database_service_name=None, retries=None,
-                 http_log_debug=False, cacert=None):
+                 http_log_debug=False, cacert=None, bypass_url=None):
         self.user = user
         self.password = password
         self.projectid = projectid
@@ -83,6 +83,7 @@ class HTTPClient(object):
         self.proxy_token = proxy_token
         self.proxy_tenant_id = proxy_tenant_id
         self.timeout = timeout
+        self.bypass_url = bypass_url
 
         if insecure:
             self.verify_cert = False
@@ -324,6 +325,10 @@ class HTTPClient(object):
                 if auth_url.find('v2.0') < 0:
                     auth_url = auth_url + '/v2.0'
                 self._v2_auth(auth_url)
+
+        # Allows for setting an endpoint not defined in the catalog
+        if self.bypass_url is not None and self.bypass_url != '':
+            self.management_url = self.bypass_url
 
     def _v1_auth(self, url):
         if self.proxy_token:

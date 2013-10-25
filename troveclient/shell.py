@@ -161,6 +161,13 @@ class OpenStackTroveShell(object):
         parser.add_argument('--service_name',
                             help=argparse.SUPPRESS)
 
+        parser.add_argument('--bypass-url',
+                            metavar='<bypass-url>',
+                            default=utils.env('TROVE_BYPASS_URL'),
+                            help='Defaults to env[TROVE_BYPASS_URL]')
+        parser.add_argument('--bypass_url',
+                            help=argparse.SUPPRESS)
+
         parser.add_argument('--database-service-name',
                             metavar='<database-service-name>',
                             default=utils.env('TROVE_DATABASE_SERVICE_NAME'),
@@ -370,7 +377,8 @@ class OpenStackTroveShell(object):
         (os_username, os_password, os_tenant_name, os_auth_url,
          os_region_name, os_tenant_id, endpoint_type, insecure,
          service_type, service_name, database_service_name,
-         username, apikey, projectid, url, region_name, cacert) = (
+         username, apikey, projectid, url, region_name,
+         cacert, bypass_url) = (
              args.os_username, args.os_password,
              args.os_tenant_name, args.os_auth_url,
              args.os_region_name, args.os_tenant_id,
@@ -378,7 +386,7 @@ class OpenStackTroveShell(object):
              args.service_type, args.service_name,
              args.database_service_name, args.username,
              args.apikey, args.projectid,
-             args.url, args.region_name, args.os_cacert)
+             args.url, args.region_name, args.os_cacert, args.bypass_url)
 
         if not endpoint_type:
             endpoint_type = DEFAULT_TROVE_ENDPOINT_TYPE
@@ -447,7 +455,8 @@ class OpenStackTroveShell(object):
                                 database_service_name=database_service_name,
                                 retries=options.retries,
                                 http_log_debug=args.debug,
-                                cacert=cacert)
+                                cacert=cacert,
+                                bypass_url=bypass_url)
 
         try:
             if not utils.isunauthenticated(args.func):
