@@ -17,6 +17,7 @@ hosted on `Github`_. Patches must be submitted using `Gerrit`_, *not* Github
 pull requests.
 
 .. _Github: https://github.com/openstack/python-troveclient
+.. _Releases: https://github.com/openstack/python-troveclient/releases
 .. _Launchpad: https://launchpad.net/python-troveclient
 .. _Gerrit: http://wiki.openstack.org/GerritWorkflow
 
@@ -130,6 +131,8 @@ You'll find complete documentation on the shell by running
                              Defaults to database for most actions
        --service-name <service-name>
                              Defaults to env[TROVE_SERVICE_NAME]
+       --bypass-url <bypass-url>
+                        Defaults to env[TROVE_BYPASS_URL]
        --database-service-name <database-service-name>
                              Defaults to env[TROVE_DATABASE_SERVICE_NAME]
        --endpoint-type <endpoint-type>
