@@ -178,8 +178,9 @@ class OpenStackTroveShell(object):
 
         parser.add_argument('--endpoint-type',
                             metavar='<endpoint-type>',
-                            default=utils.env('TROVE_ENDPOINT_TYPE',
-                            default=DEFAULT_TROVE_ENDPOINT_TYPE),
+                            default=utils.env(
+                                'TROVE_ENDPOINT_TYPE',
+                                default=DEFAULT_TROVE_ENDPOINT_TYPE),
                             help='Defaults to env[TROVE_ENDPOINT_TYPE] or '
                             + DEFAULT_TROVE_ENDPOINT_TYPE + '.')
         parser.add_argument('--endpoint_type',
@@ -187,8 +188,9 @@ class OpenStackTroveShell(object):
 
         parser.add_argument('--os-database-api-version',
                             metavar='<database-api-ver>',
-                            default=utils.env('OS_DATABASE_API_VERSION',
-                            default=DEFAULT_OS_DATABASE_API_VERSION),
+                            default=utils.env(
+                                'OS_DATABASE_API_VERSION',
+                                default=DEFAULT_OS_DATABASE_API_VERSION),
                             help='Accepts 1,defaults '
                                  'to env[OS_DATABASE_API_VERSION].')
         parser.add_argument('--os_database_api_version',
