@@ -89,8 +89,7 @@ class LimitsTest(TestCase):
         body = {RESPONSE_KEY: {
             'absolute': {},
             'rate': [
-            {'limit': []
-             }]}}
+                {'limit': []}]}}
         response = (resp, body)
 
         mock_get = Mock(return_value=response)
