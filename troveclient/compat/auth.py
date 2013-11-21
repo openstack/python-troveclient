@@ -26,6 +26,8 @@ def get_authenticator_cls(cls_or_name):
             return KeyStoneV2Authenticator
         elif cls_or_name == "rax":
             return RaxAuthenticator
+        elif cls_or_name == "rax2":
+            return RaxAuthenticator2
         elif cls_or_name == "auth1.1":
             return Auth1_1
         elif cls_or_name == "fake":
@@ -149,6 +151,17 @@ class RaxAuthenticator(Authenticator):
         }
 
         return self._authenticate(self.url, body)
+
+
+class RaxAuthenticator2(RaxAuthenticator):
+    """
+    Necessary to be able to call using the same auth url as the new client
+    uses for Rax auth.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(RaxAuthenticator2, self).__init__(*args, **kwargs)
+        self.url = "%s/tokens" % self.url
 
 
 class FakeAuth(Authenticator):
