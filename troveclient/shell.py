@@ -214,6 +214,14 @@ class OpenStackTroveShell(object):
                             default=0,
                             help='Number of retries.')
 
+        parser.add_argument('--json', '--os-json-output',
+                            dest='json',
+                            action='store_true',
+                            default=utils.env('OS_JSON_OUTPUT',
+                                              default=False),
+                            help='Output json instead of prettyprint. '
+                                 'Defaults to OS_JSON_OUTPUT')
+
         # FIXME(dtroyer): The args below are here for diablo compatibility,
         #                 remove them in folsum cycle
 
@@ -476,6 +484,12 @@ class OpenStackTroveShell(object):
                    % (options.os_database_api_version, endpoint_api_version))
             #raise exc.InvalidAPIVersion(msg)
             raise exc.UnsupportedVersion(msg)
+
+        # Override printing to json output
+        if args.json:
+            utils.json_output = True
+        else:
+            utils.json_output = False
 
         args.func(self.cs, args)
 

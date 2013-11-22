@@ -22,6 +22,7 @@ import os
 import re
 import sys
 import uuid
+import simplejson as json
 
 import six
 import prettytable
@@ -114,7 +115,28 @@ def translate_keys(collection, convert):
                 setattr(item, to_key, item._info[from_key])
 
 
+def _output_override(objs, print_as):
+    """
+    If an output override global flag is set, print with override
+    raise BaseException if no printing was overridden.
+    """
+    if 'json_output' in globals() and json_output:
+        if print_as == 'list':
+            new_objs = []
+            for o in objs:
+                new_objs.append(o._info)
+        elif print_as == 'dict':
+            new_objs = objs
+        # pretty print the json
+        print(json.dumps(new_objs, indent='  '))
+    elif 'xml_output' in globals():
+        print('not implemented')
+    else:
+        raise BaseException('No valid output override')
+
+
 def _print(pt, order):
+
     if sys.version_info >= (3, 0):
         print(pt.get_string(sortby=order))
     else:
@@ -122,6 +144,11 @@ def _print(pt, order):
 
 
 def print_list(objs, fields, formatters={}, order_by=None):
+    try:
+        _output_override(objs, 'list')
+        return
+    except BaseException:
+        pass
     mixed_case_fields = []
     pt = prettytable.PrettyTable([f for f in fields], caching=False)
     pt.aligns = ['l' for f in fields]
@@ -146,6 +173,11 @@ def print_list(objs, fields, formatters={}, order_by=None):
 
 
 def print_dict(d, property="Property"):
+    try:
+        _output_override(d, 'dict')
+        return
+    except BaseException:
+        pass
     pt = prettytable.PrettyTable([property, 'Value'], caching=False)
     pt.aligns = ['l', 'l']
     [pt.add_row(list(r)) for r in six.iteritems(d)]
