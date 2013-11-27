@@ -62,11 +62,11 @@ You'll find complete documentation on the shell by running
                   [--os-tenant-name <auth-tenant-name>]
                   [--os-tenant-id <auth-tenant-id>] [--os-auth-url <auth-url>]
                   [--os-region-name <region-name>] [--service-type <service-type>]
-                  [--service-name <service-name>]
+                  [--service-name <service-name>] [--bypass-url <bypass-url>]
                   [--database-service-name <database-service-name>]
                   [--endpoint-type <endpoint-type>]
                   [--os-database-api-version <database-api-ver>]
-                  [--os-cacert <ca-certificate>] [--retries <retries>]
+                  [--os-cacert <ca-certificate>] [--retries <retries>] [--json]
                   <subcommand> ...
 
      Command-line interface to the OpenStack Trove API.
@@ -83,6 +83,12 @@ You'll find complete documentation on the shell by running
          database-create     Creates a database on an instance.
          database-delete     Deletes a database.
          database-list       Lists available databases on an instance.
+         datastore-list      List all the datastores.
+         datastore-show      Show details of a datastore.
+         datastore-version-list
+                             List all the datastore versions.
+         datastore-version-show
+                             Show details of a datastore version.
          delete              Deletes an instance.
          flavor-list         Lists available flavors.
          flavor-show         Show details of a flavor.
@@ -132,7 +138,7 @@ You'll find complete documentation on the shell by running
        --service-name <service-name>
                              Defaults to env[TROVE_SERVICE_NAME]
        --bypass-url <bypass-url>
-                        Defaults to env[TROVE_BYPASS_URL]
+                             Defaults to env[TROVE_BYPASS_URL]
        --database-service-name <database-service-name>
                              Defaults to env[TROVE_DATABASE_SERVICE_NAME]
        --endpoint-type <endpoint-type>
@@ -143,6 +149,9 @@ You'll find complete documentation on the shell by running
                              Specify a CA bundle file to use in verifying a TLS
                              (https) server certificate. Defaults to env[OS_CACERT]
        --retries <retries>   Number of retries.
+       --json, --os-json-output
+                             Output json instead of prettyprint. Defaults to
+                             OS_JSON_OUTPUT
 
 Python API
 ----------

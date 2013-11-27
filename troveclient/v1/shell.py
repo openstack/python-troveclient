@@ -533,7 +533,7 @@ def do_datastore_list(cs, args):
            help='ID of the datastore.')
 @utils.service_type('database')
 def do_datastore_show(cs, args):
-    """Show details of an datastore."""
+    """Show details of a datastore."""
     datastore = cs.datastores.get(args.datastore)
     _print_instance(datastore)
 
@@ -553,7 +553,7 @@ def do_datastore_version_list(cs, args):
            help='ID of the datastore version.')
 @utils.service_type('database')
 def do_datastore_version_show(cs, args):
-    """Show details of an datastore version."""
+    """Show details of a datastore version."""
     datastore_version = cs.datastore_versions.get(args.datastore,
                                                   args.datastore_version)
     _print_instance(datastore_version)
