@@ -19,23 +19,14 @@
 from troveclient import client
 from troveclient.v1.databases import Databases
 from troveclient.v1.flavors import Flavors
-from troveclient.v1.instances import Instances
 from troveclient.v1.limits import Limits
 from troveclient.v1.users import Users
 from troveclient.v1.root import Root
-from troveclient.v1.hosts import Hosts
-from troveclient.v1.quota import Quotas
 from troveclient.v1.backups import Backups
 from troveclient.v1.security_groups import SecurityGroups
 from troveclient.v1.security_groups import SecurityGroupRules
 from troveclient.v1.datastores import Datastores
 from troveclient.v1.datastores import DatastoreVersions
-from troveclient.v1.storage import StorageInfo
-from troveclient.v1.management import Management
-from troveclient.v1.management import MgmtFlavors
-from troveclient.v1.accounts import Accounts
-from troveclient.v1.diagnostics import DiagnosticsInterrogator
-from troveclient.v1.diagnostics import HwInfoInterrogator
 
 
 class Client(object):

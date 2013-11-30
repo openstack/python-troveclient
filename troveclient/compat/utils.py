@@ -13,7 +13,6 @@
 #    under the License.
 
 import os
-import re
 
 from troveclient.openstack.common import strutils
 

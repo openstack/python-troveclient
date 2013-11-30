@@ -18,12 +18,6 @@
 
 from troveclient import base
 
-from troveclient.common import check_for_exceptions
-from troveclient.common import limit_url
-from troveclient.common import Paginated
-from troveclient.openstack.common.apiclient import exceptions
-from troveclient.openstack.common.py3kcompat import urlutils
-
 
 class Datastore(base.Resource):
 

@@ -7,7 +7,6 @@ from testtools import TestCase
 from mock import Mock
 
 from troveclient.compat import common
-from troveclient import client
 
 """
  unit tests for common.py

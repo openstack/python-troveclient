@@ -25,6 +25,10 @@ from __future__ import print_function
 
 import logging
 import os
+import requests
+from troveclient.openstack.common.apiclient import exceptions
+from troveclient import service_catalog
+from troveclient.openstack.common.apiclient import client
 
 try:
     import urlparse
@@ -45,13 +49,6 @@ except ImportError:
 if not hasattr(urlparse, 'parse_qsl'):
     import cgi
     urlparse.parse_qsl = cgi.parse_qsl
-
-import requests
-
-from troveclient.openstack.common.apiclient import exceptions
-from troveclient import service_catalog
-from troveclient import utils
-from troveclient.openstack.common.apiclient import client
 
 
 class HTTPClient(object):

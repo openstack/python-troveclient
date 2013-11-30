@@ -1,4 +1,3 @@
-from testtools import TestCase
 from lxml import etree
 #from troveclient import xml
 

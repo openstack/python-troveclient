@@ -342,7 +342,6 @@ COMMANDS = {
 
 def main():
     # Parse arguments
-    import pdb
     load_file = True
     for index, arg in enumerate(sys.argv):
         if (arg == "auth" and len(sys.argv) > (index + 1)

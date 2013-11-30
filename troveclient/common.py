@@ -16,14 +16,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import copy
-import json
-import optparse
-import os
-import pickle
-import sys
-
-from troveclient import client
 from troveclient import exceptions
 
 from troveclient.openstack.common.py3kcompat import urlutils
