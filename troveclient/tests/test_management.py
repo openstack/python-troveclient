@@ -68,21 +68,6 @@ class ManagementTest(testtools.TestCase):
         management.RootHistory.__init__ = self.orig_hist__init
         base.getid = self.orig_base_getid
 
-    def test__list(self):
-        self.management.api.client.get = mock.Mock(return_value=('resp', None))
-        self.assertRaises(Exception, self.management._list, "url", None)
-
-        body = mock.Mock()
-        body.get = mock.Mock(
-            return_value=[{'href': 'http://test.net/test_file',
-                           'rel': 'next'}]
-        )
-        body.__getitem__ = mock.Mock(return_value='instance1')
-        self.management.resource_class = mock.Mock(return_value="instance-1")
-        self.management.api.client.get = mock.Mock(return_value=('resp', body))
-        _expected = [{'href': 'http://test.net/test_file', 'rel': 'next'}]
-        self.assertEqual(_expected, self.management._list("url", None).links)
-
     def test_show(self):
         def side_effect_func(path, instance):
             return path, instance
@@ -91,14 +76,17 @@ class ManagementTest(testtools.TestCase):
         self.assertEqual(('/mgmt/instances/instance1', 'instance'), (p, i))
 
     def test_index(self):
-        def side_effect_func(url, name, limit, marker):
-            return url
-
-        self.management._list = mock.Mock(side_effect=side_effect_func)
-        self.assertEqual('/mgmt/instances?deleted=true',
-                         self.management.index(deleted=True))
-        self.assertEqual('/mgmt/instances?deleted=false',
-                         self.management.index(deleted=False))
+        page_mock = mock.Mock()
+        self.management._paginated = page_mock
+        self.management.index(deleted=True)
+        page_mock.assert_called_with('/mgmt/instances?deleted=true',
+                                     'instances', None, None)
+        self.management.index(deleted=False)
+        page_mock.assert_called_with('/mgmt/instances?deleted=false',
+                                     'instances', None, None)
+        self.management.index(deleted=True, limit=10, marker="foo")
+        page_mock.assert_called_with('/mgmt/instances?deleted=true',
+                                     'instances', 10, "foo")
 
     def test_root_enabled_history(self):
         self.management.api.client.get = mock.Mock(return_value=('resp', None))

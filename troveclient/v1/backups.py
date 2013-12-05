@@ -51,7 +51,7 @@ class Backups(base.ManagerWithFind):
 
         :rtype: list of :class:`Backups`.
         """
-        return self._list("/backups", "backups", limit, marker)
+        return self._paginated("/backups", "backups", limit, marker)
 
     def create(self, name, instance, description=None):
         """

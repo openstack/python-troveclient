@@ -19,7 +19,6 @@
 from troveclient import base
 from troveclient.v1 import databases
 from troveclient import common
-from troveclient.openstack.common.py3kcompat import urlutils
 
 
 class User(base.Resource):
@@ -52,33 +51,14 @@ class Users(base.ManagerWithFind):
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body)
 
-    def _list(self, url, response_key, limit=None, marker=None):
-        resp, body = self.api.client.get(common.limit_url(url, limit, marker))
-        common.check_for_exceptions(resp, body)
-        if not body:
-            raise Exception("Call to " + url +
-                            " did not return a body.")
-        links = body.get('links', [])
-        next_links = [link['href'] for link in links if link['rel'] == 'next']
-        next_marker = None
-        for link in next_links:
-            # Extract the marker from the url.
-            parsed_url = urlutils.urlparse(link)
-            query_dict = dict(urlutils.parse_qsl(parsed_url.query))
-            next_marker = query_dict.get('marker', None)
-        users = [self.resource_class(self, res) for res in body[response_key]]
-        return common.Paginated(
-            users, next_marker=next_marker, links=links
-        )
-
     def list(self, instance, limit=None, marker=None):
         """
         Get a list of all Users from the instance's Database.
 
         :rtype: list of :class:`User`.
         """
-        return self._list("/instances/%s/users" % base.getid(instance),
-                          "users", limit, marker)
+        url = "/instances/%s/users" % base.getid(instance)
+        return self._paginated(url, "users", limit, marker)
 
     def get(self, instance_id, username, hostname=None):
         """

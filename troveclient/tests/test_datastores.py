@@ -68,14 +68,15 @@ class DatastoresTest(testtools.TestCase):
         base.getid = self.orig_base_getid
 
     def test_list(self):
-        def side_effect_func(path, inst, limit, marker):
-            return path, inst, limit, marker
-
-        self.datastores._list = mock.Mock(side_effect=side_effect_func)
+        page_mock = mock.Mock()
+        self.datastores._paginated = page_mock
         limit = "test-limit"
         marker = "test-marker"
-        expected = ("/datastores", "datastores", limit, marker)
-        self.assertEqual(expected, self.datastores.list(limit, marker))
+        self.datastores.list(limit, marker)
+        page_mock.assert_called_with("/datastores", "datastores",
+                                     limit, marker)
+        self.datastores.list()
+        page_mock.assert_called_with("/datastores", "datastores", None, None)
 
     def test_get(self):
         def side_effect_func(path, inst):
@@ -108,16 +109,13 @@ class DatastoreVersionsTest(testtools.TestCase):
         base.getid = self.orig_base_getid
 
     def test_list(self):
-        def side_effect_func(path, inst, limit, marker):
-            return path, inst, limit, marker
-
-        self.datastore_versions._list = mock.Mock(side_effect=side_effect_func)
+        page_mock = mock.Mock()
+        self.datastore_versions._paginated = page_mock
         limit = "test-limit"
         marker = "test-marker"
-        expected = ("/datastores/datastore1/versions",
-                    "versions", limit, marker)
-        self.assertEqual(expected, self.datastore_versions.list(
-            "datastore1", limit, marker))
+        self.datastore_versions.list("datastore1", limit, marker)
+        page_mock.assert_called_with("/datastores/datastore1/versions",
+                                     "versions", limit, marker)
 
     def test_get(self):
         def side_effect_func(path, inst):

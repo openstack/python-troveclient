@@ -18,7 +18,6 @@
 
 from troveclient import base
 from troveclient import common
-from troveclient.openstack.common.py3kcompat import urlutils
 from troveclient.v1 import instances
 from troveclient.v1 import flavors
 
@@ -38,24 +37,6 @@ class Management(base.ManagerWithFind):
     # Appease the abc gods
     def list(self):
         pass
-
-    def _list(self, url, response_key, limit=None, marker=None):
-        resp, body = self.api.client.get(common.limit_url(url, limit, marker))
-        if not body:
-            raise Exception("Call to " + url + " did not return a body.")
-        links = body.get('links', [])
-        next_links = [link['href'] for link in links if link['rel'] == 'next']
-        next_marker = None
-        for link in next_links:
-            # Extract the marker from the url.
-            parsed_url = urlutils.urlparse(link)
-            query_dict = dict(urlutils.parse_qsl(parsed_url.query))
-            next_marker = query_dict.get('marker', None)
-        instances = body[response_key]
-        instances = [self.resource_class(self, res) for res in instances]
-        return common.Paginated(
-            instances, next_marker=next_marker, links=links
-        )
 
     def show(self, instance):
         """
@@ -82,7 +63,7 @@ class Management(base.ManagerWithFind):
                 form = "?deleted=false"
 
         url = "/mgmt/instances%s" % form
-        return self._list(url, "instances", limit, marker)
+        return self._paginated(url, "instances", limit, marker)
 
     def root_enabled_history(self, instance):
         """

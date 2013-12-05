@@ -240,21 +240,36 @@ def do_backup_show(cs, args):
     _print_instance(backup)
 
 
+@utils.arg('--limit', metavar='<limit>',
+           default=None,
+           help='Return up to N number of the most recent backups.')
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
 @utils.service_type('database')
 def do_backup_list_instance(cs, args):
     """List available backups for an instance."""
-    backups = cs.instances.backups(args.instance)
-    utils.print_list(backups, ['id', 'instance_id',
-                               'name', 'description', 'status'])
+    wrapper = cs.instances.backups(args.instance, limit=args.limit)
+    backups = wrapper.items
+    while wrapper.next and not args.limit:
+        wrapper = cs.instances.backups(args.instance, marker=wrapper.next)
+        backups += wrapper.items
+    utils.print_list(backups, ['id', 'name', 'status', 'updated'],
+                     order_by='updated')
 
 
+@utils.arg('--limit', metavar='<limit>',
+           default=None,
+           help='Return up to N number of the most recent backups.')
 @utils.service_type('database')
 def do_backup_list(cs, args):
     """List available backups."""
-    backups = cs.backups.list()
-    utils.print_list(backups, ['id', 'instance_id',
-                               'name', 'description', 'status'])
+    wrapper = cs.backups.list(limit=args.limit)
+    backups = wrapper.items
+    while wrapper.next and not args.limit:
+        wrapper = cs.backups.list(marker=wrapper.next)
+        backups += wrapper.items
+    utils.print_list(backups, ['id', 'instance_id', 'name',
+                               'status', 'updated'],
+                     order_by='updated')
 
 
 @utils.arg('backup', metavar='<backup>', help='ID of the backup.')

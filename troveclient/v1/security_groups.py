@@ -19,8 +19,6 @@
 
 from troveclient import base
 from troveclient import common
-from troveclient.openstack.common.apiclient import exceptions
-from troveclient.openstack.common.py3kcompat import urlutils
 
 
 class SecurityGroup(base.Resource):
@@ -37,32 +35,14 @@ class SecurityGroups(base.ManagerWithFind):
     """
     resource_class = SecurityGroup
 
-    def _list(self, url, response_key, limit=None, marker=None):
-        resp, body = self.api.client.get(common.limit_url(url, limit, marker))
-        if not body:
-            raise Exception("Call to " + url + " did not return a body.")
-        links = body.get('links', [])
-        next_links = [link['href'] for link in links if link['rel'] == 'next']
-        next_marker = None
-        for link in next_links:
-            # Extract the marker from the url.
-            parsed_url = urlutils.urlparse(link)
-            query_dict = dict(urlutils.parse_qsl(parsed_url.query))
-            next_marker = query_dict.get('marker', None)
-        instances = body[response_key]
-        instances = [self.resource_class(self, res) for res in instances]
-        return common.Paginated(
-            instances, next_marker=next_marker, links=links
-        )
-
     def list(self, limit=None, marker=None):
         """
         Get a list of all security groups.
 
         :rtype: list of :class:`SecurityGroup`.
         """
-        return self._list("/security-groups", "security_groups", limit,
-                          marker)
+        return self._paginated("/security-groups", "security_groups",
+                               limit, marker)
 
     def get(self, security_group):
         """
@@ -118,8 +98,7 @@ class SecurityGroupRules(base.ManagerWithFind):
         """
         resp, body = self.api.client.delete("/security-group-rules/%s" %
                                             base.getid(security_group_rule))
-        if resp.status_code in (422, 500):
-            raise exceptions.from_response(resp, body)
+        common.check_for_exceptions(resp, body)
 
     # Appease the abc gods
     def list(self):

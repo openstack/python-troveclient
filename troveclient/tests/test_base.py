@@ -25,6 +25,7 @@ import mock
 
 from troveclient import base
 from troveclient.openstack.common.apiclient import exceptions
+from troveclient import common
 from troveclient import utils
 
 """
@@ -252,6 +253,66 @@ class ManagerListTest(ManagerTest):
         l = self.manager._list("url", self.response_key,
                                obj_class, "something")
         self.assertEqual(len(data_), len(l))
+
+
+class MangerPaginationTests(ManagerTest):
+
+    def setUp(self):
+        super(MangerPaginationTests, self).setUp()
+        self.manager = base.Manager()
+        self.manager.api = mock.Mock()
+        self.manager.api.client = mock.Mock()
+        self.manager.resource_class = base.Resource
+
+        self.response_key = "response_key"
+        self.data = [{"foo": "p1"}, {"foo": "p2"}]
+        self.next_data = [{"foo": "p3"}, {"foo": "p4"}]
+        self.marker = 'test-marker'
+        self.limit = '20'
+        self.url = "http://test_url"
+        self.next_url = '%s?marker=%s&limit=%s' % (self.url, self.marker,
+                                                   self.limit)
+        self.links = [{'href': self.next_url, 'rel': 'next'}]
+        self.body = {
+            self.response_key: self.data,
+            'links': self.links
+        }
+        self.next_body = {self.response_key: self.next_data}
+
+        def side_effect(url):
+            if url == self.url:
+                return (None, self.body)
+            if url == self.next_url:
+                return (None, self.next_body)
+
+        self.manager.api.client.get = mock.Mock(side_effect=side_effect)
+
+    def tearDown(self):
+        super(MangerPaginationTests, self).tearDown()
+
+    def test_pagination(self):
+        resp = self.manager._paginated(self.url, self.response_key)
+        self.manager.api.client.get.assert_called_with(self.url)
+        self.assertEqual(resp.items[0].foo, 'p1')
+        self.assertEqual(resp.items[1].foo, 'p2')
+        self.assertEqual(resp.next, self.marker)
+        self.assertEqual(resp.links, self.links)
+        self.assertTrue(isinstance(resp, common.Paginated))
+
+    def test_pagination_next(self):
+        resp = self.manager._paginated(self.url, self.response_key,
+                                       limit=self.limit, marker=self.marker)
+        self.manager.api.client.get.assert_called_with(self.next_url)
+        self.assertEqual(resp.items[0].foo, 'p3')
+        self.assertEqual(resp.items[1].foo, 'p4')
+        self.assertEqual(resp.next, None)
+        self.assertEqual(resp.links, [])
+        self.assertTrue(isinstance(resp, common.Paginated))
+
+    def test_pagination_error(self):
+        self.manager.api.client.get = mock.Mock(return_value=(None, None))
+        self.assertRaises(Exception, self.manager._paginated,
+                          self.url, self.response_key)
 
 
 class FakeResource(object):

@@ -19,11 +19,9 @@
 
 from troveclient import base
 from troveclient import common
-from troveclient.openstack.common.apiclient import exceptions
-from troveclient.openstack.common.py3kcompat import urlutils
 
-
-REBOOT_SOFT, REBOOT_HARD = 'SOFT', 'HARD'
+REBOOT_SOFT = 'SOFT'
+REBOOT_HARD = 'HARD'
 
 
 class Instance(base.Resource):
@@ -85,31 +83,13 @@ class Instances(base.ManagerWithFind):
 
         return self._create("/instances", body, "instance")
 
-    def _list(self, url, response_key, limit=None, marker=None):
-        resp, body = self.api.client.get(common.limit_url(url, limit, marker))
-        if not body:
-            raise Exception("Call to " + url + " did not return a body.")
-        links = body.get('links', [])
-        next_links = [link['href'] for link in links if link['rel'] == 'next']
-        next_marker = None
-        for link in next_links:
-            # Extract the marker from the url.
-            parsed_url = urlutils.urlparse(link)
-            query_dict = dict(urlutils.parse_qsl(parsed_url.query))
-            next_marker = query_dict.get('marker', None)
-        instances = body[response_key]
-        instances = [self.resource_class(self, res) for res in instances]
-        return common.Paginated(
-            instances, next_marker=next_marker, links=links
-        )
-
     def list(self, limit=None, marker=None):
         """
         Get a list of all instances.
 
         :rtype: list of :class:`Instance`.
         """
-        return self._list("/instances", "instances", limit, marker)
+        return self._paginated("/instances", "instances", limit, marker)
 
     def get(self, instance):
         """
@@ -120,14 +100,14 @@ class Instances(base.ManagerWithFind):
         return self._get("/instances/%s" % base.getid(instance),
                          "instance")
 
-    def backups(self, instance):
+    def backups(self, instance, limit=None, marker=None):
         """
         Get the list of backups for a specific instance.
 
         :rtype: list of :class:`Backups`.
         """
-        return self._list("/instances/%s/backups" % base.getid(instance),
-                          "backups")
+        url = "/instances/%s/backups" % base.getid(instance)
+        return self._paginated(url, "backups", limit, marker)
 
     def delete(self, instance):
         """
@@ -137,8 +117,7 @@ class Instances(base.ManagerWithFind):
         """
         resp, body = self.api.client.delete("/instances/%s" %
                                             base.getid(instance))
-        if resp.status_code in (422, 500):
-            raise exceptions.from_response(resp, body)
+        common.check_for_exceptions(resp, body)
 
     def _action(self, instance_id, body):
         """
