@@ -27,6 +27,7 @@ from troveclient.v1.security_groups import SecurityGroups
 from troveclient.v1.security_groups import SecurityGroupRules
 from troveclient.v1.datastores import Datastores
 from troveclient.v1.datastores import DatastoreVersions
+from troveclient.v1.instances import Instances
 
 
 class Client(object):
