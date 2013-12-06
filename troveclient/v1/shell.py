@@ -21,6 +21,7 @@ from __future__ import print_function
 import sys
 import time
 
+from troveclient import exceptions
 from troveclient import utils
 
 
@@ -106,7 +107,10 @@ def do_list(cs, args):
         setattr(instance, 'flavor_id', instance.flavor['id'])
         if hasattr(instance, 'volume'):
             setattr(instance, 'size', instance.volume['size'])
-    utils.print_list(instances, ['id', 'name', 'status', 'flavor_id', 'size'])
+        if hasattr(instance, 'datastore'):
+            setattr(instance, 'datastore', instance.datastore['type'])
+    utils.print_list(instances, ['id', 'name', 'datastore', 'status',
+                                 'flavor_id', 'size'])
 
 
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
@@ -190,6 +194,9 @@ def do_create(cs, args):
     instance._info['flavor'] = instance.flavor['id']
     if hasattr(instance, 'volume'):
         instance._info['volume'] = instance.volume['size']
+    if hasattr(instance, 'datastore'):
+        instance._info['datastore'] = instance.datastore['type']
+        instance._info['datastore_version'] = instance.datastore['version']
     del(instance._info['links'])
 
     _print_instance(instance)
@@ -542,7 +549,7 @@ def do_secgroup_delete_rule(cs, args):
 
 @utils.service_type('database')
 def do_datastore_list(cs, args):
-    """List all the datastores."""
+    """List available datastores."""
     datastores = cs.datastores.list()
     utils.print_list(datastores, ['id', 'name'])
 
@@ -553,6 +560,9 @@ def do_datastore_list(cs, args):
 def do_datastore_show(cs, args):
     """Show details of a datastore."""
     datastore = cs.datastores.get(args.datastore)
+    if hasattr(datastore, 'default_version'):
+        datastore._info['default_version'] = getattr(datastore,
+                                                     'default_version')
     _print_instance(datastore)
 
 
@@ -560,18 +570,28 @@ def do_datastore_show(cs, args):
            help='ID of the datastore.')
 @utils.service_type('database')
 def do_datastore_version_list(cs, args):
-    """List all the datastore versions."""
+    """List available versions for a datastore."""
     datastore_versions = cs.datastore_versions.list(args.datastore)
     utils.print_list(datastore_versions, ['id', 'name'])
 
 
-@utils.arg('datastore', metavar='<datastore>',
-           help='ID of the datastore.')
+@utils.arg('--datastore', metavar='<datastore>',
+           default=None,
+           help='ID or name of the datastore. Optional if UUID of the'
+                ' datastore_version is provided.')
 @utils.arg('datastore_version', metavar='<datastore_version>',
            help='ID of the datastore version.')
 @utils.service_type('database')
 def do_datastore_version_show(cs, args):
     """Show details of a datastore version."""
-    datastore_version = cs.datastore_versions.get(args.datastore,
-                                                  args.datastore_version)
+    if args.datastore:
+        datastore_version = cs.datastore_versions.get(args.datastore,
+                                                      args.datastore_version)
+    elif utils.is_uuid_like(args.datastore_version):
+        datastore_version = cs.datastore_versions.get_by_uuid(
+            args.datastore_version)
+    else:
+        raise exceptions.NoUniqueMatch('The datastore name or id is required'
+                                       ' to retrieve a datastore version'
+                                       ' by name.')
     _print_instance(datastore_version)

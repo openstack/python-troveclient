@@ -85,3 +85,12 @@ class DatastoreVersions(base.ManagerWithFind):
         return self._get("/datastores/%s/versions/%s" %
                          (datastore, base.getid(datastore_version)),
                          "version")
+
+    def get_by_uuid(self, datastore_version):
+        """
+        Get a specific datastore version.
+        :rtype: :class:`DatastoreVersion`
+        """
+        return self._get("/datastores/versions/%s" %
+                         base.getid(datastore_version),
+                         "version")

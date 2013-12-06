@@ -127,3 +127,13 @@ class DatastoreVersionsTest(testtools.TestCase):
                           'version'),
                          self.datastore_versions.get("datastore1",
                                                      "datastore_version1"))
+
+    def test_get_by_uuid(self):
+        def side_effect_func(path, inst):
+            return path, inst
+
+        self.datastore_versions._get = mock.Mock(side_effect=side_effect_func)
+        self.assertEqual(('/datastores/versions/datastore_version1',
+                          'version'),
+                         (self.datastore_versions.
+                          get_by_uuid("datastore_version1")))

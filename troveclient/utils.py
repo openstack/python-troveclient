@@ -259,3 +259,16 @@ def slugify(value):
     Make use strutils.to_slug from openstack common
     """
     return strutils.to_slug(value, incoming=None, errors="strict")
+
+
+def is_uuid_like(val):
+    """Returns validation of a value as a UUID.
+
+    For our purposes, a UUID is a canonical form string:
+    aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
+
+    """
+    try:
+        return str(uuid.UUID(val)) == val
+    except (TypeError, ValueError, AttributeError):
+        return False
