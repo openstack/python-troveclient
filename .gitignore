@@ -4,7 +4,7 @@
 dist/*
 build/*
 html/*
-python_troveclient.egg*
+*.egg*
 rdserver.txt
 python-troveclient.iml
 AUTHORS
