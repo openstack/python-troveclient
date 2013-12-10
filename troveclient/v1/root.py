@@ -17,9 +17,8 @@
 #    under the License.
 
 from troveclient import base
-
 from troveclient.v1 import users
-from troveclient.common import check_for_exceptions
+from troveclient import common
 
 
 class Root(base.ManagerWithFind):
@@ -35,14 +34,14 @@ class Root(base.ManagerWithFind):
         sepcified db instance
         """
         resp, body = self.api.client.post(self.url % instance_id)
-        check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body)
         return body['user']['name'], body['user']['password']
 
     def is_root_enabled(self, instance_id):
         """ Return True if root is enabled for the instance;
         False otherwise"""
         resp, body = self.api.client.get(self.url % instance_id)
-        check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body)
         return self.resource_class(self, body, loaded=True)
 
     # Appease the abc gods

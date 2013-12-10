@@ -17,8 +17,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from testtools import TestCase
-from mock import Mock
+import testtools
+import mock
 
 from troveclient.v1 import instances
 from troveclient import base
@@ -28,14 +28,14 @@ Unit tests for instances.py
 """
 
 
-class InstanceTest(TestCase):
+class InstanceTest(testtools.TestCase):
 
     def setUp(self):
         super(InstanceTest, self).setUp()
         self.orig__init = instances.Instance.__init__
-        instances.Instance.__init__ = Mock(return_value=None)
+        instances.Instance.__init__ = mock.Mock(return_value=None)
         self.instance = instances.Instance()
-        self.instance.manager = Mock()
+        self.instance.manager = mock.Mock()
 
     def tearDown(self):
         super(InstanceTest, self).tearDown()
@@ -47,37 +47,37 @@ class InstanceTest(TestCase):
 
     def test_list_databases(self):
         db_list = ['database1', 'database2']
-        self.instance.manager.databases = Mock()
-        self.instance.manager.databases.list = Mock(return_value=db_list)
+        self.instance.manager.databases = mock.Mock()
+        self.instance.manager.databases.list = mock.Mock(return_value=db_list)
         self.assertEqual(db_list, self.instance.list_databases())
 
     def test_delete(self):
-        db_delete_mock = Mock(return_value=None)
+        db_delete_mock = mock.Mock(return_value=None)
         self.instance.manager.delete = db_delete_mock
         self.instance.delete()
         self.assertEqual(1, db_delete_mock.call_count)
 
     def test_restart(self):
-        db_restart_mock = Mock(return_value=None)
+        db_restart_mock = mock.Mock(return_value=None)
         self.instance.manager.restart = db_restart_mock
         self.instance.id = 1
         self.instance.restart()
         self.assertEqual(1, db_restart_mock.call_count)
 
 
-class InstancesTest(TestCase):
+class InstancesTest(testtools.TestCase):
 
     def setUp(self):
         super(InstancesTest, self).setUp()
         self.orig__init = instances.Instances.__init__
-        instances.Instances.__init__ = Mock(return_value=None)
+        instances.Instances.__init__ = mock.Mock(return_value=None)
         self.instances = instances.Instances()
-        self.instances.api = Mock()
-        self.instances.api.client = Mock()
-        self.instances.resource_class = Mock(return_value="instance-1")
+        self.instances.api = mock.Mock()
+        self.instances.api.client = mock.Mock()
+        self.instances.resource_class = mock.Mock(return_value="instance-1")
 
         self.orig_base_getid = base.getid
-        base.getid = Mock(return_value="instance1")
+        base.getid = mock.Mock(return_value="instance1")
 
     def tearDown(self):
         super(InstancesTest, self).tearDown()
@@ -88,7 +88,7 @@ class InstancesTest(TestCase):
         def side_effect_func(path, body, inst):
             return path, body, inst
 
-        self.instances._create = Mock(side_effect=side_effect_func)
+        self.instances._create = mock.Mock(side_effect=side_effect_func)
         p, b, i = self.instances.create("test-name", 103, "test-volume",
                                         ['db1', 'db2'], ['u1', 'u2'],
                                         datastore="datastore",
@@ -105,15 +105,17 @@ class InstancesTest(TestCase):
         self.assertEqual(103, b["instance"]["flavorRef"])
 
     def test__list(self):
-        self.instances.api.client.get = Mock(return_value=('resp', None))
+        self.instances.api.client.get = mock.Mock(return_value=('resp', None))
         self.assertRaises(Exception, self.instances._list, "url", None)
 
-        body = Mock()
-        body.get = Mock(return_value=[{'href': 'http://test.net/test_file',
-                                       'rel': 'next'}])
-        body.__getitem__ = Mock(return_value='instance1')
-        #self.instances.resource_class = Mock(return_value="instance-1")
-        self.instances.api.client.get = Mock(return_value=('resp', body))
+        body = mock.Mock()
+        body.get = mock.Mock(
+            return_value=[{'href': 'http://test.net/test_file',
+                          'rel': 'next'}]
+        )
+        body.__getitem__ = mock.Mock(return_value='instance1')
+        #self.instances.resource_class = mock.Mock(return_value="instance-1")
+        self.instances.api.client.get = mock.Mock(return_value=('resp', body))
         _expected = [{'href': 'http://test.net/test_file', 'rel': 'next'}]
         self.assertEqual(_expected, self.instances._list("url", None).links)
 
@@ -121,7 +123,7 @@ class InstancesTest(TestCase):
         def side_effect_func(path, inst, limit, marker):
             return path, inst, limit, marker
 
-        self.instances._list = Mock(side_effect=side_effect_func)
+        self.instances._list = mock.Mock(side_effect=side_effect_func)
         limit = "test-limit"
         marker = "test-marker"
         expected = ("/instances", "instances", limit, marker)
@@ -131,27 +133,27 @@ class InstancesTest(TestCase):
         def side_effect_func(path, inst):
             return path, inst
 
-        self.instances._get = Mock(side_effect=side_effect_func)
+        self.instances._get = mock.Mock(side_effect=side_effect_func)
         self.assertEqual(('/instances/instance1', 'instance'),
                          self.instances.get(1))
 
     def test_delete(self):
-        resp = Mock()
+        resp = mock.Mock()
         resp.status_code = 200
         body = None
-        self.instances.api.client.delete = Mock(return_value=(resp, body))
+        self.instances.api.client.delete = mock.Mock(return_value=(resp, body))
         self.instances.delete('instance1')
         resp.status_code = 500
         self.assertRaises(Exception, self.instances.delete, 'instance1')
 
     def test__action(self):
-        body = Mock()
-        resp = Mock()
+        body = mock.Mock()
+        resp = mock.Mock()
         resp.status_code = 200
-        self.instances.api.client.post = Mock(return_value=(resp, body))
+        self.instances.api.client.post = mock.Mock(return_value=(resp, body))
         self.assertEqual('instance-1', self.instances._action(1, body))
 
-        self.instances.api.client.post = Mock(return_value=(resp, None))
+        self.instances.api.client.post = mock.Mock(return_value=(resp, None))
         self.assertEqual(None, self.instances._action(1, body))
 
     def _set_action_mock(self):
@@ -161,7 +163,7 @@ class InstancesTest(TestCase):
 
         self._instance_id = None
         self._body = None
-        self.instances._action = Mock(side_effect=side_effect_func)
+        self.instances._action = mock.Mock(side_effect=side_effect_func)
 
     def test_resize_volume(self):
         self._set_action_mock()
@@ -182,7 +184,7 @@ class InstancesTest(TestCase):
         self.assertEqual({'restart': {}}, self._body)
 
 
-class InstanceStatusTest(TestCase):
+class InstanceStatusTest(testtools.TestCase):
 
     def test_constants(self):
         self.assertEqual("ACTIVE", instances.InstanceStatus.ACTIVE)

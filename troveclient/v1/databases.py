@@ -17,9 +17,7 @@
 #    under the License.
 
 from troveclient import base
-from troveclient.common import check_for_exceptions
-from troveclient.common import limit_url
-from troveclient.common import Paginated
+from troveclient import common
 from troveclient.openstack.common.py3kcompat import urlutils
 
 
@@ -46,17 +44,17 @@ class Databases(base.ManagerWithFind):
         body = {"databases": databases}
         url = "/instances/%s/databases" % instance_id
         resp, body = self.api.client.post(url, body=body)
-        check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body)
 
     def delete(self, instance_id, dbname):
         """Delete an existing database in the specified instance"""
         url = "/instances/%s/databases/%s" % (instance_id, dbname)
         resp, body = self.api.client.delete(url)
-        check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body)
 
     def _list(self, url, response_key, limit=None, marker=None):
-        resp, body = self.api.client.get(limit_url(url, limit, marker))
-        check_for_exceptions(resp, body)
+        resp, body = self.api.client.get(common.limit_url(url, limit, marker))
+        common.check_for_exceptions(resp, body)
         if not body:
             raise Exception("Call to " + url +
                             " did not return a body.")
@@ -70,7 +68,9 @@ class Databases(base.ManagerWithFind):
             next_marker = query_dict.get('marker', None)
         databases = body[response_key]
         databases = [self.resource_class(self, res) for res in databases]
-        return Paginated(databases, next_marker=next_marker, links=links)
+        return common.Paginated(
+            databases, next_marker=next_marker, links=links
+        )
 
     def list(self, instance, limit=None, marker=None):
         """

@@ -16,18 +16,16 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from troveclient import client
-from troveclient.v1.databases import Databases
-from troveclient.v1.flavors import Flavors
-from troveclient.v1.limits import Limits
-from troveclient.v1.users import Users
-from troveclient.v1.root import Root
-from troveclient.v1.backups import Backups
-from troveclient.v1.security_groups import SecurityGroups
-from troveclient.v1.security_groups import SecurityGroupRules
-from troveclient.v1.datastores import Datastores
-from troveclient.v1.datastores import DatastoreVersions
-from troveclient.v1.instances import Instances
+from troveclient import client as trove_client
+from troveclient.v1 import backups
+from troveclient.v1 import databases
+from troveclient.v1 import datastores
+from troveclient.v1 import flavors
+from troveclient.v1 import instances
+from troveclient.v1 import limits
+from troveclient.v1 import root
+from troveclient.v1 import security_groups
+from troveclient.v1 import users
 
 
 class Client(object):
@@ -56,17 +54,17 @@ class Client(object):
         # self.limits = limits.LimitsManager(self)
 
         # extensions
-        self.flavors = Flavors(self)
-        self.users = Users(self)
-        self.databases = Databases(self)
-        self.backups = Backups(self)
-        self.instances = Instances(self)
-        self.limits = Limits(self)
-        self.root = Root(self)
-        self.security_group_rules = SecurityGroupRules(self)
-        self.security_groups = SecurityGroups(self)
-        self.datastores = Datastores(self)
-        self.datastore_versions = DatastoreVersions(self)
+        self.flavors = flavors.Flavors(self)
+        self.users = users.Users(self)
+        self.databases = databases.Databases(self)
+        self.backups = backups.Backups(self)
+        self.instances = instances.Instances(self)
+        self.limits = limits.Limits(self)
+        self.root = root.Root(self)
+        self.security_group_rules = security_groups.SecurityGroupRules(self)
+        self.security_groups = security_groups.SecurityGroups(self)
+        self.datastores = datastores.Datastores(self)
+        self.datastore_versions = datastores.DatastoreVersions(self)
 
         #self.hosts = Hosts(self)
         #self.quota = Quotas(self)
@@ -84,7 +82,7 @@ class Client(object):
                     setattr(self, extension.name,
                             extension.manager_class(self))
 
-        self.client = client.HTTPClient(
+        self.client = trove_client.client.HTTPClient(
             username,
             password,
             project_id,

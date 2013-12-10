@@ -1,10 +1,25 @@
+# Copyright (c) 2011 OpenStack Foundation
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
 import sys
 import optparse
 import json
 import collections
 
-from testtools import TestCase
-from mock import Mock
+import testtools
+import mock
 
 from troveclient.compat import common
 
@@ -13,12 +28,12 @@ from troveclient.compat import common
 """
 
 
-class CommonTest(TestCase):
+class CommonTest(testtools.TestCase):
 
     def setUp(self):
         super(CommonTest, self).setUp()
         self.orig_sys_exit = sys.exit
-        sys.exit = Mock(return_value=None)
+        sys.exit = mock.Mock(return_value=None)
 
     def tearDown(self):
         super(CommonTest, self).tearDown()
@@ -38,14 +53,14 @@ class CommonTest(TestCase):
     def test_check_for_exceptions(self):
         status = [400, 422, 500]
         for s in status:
-            resp = Mock()
+            resp = mock.Mock()
             #compat still uses status
             resp.status = s
             self.assertRaises(Exception,
                               common.check_for_exceptions, resp, "body")
 
         # a no-exception case
-        resp = Mock()
+        resp = mock.Mock()
         resp.status_code = 200
         common.check_for_exceptions(resp, "body")
 
@@ -73,7 +88,7 @@ class CommonTest(TestCase):
                          common.limit_url(url, limit=limit, marker=marker))
 
 
-class CliOptionsTest(TestCase):
+class CliOptionsTest(testtools.TestCase):
 
     def check_default_options(self, co):
         self.assertEqual(None, co.username)
@@ -125,7 +140,7 @@ class CliOptionsTest(TestCase):
             self.check_option(oparser, option_name)
 
 
-class ArgumentRequiredTest(TestCase):
+class ArgumentRequiredTest(testtools.TestCase):
 
     def setUp(self):
         super(ArgumentRequiredTest, self).setUp()
@@ -140,12 +155,12 @@ class ArgumentRequiredTest(TestCase):
         self.assertEqual(expected, self.arg_req.__str__())
 
 
-class CommandsBaseTest(TestCase):
+class CommandsBaseTest(testtools.TestCase):
 
     def setUp(self):
         super(CommandsBaseTest, self).setUp()
         self.orig_sys_exit = sys.exit
-        sys.exit = Mock(return_value=None)
+        sys.exit = mock.Mock(return_value=None)
         self.orig_sys_argv = sys.argv
         sys.argv = ['fakecmd']
         parser = common.CliOptions().create_optparser(False)
@@ -160,7 +175,7 @@ class CommandsBaseTest(TestCase):
         self.assertNotEqual(None, self.cmd_base)
 
     def test__safe_exec(self):
-        func = Mock(return_value="test")
+        func = mock.Mock(return_value="test")
         self.cmd_base.debug = True
         r = self.cmd_base._safe_exec(func)
         self.assertEqual("test", r)
@@ -169,7 +184,7 @@ class CommandsBaseTest(TestCase):
         r = self.cmd_base._safe_exec(func)
         self.assertEqual("test", r)
 
-        func = Mock(side_effect=ValueError)  # an arbitrary exception
+        func = mock.Mock(side_effect=ValueError)  # an arbitrary exception
         r = self.cmd_base._safe_exec(func)
         self.assertEqual(None, r)
 
@@ -209,30 +224,30 @@ class CommandsBaseTest(TestCase):
         self.assertEqual(["v3"], self.cmd_base.attr1)
 
     def test__pretty_print(self):
-        func = Mock(return_value=None)
+        func = mock.Mock(return_value=None)
         self.cmd_base.verbose = True
         self.assertEqual(None, self.cmd_base._pretty_print(func))
         self.cmd_base.verbose = False
         self.assertEqual(None, self.cmd_base._pretty_print(func))
 
     def test__dumps(self):
-        json.dumps = Mock(return_value="test-dump")
+        json.dumps = mock.Mock(return_value="test-dump")
         self.assertEqual("test-dump", self.cmd_base._dumps("item"))
 
     def test__pretty_list(self):
-        func = Mock(return_value=None)
+        func = mock.Mock(return_value=None)
         self.cmd_base.verbose = True
         self.assertEqual(None, self.cmd_base._pretty_list(func))
         self.cmd_base.verbose = False
         self.assertEqual(None, self.cmd_base._pretty_list(func))
-        item = Mock(return_value="test")
+        item = mock.Mock(return_value="test")
         item._info = "info"
-        func = Mock(return_value=[item])
+        func = mock.Mock(return_value=[item])
         self.assertEqual(None, self.cmd_base._pretty_list(func))
 
     def test__pretty_paged(self):
         self.cmd_base.limit = "5"
-        func = Mock(return_value=None)
+        func = mock.Mock(return_value=None)
         self.cmd_base.verbose = True
         self.assertEqual(None, self.cmd_base._pretty_paged(func))
 
@@ -246,28 +261,28 @@ class CommandsBaseTest(TestCase):
                 return ["item1"]
 
             def __len__(self):
-                return count
+                return self.count
 
         ret = MockIterable()
-        func = Mock(return_value=ret)
+        func = mock.Mock(return_value=ret)
         self.assertEqual(None, self.cmd_base._pretty_paged(func))
 
         ret.count = 0
         self.assertEqual(None, self.cmd_base._pretty_paged(func))
 
-        func = Mock(side_effect=ValueError)
+        func = mock.Mock(side_effect=ValueError)
         self.assertEqual(None, self.cmd_base._pretty_paged(func))
         self.cmd_base.debug = True
-        self.cmd_base.marker = Mock()
+        self.cmd_base.marker = mock.Mock()
         self.assertRaises(ValueError, self.cmd_base._pretty_paged, func)
 
 
-class AuthTest(TestCase):
+class AuthTest(testtools.TestCase):
 
     def setUp(self):
         super(AuthTest, self).setUp()
         self.orig_sys_exit = sys.exit
-        sys.exit = Mock(return_value=None)
+        sys.exit = mock.Mock(return_value=None)
         self.orig_sys_argv = sys.argv
         sys.argv = ['fakecmd']
         self.parser = common.CliOptions().create_optparser(False)
@@ -287,28 +302,28 @@ class AuthTest(TestCase):
         self.auth.apikey = "apikey"
         self.auth.tenant_id = "tenant_id"
         self.auth.auth_url = "auth_url"
-        dbaas = Mock()
-        dbaas.authenticate = Mock(return_value=None)
-        dbaas.client = Mock()
-        dbaas.client.auth_token = Mock()
-        dbaas.client.service_url = Mock()
-        self.auth._get_client = Mock(return_value=dbaas)
+        dbaas = mock.Mock()
+        dbaas.authenticate = mock.Mock(return_value=None)
+        dbaas.client = mock.Mock()
+        dbaas.client.auth_token = mock.Mock()
+        dbaas.client.service_url = mock.Mock()
+        self.auth._get_client = mock.Mock(return_value=dbaas)
         self.auth.login()
 
         self.auth.debug = True
-        self.auth._get_client = Mock(side_effect=ValueError)
+        self.auth._get_client = mock.Mock(side_effect=ValueError)
         self.assertRaises(ValueError, self.auth.login)
 
         self.auth.debug = False
         self.auth.login()
 
 
-class AuthedCommandsBaseTest(TestCase):
+class AuthedCommandsBaseTest(testtools.TestCase):
 
     def setUp(self):
         super(AuthedCommandsBaseTest, self).setUp()
         self.orig_sys_exit = sys.exit
-        sys.exit = Mock(return_value=None)
+        sys.exit = mock.Mock(return_value=None)
         self.orig_sys_argv = sys.argv
         sys.argv = ['fakecmd']
 
@@ -320,17 +335,17 @@ class AuthedCommandsBaseTest(TestCase):
     def test___init__(self):
         parser = common.CliOptions().create_optparser(False)
         common.AuthedCommandsBase.debug = True
-        dbaas = Mock()
-        dbaas.authenticate = Mock(return_value=None)
-        dbaas.client = Mock()
-        dbaas.client.auth_token = Mock()
-        dbaas.client.service_url = Mock()
-        dbaas.client.authenticate_with_token = Mock()
-        common.AuthedCommandsBase._get_client = Mock(return_value=dbaas)
-        authed_cmd = common.AuthedCommandsBase(parser)
+        dbaas = mock.Mock()
+        dbaas.authenticate = mock.Mock(return_value=None)
+        dbaas.client = mock.Mock()
+        dbaas.client.auth_token = mock.Mock()
+        dbaas.client.service_url = mock.Mock()
+        dbaas.client.authenticate_with_token = mock.Mock()
+        common.AuthedCommandsBase._get_client = mock.Mock(return_value=dbaas)
+        common.AuthedCommandsBase(parser)
 
 
-class PaginatedTest(TestCase):
+class PaginatedTest(testtools.TestCase):
 
     def setUp(self):
         super(PaginatedTest, self).setUp()
@@ -372,7 +387,6 @@ class PaginatedTest(TestCase):
 
     def test___reversed__(self):
         itr = self.pgn.__reversed__()
-        expected = ["item2", "item1"]
         self.assertEqual("item2", next(itr))
         self.assertEqual("item1", next(itr))
         self.assertRaises(StopIteration, next, itr)

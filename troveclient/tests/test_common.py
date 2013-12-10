@@ -17,18 +17,18 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from testtools import TestCase
-from mock import Mock
+import testtools
+import mock
 
 from troveclient import common
 
 
-class CommonTest(TestCase):
+class CommonTest(testtools.TestCase):
 
     def test_check_for_exceptions(self):
         status = [400, 422, 500]
         for s in status:
-            resp = Mock()
+            resp = mock.Mock()
             resp.status_code = s
             self.assertRaises(Exception,
                               common.check_for_exceptions, resp, "body")
@@ -46,7 +46,7 @@ class CommonTest(TestCase):
                          common.limit_url(url, limit=limit, marker=marker))
 
 
-class PaginatedTest(TestCase):
+class PaginatedTest(testtools.TestCase):
 
     def setUp(self):
         super(PaginatedTest, self).setUp()
@@ -88,7 +88,6 @@ class PaginatedTest(TestCase):
 
     def test___reversed__(self):
         itr = self.pgn.__reversed__()
-        expected = ["item2", "item1"]
         self.assertEqual("item2", next(itr))
         self.assertEqual("item1", next(itr))
         self.assertRaises(StopIteration, next, itr)

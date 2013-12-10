@@ -18,10 +18,7 @@
 #    under the License.
 
 from troveclient import base
-
-from troveclient.common import check_for_exceptions
-from troveclient.common import limit_url
-from troveclient.common import Paginated
+from troveclient import common
 from troveclient.openstack.common.apiclient import exceptions
 from troveclient.openstack.common.py3kcompat import urlutils
 
@@ -89,7 +86,7 @@ class Instances(base.ManagerWithFind):
         return self._create("/instances", body, "instance")
 
     def _list(self, url, response_key, limit=None, marker=None):
-        resp, body = self.api.client.get(limit_url(url, limit, marker))
+        resp, body = self.api.client.get(common.limit_url(url, limit, marker))
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
         links = body.get('links', [])
@@ -102,7 +99,9 @@ class Instances(base.ManagerWithFind):
             next_marker = query_dict.get('marker', None)
         instances = body[response_key]
         instances = [self.resource_class(self, res) for res in instances]
-        return Paginated(instances, next_marker=next_marker, links=links)
+        return common.Paginated(
+            instances, next_marker=next_marker, links=links
+        )
 
     def list(self, limit=None, marker=None):
         """
@@ -147,7 +146,7 @@ class Instances(base.ManagerWithFind):
         """
         url = "/instances/%s/action" % instance_id
         resp, body = self.api.client.post(url, body=body)
-        check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body)
         if body:
             return self.resource_class(self, body, loaded=True)
         return body

@@ -17,7 +17,7 @@
 #    under the License.
 
 from troveclient import base
-from troveclient.common import check_for_exceptions
+from troveclient import common
 
 
 class Account(base.Resource):
@@ -46,7 +46,7 @@ class Accounts(base.ManagerWithFind):
 
         url = "/mgmt/accounts"
         resp, body = self.api.client.get(url)
-        check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body)
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
         return base.Resource(self, body)

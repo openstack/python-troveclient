@@ -36,9 +36,9 @@ except ImportError:
     import urllib.parse as urlparse
 
 try:
-    from eventlet import sleep
+    import eventlet as sleep_lib
 except ImportError:
-    from time import sleep
+    import time as sleep_lib
 
 try:
     import json
@@ -201,7 +201,7 @@ class HTTPClient(object):
             self._logger.debug(
                 "Failed attempt(%s of %s), retrying in %s seconds" %
                 (attempts, self.retries, backoff))
-            sleep(backoff)
+            sleep_lib.sleep(backoff)
             backoff *= 2
 
     def get(self, url, **kwargs):

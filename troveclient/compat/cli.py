@@ -64,7 +64,7 @@ class InstanceCommands(common.AuthedCommandsBase):
     def delete(self):
         """Delete the specified instance"""
         self._require('id')
-        print self.dbaas.instances.delete(self.id)
+        print(self.dbaas.instances.delete(self.id))
 
     def get(self):
         """Get details for the specified instance"""
@@ -126,12 +126,12 @@ class DatabaseCommands(common.AuthedCommandsBase):
         """Create a database"""
         self._require('id', 'name')
         databases = [{'name': self.name}]
-        print self.dbaas.databases.create(self.id, databases)
+        print(self.dbaas.databases.create(self.id, databases))
 
     def delete(self):
         """Delete a database"""
         self._require('id', 'name')
-        print self.dbaas.databases.delete(self.id, self.name)
+        print(self.dbaas.databases.delete(self.id, self.name))
 
     def list(self):
         """List the databases"""
@@ -235,9 +235,9 @@ class RootCommands(common.AuthedCommandsBase):
         self._require('id')
         try:
             user, password = self.dbaas.root.create(self.id)
-            print "User:\t\t%s\nPassword:\t%s" % (user, password)
-        except:
-            print sys.exc_info()[1]
+            print("User:\t\t%s\nPassword:\t%s" % (user, password))
+        except Exception:
+            print(sys.exc_info()[1])
 
     def enabled(self):
         """Check the instance for root access"""
@@ -387,7 +387,7 @@ def main():
                 except Exception as ex:
                     if options.debug:
                         raise
-                    print ex
+                    print(ex)
             else:
                 getattr(command_object, action)()
         else:

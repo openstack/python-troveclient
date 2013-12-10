@@ -37,7 +37,7 @@ import troveclient
 from troveclient import client
 from troveclient.openstack.common import strutils
 from troveclient.openstack.common.apiclient import exceptions as exc
-from troveclient.openstack.common.gettextutils import _
+from troveclient.openstack.common import gettextutils as gtu
 from troveclient import utils
 from troveclient.v1 import shell as shell_v1
 
@@ -548,7 +548,7 @@ class OpenStackHelpFormatter(argparse.HelpFormatter):
         'trove create <name> <flavor_id> --databases <db_name>'
         """
         if prefix is None:
-            prefix = _('usage: ')
+            prefix = gtu._('usage: ')
 
         # if usage is specified, use that
         if usage is not None:

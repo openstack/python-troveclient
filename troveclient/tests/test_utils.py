@@ -19,11 +19,11 @@
 
 import os
 import six
-from testtools import TestCase
+import testtools
 from troveclient import utils
 
 
-class UtilsTest(TestCase):
+class UtilsTest(testtools.TestCase):
 
     def test_add_hookable_mixin(self):
         def func():

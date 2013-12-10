@@ -18,7 +18,7 @@
 #    under the License.
 
 from troveclient import base
-from troveclient.common import check_for_exceptions
+from troveclient import common
 
 
 class Quotas(base.ManagerWithFind):
@@ -33,7 +33,7 @@ class Quotas(base.ManagerWithFind):
 
         url = "/mgmt/quotas/%s" % tenant_id
         resp, body = self.api.client.get(url)
-        check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body)
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
         if 'quotas' not in body:
@@ -47,7 +47,7 @@ class Quotas(base.ManagerWithFind):
         url = "/mgmt/quotas/%s" % id
         body = {"quotas": quotas}
         resp, body = self.api.client.put(url, body=body)
-        check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body)
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
         if 'quotas' not in body:

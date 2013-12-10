@@ -17,8 +17,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from testtools import TestCase
-from mock import Mock
+import testtools
+import mock
 
 from troveclient.v1 import security_groups
 
@@ -27,12 +27,12 @@ Unit tests for security_groups.py
 """
 
 
-class SecGroupTest(TestCase):
+class SecGroupTest(testtools.TestCase):
 
     def setUp(self):
         super(SecGroupTest, self).setUp()
         self.orig__init = security_groups.SecurityGroup.__init__
-        security_groups.SecurityGroup.__init__ = Mock(return_value=None)
+        security_groups.SecurityGroup.__init__ = mock.Mock(return_value=None)
         self.security_group = security_groups.SecurityGroup()
         self.security_groups = security_groups.SecurityGroups(1)
 
@@ -47,26 +47,30 @@ class SecGroupTest(TestCase):
 
     def test_list(self):
         sec_group_list = ['secgroup1', 'secgroup2']
-        self.security_groups.list = Mock(return_value=sec_group_list)
+        self.security_groups.list = mock.Mock(return_value=sec_group_list)
         self.assertEqual(sec_group_list, self.security_groups.list())
 
     def test_get(self):
         def side_effect_func(path, inst):
             return path, inst
 
-        self.security_groups._get = Mock(side_effect=side_effect_func)
+        self.security_groups._get = mock.Mock(side_effect=side_effect_func)
         self.security_group.id = 1
         self.assertEqual(('/security-groups/1', 'security_group'),
                          self.security_groups.get(self.security_group))
 
 
-class SecGroupRuleTest(TestCase):
+class SecGroupRuleTest(testtools.TestCase):
 
     def setUp(self):
         super(SecGroupRuleTest, self).setUp()
         self.orig__init = security_groups.SecurityGroupRule.__init__
-        security_groups.SecurityGroupRule.__init__ = Mock(return_value=None)
-        security_groups.SecurityGroupRules.__init__ = Mock(return_value=None)
+        security_groups.SecurityGroupRule.__init__ = mock.Mock(
+            return_value=None
+        )
+        security_groups.SecurityGroupRules.__init__ = mock.Mock(
+            return_value=None
+        )
         self.security_group_rule = security_groups.SecurityGroupRule()
         self.security_group_rules = security_groups.SecurityGroupRules()
 
@@ -95,7 +99,9 @@ class SecGroupRuleTest(TestCase):
         def side_effect_func(path, body, inst):
             return path, body, inst
 
-        self.security_group_rules._create = Mock(side_effect=side_effect_func)
+        self.security_group_rules._create = mock.Mock(
+            side_effect=side_effect_func
+        )
         p, b, i = self.security_group_rules.create(1, "tcp",
                                                    80, 80, "0.0.0.0//0")
         self.assertEqual("/security-group-rules", p)
@@ -107,13 +113,14 @@ class SecGroupRuleTest(TestCase):
         self.assertEqual("0.0.0.0//0", b["security_group_rule"]["cidr"])
 
     def test_delete(self):
-        resp = Mock()
+        resp = mock.Mock()
         resp.status = 200
         body = None
-        self.security_group_rules.api = Mock()
-        self.security_group_rules.api.client = Mock()
-        self.security_group_rules.api.client.delete = \
-            Mock(return_value=(resp, body))
+        self.security_group_rules.api = mock.Mock()
+        self.security_group_rules.api.client = mock.Mock()
+        self.security_group_rules.api.client.delete = mock.Mock(
+            return_value=(resp, body)
+        )
         self.security_group_rules.delete(self.id)
         resp.status_code = 500
         self.assertRaises(Exception, self.security_group_rules.delete,

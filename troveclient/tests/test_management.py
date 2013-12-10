@@ -17,8 +17,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from testtools import TestCase
-from mock import Mock
+import testtools
+import mock
 
 from troveclient.v1 import management
 from troveclient import base
@@ -28,12 +28,12 @@ Unit tests for management.py
 """
 
 
-class RootHistoryTest(TestCase):
+class RootHistoryTest(testtools.TestCase):
 
     def setUp(self):
         super(RootHistoryTest, self).setUp()
         self.orig__init = management.RootHistory.__init__
-        management.RootHistory.__init__ = Mock(return_value=None)
+        management.RootHistory.__init__ = mock.Mock(return_value=None)
 
     def tearDown(self):
         super(RootHistoryTest, self).tearDown()
@@ -48,19 +48,19 @@ class RootHistoryTest(TestCase):
                          root_history.__repr__())
 
 
-class ManagementTest(TestCase):
+class ManagementTest(testtools.TestCase):
 
     def setUp(self):
         super(ManagementTest, self).setUp()
         self.orig__init = management.Management.__init__
-        management.Management.__init__ = Mock(return_value=None)
+        management.Management.__init__ = mock.Mock(return_value=None)
         self.management = management.Management()
-        self.management.api = Mock()
-        self.management.api.client = Mock()
+        self.management.api = mock.Mock()
+        self.management.api.client = mock.Mock()
 
         self.orig_hist__init = management.RootHistory.__init__
         self.orig_base_getid = base.getid
-        base.getid = Mock(return_value="instance1")
+        base.getid = mock.Mock(return_value="instance1")
 
     def tearDown(self):
         super(ManagementTest, self).tearDown()
@@ -69,22 +69,24 @@ class ManagementTest(TestCase):
         base.getid = self.orig_base_getid
 
     def test__list(self):
-        self.management.api.client.get = Mock(return_value=('resp', None))
+        self.management.api.client.get = mock.Mock(return_value=('resp', None))
         self.assertRaises(Exception, self.management._list, "url", None)
 
-        body = Mock()
-        body.get = Mock(return_value=[{'href': 'http://test.net/test_file',
-                                       'rel': 'next'}])
-        body.__getitem__ = Mock(return_value='instance1')
-        self.management.resource_class = Mock(return_value="instance-1")
-        self.management.api.client.get = Mock(return_value=('resp', body))
+        body = mock.Mock()
+        body.get = mock.Mock(
+            return_value=[{'href': 'http://test.net/test_file',
+                           'rel': 'next'}]
+        )
+        body.__getitem__ = mock.Mock(return_value='instance1')
+        self.management.resource_class = mock.Mock(return_value="instance-1")
+        self.management.api.client.get = mock.Mock(return_value=('resp', body))
         _expected = [{'href': 'http://test.net/test_file', 'rel': 'next'}]
         self.assertEqual(_expected, self.management._list("url", None).links)
 
     def test_show(self):
         def side_effect_func(path, instance):
             return path, instance
-        self.management._get = Mock(side_effect=side_effect_func)
+        self.management._get = mock.Mock(side_effect=side_effect_func)
         p, i = self.management.show(1)
         self.assertEqual(('/mgmt/instances/instance1', 'instance'), (p, i))
 
@@ -92,25 +94,27 @@ class ManagementTest(TestCase):
         def side_effect_func(url, name, limit, marker):
             return url
 
-        self.management._list = Mock(side_effect=side_effect_func)
+        self.management._list = mock.Mock(side_effect=side_effect_func)
         self.assertEqual('/mgmt/instances?deleted=true',
                          self.management.index(deleted=True))
         self.assertEqual('/mgmt/instances?deleted=false',
                          self.management.index(deleted=False))
 
     def test_root_enabled_history(self):
-        self.management.api.client.get = Mock(return_value=('resp', None))
+        self.management.api.client.get = mock.Mock(return_value=('resp', None))
         self.assertRaises(Exception,
                           self.management.root_enabled_history, "instance")
         body = {'root_history': 'rh'}
-        self.management.api.client.get = Mock(return_value=('resp', body))
-        management.RootHistory.__init__ = Mock(return_value=None)
+        self.management.api.client.get = mock.Mock(return_value=('resp', body))
+        management.RootHistory.__init__ = mock.Mock(return_value=None)
         rh = self.management.root_enabled_history("instance")
         self.assertTrue(isinstance(rh, management.RootHistory))
 
     def test__action(self):
-        resp = Mock()
-        self.management.api.client.post = Mock(return_value=(resp, 'body'))
+        resp = mock.Mock()
+        self.management.api.client.post = mock.Mock(
+            return_value=(resp, 'body')
+        )
         resp.status_code = 200
         self.management._action(1, 'body')
         self.assertEqual(1, self.management.api.client.post.call_count)
@@ -123,7 +127,7 @@ class ManagementTest(TestCase):
 
         def side_effect_func(instance_id, body):
             self.body_ = body
-        self.management._action = Mock(side_effect=side_effect_func)
+        self.management._action = mock.Mock(side_effect=side_effect_func)
 
     def test_stop(self):
         self._mock_action()
@@ -163,18 +167,18 @@ class ManagementTest(TestCase):
         self.assertEqual({'reset-task-status': {}}, self.body_)
 
 
-class MgmtFlavorsTest(TestCase):
+class MgmtFlavorsTest(testtools.TestCase):
 
     def setUp(self):
         super(MgmtFlavorsTest, self).setUp()
         self.orig__init = management.MgmtFlavors.__init__
-        management.MgmtFlavors.__init__ = Mock(return_value=None)
+        management.MgmtFlavors.__init__ = mock.Mock(return_value=None)
         self.flavors = management.MgmtFlavors()
-        self.flavors.api = Mock()
-        self.flavors.api.client = Mock()
-        self.flavors.resource_class = Mock(return_value="flavor-1")
+        self.flavors.api = mock.Mock()
+        self.flavors.api.client = mock.Mock()
+        self.flavors.resource_class = mock.Mock(return_value="flavor-1")
         self.orig_base_getid = base.getid
-        base.getid = Mock(return_value="flavor1")
+        base.getid = mock.Mock(return_value="flavor1")
 
     def tearDown(self):
         super(MgmtFlavorsTest, self).tearDown()
@@ -185,7 +189,7 @@ class MgmtFlavorsTest(TestCase):
         def side_effect_func(path, body, inst):
             return path, body, inst
 
-        self.flavors._create = Mock(side_effect=side_effect_func)
+        self.flavors._create = mock.Mock(side_effect=side_effect_func)
         p, b, i = self.flavors.create("test-name", 1024, 30, 2, 1)
         self.assertEqual("/mgmt/flavors", p)
         self.assertEqual("flavor", i)

@@ -17,8 +17,8 @@
 #    under the License.
 
 
-from testtools import TestCase
-from mock import Mock
+import testtools
+import mock
 
 from troveclient.v1 import datastores
 from troveclient import base
@@ -29,14 +29,14 @@ Unit tests for datastores.py
 """
 
 
-class DatastoreTest(TestCase):
+class DatastoreTest(testtools.TestCase):
 
     def setUp(self):
         super(DatastoreTest, self).setUp()
         self.orig__init = datastores.Datastore.__init__
-        datastores.Datastore.__init__ = Mock(return_value=None)
+        datastores.Datastore.__init__ = mock.Mock(return_value=None)
         self.datastore = datastores.Datastore()
-        self.datastore.manager = Mock()
+        self.datastore.manager = mock.Mock()
 
     def tearDown(self):
         super(DatastoreTest, self).tearDown()
@@ -48,19 +48,19 @@ class DatastoreTest(TestCase):
                          self.datastore.__repr__())
 
 
-class DatastoresTest(TestCase):
+class DatastoresTest(testtools.TestCase):
 
     def setUp(self):
         super(DatastoresTest, self).setUp()
         self.orig__init = datastores.Datastores.__init__
-        datastores.Datastores.__init__ = Mock(return_value=None)
+        datastores.Datastores.__init__ = mock.Mock(return_value=None)
         self.datastores = datastores.Datastores()
-        self.datastores.api = Mock()
-        self.datastores.api.client = Mock()
-        self.datastores.resource_class = Mock(return_value="ds-1")
+        self.datastores.api = mock.Mock()
+        self.datastores.api.client = mock.Mock()
+        self.datastores.resource_class = mock.Mock(return_value="ds-1")
 
         self.orig_base_getid = base.getid
-        base.getid = Mock(return_value="datastore1")
+        base.getid = mock.Mock(return_value="datastore1")
 
     def tearDown(self):
         super(DatastoresTest, self).tearDown()
@@ -71,7 +71,7 @@ class DatastoresTest(TestCase):
         def side_effect_func(path, inst, limit, marker):
             return path, inst, limit, marker
 
-        self.datastores._list = Mock(side_effect=side_effect_func)
+        self.datastores._list = mock.Mock(side_effect=side_effect_func)
         limit = "test-limit"
         marker = "test-marker"
         expected = ("/datastores", "datastores", limit, marker)
@@ -81,26 +81,26 @@ class DatastoresTest(TestCase):
         def side_effect_func(path, inst):
             return path, inst
 
-        self.datastores._get = Mock(side_effect=side_effect_func)
+        self.datastores._get = mock.Mock(side_effect=side_effect_func)
         self.assertEqual(('/datastores/datastore1',
                           'datastore'),
                          self.datastores.get(1))
 
 
-class DatastoreVersionsTest(TestCase):
+class DatastoreVersionsTest(testtools.TestCase):
 
     def setUp(self):
         super(DatastoreVersionsTest, self).setUp()
         self.orig__init = datastores.DatastoreVersions.__init__
-        datastores.DatastoreVersions.__init__ = Mock(return_value=None)
+        datastores.DatastoreVersions.__init__ = mock.Mock(return_value=None)
         self.datastore_versions = datastores.DatastoreVersions()
-        self.datastore_versions.api = Mock()
-        self.datastore_versions.api.client = Mock()
-        self.datastore_versions.resource_class = Mock(
+        self.datastore_versions.api = mock.Mock()
+        self.datastore_versions.api.client = mock.Mock()
+        self.datastore_versions.resource_class = mock.Mock(
             return_value="ds_version-1")
 
         self.orig_base_getid = base.getid
-        base.getid = Mock(return_value="datastore_version1")
+        base.getid = mock.Mock(return_value="datastore_version1")
 
     def tearDown(self):
         super(DatastoreVersionsTest, self).tearDown()
@@ -111,7 +111,7 @@ class DatastoreVersionsTest(TestCase):
         def side_effect_func(path, inst, limit, marker):
             return path, inst, limit, marker
 
-        self.datastore_versions._list = Mock(side_effect=side_effect_func)
+        self.datastore_versions._list = mock.Mock(side_effect=side_effect_func)
         limit = "test-limit"
         marker = "test-marker"
         expected = ("/datastores/datastore1/versions",
@@ -123,7 +123,7 @@ class DatastoreVersionsTest(TestCase):
         def side_effect_func(path, inst):
             return path, inst
 
-        self.datastore_versions._get = Mock(side_effect=side_effect_func)
+        self.datastore_versions._get = mock.Mock(side_effect=side_effect_func)
         self.assertEqual(('/datastores/datastore1/versions/'
                           'datastore_version1',
                           'version'),

@@ -39,7 +39,7 @@ oparser = None
 
 
 def _pretty_print(info):
-    print json.dumps(info, sort_keys=True, indent=4)
+    print(json.dumps(info, sort_keys=True, indent=4))
 
 
 class HostCommands(common.AuthedCommandsBase):
@@ -260,7 +260,7 @@ def main():
             except Exception as ex:
                 if options.debug:
                     raise
-                print ex
+                print(ex)
         else:
             common.print_actions(cmd, actions)
     else:

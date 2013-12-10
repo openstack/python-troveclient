@@ -146,7 +146,7 @@ class TroveHTTPClient(httplib2.Http):
             try:
                 req_body = json.dumps(json.loads(kwargs['body']),
                                       sort_keys=True, indent=4)
-            except:
+            except Exception:
                 req_body = kwargs['body']
             _logger.debug("BODY: %s\n" % (req_body))
         else:
@@ -154,7 +154,7 @@ class TroveHTTPClient(httplib2.Http):
 
         try:
             resp_body = json.dumps(json.loads(body), sort_keys=True, indent=4)
-        except:
+        except Exception:
             resp_body = body
         _logger.debug("RESPONSE HEADERS: %s" % resp)
         _logger.debug("RESPONSE BODY   : %s" % resp_body)
@@ -229,7 +229,7 @@ class TroveHTTPClient(httplib2.Http):
         # re-authenticate and try again. If it still fails, bail.
         try:
             return request()
-        except exceptions.Unauthorized as ex:
+        except exceptions.Unauthorized:
             self.authenticate()
             return request()
 
@@ -296,26 +296,23 @@ class Dbaas(object):
                  service_type='database', service_name=None,
                  service_url=None, insecure=False, auth_strategy='keystone',
                  region_name=None, client_cls=TroveHTTPClient):
-        from troveclient.compat.versions import Versions
-        from troveclient.v1.databases import Databases
-        from troveclient.v1.flavors import Flavors
-        from troveclient.v1.instances import Instances
-        from troveclient.v1.limits import Limits
-        from troveclient.v1.users import Users
-        from troveclient.v1.root import Root
-        from troveclient.v1.hosts import Hosts
-        from troveclient.v1.quota import Quotas
-        from troveclient.v1.backups import Backups
-        from troveclient.v1.security_groups import SecurityGroups
-        from troveclient.v1.security_groups import SecurityGroupRules
-        from troveclient.v1.datastores import Datastores
-        from troveclient.v1.datastores import DatastoreVersions
-        from troveclient.v1.storage import StorageInfo
-        from troveclient.v1.management import Management
-        from troveclient.v1.management import MgmtFlavors
-        from troveclient.v1.accounts import Accounts
-        from troveclient.v1.diagnostics import DiagnosticsInterrogator
-        from troveclient.v1.diagnostics import HwInfoInterrogator
+
+        from troveclient.compat import versions
+        from troveclient.v1 import accounts
+        from troveclient.v1 import backups
+        from troveclient.v1 import databases
+        from troveclient.v1 import datastores
+        from troveclient.v1 import diagnostics
+        from troveclient.v1 import flavors
+        from troveclient.v1 import hosts
+        from troveclient.v1 import instances
+        from troveclient.v1 import limits
+        from troveclient.v1 import management
+        from troveclient.v1 import quota
+        from troveclient.v1 import root
+        from troveclient.v1 import security_groups
+        from troveclient.v1 import storage
+        from troveclient.v1 import users
 
         self.client = client_cls(username, api_key, tenant, auth_url,
                                  service_type=service_type,
@@ -324,26 +321,26 @@ class Dbaas(object):
                                  insecure=insecure,
                                  auth_strategy=auth_strategy,
                                  region_name=region_name)
-        self.versions = Versions(self)
-        self.databases = Databases(self)
-        self.flavors = Flavors(self)
-        self.instances = Instances(self)
-        self.limits = Limits(self)
-        self.users = Users(self)
-        self.root = Root(self)
-        self.hosts = Hosts(self)
-        self.quota = Quotas(self)
-        self.backups = Backups(self)
-        self.security_groups = SecurityGroups(self)
-        self.security_group_rules = SecurityGroupRules(self)
-        self.datastores = Datastores(self)
-        self.datastore_versions = DatastoreVersions(self)
-        self.storage = StorageInfo(self)
-        self.management = Management(self)
-        self.mgmt_flavor = MgmtFlavors(self)
-        self.accounts = Accounts(self)
-        self.diagnostics = DiagnosticsInterrogator(self)
-        self.hwinfo = HwInfoInterrogator(self)
+        self.versions = versions.Versions(self)
+        self.databases = databases.Databases(self)
+        self.flavors = flavors.Flavors(self)
+        self.instances = instances.Instances(self)
+        self.limits = limits.Limits(self)
+        self.users = users.Users(self)
+        self.root = root.Root(self)
+        self.hosts = hosts.Hosts(self)
+        self.quota = quota.Quotas(self)
+        self.backups = backups.Backups(self)
+        self.security_groups = security_groups.SecurityGroups(self)
+        self.security_group_rules = security_groups.SecurityGroupRules(self)
+        self.datastores = datastores.Datastores(self)
+        self.datastore_versions = datastores.DatastoreVersions(self)
+        self.storage = storage.StorageInfo(self)
+        self.management = management.Management(self)
+        self.mgmt_flavor = management.MgmtFlavors(self)
+        self.accounts = accounts.Accounts(self)
+        self.diagnostics = diagnostics.DiagnosticsInterrogator(self)
+        self.hwinfo = diagnostics.HwInfoInterrogator(self)
 
         class Mgmt(object):
             def __init__(self, dbaas):

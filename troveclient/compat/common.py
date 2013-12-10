@@ -21,7 +21,7 @@ import six
 import sys
 
 from troveclient.compat import client
-from troveclient.compat.xml import TroveXmlClient
+from troveclient.compat import xml
 from troveclient.compat import exceptions
 
 from troveclient.openstack.common.py3kcompat import urlutils
@@ -44,7 +44,7 @@ def check_for_exceptions(resp, body):
 
 def print_actions(cmd, actions):
     """Print help for the command with list of options and description"""
-    print(("Available actions for '%s' cmd:") % cmd)
+    print("Available actions for '%s' cmd:" % cmd)
     for k, v in six.iteritems(actions):
         print("\t%-20s%s" % (k, v.__doc__))
     sys.exit(2)
@@ -119,7 +119,7 @@ class CliOptions(object):
                 return pickle.load(token)
         except IOError:
             pass  # File probably not found.
-        except:
+        except Exception:
             print("ERROR: Token file found at %s was corrupt." % cls.APITOKEN)
         return cls.default()
 
@@ -217,7 +217,7 @@ class CommandsBase(object):
         """Creates the all important client object."""
         try:
             if self.xml:
-                client_cls = TroveXmlClient
+                client_cls = xml.TroveXmlClient
             else:
                 client_cls = client.TroveHTTPClient
             if self.verbose:
@@ -232,7 +232,7 @@ class CommandsBase(object):
                                 service_url=self.service_url,
                                 insecure=self.insecure,
                                 client_cls=client_cls)
-        except:
+        except Exception:
             if self.debug:
                 raise
             print(sys.exc_info()[1])
@@ -241,7 +241,7 @@ class CommandsBase(object):
         if not self.debug:
             try:
                 return func(*args, **kwargs)
-            except:
+            except Exception:
                 print(sys.exc_info()[1])
                 return None
         else:
@@ -328,7 +328,7 @@ class CommandsBase(object):
                         print(self._dumps((link)))
             else:
                 print("OK")
-        except:
+        except Exception:
             if self.debug:
                 raise
             print(sys.exc_info()[1])
@@ -366,7 +366,7 @@ class Auth(CommandsBase):
             print("Token aquired! Saving to %s..." % CliOptions.APITOKEN)
             print("    service_url = %s" % self.service_url)
             print("    token       = %s" % self.token)
-        except:
+        except Exception:
             if self.debug:
                 raise
             print(sys.exc_info()[1])

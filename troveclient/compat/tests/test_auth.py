@@ -17,9 +17,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from testtools import TestCase
+import testtools
 from troveclient.compat import auth
-from mock import Mock
+import mock
 
 from troveclient.compat import exceptions
 
@@ -39,7 +39,7 @@ def check_url_none(test_case, auth_class):
         pass
 
 
-class AuthenticatorTest(TestCase):
+class AuthenticatorTest(testtools.TestCase):
 
     def setUp(self):
         super(AuthenticatorTest, self).setUp()
@@ -72,58 +72,62 @@ class AuthenticatorTest(TestCase):
         self.assertRaises(ValueError, auth.get_authenticator_cls, cls_or_name)
 
     def test__authenticate(self):
-        authObj = auth.Authenticator(Mock(), auth.KeyStoneV2Authenticator,
-                                     Mock(), Mock(), Mock(), Mock())
+        authObj = auth.Authenticator(mock.Mock(), auth.KeyStoneV2Authenticator,
+                                     mock.Mock(), mock.Mock(),
+                                     mock.Mock(), mock.Mock())
         # test response code 200
-        resp = Mock()
+        resp = mock.Mock()
         resp.status = 200
         body = "test_body"
 
-        auth.ServiceCatalog._load = Mock(return_value=1)
-        authObj.client._time_request = Mock(return_value=(resp, body))
+        auth.ServiceCatalog._load = mock.Mock(return_value=1)
+        authObj.client._time_request = mock.Mock(return_value=(resp, body))
 
-        sc = authObj._authenticate(Mock(), Mock())
+        sc = authObj._authenticate(mock.Mock(), mock.Mock())
         self.assertEqual(body, sc.catalog)
 
         # test AmbiguousEndpoints exception
-        auth.ServiceCatalog.__init__ = \
-            Mock(side_effect=exceptions.AmbiguousEndpoints)
+        auth.ServiceCatalog.__init__ = mock.Mock(
+            side_effect=exceptions.AmbiguousEndpoints
+        )
         self.assertRaises(exceptions.AmbiguousEndpoints,
-                          authObj._authenticate, Mock(), Mock())
+                          authObj._authenticate, mock.Mock(), mock.Mock())
 
         # test handling KeyError and raising AuthorizationFailure exception
-        auth.ServiceCatalog.__init__ = Mock(side_effect=KeyError)
+        auth.ServiceCatalog.__init__ = mock.Mock(side_effect=KeyError)
         self.assertRaises(exceptions.AuthorizationFailure,
-                          authObj._authenticate, Mock(), Mock())
+                          authObj._authenticate, mock.Mock(), mock.Mock())
 
         # test EndpointNotFound exception
-        mock = Mock(side_effect=exceptions.EndpointNotFound)
-        auth.ServiceCatalog.__init__ = mock
+        mock_obj = mock.Mock(side_effect=exceptions.EndpointNotFound)
+        auth.ServiceCatalog.__init__ = mock_obj
         self.assertRaises(exceptions.EndpointNotFound,
-                          authObj._authenticate, Mock(), Mock())
-        mock.side_effect = None
+                          authObj._authenticate, mock.Mock(), mock.Mock())
+        mock_obj.side_effect = None
 
         # test response code 305
-        resp.__getitem__ = Mock(return_value='loc')
+        resp.__getitem__ = mock.Mock(return_value='loc')
         resp.status = 305
         body = "test_body"
-        authObj.client._time_request = Mock(return_value=(resp, body))
+        authObj.client._time_request = mock.Mock(return_value=(resp, body))
 
-        l = authObj._authenticate(Mock(), Mock())
+        l = authObj._authenticate(mock.Mock(), mock.Mock())
         self.assertEqual('loc', l)
 
         # test any response code other than 200 and 305
         resp.status = 404
-        exceptions.from_response = Mock(side_effect=ValueError)
-        self.assertRaises(ValueError, authObj._authenticate, Mock(), Mock())
+        exceptions.from_response = mock.Mock(side_effect=ValueError)
+        self.assertRaises(ValueError, authObj._authenticate,
+                          mock.Mock(), mock.Mock())
 
     def test_authenticate(self):
-        authObj = auth.Authenticator(Mock(), auth.KeyStoneV2Authenticator,
-                                     Mock(), Mock(), Mock(), Mock())
+        authObj = auth.Authenticator(mock.Mock(), auth.KeyStoneV2Authenticator,
+                                     mock.Mock(), mock.Mock(),
+                                     mock.Mock(), mock.Mock())
         self.assertRaises(NotImplementedError, authObj.authenticate)
 
 
-class KeyStoneV2AuthenticatorTest(TestCase):
+class KeyStoneV2AuthenticatorTest(testtools.TestCase):
 
     def test_authenticate(self):
         # url is None
@@ -139,9 +143,9 @@ class KeyStoneV2AuthenticatorTest(TestCase):
         def side_effect_func(url):
             return url
 
-        mock = Mock()
-        mock.side_effect = side_effect_func
-        authObj._v2_auth = mock
+        mock_obj = mock.Mock()
+        mock_obj.side_effect = side_effect_func
+        authObj._v2_auth = mock_obj
         r = authObj.authenticate()
         self.assertEqual(url, r)
 
@@ -158,10 +162,10 @@ class KeyStoneV2AuthenticatorTest(TestCase):
 
         def side_effect_func(url, body):
             return body
-        mock = Mock()
-        mock.side_effect = side_effect_func
-        authObj._authenticate = mock
-        body = authObj._v2_auth(Mock())
+        mock_obj = mock.Mock()
+        mock_obj.side_effect = side_effect_func
+        authObj._authenticate = mock_obj
+        body = authObj._v2_auth(mock.Mock())
         self.assertEqual(username,
                          body['auth']['passwordCredentials']['username'])
         self.assertEqual(password,
@@ -169,7 +173,7 @@ class KeyStoneV2AuthenticatorTest(TestCase):
         self.assertEqual(tenant, body['auth']['tenantName'])
 
 
-class Auth1_1Test(TestCase):
+class Auth1_1Test(testtools.TestCase):
 
     def test_authenticate(self):
         # handle when url is None
@@ -187,9 +191,9 @@ class Auth1_1Test(TestCase):
         def side_effect_func(auth_url, body, root_key):
             return auth_url, body, root_key
 
-        mock = Mock()
-        mock.side_effect = side_effect_func
-        authObj._authenticate = mock
+        mock_obj = mock.Mock()
+        mock_obj.side_effect = side_effect_func
+        authObj._authenticate = mock_obj
         auth_url, body, root_key = authObj.authenticate()
 
         self.assertEqual(username, body['credentials']['username'])
@@ -198,7 +202,7 @@ class Auth1_1Test(TestCase):
         self.assertEqual('auth', root_key)
 
 
-class RaxAuthenticatorTest(TestCase):
+class RaxAuthenticatorTest(testtools.TestCase):
 
     def test_authenticate(self):
         # url is None
@@ -214,9 +218,9 @@ class RaxAuthenticatorTest(TestCase):
         def side_effect_func(url):
             return url
 
-        mock = Mock()
-        mock.side_effect = side_effect_func
-        authObj._rax_auth = mock
+        mock_obj = mock.Mock()
+        mock_obj.side_effect = side_effect_func
+        authObj._rax_auth = mock_obj
         r = authObj.authenticate()
         self.assertEqual(url, r)
 
@@ -232,10 +236,10 @@ class RaxAuthenticatorTest(TestCase):
         def side_effect_func(url, body):
             return body
 
-        mock = Mock()
-        mock.side_effect = side_effect_func
-        authObj._authenticate = mock
-        body = authObj._rax_auth(Mock())
+        mock_obj = mock.Mock()
+        mock_obj.side_effect = side_effect_func
+        authObj._authenticate = mock_obj
+        body = authObj._rax_auth(mock.Mock())
 
         v = body['auth']['RAX-KSKEY:apiKeyCredentials']['username']
         self.assertEqual(username, v)
@@ -247,7 +251,7 @@ class RaxAuthenticatorTest(TestCase):
         self.assertEqual(tenant, v)
 
 
-class FakeAuthTest(TestCase):
+class FakeAuthTest(testtools.TestCase):
 
     def test_authenticate(self):
         tenant = "tenant"
@@ -262,13 +266,13 @@ class FakeAuthTest(TestCase):
         self.assertEqual(tenant, fc.get_token())
 
 
-class ServiceCatalogTest(TestCase):
+class ServiceCatalogTest(testtools.TestCase):
 
     def setUp(self):
         super(ServiceCatalogTest, self).setUp()
         self.orig_url_for = auth.ServiceCatalog._url_for
         self.orig__init__ = auth.ServiceCatalog.__init__
-        auth.ServiceCatalog.__init__ = Mock(return_value=None)
+        auth.ServiceCatalog.__init__ = mock.Mock(return_value=None)
         self.test_url = "http://localhost:1234/test"
 
     def tearDown(self):
@@ -278,7 +282,7 @@ class ServiceCatalogTest(TestCase):
 
     def test__load(self):
         url = "random_url"
-        auth.ServiceCatalog._url_for = Mock(return_value=url)
+        auth.ServiceCatalog._url_for = mock.Mock(return_value=url)
 
         # when service_url is None
         scObj = auth.ServiceCatalog()
@@ -347,10 +351,10 @@ class ServiceCatalogTest(TestCase):
             return "test_attr_value"
 
         # simulating dict
-        endpoint = Mock()
-        mock = Mock()
-        mock.side_effect = side_effect_func_ep
-        endpoint.__getitem__ = mock
+        endpoint = mock.Mock()
+        mock_obj = mock.Mock()
+        mock_obj.side_effect = side_effect_func_ep
+        endpoint.__getitem__ = mock_obj
         scObj.catalog['endpoints'].append(endpoint)
 
         # not-empty list but not matching endpoint
@@ -370,7 +374,7 @@ class ServiceCatalogTest(TestCase):
         scObj.catalog[scObj.root_key]['serviceCatalog'] = list()
 
         endpoint = scObj.catalog['endpoints'][0]
-        endpoint.get = Mock(return_value=self.test_url)
+        endpoint.get = mock.Mock(return_value=self.test_url)
         r_url = scObj._url_for(attr="test_attr",
                                filter_value="test_attr_value")
         self.assertEqual(self.test_url, r_url)
@@ -386,13 +390,13 @@ class ServiceCatalogTest(TestCase):
                 return "test_service_name"
             return None
 
-        mock1 = Mock()
+        mock1 = mock.Mock()
         mock1.side_effect = side_effect_func_service
-        service1 = Mock()
+        service1 = mock.Mock()
         service1.get = mock1
 
         endpoint2 = {"test_attr": "test_attr_value"}
-        service1.__getitem__ = Mock(return_value=[endpoint2])
+        service1.__getitem__ = mock.Mock(return_value=[endpoint2])
         scObj.catalog[scObj.root_key]['serviceCatalog'] = [service1]
         self.assertRaises(exceptions.AmbiguousEndpoints, scObj._url_for,
                           attr="test_attr", filter_value="test_attr_value")
