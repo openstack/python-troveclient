@@ -55,7 +55,7 @@ class Instances(base.ManagerWithFind):
 
     def create(self, name, flavor_id, volume=None, databases=None, users=None,
                restorePoint=None, availability_zone=None, datastore=None,
-               datastore_version=None):
+               datastore_version=None, nics=None):
         """
         Create (boot) a new instance.
         """
@@ -80,6 +80,8 @@ class Instances(base.ManagerWithFind):
             datastore_obj["version"] = datastore_version
         if datastore_obj:
             body["instance"]["datastore"] = datastore_obj
+        if nics:
+            body["instance"]["nics"] = nics
 
         return self._create("/instances", body, "instance")
 

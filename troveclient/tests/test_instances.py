@@ -89,10 +89,12 @@ class InstancesTest(testtools.TestCase):
             return path, body, inst
 
         self.instances._create = mock.Mock(side_effect=side_effect_func)
+        nics = [{'net-id': '000'}]
         p, b, i = self.instances.create("test-name", 103, "test-volume",
                                         ['db1', 'db2'], ['u1', 'u2'],
                                         datastore="datastore",
-                                        datastore_version="datastore-version")
+                                        datastore_version="datastore-version",
+                                        nics=nics)
         self.assertEqual("/instances", p)
         self.assertEqual("instance", i)
         self.assertEqual(['db1', 'db2'], b["instance"]["databases"])
@@ -102,6 +104,7 @@ class InstancesTest(testtools.TestCase):
         self.assertEqual("datastore", b["instance"]["datastore"]["type"])
         self.assertEqual("datastore-version",
                          b["instance"]["datastore"]["version"])
+        self.assertEqual(nics, b["instance"]["nics"])
         self.assertEqual(103, b["instance"]["flavorRef"])
 
     def test_list(self):
