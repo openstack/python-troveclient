@@ -82,7 +82,7 @@ class Client(object):
                     setattr(self, extension.name,
                             extension.manager_class(self))
 
-        self.client = trove_client.client.HTTPClient(
+        self.client = trove_client.HTTPClient(
             username,
             password,
             project_id,
