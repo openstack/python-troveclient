@@ -614,8 +614,15 @@ class OpenStackHelpFormatter(argparse.HelpFormatter):
                 if len(prefix) + len(prog) <= 0.75 * text_width:
                     indent = ' ' * (len(prefix) + len(prog) + 1)
                     if pos_parts:
-                        lines = get_lines([prog] + pos_parts, indent, prefix)
-                        lines.extend(get_lines(opt_parts, indent))
+                        if prog == 'trove':
+                            # "trove help" called without any subcommand
+                            lines = get_lines([prog] + opt_parts, indent,
+                                              prefix)
+                            lines.extend(get_lines(pos_parts, indent))
+                        else:
+                            lines = get_lines([prog] + pos_parts, indent,
+                                              prefix)
+                            lines.extend(get_lines(opt_parts, indent))
                     elif opt_parts:
                         lines = get_lines([prog] + opt_parts, indent, prefix)
                     else:
