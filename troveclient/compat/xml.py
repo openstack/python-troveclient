@@ -166,7 +166,7 @@ def element_to_dict(element):
 def standardize_json_lists(json_dict):
     """
     In XML, we might see something like {'instances':{'instances':[...]}},
-    which we must change to just {'instances':[...]} to be compatable with
+    which we must change to just {'instances':[...]} to be compatible with
     the true JSON format.
 
     If any items are dictionaries with only one item which is a list,
@@ -253,7 +253,7 @@ def populate_element_from_dict(element, dict):
 def modify_response_types(value, type_translator):
     """
     This will convert some string in response dictionary to ints or bool
-    so that our respose is compatiable with code expecting JSON style responses
+    so that our respose is compatible with code expecting JSON style responses
     """
     if isinstance(value, str):
         if value == 'True':
