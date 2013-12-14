@@ -29,7 +29,8 @@ from troveclient.openstack.common.py3kcompat import urlutils
 
 def methods_of(obj):
     """Get all callable methods of an object that don't start with underscore
-    returns a list of tuples of the form (method_name, method)"""
+    returns a list of tuples of the form (method_name, method).
+    """
     result = {}
     for i in dir(obj):
         if callable(getattr(obj, i)) and not i.startswith('_'):
@@ -82,7 +83,8 @@ def quote_user_host(user, host):
 
 class CliOptions(object):
     """A token object containing the user, apikey and token which
-       is pickleable."""
+       is pickleable.
+    """
 
     APITOKEN = os.path.expanduser("~/.apitoken")
 
@@ -400,8 +402,9 @@ class AuthedCommandsBase(CommandsBase):
 
 
 class Paginated(object):
-    """ Pretends to be a list if you iterate over it, but also keeps a
-        next property you can use to get the next page of data. """
+    """Pretends to be a list if you iterate over it, but also keeps a
+       next property you can use to get the next page of data.
+    """
 
     def __init__(self, items=[], next_marker=None, links=[]):
         self.items = items

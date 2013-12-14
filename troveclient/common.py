@@ -48,8 +48,9 @@ def quote_user_host(user, host):
 
 
 class Paginated(object):
-    """ Pretends to be a list if you iterate over it, but also keeps a
-        next property you can use to get the next page of data. """
+    """Pretends to be a list if you iterate over it, but also keeps a
+       next property you can use to get the next page of data.
+    """
 
     def __init__(self, items=[], next_marker=None, links=[]):
         self.items = items

@@ -38,8 +38,7 @@ class Root(base.ManagerWithFind):
         return body['user']['name'], body['user']['password']
 
     def is_root_enabled(self, instance_id):
-        """ Return True if root is enabled for the instance;
-        False otherwise"""
+        """Return whether root is enabled for the instance."""
         resp, body = self.api.client.get(self.url % instance_id)
         common.check_for_exceptions(resp, body)
         return self.resource_class(self, body, loaded=True)
