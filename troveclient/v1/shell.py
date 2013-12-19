@@ -264,7 +264,8 @@ def do_backup_list_instance(cs, args):
     while wrapper.next and not args.limit:
         wrapper = cs.instances.backups(args.instance, marker=wrapper.next)
         backups += wrapper.items
-    utils.print_list(backups, ['id', 'name', 'status', 'updated'],
+    utils.print_list(backups, ['id', 'name', 'status',
+                               'parent_id', 'updated'],
                      order_by='updated')
 
 
@@ -280,7 +281,7 @@ def do_backup_list(cs, args):
         wrapper = cs.backups.list(marker=wrapper.next)
         backups += wrapper.items
     utils.print_list(backups, ['id', 'instance_id', 'name',
-                               'status', 'updated'],
+                               'status', 'parent_id', 'updated'],
                      order_by='updated')
 
 
@@ -296,11 +297,15 @@ def do_backup_delete(cs, args):
 @utils.arg('--description', metavar='<description>',
            default=None,
            help='An optional description for the backup.')
+@utils.arg('--parent', metavar='<parent>', default=None,
+           help='Optional UUID of the parent backup to preform an'
+           ' incremental backup from.')
 @utils.service_type('database')
 def do_backup_create(cs, args):
     """Creates a backup."""
     backup = cs.backups.create(args.name, args.instance,
-                               description=args.description)
+                               description=args.description,
+                               parent_id=args.parent)
     _print_instance(backup)
 
 
