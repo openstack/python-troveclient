@@ -441,6 +441,7 @@ class ResourceTest(testtools.TestCase):
     def get_mock_resource_obj(self):
         base.Resource.__init__ = mock.Mock(return_value=None)
         robj = base.Resource()
+        robj._loaded = False
         return robj
 
     def test__add_details(self):
