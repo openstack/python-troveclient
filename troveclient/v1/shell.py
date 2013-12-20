@@ -280,7 +280,7 @@ def do_backup_create(cs, args):
 # Database related actions
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of the backup.')
+@utils.arg('name', metavar='<name>', help='Name of the database.')
 @utils.arg('--character_set', metavar='<character_set>',
            default=None,
            help='Optional character set for database')
