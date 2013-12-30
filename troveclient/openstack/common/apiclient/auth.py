@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2013 OpenStack Foundation
 # Copyright 2013 Spanish National Research Council.
 # All Rights Reserved.
@@ -24,6 +22,7 @@ import argparse
 import logging
 import os
 
+import six
 from stevedore import extension
 
 from troveclient.openstack.common.apiclient import exceptions
@@ -59,7 +58,7 @@ def load_auth_system_opts(parser):
     """
     group = parser.add_argument_group("Common auth options")
     BaseAuthPlugin.add_common_opts(group)
-    for name, auth_plugin in _discovered_plugins.iteritems():
+    for name, auth_plugin in six.iteritems(_discovered_plugins):
         group = parser.add_argument_group(
             "Auth-system '%s' options" % name,
             conflict_handler="resolve")
@@ -90,7 +89,7 @@ def load_plugin_from_args(args):
         plugin.sufficient_options()
         return plugin
 
-    for plugin_auth_system in sorted(_discovered_plugins.iterkeys()):
+    for plugin_auth_system in sorted(six.iterkeys(_discovered_plugins)):
         plugin_class = _discovered_plugins[plugin_auth_system]
         plugin = plugin_class()
         plugin.parse_opts(args)
@@ -102,14 +101,13 @@ def load_plugin_from_args(args):
     raise exceptions.AuthPluginOptionsMissing(["auth_system"])
 
 
+@six.add_metaclass(abc.ABCMeta)
 class BaseAuthPlugin(object):
     """Base class for authentication plugins.
 
     An authentication plugin needs to override at least the authenticate
     method to be a valid plugin.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     auth_system = None
     opt_names = []

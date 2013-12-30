@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2010 Jacob Kaplan-Moss
 # Copyright 2011 Nebula, Inc.
 # Copyright 2013 Alessio Ababilov
@@ -59,6 +57,11 @@ class CommandError(ClientException):
 
 class AuthorizationFailure(ClientException):
     """Cannot authorize API client."""
+    pass
+
+
+class ConnectionRefused(ClientException):
+    """Cannot connect to API service."""
     pass
 
 
