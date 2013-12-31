@@ -117,6 +117,8 @@ def do_show(cs, args):
     instance._info['flavor'] = instance.flavor['id']
     if hasattr(instance, 'volume'):
         instance._info['volume'] = instance.volume['size']
+        if 'used' in instance.volume:
+            instance._info['volume_used'] = instance.volume['used']
     if hasattr(instance, 'ip'):
         instance._info['ip'] = ', '.join(instance.ip)
     _print_instance(instance)
