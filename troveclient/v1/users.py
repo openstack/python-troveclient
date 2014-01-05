@@ -42,14 +42,14 @@ class Users(base.ManagerWithFind):
         body = {"users": users}
         url = "/instances/%s/users" % instance_id
         resp, body = self.api.client.post(url, body=body)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, url)
 
     def delete(self, instance_id, username, hostname=None):
         """Delete an existing user in the specified instance"""
         user = common.quote_user_host(username, hostname)
         url = "/instances/%s/users/%s" % (instance_id, user)
         resp, body = self.api.client.delete(url)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, url)
 
     def list(self, instance, limit=None, marker=None):
         """
@@ -86,7 +86,7 @@ class Users(base.ManagerWithFind):
             user_dict['user'] = newuserattr
         url = "/instances/%s/users/%s" % (instance_id, user)
         resp, body = self.api.client.put(url, body=user_dict)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, url)
 
     def list_access(self, instance, username, hostname=None):
         """Show all databases the given user has access to. """
@@ -95,7 +95,7 @@ class Users(base.ManagerWithFind):
         url = "/instances/%(instance_id)s/users/%(user)s/databases"
         local_vars = locals()
         resp, body = self.api.client.get(url % local_vars)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, url)
         if not body:
             raise Exception("Call to %s did not return to a body" % url)
         return [databases.Database(self, db) for db in body['databases']]
@@ -108,7 +108,7 @@ class Users(base.ManagerWithFind):
         dbs = {'databases': [{'name': db} for db in databases]}
         local_vars = locals()
         resp, body = self.api.client.put(url % local_vars, body=dbs)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, url)
 
     def revoke(self, instance, username, database, hostname=None):
         """Revoke from an existing user access permissions to a database."""
@@ -118,7 +118,7 @@ class Users(base.ManagerWithFind):
                "databases/%(database)s")
         local_vars = locals()
         resp, body = self.api.client.delete(url % local_vars)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, url)
 
     def change_passwords(self, instance, users):
         """Change the password for one or more users."""
@@ -126,4 +126,4 @@ class Users(base.ManagerWithFind):
         user_dict = {"users": users}
         url = "/instances/%s/users" % instance_id
         resp, body = self.api.client.put(url, body=user_dict)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, url)

@@ -18,7 +18,7 @@
 #    under the License.
 
 from troveclient import base
-from troveclient.openstack.common.apiclient import exceptions
+from troveclient import common
 
 
 class Backup(base.Resource):
@@ -73,6 +73,6 @@ class Backups(base.ManagerWithFind):
 
         :param backup_id: The backup id to delete
         """
-        resp, body = self.api.client.delete("/backups/%s" % backup_id)
-        if resp.status_code in (422, 500):
-            raise exceptions.from_response(resp, body)
+        url = "/backups/%s" % backup_id
+        resp, body = self.api.client.delete(url)
+        common.check_for_exceptions(resp, body, url)

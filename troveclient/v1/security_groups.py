@@ -96,9 +96,9 @@ class SecurityGroupRules(base.ManagerWithFind):
 
         :param security_group_rule: The security group rule to delete
         """
-        resp, body = self.api.client.delete("/security-group-rules/%s" %
-                                            base.getid(security_group_rule))
-        common.check_for_exceptions(resp, body)
+        url = "/security-group-rules/%s" % base.getid(security_group_rule)
+        resp, body = self.api.client.delete(url)
+        common.check_for_exceptions(resp, body, url)
 
     # Appease the abc gods
     def list(self):

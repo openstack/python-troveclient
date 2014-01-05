@@ -16,14 +16,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from troveclient import exceptions
+from troveclient.openstack.common.apiclient import exceptions
 
 from troveclient.openstack.common.py3kcompat import urlutils
 
 
-def check_for_exceptions(resp, body):
+def check_for_exceptions(resp, body, url):
     if resp.status_code in (400, 422, 500):
-        raise exceptions.from_response(resp, body)
+        raise exceptions.from_response(resp, body, url)
 
 
 def limit_url(url, limit=None, marker=None):
