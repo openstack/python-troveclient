@@ -50,6 +50,7 @@ TYPE_MAP = {
         "volume": {
             "used": float,
             "size": int,
+            "total": float,
         },
         "deleted": bool,
         "server": {
