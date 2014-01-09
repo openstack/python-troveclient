@@ -35,9 +35,7 @@ class CommonTest(testtools.TestCase):
 
     def test_limit_url(self):
         url = "test-url"
-        limit = None
-        marker = None
-        self.assertEqual(url, common.limit_url(url))
+        self.assertEqual(url, common.limit_url(url, limit=None, marker=None))
 
         limit = "test-limit"
         marker = "test-marker"

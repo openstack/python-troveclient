@@ -46,7 +46,7 @@ class Datastores(base.ManagerWithFind):
 
         :rtype: list of :class:`Datastore`.
         """
-        return self._list("/datastores", "datastores", limit, marker)
+        return self._paginated("/datastores", "datastores", limit, marker)
 
     def get(self, datastore):
         """
@@ -73,8 +73,8 @@ class DatastoreVersions(base.ManagerWithFind):
 
         :rtype: list of :class:`DatastoreVersion`.
         """
-        return self._list("/datastores/%s/versions" % datastore,
-                          "versions", limit, marker)
+        return self._paginated("/datastores/%s/versions" % datastore,
+                               "versions", limit, marker)
 
     def get(self, datastore, datastore_version):
         """

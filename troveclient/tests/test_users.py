@@ -117,30 +117,14 @@ class UsersTest(testtools.TestCase):
         self._resp.status_code = 400
         self.assertRaises(Exception, self.users.delete, 34, 'user1')
 
-    def test__list(self):
-        def side_effect_func(self, val):
-            return val
-
-        key = 'key'
-        body = mock.Mock()
-        body.get = mock.Mock(
-            return_value=[{'href': 'http://test.net/test_file',
-                           'rel': 'next'}]
-        )
-        body.__getitem__ = mock.Mock(return_value=["test-value"])
-
-        resp = mock.Mock()
-        resp.status_code = 200
-        self.users.resource_class = mock.Mock(side_effect=side_effect_func)
-        self.users.api.client.get = mock.Mock(return_value=(resp, body))
-        self.assertEqual(["test-value"], self.users._list('url', key).items)
-
-        self.users.api.client.get = mock.Mock(return_value=(resp, None))
-        self.assertRaises(Exception, self.users._list, 'url', None)
-
     def test_list(self):
-        def side_effect_func(path, user, limit, marker):
-            return path
-
-        self.users._list = mock.Mock(side_effect=side_effect_func)
-        self.assertEqual('/instances/instance1/users', self.users.list(1))
+        page_mock = mock.Mock()
+        self.users._paginated = page_mock
+        self.users.list(1)
+        page_mock.assert_called_with('/instances/instance1/users',
+                                     'users', None, None)
+        limit = 'test-limit'
+        marker = 'test-marker'
+        self.users.list(1, limit, marker)
+        page_mock.assert_called_with('/instances/instance1/users',
+                                     'users', limit, marker)

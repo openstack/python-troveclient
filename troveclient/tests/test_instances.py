@@ -104,30 +104,13 @@ class InstancesTest(testtools.TestCase):
                          b["instance"]["datastore"]["version"])
         self.assertEqual(103, b["instance"]["flavorRef"])
 
-    def test__list(self):
-        self.instances.api.client.get = mock.Mock(return_value=('resp', None))
-        self.assertRaises(Exception, self.instances._list, "url", None)
-
-        body = mock.Mock()
-        body.get = mock.Mock(
-            return_value=[{'href': 'http://test.net/test_file',
-                          'rel': 'next'}]
-        )
-        body.__getitem__ = mock.Mock(return_value='instance1')
-        #self.instances.resource_class = mock.Mock(return_value="instance-1")
-        self.instances.api.client.get = mock.Mock(return_value=('resp', body))
-        _expected = [{'href': 'http://test.net/test_file', 'rel': 'next'}]
-        self.assertEqual(_expected, self.instances._list("url", None).links)
-
     def test_list(self):
-        def side_effect_func(path, inst, limit, marker):
-            return path, inst, limit, marker
-
-        self.instances._list = mock.Mock(side_effect=side_effect_func)
+        page_mock = mock.Mock()
+        self.instances._paginated = page_mock
         limit = "test-limit"
         marker = "test-marker"
-        expected = ("/instances", "instances", limit, marker)
-        self.assertEqual(expected, self.instances.list(limit, marker))
+        self.instances.list(limit, marker)
+        page_mock.assert_called_with("/instances", "instances", limit, marker)
 
     def test_get(self):
         def side_effect_func(path, inst):

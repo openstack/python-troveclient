@@ -27,9 +27,10 @@ import os
 
 import six
 
-from troveclient.openstack.common.apiclient import exceptions
 from troveclient import utils
-
+from troveclient import common
+from troveclient.openstack.common.apiclient import exceptions
+from troveclient.openstack.common.py3kcompat import urlutils
 
 # Python 2.4 compat
 try:
@@ -59,6 +60,21 @@ class Manager(utils.HookableMixin):
 
     def __init__(self, api):
         self.api = api
+
+    def _paginated(self, url, response_key, limit=None, marker=None):
+        resp, body = self.api.client.get(common.limit_url(url, limit, marker))
+        if not body:
+            raise Exception("Call to " + url + " did not return a body.")
+        links = body.get('links', [])
+        next_links = [link['href'] for link in links if link['rel'] == 'next']
+        next_marker = None
+        for link in next_links:
+            # Extract the marker from the url.
+            parsed_url = urlutils.urlparse(link)
+            query_dict = dict(urlutils.parse_qsl(parsed_url.query))
+            next_marker = query_dict.get('marker')
+        data = [self.resource_class(self, res) for res in body[response_key]]
+        return common.Paginated(data, next_marker=next_marker, links=links)
 
     def _list(self, url, response_key, obj_class=None, body=None):
         resp = None
