@@ -254,7 +254,7 @@ def populate_element_from_dict(element, dict):
 def modify_response_types(value, type_translator):
     """
     This will convert some string in response dictionary to ints or bool
-    so that our respose is compatible with code expecting JSON style responses
+    so that our response is compatible with code expecting JSON style responses
     """
     if isinstance(value, str):
         if value == 'True':

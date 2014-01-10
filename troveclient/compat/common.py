@@ -365,7 +365,7 @@ class Auth(CommandsBase):
             self.token = self.dbaas.client.auth_token
             self.service_url = self.dbaas.client.service_url
             CliOptions.save_from_instance_fields(self)
-            print("Token aquired! Saving to %s..." % CliOptions.APITOKEN)
+            print("Token acquired! Saving to %s..." % CliOptions.APITOKEN)
             print("    service_url = %s" % self.service_url)
             print("    token       = %s" % self.token)
         except Exception:
@@ -375,7 +375,7 @@ class Auth(CommandsBase):
 
 
 class AuthedCommandsBase(CommandsBase):
-    """Commands that work only with an authicated client."""
+    """Commands that work only with an authenticated client."""
 
     def __init__(self, parser):
         """Makes sure a token is available somehow and logs in."""

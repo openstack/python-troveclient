@@ -385,7 +385,7 @@ def do_user_delete(cs, args):
 @utils.arg('--host', metavar='<host>', default=None,
            help='Optional host of user')
 @utils.service_type('database')
-# Quoting is not working now that we arent using httplib2
+# Quoting is not working now that we aren't using httplib2
 # anymore and instead are using requests
 def do_user_show(cs, args):
     """Gets a user from the instance."""
@@ -398,7 +398,7 @@ def do_user_show(cs, args):
 @utils.arg('--host', metavar='<host>', default=None,
            help='Optional host of user')
 @utils.service_type('database')
-# Quoting is not working now that we arent using httplib2
+# Quoting is not working now that we aren't using httplib2
 # anymore and instead are using requests
 def do_user_show_access(cs, args):
     """Gets a users access from the instance."""
@@ -417,7 +417,7 @@ def do_user_show_access(cs, args):
 @utils.arg('--new_host', metavar='<new_host>', default=None,
            help='Optional new host of user')
 @utils.service_type('database')
-# Quoting is not working now that we arent using httplib2
+# Quoting is not working now that we aren't using httplib2
 # anymore and instead are using requests
 def do_user_update_attributes(cs, args):
     """Updates a users attributes from the instance."""
