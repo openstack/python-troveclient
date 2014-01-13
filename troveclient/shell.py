@@ -24,20 +24,21 @@ import argparse
 import glob
 import imp
 import itertools
+import logging
 import os
 import pkgutil
 import sys
-import logging
 
 import pkg_resources
 import six
 
 import troveclient
 import troveclient.extension
+
 from troveclient import client
-from troveclient.openstack.common import strutils
 from troveclient.openstack.common.apiclient import exceptions as exc
 from troveclient.openstack.common import gettextutils as gtu
+from troveclient.openstack.common import strutils
 from troveclient import utils
 from troveclient.v1 import shell as shell_v1
 
@@ -487,9 +488,7 @@ class OpenStackTroveShell(object):
     @utils.arg('command', metavar='<subcommand>', nargs='?',
                help='Display help for <subcommand>.')
     def do_help(self, args):
-        """
-        Displays help about this program or one of its subcommands.
-        """
+        """Displays help about this program or one of its subcommands."""
         if args.command:
             if args.command in self.subcommands:
                 self.subcommands[args.command].print_help()
@@ -508,7 +507,8 @@ class OpenStackHelpFormatter(argparse.HelpFormatter):
         super(OpenStackHelpFormatter, self).start_section(heading)
 
     def _format_usage(self, usage, actions, groups, prefix):
-        """
+        """Formats the argument list to correct argument positions.
+
         Print positionals before optionals in the usage string to help
         users avoid argparse nargs='*' problems.
 

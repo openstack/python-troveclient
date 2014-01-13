@@ -24,9 +24,10 @@ from __future__ import print_function
 import logging
 import os
 import requests
+
+from troveclient.openstack.common.apiclient import client
 from troveclient.openstack.common.apiclient import exceptions
 from troveclient import service_catalog
-from troveclient.openstack.common.apiclient import client
 
 try:
     import urlparse

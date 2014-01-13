@@ -36,9 +36,10 @@ class HookableMixin(object):
 
 
 def env(*vars, **kwargs):
-    """
-    returns the first environment variable set
-    if none are non-empty, defaults to '' or keyword arg default
+    """Returns environment variables.
+
+    Returns the first environment variable set
+    if none are non-empty, defaults to '' or keyword arg default.
     """
     for v in vars:
         value = os.environ.get(v, None)
@@ -50,7 +51,8 @@ def env(*vars, **kwargs):
 # http://code.activestate.com/recipes/
 #   577257-slugify-make-a-string-usable-in-a-url-or-filename/
 def slugify(value):
-    """
+    """Converts a string usable in a url or filename.
+
     Normalizes string, converts to lowercase, removes non-alpha characters,
     and converts spaces to hyphens.
 

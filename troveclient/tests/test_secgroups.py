@@ -15,8 +15,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import testtools
 import mock
+import testtools
 
 from troveclient.v1 import security_groups
 

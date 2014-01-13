@@ -18,17 +18,13 @@ from troveclient import base
 
 
 class Device(base.Resource):
-    """
-    Storage is an opaque instance used to hold storage information.
-    """
+    """Storage is an opaque instance used to hold storage information."""
     def __repr__(self):
         return "<Device: %s>" % self.name
 
 
 class StorageInfo(base.ManagerWithFind):
-    """
-    Manage :class:`Storage` resources.
-    """
+    """Manage :class:`Storage` resources."""
     resource_class = Device
 
     def _list(self, url, response_key):
@@ -38,8 +34,7 @@ class StorageInfo(base.ManagerWithFind):
         return [self.resource_class(self, res) for res in body[response_key]]
 
     def index(self):
-        """
-        Get a list of all storages.
+        """Get a list of all storages.
 
         :rtype: list of :class:`Storages`.
         """

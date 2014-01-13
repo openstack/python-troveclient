@@ -17,23 +17,18 @@ from troveclient.compat import base
 
 
 class Version(base.Resource):
-    """
-    Version is an opaque instance used to hold version information.
-    """
+    """Version is an opaque instance used to hold version information."""
     def __repr__(self):
         return "<Version: %s>" % self.id
 
 
 class Versions(base.ManagerWithFind):
-    """
-    Manage :class:`Versions` information.
-    """
+    """Manage :class:`Versions` information."""
 
     resource_class = Version
 
     def index(self, url):
-        """
-        Get a list of all versions.
+        """Get a list of all versions.
 
         :rtype: list of :class:`Versions`.
         """

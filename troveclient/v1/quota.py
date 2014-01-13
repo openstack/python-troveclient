@@ -20,14 +20,12 @@ from troveclient import common
 
 
 class Quotas(base.ManagerWithFind):
-    """
-    Manage :class:`Quota` information.
-    """
+    """Manage :class:`Quota` information."""
 
     resource_class = base.Resource
 
     def show(self, tenant_id):
-        """Get a list of all quotas for a tenant id"""
+        """Get a list of all quotas for a tenant id."""
 
         url = "/mgmt/quotas/%s" % tenant_id
         resp, body = self.api.client.get(url)
@@ -39,9 +37,7 @@ class Quotas(base.ManagerWithFind):
         return body['quotas']
 
     def update(self, id, quotas):
-        """
-        Set limits for quotas
-        """
+        """Set limits for quotas."""
         url = "/mgmt/quotas/%s" % id
         body = {"quotas": quotas}
         resp, body = self.api.client.put(url, body=body)

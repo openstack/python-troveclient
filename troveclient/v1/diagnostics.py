@@ -18,23 +18,17 @@ from troveclient import base
 
 
 class Diagnostics(base.Resource):
-    """
-    Account is an opaque instance used to hold account information.
-    """
+    """Account is an opaque instance used to hold account information."""
     def __repr__(self):
         return "<Diagnostics: %s>" % self.version
 
 
 class DiagnosticsInterrogator(base.ManagerWithFind):
-    """
-    Manager class for Interrogator resource
-    """
+    """Manager class for Interrogator resource."""
     resource_class = Diagnostics
 
     def get(self, instance):
-        """
-        Get the diagnostics of the guest on the instance.
-        """
+        """Get the diagnostics of the guest on the instance."""
         return self._get("/mgmt/instances/%s/diagnostics" %
                          base.getid(instance), "diagnostics")
 
@@ -50,15 +44,11 @@ class HwInfo(base.Resource):
 
 
 class HwInfoInterrogator(base.ManagerWithFind):
-    """
-    Manager class for HwInfo
-    """
+    """Manager class for HwInfo."""
     resource_class = HwInfo
 
     def get(self, instance):
-        """
-        Get the hardware information of the instance.
-        """
+        """Get the hardware information of the instance."""
         return self._get("/mgmt/instances/%s/hwinfo" % base.getid(instance))
 
     # Appease the abc gods

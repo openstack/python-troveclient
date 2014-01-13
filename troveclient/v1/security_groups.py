@@ -20,23 +20,18 @@ from troveclient import common
 
 
 class SecurityGroup(base.Resource):
-    """
-    Security Group is a resource used to hold security group information.
-    """
+    """Security Group is a resource used to hold security group information."""
 
     def __repr__(self):
         return "<SecurityGroup: %s>" % self.name
 
 
 class SecurityGroups(base.ManagerWithFind):
-    """
-    Manage :class:`SecurityGroup` resources.
-    """
+    """Manage :class:`SecurityGroup` resources."""
     resource_class = SecurityGroup
 
     def list(self, limit=None, marker=None):
-        """
-        Get a list of all security groups.
+        """Get a list of all security groups.
 
         :rtype: list of :class:`SecurityGroup`.
         """
@@ -44,8 +39,7 @@ class SecurityGroups(base.ManagerWithFind):
                                limit, marker)
 
     def get(self, security_group):
-        """
-        Get a specific security group.
+        """Get a specific security group.
 
         :rtype: :class:`SecurityGroup`
         """
@@ -54,10 +48,7 @@ class SecurityGroups(base.ManagerWithFind):
 
 
 class SecurityGroupRule(base.Resource):
-    """
-    Security Group Rule is a resource used to hold security group
-    rule related information.
-    """
+    """This resource is used to hold security group rule information."""
 
     def __repr__(self):
         return ("<SecurityGroupRule: "
@@ -69,15 +60,11 @@ class SecurityGroupRule(base.Resource):
 
 
 class SecurityGroupRules(base.ManagerWithFind):
-    """
-    Manage :class:`SecurityGroupRules` resources.
-    """
+    """Manage :class:`SecurityGroupRules` resources."""
     resource_class = SecurityGroupRule
 
     def create(self, group_id, cidr):
-        """
-        Create a new security group rule.
-        """
+        """Create a new security group rule."""
         body = {"security_group_rule": {
             "group_id": group_id,
             "cidr": cidr
@@ -86,8 +73,7 @@ class SecurityGroupRules(base.ManagerWithFind):
                             "security_group_rule", return_raw=True)
 
     def delete(self, security_group_rule):
-        """
-        Delete the specified security group rule.
+        """Delete the specified security group rule.
 
         :param security_group_rule: The security group rule to delete
         """

@@ -13,13 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import sys
-import optparse
-import json
 import collections
+import json
+import optparse
+import sys
 
-import testtools
 import mock
+import testtools
 
 from troveclient.compat import common
 

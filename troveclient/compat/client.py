@@ -16,8 +16,8 @@
 import httplib2
 import logging
 import os
-import time
 import sys
+import time
 
 try:
     import json
@@ -277,19 +277,18 @@ class TroveHTTPClient(httplib2.Http):
 
 
 class Dbaas(object):
-    """
-    Top-level object to access the Rackspace Database as a Service API.
+    """Top-level object to access the Rackspace Database as a Service API.
 
     Create an instance with your creds::
 
-        >>> red = Dbaas(USERNAME, API_KEY, TENANT, AUTH_URL, SERVICE_NAME, \
+        >> red = Dbaas(USERNAME, API_KEY, TENANT, AUTH_URL, SERVICE_NAME, \
                         SERVICE_URL)
 
     Then call methods on its managers::
 
-        >>> red.instances.list()
+        >> red.instances.list()
         ...
-        >>> red.flavors.list()
+        >> red.flavors.list()
         ...
 
     &c.
@@ -365,8 +364,7 @@ class Dbaas(object):
         return self.client.get_timings()
 
     def authenticate(self):
-        """
-        Authenticate against the server.
+        """Authenticate against the server.
 
         This is called to perform an authentication to retrieve a token.
 

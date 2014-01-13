@@ -28,16 +28,15 @@ from troveclient.v1 import users
 
 
 class Client(object):
-    """
-    Top-level object to access the OpenStack Database API.
+    """Top-level object to access the OpenStack Database API.
 
     Create an instance with your creds::
 
-        >>> client = Client(USERNAME, PASSWORD, PROJECT_ID, AUTH_URL)
+        >> client = Client(USERNAME, PASSWORD, PROJECT_ID, AUTH_URL)
 
     Then call methods on its managers::
 
-        >>> client.instances.list()
+        >> client.instances.list()
         ...
 
     """
@@ -105,8 +104,7 @@ class Client(object):
             bypass_url=bypass_url)
 
     def authenticate(self):
-        """
-        Authenticate against the server.
+        """Authenticate against the server.
 
         Normally this is called automatically when you first access the API,
         but you can call this method to force authentication right now.

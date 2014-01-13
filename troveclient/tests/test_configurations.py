@@ -15,11 +15,11 @@
 #    under the License.
 
 import json
-import testtools
 import mock
+import testtools
 
-from troveclient.v1 import configurations
 from troveclient import base
+from troveclient.v1 import configurations
 
 """
 Unit tests for configurations.py

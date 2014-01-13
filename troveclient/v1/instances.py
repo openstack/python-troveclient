@@ -23,9 +23,7 @@ REBOOT_HARD = 'HARD'
 
 
 class Instance(base.Resource):
-    """
-    An Instance is an opaque instance used to store Database instances.
-    """
+    """An Instance is an opaque instance used to store Database instances."""
     def __repr__(self):
         return "<Instance: %s>" % self.name
 
@@ -33,30 +31,22 @@ class Instance(base.Resource):
         return self.manager.databases.list(self)
 
     def delete(self):
-        """
-        Delete the instance.
-        """
+        """Delete the instance."""
         self.manager.delete(self)
 
     def restart(self):
-        """
-        Restart the database instance
-        """
+        """Restart the database instance."""
         self.manager.restart(self.id)
 
 
 class Instances(base.ManagerWithFind):
-    """
-    Manage :class:`Instance` resources.
-    """
+    """Manage :class:`Instance` resources."""
     resource_class = Instance
 
     def create(self, name, flavor_id, volume=None, databases=None, users=None,
                restorePoint=None, availability_zone=None, datastore=None,
                datastore_version=None, nics=None, configuration=None):
-        """
-        Create (boot) a new instance.
-        """
+        """Create (boot) a new instance."""
         body = {"instance": {
             "name": name,
             "flavorRef": flavor_id
@@ -97,16 +87,14 @@ class Instances(base.ManagerWithFind):
         common.check_for_exceptions(resp, body, url)
 
     def list(self, limit=None, marker=None):
-        """
-        Get a list of all instances.
+        """Get a list of all instances.
 
         :rtype: list of :class:`Instance`.
         """
         return self._paginated("/instances", "instances", limit, marker)
 
     def get(self, instance):
-        """
-        Get a specific instances.
+        """Get a specific instances.
 
         :rtype: :class:`Instance`
         """
@@ -114,8 +102,7 @@ class Instances(base.ManagerWithFind):
                          "instance")
 
     def backups(self, instance, limit=None, marker=None):
-        """
-        Get the list of backups for a specific instance.
+        """Get the list of backups for a specific instance.
 
         :rtype: list of :class:`Backups`.
         """
@@ -123,8 +110,7 @@ class Instances(base.ManagerWithFind):
         return self._paginated(url, "backups", limit, marker)
 
     def delete(self, instance):
-        """
-        Delete the specified instance.
+        """Delete the specified instance.
 
         :param instance_id: The instance id to delete
         """
@@ -133,9 +119,7 @@ class Instances(base.ManagerWithFind):
         common.check_for_exceptions(resp, body, url)
 
     def _action(self, instance_id, body):
-        """
-        Perform a server "action" -- reboot/rebuild/resize/etc.
-        """
+        """Perform a server "action" -- reboot/rebuild/resize/etc."""
         url = "/instances/%s/action" % instance_id
         resp, body = self.api.client.post(url, body=body)
         common.check_for_exceptions(resp, body, url)
@@ -144,22 +128,17 @@ class Instances(base.ManagerWithFind):
         return body
 
     def resize_volume(self, instance_id, volume_size):
-        """
-        Resize the volume on an existing instances
-        """
+        """Resize the volume on an existing instances."""
         body = {"resize": {"volume": {"size": volume_size}}}
         self._action(instance_id, body)
 
     def resize_instance(self, instance_id, flavor_id):
-        """
-        Resize the volume on an existing instances
-        """
+        """Resize the volume on an existing instances."""
         body = {"resize": {"flavorRef": flavor_id}}
         self._action(instance_id, body)
 
     def restart(self, instance_id):
-        """
-        Restart the database instance.
+        """Restart the database instance.
 
         :param instance_id: The :class:`Instance` (or its ID) to share onto.
         """
@@ -167,8 +146,7 @@ class Instances(base.ManagerWithFind):
         self._action(instance_id, body)
 
     def configuration(self, instance):
-        """
-        Get a configuration on instances.
+        """Get a configuration on instances.
 
         :rtype: :class:`Instance`
         """

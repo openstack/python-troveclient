@@ -16,8 +16,8 @@
 
 from troveclient import base
 from troveclient import common
-from troveclient.v1 import instances
 from troveclient.v1 import flavors
+from troveclient.v1 import instances
 
 
 class RootHistory(base.Resource):
@@ -27,9 +27,7 @@ class RootHistory(base.Resource):
 
 
 class Management(base.ManagerWithFind):
-    """
-    Manage :class:`Instances` resources.
-    """
+    """Manage :class:`Instances` resources."""
     resource_class = instances.Instance
 
     # Appease the abc gods
@@ -37,8 +35,7 @@ class Management(base.ManagerWithFind):
         pass
 
     def show(self, instance):
-        """
-        Get details of one instance.
+        """Get details of one instance.
 
         :rtype: :class:`Instance`.
         """
@@ -47,8 +44,8 @@ class Management(base.ManagerWithFind):
                          'instance')
 
     def index(self, deleted=None, limit=None, marker=None):
-        """
-        Show an overview of all local instances.
+        """Show an overview of all local instances.
+
         Optionally, filter by deleted status.
 
         :rtype: list of :class:`Instance`.
@@ -64,10 +61,7 @@ class Management(base.ManagerWithFind):
         return self._paginated(url, "instances", limit, marker)
 
     def root_enabled_history(self, instance):
-        """
-        Get root access history of one instance.
-
-        """
+        """Get root access history of one instance."""
         url = "/mgmt/instances/%s/root" % base.getid(instance)
         resp, body = self.api.client.get(url)
         if not body:
@@ -75,9 +69,7 @@ class Management(base.ManagerWithFind):
         return RootHistory(self, body['root_history'])
 
     def _action(self, instance_id, body):
-        """
-        Perform a server "action" -- reboot/rebuild/resize/etc.
-        """
+        """Perform a server "action" -- reboot/rebuild/resize/etc."""
         url = "/mgmt/instances/%s/action" % instance_id
         resp, body = self.api.client.post(url, body=body)
         common.check_for_exceptions(resp, body, url)
@@ -87,8 +79,7 @@ class Management(base.ManagerWithFind):
         self._action(instance_id, body)
 
     def reboot(self, instance_id):
-        """
-        Reboot the underlying OS.
+        """Reboot the underlying OS.
 
         :param instance_id: The :class:`Instance` (or its ID) to share onto.
         """
@@ -96,8 +87,7 @@ class Management(base.ManagerWithFind):
         self._action(instance_id, body)
 
     def migrate(self, instance_id, host=None):
-        """
-        Migrate the instance.
+        """Migrate the instance.
 
         :param instance_id: The :class:`Instance` (or its ID) to share onto.
         """
@@ -108,24 +98,18 @@ class Management(base.ManagerWithFind):
         self._action(instance_id, body)
 
     def update(self, instance_id):
-        """
-        Update the guest agent via apt-get.
-        """
+        """Update the guest agent via apt-get."""
         body = {'update': {}}
         self._action(instance_id, body)
 
     def reset_task_status(self, instance_id):
-        """
-        Set the task status to NONE.
-        """
+        """Set the task status to NONE."""
         body = {'reset-task-status': {}}
         self._action(instance_id, body)
 
 
 class MgmtFlavors(base.ManagerWithFind):
-    """
-    Manage :class:`Flavor` resources.
-    """
+    """Manage :class:`Flavor` resources."""
     resource_class = flavors.Flavor
 
     def __repr__(self):
@@ -138,9 +122,7 @@ class MgmtFlavors(base.ManagerWithFind):
     def create(self, name, ram, disk, vcpus,
                flavorid="auto", ephemeral=None, swap=None, rxtx_factor=None,
                service_type=None):
-        """
-        Create a new flavor.
-        """
+        """Create a new flavor."""
         body = {"flavor": {
             "flavor_id": flavorid,
             "name": name,
