@@ -202,7 +202,8 @@ class UserCommands(common.AuthedCommandsBase):
 
     def grant(self):
         """Allow an existing user permissions to access one or more
-        databases."""
+        databases.
+        """
         self._require('id', 'name', 'databases')
         self._make_list('databases')
         self.dbaas.users.grant(self.id, self.name, self.databases,
