@@ -119,6 +119,9 @@ def do_show(cs, args):
         instance._info['volume'] = instance.volume['size']
     if hasattr(instance, 'ip'):
         instance._info['ip'] = ', '.join(instance.ip)
+    if hasattr(instance, 'datastore'):
+        instance._info['datastore'] = instance.datastore['type']
+        instance._info['datastore_version'] = instance.datastore['version']
     _print_instance(instance)
 
 
