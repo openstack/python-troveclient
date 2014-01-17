@@ -35,7 +35,7 @@ from troveclient.compat import common
 
 
 class InstanceCommands(common.AuthedCommandsBase):
-    """Commands to perform various instances operations and actions"""
+    """Commands to perform various instance operations and actions"""
 
     params = [
         'flavor',

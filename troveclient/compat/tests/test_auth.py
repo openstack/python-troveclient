@@ -330,7 +330,7 @@ class ServiceCatalogTest(testtools.TestCase):
         self.case_no_endpoint_match(scObj)
 
         # case for empty service catalog
-        self.case_endpoing_with_empty_catalog(scObj)
+        self.case_endpoint_with_empty_catalog(scObj)
 
         # more than one matching endpoints
         self.case_ambiguous_endpoint(scObj)
@@ -368,9 +368,9 @@ class ServiceCatalogTest(testtools.TestCase):
         self.assertRaises(exceptions.EndpointNotFound, scObj._url_for,
                           attr="test_attr", filter_value=filter_value)
 
-    def case_endpoing_with_empty_catalog(self, scObj):
-        # first, test with empty catalog, this should pass since
-        # there is already enpoint added
+    def case_endpoint_with_empty_catalog(self, scObj):
+        # First, test with an empty catalog. This should pass since
+        # there is already an endpoint added.
         scObj.catalog[scObj.root_key]['serviceCatalog'] = list()
 
         endpoint = scObj.catalog['endpoints'][0]

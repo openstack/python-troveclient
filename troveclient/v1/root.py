@@ -31,7 +31,7 @@ class Root(base.ManagerWithFind):
     def create(self, instance_id):
         """
         Enable the root user and return the root password for the
-        sepcified db instance
+        specified db instance
         """
         resp, body = self.api.client.post(self.url % instance_id)
         common.check_for_exceptions(resp, body)
