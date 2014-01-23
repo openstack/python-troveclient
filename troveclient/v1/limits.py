@@ -40,7 +40,7 @@ class Limits(base.ManagerWithFind):
         resp, body = self.api.client.get(url)
 
         if resp is None or resp.status_code != 200:
-            raise exceptions.from_response(resp, body)
+            raise exceptions.from_response(resp, body, url)
 
         if not body:
             raise Exception("Call to " + url + " did not return a body.")

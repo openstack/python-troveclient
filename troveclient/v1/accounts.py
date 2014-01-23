@@ -46,7 +46,7 @@ class Accounts(base.ManagerWithFind):
 
         url = "/mgmt/accounts"
         resp, body = self.api.client.get(url)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, url)
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
         return base.Resource(self, body)

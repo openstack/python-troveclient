@@ -82,7 +82,7 @@ class Management(base.ManagerWithFind):
         """
         url = "/mgmt/instances/%s/action" % instance_id
         resp, body = self.api.client.post(url, body=body)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, url)
 
     def stop(self, instance_id):
         body = {'stop': {}}

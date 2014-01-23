@@ -43,13 +43,13 @@ class Databases(base.ManagerWithFind):
         body = {"databases": databases}
         url = "/instances/%s/databases" % instance_id
         resp, body = self.api.client.post(url, body=body)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, url)
 
     def delete(self, instance_id, dbname):
         """Delete an existing database in the specified instance"""
         url = "/instances/%s/databases/%s" % (instance_id, dbname)
         resp, body = self.api.client.delete(url)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, url)
 
     def list(self, instance, limit=None, marker=None):
         """

@@ -34,13 +34,13 @@ class Root(base.ManagerWithFind):
         specified db instance
         """
         resp, body = self.api.client.post(self.url % instance_id)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, self.url)
         return body['user']['name'], body['user']['password']
 
     def is_root_enabled(self, instance_id):
         """Return whether root is enabled for the instance."""
         resp, body = self.api.client.get(self.url % instance_id)
-        common.check_for_exceptions(resp, body)
+        common.check_for_exceptions(resp, body, self.url)
         return self.resource_class(self, body, loaded=True)
 
     # Appease the abc gods
