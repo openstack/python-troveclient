@@ -21,6 +21,7 @@ Command-line interface to the OpenStack Trove API.
 from __future__ import print_function
 
 import argparse
+import getpass
 import glob
 import imp
 import itertools
@@ -38,9 +39,9 @@ from keystoneclient.auth.identity import v3 as identity
 from keystoneclient import session as ks_session
 
 import troveclient
-import troveclient.extension
-
+import troveclient.auth_plugin
 from troveclient import client
+import troveclient.extension
 from troveclient.openstack.common.apiclient import exceptions as exc
 from troveclient.openstack.common import gettextutils as gtu
 from troveclient.openstack.common.gettextutils import _  # noqa
@@ -107,7 +108,10 @@ class OpenStackTroveShell(object):
 
         parser.add_argument('--os-auth-system',
                             metavar='<auth-system>',
-                            default=utils.env('OS_AUTH_SYSTEM'))
+                            default=utils.env('OS_AUTH_SYSTEM'),
+                            help='Defaults to env[OS_AUTH_SYSTEM].')
+        parser.add_argument('--os_auth_system',
+                            help=argparse.SUPPRESS)
 
         parser.add_argument('--service-type',
                             metavar='<service-type>',
@@ -174,6 +178,9 @@ class OpenStackTroveShell(object):
                                  'Defaults to env[OS_JSON_OUTPUT].')
 
         self._append_global_identity_args(parser)
+
+        # The auth-system-plugins might require some extra options
+        troveclient.auth_plugin.load_auth_system_opts(parser)
 
         return parser
 
@@ -332,6 +339,9 @@ class OpenStackTroveShell(object):
         self.setup_debugging(options.debug)
         self.options = options
 
+        # Discover available auth plugins
+        troveclient.auth_plugin.discover_auth_systems()
+
         # build available subcommands based on version
         self.extensions = self._discover_extensions(
             options.os_database_api_version)
@@ -356,17 +366,20 @@ class OpenStackTroveShell(object):
             self.do_bash_completion(args)
             return 0
 
-        (os_username, os_password, os_tenant_name, os_auth_url,
-         os_region_name, os_tenant_id, endpoint_type, insecure,
-         service_type, service_name, database_service_name,
-         cacert, bypass_url, os_auth_system) = (
-             args.os_username, args.os_password,
-             args.os_tenant_name, args.os_auth_url,
-             args.os_region_name, args.os_tenant_id,
-             args.endpoint_type, args.insecure,
-             args.service_type, args.service_name,
-             args.database_service_name,
-             args.os_cacert, args.bypass_url, args.os_auth_system)
+        os_username = args.os_username
+        os_password = args.os_password
+        os_tenant_name = args.os_tenant_name
+        os_auth_url = args.os_auth_url
+        os_region_name = args.os_region_name
+        os_tenant_id = args.os_tenant_id
+        os_auth_system = args.os_auth_system
+        endpoint_type = args.endpoint_type
+        insecure = args.insecure
+        service_type = args.service_type
+        service_name = args.service_name
+        database_service_name = args.database_service_name
+        cacert = args.os_cacert
+        bypass_url = args.bypass_url
 
         if os_auth_system and os_auth_system != "keystone":
             auth_plugin = troveclient.auth_plugin.load_plugin(os_auth_system)
@@ -384,20 +397,22 @@ class OpenStackTroveShell(object):
         # for os_username or os_password but for compatibility it is not.
 
         if not utils.isunauthenticated(args.func):
-            if not os_username:
-                raise exc.CommandError(
-                    "You must provide a username "
-                    "via either --os-username or env[OS_USERNAME]")
+
+            if auth_plugin:
+                auth_plugin.parse_opts(args)
+
+            if not auth_plugin or not auth_plugin.opts:
+                if not os_username:
+                    raise exc.CommandError(
+                        "You must provide a username "
+                        "via either --os-username or env[OS_USERNAME]")
 
             if not os_password:
-                raise exc.CommandError("You must provide a password "
-                                       "via either --os-password or via "
-                                       "env[OS_PASSWORD]")
+                os_password = getpass.getpass()
 
             if not os_auth_url:
-                raise exc.CommandError(
-                    "You must provide an auth url "
-                    "via either --os-auth-url or env[OS_AUTH_URL]")
+                if os_auth_system and os_auth_system != 'keystone':
+                    os_auth_url = auth_plugin.get_auth_url()
 
         # V3 stuff
         project_info_provided = (self.options.os_tenant_name or
@@ -422,9 +437,12 @@ class OpenStackTroveShell(object):
                   "(env[OS_PROJECT_DOMAIN_NAME])"))
 
         if not os_auth_url:
-            raise exc.CommandError(
-                "You must provide an auth url "
-                "via either --os-auth-url or env[OS_AUTH_URL]")
+            raise exc.CommandError("You must provide an auth url "
+                                   "via either --os-auth-url or "
+                                   "env[OS_AUTH_URL] or specify an "
+                                   "auth_system which defines a default "
+                                   "url with --os-auth-system or "
+                                   "env[OS_AUTH_SYSTEM]")
 
         use_session = True
         if auth_plugin or bypass_url:

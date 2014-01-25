@@ -22,7 +22,6 @@ OpenStack Client interface. Handles the REST calls and responses.
 from __future__ import print_function
 
 import logging
-import os
 import requests
 
 from keystoneclient import adapter
@@ -89,7 +88,16 @@ class HTTPClient(TroveClientMixin):
         self.password = password
         self.projectid = projectid
         self.tenant_id = tenant_id
-        self.auth_url = auth_url.rstrip('/')
+
+        if auth_system and auth_system != 'keystone' and not auth_plugin:
+            raise exceptions.AuthSystemNotFound(auth_system)
+
+        if not auth_url and auth_system and auth_system != 'keystone':
+            auth_url = auth_plugin.get_auth_url()
+            if not auth_url:
+                raise exceptions.EndpointNotFound()
+
+        self.auth_url = auth_url.rstrip('/') if auth_url else auth_url
         self.version = 'v1'
         self.region_name = region_name
         self.endpoint_type = endpoint_type
@@ -105,6 +113,8 @@ class HTTPClient(TroveClientMixin):
         self.proxy_tenant_id = proxy_tenant_id
         self.timeout = timeout
         self.bypass_url = bypass_url
+        self.auth_system = auth_system
+        self.auth_plugin = auth_plugin
 
         if insecure:
             self.verify_cert = False
@@ -326,10 +336,10 @@ class HTTPClient(TroveClientMixin):
         auth_url = self.auth_url
         if self.version == "v2.0":
             while auth_url:
-                if "TROVE_RAX_AUTH" in os.environ:
-                    auth_url = self._rax_auth(auth_url)
-                else:
+                if not self.auth_system or self.auth_system == 'keystone':
                     auth_url = self._v2_auth(auth_url)
+                else:
+                    auth_url = self._plugin_auth(auth_url)
 
             # Are we acting on behalf of another user via an
             # existing token? If so, our actual endpoints may
@@ -356,6 +366,9 @@ class HTTPClient(TroveClientMixin):
         # Allows for setting an endpoint not defined in the catalog
         if self.bypass_url is not None and self.bypass_url != '':
             self.management_url = self.bypass_url
+
+    def _plugin_auth(self, auth_url):
+        return self.auth_plugin.authenticate(self, auth_url)
 
     def _v1_auth(self, url):
         if self.proxy_token:
@@ -390,16 +403,6 @@ class HTTPClient(TroveClientMixin):
             body['auth']['tenantName'] = self.projectid
         elif self.tenant_id:
             body['auth']['tenantId'] = self.tenant_id
-
-        self._authenticate(url, body)
-
-    def _rax_auth(self, url):
-        """Authenticate against the Rackspace auth service."""
-        body = {"auth": {
-                "RAX-KSKEY:apiKeyCredentials": {
-                    "username": self.user,
-                    "apiKey": self.password,
-                    "tenantName": self.projectid}}}
 
         self._authenticate(url, body)
 
