@@ -103,7 +103,6 @@ class CliOptionsTest(testtools.TestCase):
         self.assertFalse(co.verbose)
         self.assertFalse(co.debug)
         self.assertIsNone(co.token)
-        self.assertIsNone(co.xml)
 
     def check_option(self, oparser, option_name):
         option = oparser.get_option("--%s" % option_name)
@@ -129,7 +128,7 @@ class CliOptionsTest(testtools.TestCase):
                         "tenant_id", "auth_type", "service_type",
                         "service_name", "service_type", "service_name",
                         "service_url", "region", "insecure", "token",
-                        "xml", "secure", "json", "terse", "hide-debug"]
+                        "secure", "json", "terse", "hide-debug"]
 
         oparser = common.CliOptions.create_optparser(True)
         for option_name in option_names:
