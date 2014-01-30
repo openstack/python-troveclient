@@ -197,7 +197,7 @@ class HTTPClient(object):
                 # Catch a connection refused from requests.request
                 self._logger.debug("Connection refused: %s" % e)
                 msg = 'Unable to establish connection: %s' % e
-                raise exceptions.ConnectionError(msg)
+                raise exceptions.ConnectionRefused(msg)
             self._logger.debug(
                 "Failed attempt(%s of %s), retrying in %s seconds" %
                 (attempts, self.retries, backoff))
