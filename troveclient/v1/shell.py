@@ -172,6 +172,18 @@ def do_delete(cs, args):
            metavar='<datastore_version>',
            default=None,
            help='A datastore version name or UUID')
+@utils.arg('--nic',
+           metavar="<net-id=net-uuid,v4-fixed-ip=ip-addr,port-id=port-uuid>",
+           action='append',
+           dest='nics',
+           default=[],
+           help="Create a NIC on the instance. "
+                "Specify option multiple times to create multiple NICs. "
+                "net-id: attach NIC to network with this UUID "
+                "(required if no port-id), "
+                "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
+                "port-id: attach NIC to port with this UUID "
+                "(required if no net-id)")
 @utils.service_type('database')
 def do_create(cs, args):
     """Creates a new instance."""
@@ -184,6 +196,17 @@ def do_create(cs, args):
     databases = [{'name': value} for value in args.databases]
     users = [{'name': n, 'password': p} for (n, p) in
              [z.split(':')[:2] for z in args.users]]
+    nics = []
+    for nic_str in args.nics:
+        nic_info = dict([(k, v) for (k, v) in [z.split("=", 1)[:2] for z in
+                                               nic_str.split(",")]])
+        if not (nic_info.get('net-id') or nic_info.get('port-id')):
+            err_msg = ("Invalid nic argument '%s'. Nic arguments must be of "
+                       "the form --nic <net-id=net-uuid,v4-fixed-ip=ip-addr,"
+                       "port-id=port-uuid>, with at minimum net-id or port-id "
+                       "specified." % nic_str)
+            raise exceptions.CommandError(err_msg)
+        nics.append(nic_info)
     instance = cs.instances.create(args.name,
                                    args.flavor_id,
                                    volume=volume,
@@ -192,7 +215,8 @@ def do_create(cs, args):
                                    restorePoint=restore_point,
                                    availability_zone=args.availability_zone,
                                    datastore=args.datastore,
-                                   datastore_version=args.datastore_version)
+                                   datastore_version=args.datastore_version,
+                                   nics=nics)
     instance._info['flavor'] = instance.flavor['id']
     if hasattr(instance, 'volume'):
         instance._info['volume'] = instance.volume['size']
