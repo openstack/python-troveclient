@@ -31,9 +31,11 @@ import pkgutil
 import sys
 import logging
 
+import pkg_resources
 import six
 
 import troveclient
+import troveclient.extension
 from troveclient import client
 from troveclient.openstack.common import strutils
 from troveclient.openstack.common.apiclient import exceptions as exc
@@ -276,28 +278,33 @@ class OpenStackTroveShell(object):
     def _discover_extensions(self, version):
         extensions = []
         for name, module in itertools.chain(
-                self._discover_via_python_path(version),
-                self._discover_via_contrib_path(version)):
+                self._discover_via_python_path(),
+                self._discover_via_contrib_path(version),
+                self._discover_via_entry_points()):
 
             extension = troveclient.extension.Extension(name, module)
             extensions.append(extension)
 
         return extensions
 
-    def _discover_via_python_path(self, version):
-        for (module_loader, name, ispkg) in pkgutil.iter_modules():
-            if name.endswith('python_troveclient_ext'):
+    def _discover_via_python_path(self):
+        for (module_loader, name, _ispkg) in pkgutil.iter_modules():
+            if name.endswith('_python_troveclient_ext'):
                 if not hasattr(module_loader, 'load_module'):
                     # Python 2.6 compat: actually get an ImpImporter obj
                     module_loader = module_loader.find_module(name)
 
                 module = module_loader.load_module(name)
+                if hasattr(module, 'extension_name'):
+                    name = module.extension_name
+
                 yield name, module
 
     def _discover_via_contrib_path(self, version):
         module_path = os.path.dirname(os.path.abspath(__file__))
         version_str = "v%s" % version.replace('.', '_')
-        ext_path = os.path.join(module_path, version_str, 'contrib')
+        version_pkg = 'v1' if version_str == 'v1_0' else version_str
+        ext_path = os.path.join(module_path, version_pkg, 'contrib')
         ext_glob = os.path.join(ext_path, "*.py")
 
         for ext_path in glob.iglob(ext_glob):
@@ -307,6 +314,13 @@ class OpenStackTroveShell(object):
                 continue
 
             module = imp.load_source(name, ext_path)
+            yield name, module
+
+    def _discover_via_entry_points(self):
+        for ep in pkg_resources.iter_entry_points('troveclient.extension'):
+            name = ep.name
+            module = ep.load()
+
             yield name, module
 
     def _add_bash_completion_subparser(self, subparsers):
