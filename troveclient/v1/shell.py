@@ -194,7 +194,7 @@ def do_create(cs, args):
     if args.backup:
         restore_point = {"backupRef": args.backup}
     databases = [{'name': value} for value in args.databases]
-    users = [{'name': n, 'password': p} for (n, p) in
+    users = [{'name': n, 'password': p, 'databases': databases} for (n, p) in
              [z.split(':')[:2] for z in args.users]]
     nics = []
     for nic_str in args.nics:
