@@ -66,6 +66,14 @@ class BackupManagerTest(testtools.TestCase):
         self.backups.create(**args)
         create_mock.assert_called_with('/backups', body, 'backup')
 
+    def test_create_incremental(self):
+        create_mock = mock.Mock()
+        self.backups._create = create_mock
+        args = {'name': 'test_backup', 'instance': '1', 'parent_id': 'foo'}
+        body = {'backup': args}
+        self.backups.create(**args)
+        create_mock.assert_called_with('/backups', body, 'backup')
+
     def test_list(self):
         page_mock = mock.Mock()
         self.backups._paginated = page_mock
