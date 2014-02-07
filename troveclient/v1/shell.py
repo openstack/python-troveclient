@@ -548,7 +548,7 @@ def do_limit_list(cs, args):
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
 @utils.service_type('database')
 def do_root_enable(cs, args):
-    """Enables root for an instance."""
+    """Enables root for an instance and resets if already exists."""
     root = cs.root.create(args.instance)
     utils.print_dict({'name': root[0], 'password': root[1]})
 
@@ -556,7 +556,7 @@ def do_root_enable(cs, args):
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
 @utils.service_type('database')
 def do_root_show(cs, args):
-    """Shows 'root enabled' status of an instance."""
+    """Gets status if root was ever enabled for an instance."""
     root = cs.root.is_root_enabled(args.instance)
     utils.print_dict({'is_root_enabled': root.rootEnabled})
 

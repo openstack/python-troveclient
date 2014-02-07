@@ -120,8 +120,8 @@ You'll find complete documentation on the shell by running
          resize-flavor       Resizes the flavor of an instance.
          resize-volume       Resizes the volume size of an instance.
          restart             Restarts an instance.
-         root-enable         Enables root for an instance.
-         root-show           Shows 'root enabled' status of an instance.
+         root-enable         Enables root for an instance and resets if already exists.
+         root-show           Gets status if root was ever enabled for an instance.
          secgroup-add-rule   Creates a security group rule.
          secgroup-delete-rule
                              Deletes a security group rule.
