@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright 2011 OpenStack LLC.
 # Copyright 2011, Piston Cloud Computing, Inc.
 # Copyright 2013 Rackspace Hosting
