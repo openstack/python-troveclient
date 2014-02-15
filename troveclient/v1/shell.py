@@ -811,3 +811,58 @@ def do_configuration_update(cs, args):
                              args.values,
                              args.name,
                              args.description)
+
+
+@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance')
+@utils.service_type('database')
+def do_metadata_list(cs, args):
+    """Shows all metadata for instance <id>."""
+    result = cs.metadata.list(args.instance_id)
+    _print_instance(result)
+
+
+@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance')
+@utils.arg('key', metavar='<key>', help='key to display')
+@utils.service_type('database')
+def do_metadata_show(cs, args):
+    """Shows metadata entry for key <key> and instance <id>."""
+    result = cs.metadata.show(args.instance_id, args.key)
+    _print_instance(result)
+
+
+@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance')
+@utils.arg('key', metavar='<key>', help='Key to replace')
+@utils.arg('value', metavar='<value>',
+           help='New value to assign to <key>')
+@utils.service_type('database')
+def do_metadata_edit(cs, args):
+    """Replaces metadata value with a new one, this is non-destructive."""
+    cs.metadata.edit(args.instance_id, args.key, args.value)
+
+
+@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance')
+@utils.arg('key', metavar='<key>', help='Key to update')
+@utils.arg('newkey', metavar='<newkey>', help='New key')
+@utils.arg('value', metavar='<value>', help='Value to assign to <newkey>')
+@utils.service_type('database')
+def do_metadata_update(cs, args):
+    """Updates metadata, this is destructive."""
+    cs.metadata.update(args.instance_id, args.key, args.newkey, args.value)
+
+
+@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance')
+@utils.arg('key', metavar='<key>', help='Key for assignment')
+@utils.arg('value', metavar='<value>', help='Value to assign to <key>')
+@utils.service_type('database')
+def do_metadata_create(cs, args):
+    """Creates metadata in the database for instance <id>."""
+    result = cs.metadata.create(args.instance_id, args.key, args.value)
+    _print_instance(result)
+
+
+@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance')
+@utils.arg('key', metavar='<key>', help='Metadata key to delete')
+@utils.service_type('database')
+def do_metadata_delete(cs, args):
+    """Deletes metadata for instance <id>."""
+    cs.metadata.delete(args.instance_id, args.key)

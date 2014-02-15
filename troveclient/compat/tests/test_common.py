@@ -230,8 +230,10 @@ class CommandsBaseTest(testtools.TestCase):
         self.assertIsNone(self.cmd_base._pretty_print(func))
 
     def test__dumps(self):
+        orig_dumps = json.dumps
         json.dumps = mock.Mock(return_value="test-dump")
         self.assertEqual("test-dump", self.cmd_base._dumps("item"))
+        json.dumps = orig_dumps
 
     def test__pretty_list(self):
         func = mock.Mock(return_value=None)
