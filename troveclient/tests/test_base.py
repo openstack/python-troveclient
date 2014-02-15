@@ -474,7 +474,7 @@ class ResourceTest(testtools.TestCase):
         manager.get = None
 
         robj.manager = object()
-        robj.get()
+        robj._get()
 
         manager = mock.Mock()
         robj.manager = mock.Mock()
@@ -483,7 +483,7 @@ class ResourceTest(testtools.TestCase):
         new = mock.Mock()
         new._info = {"name": "test-human-id", "test_attr": 5}
         robj.manager.get = mock.Mock(return_value=new)
-        robj.get()
+        robj._get()
         self.assertEqual("test-human-id", robj.name)
         self.assertEqual(5, robj.test_attr)
 
@@ -513,15 +513,7 @@ class ResourceTest(testtools.TestCase):
     def test_is_loaded(self):
         robj = self.get_mock_resource_obj()
         robj._loaded = True
-        self.assertTrue(robj.is_loaded())
+        self.assertTrue(robj.is_loaded)
 
         robj._loaded = False
-        self.assertFalse(robj.is_loaded())
-
-    def test_set_loaded(self):
-        robj = self.get_mock_resource_obj()
-        robj.set_loaded(True)
-        self.assertTrue(robj._loaded)
-
-        robj.set_loaded(False)
-        self.assertFalse(robj._loaded)
+        self.assertFalse(robj.is_loaded)

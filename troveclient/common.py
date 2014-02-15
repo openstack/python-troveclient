@@ -15,10 +15,9 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+from six.moves.urllib import parse
 
 from troveclient.openstack.common.apiclient import exceptions
-
-from troveclient.openstack.common.py3kcompat import urlutils
 
 
 def check_for_exceptions(resp, body, url):
@@ -41,9 +40,9 @@ def limit_url(url, limit=None, marker=None):
 def quote_user_host(user, host):
     quoted = ''
     if host:
-        quoted = urlutils.quote("%s@%s" % (user, host))
+        quoted = parse.quote("%s@%s" % (user, host))
     else:
-        quoted = urlutils.quote("%s" % user)
+        quoted = parse.quote("%s" % user)
     return quoted.replace('.', '%2e')
 
 
