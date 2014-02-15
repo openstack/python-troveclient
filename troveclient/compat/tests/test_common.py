@@ -91,19 +91,19 @@ class CommonTest(testtools.TestCase):
 class CliOptionsTest(testtools.TestCase):
 
     def check_default_options(self, co):
-        self.assertEqual(None, co.username)
-        self.assertEqual(None, co.apikey)
-        self.assertEqual(None, co.tenant_id)
-        self.assertEqual(None, co.auth_url)
+        self.assertIsNone(co.username)
+        self.assertIsNone(co.apikey)
+        self.assertIsNone(co.tenant_id)
+        self.assertIsNone(co.auth_url)
         self.assertEqual('keystone', co.auth_type)
         self.assertEqual('database', co.service_type)
         self.assertEqual('RegionOne', co.region)
-        self.assertEqual(None, co.service_url)
+        self.assertIsNone(co.service_url)
         self.assertFalse(co.insecure)
         self.assertFalse(co.verbose)
         self.assertFalse(co.debug)
-        self.assertEqual(None, co.token)
-        self.assertEqual(None, co.xml)
+        self.assertIsNone(co.token)
+        self.assertIsNone(co.xml)
 
     def check_option(self, oparser, option_name):
         option = oparser.get_option("--%s" % option_name)
@@ -186,7 +186,7 @@ class CommandsBaseTest(testtools.TestCase):
 
         func = mock.Mock(side_effect=ValueError)  # an arbitrary exception
         r = self.cmd_base._safe_exec(func)
-        self.assertEqual(None, r)
+        self.assertIsNone(r)
 
     def test__prepare_parser(self):
         parser = optparse.OptionParser()
@@ -226,9 +226,9 @@ class CommandsBaseTest(testtools.TestCase):
     def test__pretty_print(self):
         func = mock.Mock(return_value=None)
         self.cmd_base.verbose = True
-        self.assertEqual(None, self.cmd_base._pretty_print(func))
+        self.assertIsNone(self.cmd_base._pretty_print(func))
         self.cmd_base.verbose = False
-        self.assertEqual(None, self.cmd_base._pretty_print(func))
+        self.assertIsNone(self.cmd_base._pretty_print(func))
 
     def test__dumps(self):
         json.dumps = mock.Mock(return_value="test-dump")
@@ -237,19 +237,19 @@ class CommandsBaseTest(testtools.TestCase):
     def test__pretty_list(self):
         func = mock.Mock(return_value=None)
         self.cmd_base.verbose = True
-        self.assertEqual(None, self.cmd_base._pretty_list(func))
+        self.assertIsNone(self.cmd_base._pretty_list(func))
         self.cmd_base.verbose = False
-        self.assertEqual(None, self.cmd_base._pretty_list(func))
+        self.assertIsNone(self.cmd_base._pretty_list(func))
         item = mock.Mock(return_value="test")
         item._info = "info"
         func = mock.Mock(return_value=[item])
-        self.assertEqual(None, self.cmd_base._pretty_list(func))
+        self.assertIsNone(self.cmd_base._pretty_list(func))
 
     def test__pretty_paged(self):
         self.cmd_base.limit = "5"
         func = mock.Mock(return_value=None)
         self.cmd_base.verbose = True
-        self.assertEqual(None, self.cmd_base._pretty_paged(func))
+        self.assertIsNone(self.cmd_base._pretty_paged(func))
 
         self.cmd_base.verbose = False
 
@@ -265,13 +265,13 @@ class CommandsBaseTest(testtools.TestCase):
 
         ret = MockIterable()
         func = mock.Mock(return_value=ret)
-        self.assertEqual(None, self.cmd_base._pretty_paged(func))
+        self.assertIsNone(self.cmd_base._pretty_paged(func))
 
         ret.count = 0
-        self.assertEqual(None, self.cmd_base._pretty_paged(func))
+        self.assertIsNone(self.cmd_base._pretty_paged(func))
 
         func = mock.Mock(side_effect=ValueError)
-        self.assertEqual(None, self.cmd_base._pretty_paged(func))
+        self.assertIsNone(self.cmd_base._pretty_paged(func))
         self.cmd_base.debug = True
         self.cmd_base.marker = mock.Mock()
         self.assertRaises(ValueError, self.cmd_base._pretty_paged, func)
@@ -294,8 +294,8 @@ class AuthTest(testtools.TestCase):
         sys.argv = self.orig_sys_argv
 
     def test___init__(self):
-        self.assertEqual(None, self.auth.dbaas)
-        self.assertEqual(None, self.auth.apikey)
+        self.assertIsNone(self.auth.dbaas)
+        self.assertIsNone(self.auth.apikey)
 
     def test_login(self):
         self.auth.username = "username"

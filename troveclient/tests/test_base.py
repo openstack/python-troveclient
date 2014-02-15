@@ -414,7 +414,7 @@ class ResourceTest(testtools.TestCase):
         # Resource.HUMAN_ID is False
         robj = base.Resource(manager, info_)
         self.assertEqual(info_["id"], robj.id)
-        self.assertEqual(None, robj.human_id)
+        self.assertIsNone(robj.human_id)
         self.assertEqual(2, manager.write_to_completion_cache.call_count)
 
         # base.Resource.HUMAN_ID = True
@@ -430,7 +430,7 @@ class ResourceTest(testtools.TestCase):
 
         info_ = {"name": "test-human-id"}
         robj = base.Resource(manager, info_)
-        self.assertEqual(None, robj.human_id)
+        self.assertIsNone(robj.human_id)
 
         info_["HUMAN_ID"] = True
         robj = base.Resource(manager, info_)
