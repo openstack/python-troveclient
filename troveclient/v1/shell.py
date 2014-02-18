@@ -106,8 +106,12 @@ def do_list(cs, args):
         if hasattr(instance, 'volume'):
             setattr(instance, 'size', instance.volume['size'])
         if hasattr(instance, 'datastore'):
+            if instance.datastore.get('version'):
+                setattr(instance, 'datastore_version',
+                        instance.datastore['version'])
             setattr(instance, 'datastore', instance.datastore['type'])
-    utils.print_list(instances, ['id', 'name', 'datastore', 'status',
+    utils.print_list(instances, ['id', 'name', 'datastore',
+                                 'datastore_version', 'status',
                                  'flavor_id', 'size'])
 
 
