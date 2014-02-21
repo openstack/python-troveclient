@@ -222,6 +222,8 @@ def do_create(cs, args):
                                    datastore_version=args.datastore_version,
                                    nics=nics,
                                    configuration=args.configuration)
+    if hasattr(instance, 'configuration'):
+        instance._info['configuration'] = instance.configuration['id']
     instance._info['flavor'] = instance.flavor['id']
     if hasattr(instance, 'volume'):
         instance._info['volume'] = instance.volume['size']
@@ -229,8 +231,6 @@ def do_create(cs, args):
         instance._info['datastore'] = instance.datastore['type']
         instance._info['datastore_version'] = instance.datastore['version']
     del(instance._info['links'])
-    if hasattr(instance, 'configuration'):
-        instance._info['configuration'] = instance.configuration['id']
     _print_instance(instance)
 
 
