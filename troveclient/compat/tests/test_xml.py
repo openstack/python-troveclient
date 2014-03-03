@@ -65,8 +65,7 @@ class XmlTest(object):
             '''
         rt = etree.fromstring(ele)
 
-        self.assertEqual(None,
-                         xml.populate_element_from_dict(rt, {'size': None}))
+        self.assertIsNone(xml.populate_element_from_dict(rt, {'size': None}))
 
     def test_element_must_be_list(self):
         # Test for when name isn't in the dictionary
@@ -137,7 +136,7 @@ class XmlTest(object):
                 </server>
             '''
         rt = etree.fromstring(element)
-        self.assertEqual(None, xml.element_to_dict(rt))
+        self.assertIsNone(xml.element_to_dict(rt))
 
     def test_standarize_json(self):
         xml.standardize_json_lists(self.JSON)

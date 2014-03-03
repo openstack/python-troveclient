@@ -138,7 +138,7 @@ class InstancesTest(testtools.TestCase):
         self.assertEqual('instance-1', self.instances._action(1, body))
 
         self.instances.api.client.post = mock.Mock(return_value=(resp, None))
-        self.assertEqual(None, self.instances._action(1, body))
+        self.assertIsNone(self.instances._action(1, body))
 
     def _set_action_mock(self):
         def side_effect_func(instance_id, body):
