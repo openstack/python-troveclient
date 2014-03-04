@@ -354,6 +354,7 @@ class Dbaas(object):
         config_parameters = configurations.ConfigurationParameters(self)
         self.configuration_parameters = config_parameters
         self.metadata = metadata.Metadata(self)
+        self.mgmt_configs = management.MgmtConfigurationParameters(self)
 
         class Mgmt(object):
             def __init__(self, dbaas):

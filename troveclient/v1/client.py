@@ -23,6 +23,7 @@ from troveclient.v1 import datastores
 from troveclient.v1 import flavors
 from troveclient.v1 import instances
 from troveclient.v1 import limits
+# from troveclient.v1 import management
 from troveclient.v1 import metadata
 from troveclient.v1 import root
 from troveclient.v1 import security_groups
@@ -80,6 +81,8 @@ class Client(object):
         # self.accounts = Accounts(self)
         # self.diagnostics = DiagnosticsInterrogator(self)
         # self.hwinfo = HwInfoInterrogator(self)
+        # self.mgmt_config_params =
+        #       management.MgmtConfigurationParameters(self)
 
         # Add in any extensions...
         if extensions:
