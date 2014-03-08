@@ -89,7 +89,7 @@ def do_flavor_list(cs, args):
 @utils.arg('flavor', metavar='<flavor>', help='ID of the flavor.')
 @utils.service_type('database')
 def do_flavor_show(cs, args):
-    """Show details of a flavor."""
+    """Shows details of a flavor."""
     flavor = _find_flavor(cs, args.flavor)
     _print_instance(flavor)
 
@@ -98,7 +98,7 @@ def do_flavor_show(cs, args):
 
 @utils.service_type('database')
 def do_list(cs, args):
-    """List all the instances."""
+    """Lists all the instances."""
     instances = cs.instances.list()
 
     for instance in instances:
@@ -118,7 +118,7 @@ def do_list(cs, args):
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
 @utils.service_type('database')
 def do_show(cs, args):
-    """Show details of an instance."""
+    """Shows details of an instance."""
     instance = _find_instance(cs, args.instance)
     instance._info['flavor'] = instance.flavor['id']
     if hasattr(instance, 'volume'):
@@ -145,15 +145,15 @@ def do_delete(cs, args):
 @utils.arg('name',
            metavar='<name>',
            type=str,
-           help='Name of the instance')
+           help='Name of the instance.')
 @utils.arg('--size',
            metavar='<size>',
            type=int,
            default=None,
-           help='Size of the instance disk in GB')
+           help='Size of the instance disk in GB.')
 @utils.arg('flavor_id',
            metavar='<flavor_id>',
-           help='Flavor of the instance')
+           help='Flavor of the instance.')
 @utils.arg('--databases', metavar='<databases>',
            help='Optional list of databases.',
            nargs="+", default=[])
@@ -163,19 +163,19 @@ def do_delete(cs, args):
 @utils.arg('--backup',
            metavar='<backup>',
            default=None,
-           help='A backup UUID')
+           help='A backup UUID.')
 @utils.arg('--availability_zone',
            metavar='<availability_zone>',
            default=None,
-           help='The Zone hint to give to nova')
+           help='The Zone hint to give to nova.')
 @utils.arg('--datastore',
            metavar='<datastore>',
            default=None,
-           help='A datastore name or UUID')
+           help='A datastore name or UUID.')
 @utils.arg('--datastore_version',
            metavar='<datastore_version>',
            default=None,
-           help='A datastore version name or UUID')
+           help='A datastore version name or UUID.')
 @utils.arg('--nic',
            metavar="<net-id=net-uuid,v4-fixed-ip=ip-addr,port-id=port-uuid>",
            action='append',
@@ -184,14 +184,14 @@ def do_delete(cs, args):
            help="Create a NIC on the instance. "
                 "Specify option multiple times to create multiple NICs. "
                 "net-id: attach NIC to network with this UUID "
-                "(required if no port-id), "
+                "(required, if no port-id specified), "
                 "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
                 "port-id: attach NIC to port with this UUID "
-                "(required if no net-id)")
+                "(required, if no net-id specified).")
 @utils.arg('--configuration',
            metavar='<configuration>',
            default=None,
-           help='UUID of the configuration group to attach to the instance')
+           help='UUID of the configuration group to attach to the instance.')
 @utils.service_type('database')
 def do_create(cs, args):
     """Creates a new instance."""
@@ -241,10 +241,10 @@ def do_create(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='UUID of the instance')
+           help='UUID of the instance.')
 @utils.arg('flavor_id',
            metavar='<flavor_id>',
-           help='Flavor of the instance')
+           help='Flavor of the instance.')
 @utils.service_type('database')
 def do_resize_flavor(cs, args):
     """Resizes the flavor of an instance."""
@@ -254,12 +254,12 @@ def do_resize_flavor(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='UUID of the instance')
+           help='UUID of the instance.')
 @utils.arg('size',
            metavar='<size>',
            type=int,
            default=None,
-           help='Size of the instance disk in GB')
+           help='Size of the instance disk in GB.')
 @utils.service_type('database')
 def do_resize_volume(cs, args):
     """Resizes the volume size of an instance."""
@@ -269,7 +269,7 @@ def do_resize_volume(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='UUID of the instance')
+           help='UUID of the instance.')
 @utils.service_type('database')
 def do_restart(cs, args):
     """Restarts the instance."""
@@ -281,7 +281,7 @@ def do_restart(cs, args):
 @utils.arg('backup', metavar='<backup>', help='ID of the backup.')
 @utils.service_type('database')
 def do_backup_show(cs, args):
-    """Show details of a backup."""
+    """Shows details of a backup."""
     backup = _find_backup(cs, args.backup)
     _print_instance(backup)
 
@@ -292,7 +292,7 @@ def do_backup_show(cs, args):
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
 @utils.service_type('database')
 def do_backup_list_instance(cs, args):
-    """List available backups for an instance."""
+    """Lists available backups for an instance."""
     wrapper = cs.instances.backups(args.instance, limit=args.limit)
     backups = wrapper.items
     while wrapper.next and not args.limit:
@@ -308,7 +308,7 @@ def do_backup_list_instance(cs, args):
            help='Return up to N number of the most recent backups.')
 @utils.service_type('database')
 def do_backup_list(cs, args):
-    """List available backups."""
+    """Lists available backups."""
     wrapper = cs.backups.list(limit=args.limit)
     backups = wrapper.items
     while wrapper.next and not args.limit:
@@ -349,9 +349,9 @@ def do_backup_create(cs, args):
 @utils.arg('name', metavar='<name>', help='Name of the database.')
 @utils.arg('--character_set', metavar='<character_set>',
            default=None,
-           help='Optional character set for database')
+           help='Optional character set for database.')
 @utils.arg('--collate', metavar='<collate>', default=None,
-           help='Optional collation type for database')
+           help='Optional collation type for database.')
 @utils.service_type('database')
 def do_database_create(cs, args):
     """Creates a database on an instance."""
@@ -388,10 +388,10 @@ def do_database_delete(cs, args):
 # User related actions
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user')
-@utils.arg('password', metavar='<password>', help='Password of user')
+@utils.arg('name', metavar='<name>', help='Name of user.')
+@utils.arg('password', metavar='<password>', help='Password of user.')
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user')
+           help='Optional host of user.')
 @utils.arg('--databases', metavar='<databases>',
            help='Optional list of databases.',
            nargs="+", default=[])
@@ -422,9 +422,9 @@ def do_user_list(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user')
+@utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user')
+           help='Optional host of user.')
 @utils.service_type('database')
 def do_user_delete(cs, args):
     """Deletes a user from the instance."""
@@ -432,9 +432,9 @@ def do_user_delete(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user')
+@utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user')
+           help='Optional host of user.')
 @utils.service_type('database')
 # Quoting is not working now that we aren't using httplib2
 # anymore and instead are using requests
@@ -445,9 +445,9 @@ def do_user_show(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user')
+@utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user')
+           help='Optional host of user.')
 @utils.service_type('database')
 # Quoting is not working now that we aren't using httplib2
 # anymore and instead are using requests
@@ -458,15 +458,15 @@ def do_user_show_access(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user')
+@utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user')
+           help='Optional host of user.')
 @utils.arg('--new_name', metavar='<new_name>', default=None,
-           help='Optional new name of user')
+           help='Optional new name of user.')
 @utils.arg('--new_password', metavar='<new_password>', default=None,
-           help='Optional new password of user')
+           help='Optional new password of user.')
 @utils.arg('--new_host', metavar='<new_host>', default=None,
-           help='Optional new host of user')
+           help='Optional new host of user.')
 @utils.service_type('database')
 # Quoting is not working now that we aren't using httplib2
 # anymore and instead are using requests
@@ -484,9 +484,9 @@ def do_user_update_attributes(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user')
+@utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user')
+           help='Optional host of user.')
 @utils.arg('databases', metavar='<databases>',
            help='List of databases.',
            nargs="+", default=[])
@@ -498,13 +498,13 @@ def do_user_grant_access(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user')
+@utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('database', metavar='<database>', help='A single database.')
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user')
+           help='Optional host of user.')
 @utils.service_type('database')
 def do_user_revoke_access(cs, args):
-    """Revokes access to a database for a  user."""
+    """Revokes access to a database for a user."""
     cs.users.revoke(args.instance, args.name,
                     args.database, hostname=args.host)
 
@@ -563,11 +563,13 @@ def do_secgroup_show(cs, args):
 
 
 @utils.arg('security_group', metavar='<security_group>',
-           help='Security group name')
-@utils.arg('protocol', metavar='<protocol>', help='Protocol')
-@utils.arg('from_port', metavar='<from_port>', help='from port')
-@utils.arg('to_port', metavar='<to_port>', help='to port')
-@utils.arg('cidr', metavar='<cidr>', help='CIDR address')
+           help='Security group name.')
+@utils.arg('protocol', metavar='<protocol>',
+           help='IP protocol (icmp, tcp, udp).')
+@utils.arg('from_port', metavar='<from_port>',
+           help='Port at start of range.')
+@utils.arg('to_port', metavar='<to_port>', help='Port at end of range.')
+@utils.arg('cidr', metavar='<cidr>', help='CIDR address.')
 @utils.service_type('database')
 def do_secgroup_add_rule(cs, args):
     """Creates a security group rule."""
@@ -581,7 +583,7 @@ def do_secgroup_add_rule(cs, args):
 
 
 @utils.arg('security_group_rule', metavar='<security_group_rule>',
-           help='Security group rule')
+           help='Name of security group rule.')
 @utils.service_type('database')
 def do_secgroup_delete_rule(cs, args):
     """Deletes a security group rule."""
@@ -590,7 +592,7 @@ def do_secgroup_delete_rule(cs, args):
 
 @utils.service_type('database')
 def do_datastore_list(cs, args):
-    """List available datastores."""
+    """Lists available datastores."""
     datastores = cs.datastores.list()
     utils.print_list(datastores, ['id', 'name'])
 
@@ -599,7 +601,7 @@ def do_datastore_list(cs, args):
            help='ID of the datastore.')
 @utils.service_type('database')
 def do_datastore_show(cs, args):
-    """Show details of a datastore."""
+    """Shows details of a datastore."""
     datastore = cs.datastores.get(args.datastore)
     if hasattr(datastore, 'default_version'):
         datastore._info['default_version'] = getattr(datastore,
@@ -611,7 +613,7 @@ def do_datastore_show(cs, args):
            help='ID of the datastore.')
 @utils.service_type('database')
 def do_datastore_version_list(cs, args):
-    """List available versions for a datastore."""
+    """Lists available versions for a datastore."""
     datastore_versions = cs.datastore_versions.list(args.datastore)
     utils.print_list(datastore_versions, ['id', 'name'])
 
@@ -624,7 +626,7 @@ def do_datastore_version_list(cs, args):
            help='ID of the datastore version.')
 @utils.service_type('database')
 def do_datastore_version_show(cs, args):
-    """Show details of a datastore version."""
+    """Shows details of a datastore version."""
     if args.datastore:
         datastore_version = cs.datastore_versions.get(args.datastore,
                                                       args.datastore_version)
@@ -643,11 +645,11 @@ def do_datastore_version_show(cs, args):
 @utils.arg('configuration',
            metavar='<configuration>',
            type=str,
-           help='UUID of the configuration group to attach to the instance')
+           help='UUID of the configuration group to attach to the instance.')
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='UUID of the instance')
+           help='UUID of the instance.')
 @utils.service_type('database')
 def do_configuration_attach(cs, args):
     """Attaches a configuration group to an instance."""
@@ -679,7 +681,7 @@ def do_configuration_create(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='UUID of the instance')
+           help='UUID of the instance.')
 @utils.service_type('database')
 def do_configuration_default(cs, args):
     """Shows the default configuration of an instance."""
@@ -698,7 +700,7 @@ def do_configuration_delete(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='UUID of the instance')
+           help='UUID of the instance.')
 @utils.service_type('database')
 def do_configuration_detach(cs, args):
     """Detaches a configuration group from an instance."""

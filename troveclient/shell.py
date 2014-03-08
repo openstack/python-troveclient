@@ -95,7 +95,7 @@ class OpenStackTroveShell(object):
                             action='store_true',
                             default=utils.env('TROVECLIENT_DEBUG',
                                               default=False),
-                            help="Print debugging output")
+                            help="Print debugging output.")
 
         parser.add_argument('--os-username',
                             metavar='<auth-user-name>',
@@ -149,21 +149,21 @@ class OpenStackTroveShell(object):
                             metavar='<service-type>',
                             default=utils.env('OS_SERVICE_TYPE',
                                               'TROVE_SERVICE_TYPE'),
-                            help='Defaults to database for most actions')
+                            help='Defaults to database for most actions.')
         parser.add_argument('--service_type',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--service-name',
                             metavar='<service-name>',
                             default=utils.env('TROVE_SERVICE_NAME'),
-                            help='Defaults to env[TROVE_SERVICE_NAME]')
+                            help='Defaults to env[TROVE_SERVICE_NAME].')
         parser.add_argument('--service_name',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--bypass-url',
                             metavar='<bypass-url>',
                             default=utils.env('TROVE_BYPASS_URL'),
-                            help='Defaults to env[TROVE_BYPASS_URL]')
+                            help='Defaults to env[TROVE_BYPASS_URL].')
         parser.add_argument('--bypass_url',
                             help=argparse.SUPPRESS)
 
@@ -171,7 +171,7 @@ class OpenStackTroveShell(object):
                             metavar='<database-service-name>',
                             default=utils.env('TROVE_DATABASE_SERVICE_NAME'),
                             help='Defaults to env'
-                            '[TROVE_DATABASE_SERVICE_NAME]')
+                            '[TROVE_DATABASE_SERVICE_NAME].')
         parser.add_argument('--database_service_name',
                             help=argparse.SUPPRESS)
 
@@ -190,7 +190,7 @@ class OpenStackTroveShell(object):
                             default=utils.env(
                                 'OS_DATABASE_API_VERSION',
                                 default=DEFAULT_OS_DATABASE_API_VERSION),
-                            help='Accepts 1,defaults '
+                            help='Accepts 1, defaults '
                                  'to env[OS_DATABASE_API_VERSION].')
         parser.add_argument('--os_database_api_version',
                             help=argparse.SUPPRESS)
@@ -200,7 +200,7 @@ class OpenStackTroveShell(object):
                             default=utils.env('OS_CACERT', default=None),
                             help='Specify a CA bundle file to use in '
                             'verifying a TLS (https) server certificate. '
-                            'Defaults to env[OS_CACERT]')
+                            'Defaults to env[OS_CACERT].')
 
         parser.add_argument('--insecure',
                             default=utils.env('TROVECLIENT_INSECURE',
@@ -220,7 +220,7 @@ class OpenStackTroveShell(object):
                             default=utils.env('OS_JSON_OUTPUT',
                                               default=False),
                             help='Output json instead of prettyprint. '
-                                 'Defaults to OS_JSON_OUTPUT')
+                                 'Defaults to env[OS_JSON_OUTPUT].')
 
         # FIXME(dtroyer): The args below are here for diablo compatibility,
         #                 remove them in folsum cycle
@@ -511,7 +511,7 @@ class OpenStackTroveShell(object):
             extension.run_hooks(hook_type, *args, **kwargs)
 
     def do_bash_completion(self, args):
-        """Print arguments for bash_completion.
+        """Prints arguments for bash_completion.
 
         Prints all of the commands and options to stdout so that the
         trove.bash_completion script doesn't have to hard code them.
@@ -528,10 +528,10 @@ class OpenStackTroveShell(object):
         print(' '.join(commands | options))
 
     @utils.arg('command', metavar='<subcommand>', nargs='?',
-               help='Display help for <subcommand>')
+               help='Display help for <subcommand>.')
     def do_help(self, args):
         """
-        Display help about this program or one of its subcommands.
+        Displays help about this program or one of its subcommands.
         """
         if args.command:
             if args.command in self.subcommands:

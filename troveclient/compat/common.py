@@ -159,21 +159,21 @@ class CliOptions(object):
                    help="Show the stack trace on errors.")
         add_option("auth_url", help="Auth API endpoint URL with port and "
                    "version. Default: http://localhost:5000/v2.0")
-        add_option("username", help="Login username")
-        add_option("apikey", help="Api key")
+        add_option("username", help="Login username.")
+        add_option("apikey", help="API key.")
         add_option("tenant_id",
-                   help="Tenant Id associated with the account")
+                   help="Tenant Id associated with the account.")
         add_option("auth_type",
                    help="Auth type to support different auth environments, \
                                 Supported values are 'keystone', 'rax'.")
         add_option("service_type",
-                   help="Service type is a name associated for the catalog")
+                   help="Service type is a name associated for the catalog.")
         add_option("service_name",
-                   help="Service name as provided in the service catalog")
+                   help="Service name as provided in the service catalog.")
         add_option("service_url",
                    help="Service endpoint to use "
                         "if the catalog doesn't have one.")
-        add_option("region", help="Region the service is located in")
+        add_option("region", help="Region the service is located in.")
         add_option("insecure", action="store_true",
                    help="Run in insecure mode for https endpoints.")
         add_option("token", help="Token from a prior login.")
