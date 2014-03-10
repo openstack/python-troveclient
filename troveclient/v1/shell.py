@@ -19,6 +19,11 @@ from __future__ import print_function
 import sys
 import time
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 from troveclient import exceptions
 from troveclient import utils
 
@@ -669,6 +674,7 @@ def do_configuration_create(cs, args):
         description=args.description,
         datastore=args.datastore,
         datastore_version=args.datastore_version)
+    config_grp._info['values'] = json.dumps(config_grp.values)
     _print_instance(config_grp)
 
 
@@ -788,6 +794,7 @@ def do_configuration_list(cs, args):
 def do_configuration_show(cs, args):
     """Shows details of a configuration group."""
     config_grp = cs.configurations.get(args.configuration_group)
+    config_grp._info['values'] = json.dumps(config_grp.values)
     _print_instance(config_grp)
 
 
