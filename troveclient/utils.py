@@ -126,8 +126,6 @@ def _output_override(objs, print_as):
             new_objs = objs
         # pretty print the json
         print(json.dumps(new_objs, indent='  '))
-    elif 'xml_output' in globals():
-        print('not implemented')
     else:
         raise BaseException('No valid output override')
 

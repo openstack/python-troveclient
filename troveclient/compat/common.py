@@ -21,7 +21,6 @@ import six
 import sys
 
 from troveclient.compat import client
-from troveclient.compat import xml
 from troveclient.compat import exceptions
 
 from troveclient.openstack.common.py3kcompat import urlutils
@@ -102,7 +101,6 @@ class CliOptions(object):
         'verbose': False,
         'debug': False,
         'token': None,
-        'xml': None,
     }
 
     def __init__(self, **kwargs):
@@ -177,12 +175,11 @@ class CliOptions(object):
         add_option("insecure", action="store_true",
                    help="Run in insecure mode for https endpoints.")
         add_option("token", help="Token from a prior login.")
-        add_option("xml", action="store_true", help="Changes format to XML.")
 
-        oparser.add_option("--secure", action="store_false", dest="insecure",
-                           help="Run in insecure mode for https endpoints.")
         oparser.add_option("--json", action="store_false", dest="xml",
                            help="Changes format to JSON.")
+        oparser.add_option("--secure", action="store_false", dest="insecure",
+                           help="Run in insecure mode for https endpoints.")
         oparser.add_option("--terse", action="store_false", dest="verbose",
                            help="Toggles verbose mode off.")
         oparser.add_option("--hide-debug", action="store_false", dest="debug",
@@ -218,10 +215,7 @@ class CommandsBase(object):
     def _get_client(self):
         """Creates the all important client object."""
         try:
-            if self.xml:
-                client_cls = xml.TroveXmlClient
-            else:
-                client_cls = client.TroveHTTPClient
+            client_cls = client.TroveHTTPClient
             if self.verbose:
                 client.log_to_streamhandler(sys.stdout)
                 client.RDC_PP = True
