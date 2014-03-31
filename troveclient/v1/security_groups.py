@@ -23,6 +23,7 @@ class SecurityGroup(base.Resource):
     """
     Security Group is a resource used to hold security group information.
     """
+
     def __repr__(self):
         return "<SecurityGroup: %s>" % self.name
 
@@ -57,15 +58,14 @@ class SecurityGroupRule(base.Resource):
     Security Group Rule is a resource used to hold security group
     rule related information.
     """
+
     def __repr__(self):
-        return \
-            "<SecurityGroupRule: ( \
-    Security Group id: %d, \
-    Protocol: %s, \
-    From_Port: %d, \
-    To_Port: %d, \
-    CIDR: %s )>" % (self.group_id, self.protocol, self.from_port,
-                    self.to_port, self.cidr)
+        return ("<SecurityGroupRule: "
+                "( Security Group id: %d, "
+                "Protocol: %s, From_Port: %d, "
+                "To_Port: %d,  CIDR: %s )>"
+                % (self.group_id, self.protocol,
+                   self.from_port, self.to_port, self.cidr))
 
 
 class SecurityGroupRules(base.ManagerWithFind):
@@ -74,19 +74,16 @@ class SecurityGroupRules(base.ManagerWithFind):
     """
     resource_class = SecurityGroupRule
 
-    def create(self, group_id, protocol, from_port, to_port, cidr):
+    def create(self, group_id, cidr):
         """
         Create a new security group rule.
         """
         body = {"security_group_rule": {
             "group_id": group_id,
-            "protocol": protocol,
-            "from_port": from_port,
-            "to_port": to_port,
             "cidr": cidr
         }}
         return self._create("/security-group-rules", body,
-                            "security_group_rule")
+                            "security_group_rule", return_raw=True)
 
     def delete(self, security_group_rule):
         """

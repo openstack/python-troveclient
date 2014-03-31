@@ -569,22 +569,16 @@ def do_secgroup_show(cs, args):
 
 @utils.arg('security_group', metavar='<security_group>',
            help='Security group name.')
-@utils.arg('protocol', metavar='<protocol>',
-           help='IP protocol (icmp, tcp, udp).')
-@utils.arg('from_port', metavar='<from_port>',
-           help='Port at start of range.')
-@utils.arg('to_port', metavar='<to_port>', help='Port at end of range.')
 @utils.arg('cidr', metavar='<cidr>', help='CIDR address.')
 @utils.service_type('database')
 def do_secgroup_add_rule(cs, args):
     """Creates a security group rule."""
-    rule = cs.security_group_rules.create(args.security_group,
-                                          args.protocol,
-                                          args.from_port,
-                                          args.to_port,
-                                          args.cidr)
+    rules = cs.security_group_rules.create(
+        args.security_group, args.cidr)
 
-    _print_instance(rule)
+    utils.print_list(rules, [
+        'id', 'security_group_id', 'protocol',
+        'from_port', 'to_port', 'cidr', 'created'], obj_is_dict=True)
 
 
 @utils.arg('security_group_rule', metavar='<security_group_rule>',
