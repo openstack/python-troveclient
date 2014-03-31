@@ -377,7 +377,7 @@ def do_database_list(cs, args):
     databases = wrapper.items
     while (wrapper.next):
         wrapper = cs.databases.list(args.instance, marker=wrapper.next)
-        databases = wrapper.items
+        databases += wrapper.items
 
     utils.print_list(databases, ['name'])
 
