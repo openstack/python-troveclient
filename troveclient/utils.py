@@ -138,7 +138,7 @@ def _print(pt, order):
         print(strutils.safe_encode(pt.get_string(sortby=order)))
 
 
-def print_list(objs, fields, formatters={}, order_by=None):
+def print_list(objs, fields, formatters={}, order_by=None, obj_is_dict=False):
     try:
         _output_override(objs, 'list')
         return
@@ -158,7 +158,10 @@ def print_list(objs, fields, formatters={}, order_by=None):
                     field_name = field.replace(' ', '_')
                 else:
                     field_name = field.lower().replace(' ', '_')
-                data = getattr(o, field_name, '')
+                if not obj_is_dict:
+                    data = getattr(o, field_name, '')
+                else:
+                    data = o.get(field_name, '')
                 row.append(data)
         pt.add_row(row)
 
