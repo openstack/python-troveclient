@@ -75,7 +75,7 @@ class InstanceCommands(common.AuthedCommandsBase):
         self._pretty_print(self.dbaas.instances.create, self.name,
                            self.flavor, volume, restorePoint=restorePoint,
                            availability_zone=self.availability_zone,
-                           configuration_ref=self._get_configuration_ref())
+                           configuration=self._get_configuration_ref())
 
     # TODO(pdmars): is this actually what this should be named?
     def modify(self):
