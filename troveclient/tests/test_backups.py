@@ -74,6 +74,14 @@ class BackupManagerTest(testtools.TestCase):
         self.backups.create(**args)
         create_mock.assert_called_with('/backups', body, 'backup')
 
+    def test_copy(self):
+        create_mock = mock.Mock()
+        self.backups._create = create_mock
+        args = {'name': 'test_backup', 'backup': '1'}
+        body = {'backup': args}
+        self.backups.create(**args)
+        create_mock.assert_called_with('/backups', body, 'backup')
+
     def test_list(self):
         page_mock = mock.Mock()
         self.backups._paginated = page_mock
