@@ -88,7 +88,8 @@ def _find_backup(cs, backup):
 def do_flavor_list(cs, args):
     """Lists available flavors."""
     flavors = cs.flavors.list()
-    utils.print_list(flavors, ['id', 'name', 'ram'])
+    utils.print_list(flavors, ['id', 'name', 'ram'],
+                     labels={'ram': 'RAM'})
 
 
 @utils.arg('flavor', metavar='<flavor>', help='ID of the flavor.')
