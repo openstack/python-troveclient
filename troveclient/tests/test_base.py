@@ -279,9 +279,14 @@ class MangerPaginationTests(ManagerTest):
 
         def side_effect(url):
             if url == self.url:
-                return (None, self.body)
-            if url == self.next_url:
-                return (None, self.next_body)
+                return None, self.body
+            # In python 3 the order in the dictionary is not constant
+            # between runs. So we cant rely on the URL params to be
+            # in the same order
+            if ('marker=%s' % self.marker in url and
+                    'limit=%s' % self.limit in url):
+                self.next_url = url
+                return None, self.next_body
 
         self.manager.api.client.get = mock.Mock(side_effect=side_effect)
 
