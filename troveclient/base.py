@@ -24,12 +24,12 @@ import hashlib
 import os
 
 import six
+from six.moves.urllib import parse
 
 from troveclient.openstack.common.apiclient import base
 from troveclient.openstack.common.apiclient import exceptions
 from troveclient import utils
 from troveclient import common
-from troveclient.openstack.common.py3kcompat import urlutils
 
 # Python 2.4 compat
 try:
@@ -69,8 +69,8 @@ class Manager(utils.HookableMixin):
         next_marker = None
         for link in next_links:
             # Extract the marker from the url.
-            parsed_url = urlutils.urlparse(link)
-            query_dict = dict(urlutils.parse_qsl(parsed_url.query))
+            parsed_url = parse.urlparse(link)
+            query_dict = dict(parse.parse_qsl(parsed_url.query))
             next_marker = query_dict.get('marker')
         data = [self.resource_class(self, res) for res in body[response_key]]
         return common.Paginated(data, next_marker=next_marker, links=links)

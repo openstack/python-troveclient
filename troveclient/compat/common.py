@@ -18,12 +18,11 @@ import optparse
 import os
 import pickle
 import six
+from six.moves.urllib import parse
 import sys
 
 from troveclient.compat import client
 from troveclient.compat import exceptions
-
-from troveclient.openstack.common.py3kcompat import urlutils
 
 
 def methods_of(obj):
@@ -74,9 +73,9 @@ def limit_url(url, limit=None, marker=None):
 def quote_user_host(user, host):
     quoted = ''
     if host:
-        quoted = urlutils.quote("%s@%s" % (user, host))
+        quoted = parse.quote("%s@%s" % (user, host))
     else:
-        quoted = urlutils.quote("%s" % user)
+        quoted = parse.quote("%s" % user)
     return quoted.replace('.', '%2e')
 
 
