@@ -15,13 +15,11 @@
    :start-line: 0
    :end-line: 22
 
+.. toctree::
+   :maxdepth: 2
 
-.. contents:: Contents
-   :local:
-
-.. include:: ./usage.rst
-
-.. include:: ./pydocs.rst
+   usage
+   pydocs
 
 Indices and tables
 ==================

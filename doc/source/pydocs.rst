@@ -10,7 +10,7 @@ troveclient
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: troveclient.client.Dbaas
+.. autoclass:: troveclient.compat.client.Dbaas
     :members:
     :undoc-members:
     :show-inheritance:
