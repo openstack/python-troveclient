@@ -189,10 +189,10 @@ def do_delete(cs, args):
            help="Create a NIC on the instance. "
                 "Specify option multiple times to create multiple NICs. "
                 "net-id: attach NIC to network with this UUID "
-                "(required, if no port-id specified), "
+                "(either port-id or net-id must be specified), "
                 "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
                 "port-id: attach NIC to port with this UUID "
-                "(required, if no net-id specified).")
+                "(either port-id or net-id must be specified).")
 @utils.arg('--configuration',
            metavar='<configuration>',
            default=None,
@@ -213,11 +213,11 @@ def do_create(cs, args):
     for nic_str in args.nics:
         nic_info = dict([(k, v) for (k, v) in [z.split("=", 1)[:2] for z in
                                                nic_str.split(",")]])
-        if not (nic_info.get('net-id') or nic_info.get('port-id')):
+        if bool(nic_info.get('net-id')) == bool(nic_info.get('port-id')):
             err_msg = ("Invalid nic argument '%s'. Nic arguments must be of "
                        "the form --nic <net-id=net-uuid,v4-fixed-ip=ip-addr,"
                        "port-id=port-uuid>, with at minimum net-id or port-id "
-                       "specified." % nic_str)
+                       "(but not both) specified." % nic_str)
             raise exceptions.CommandError(err_msg)
         nics.append(nic_info)
     instance = cs.instances.create(args.name,
