@@ -68,7 +68,7 @@ def _print_instance(instance):
 
 
 def _find_instance(cs, instance):
-    """Get a instance by ID."""
+    """Get an instance by ID."""
     return utils.find_resource(cs.instances, instance)
 
 
@@ -78,7 +78,7 @@ def _find_flavor(cs, flavor):
 
 
 def _find_backup(cs, backup):
-    """Gets a backup by ID."""
+    """Get a backup by ID."""
     return utils.find_resource(cs.backups, backup)
 
 
@@ -277,7 +277,7 @@ def do_resize_volume(cs, args):
            help='UUID of the instance.')
 @utils.service_type('database')
 def do_restart(cs, args):
-    """Restarts the instance."""
+    """Restarts an instance."""
     cs.instances.restart(args.instance)
 
 
@@ -414,7 +414,7 @@ def do_user_create(cs, args):
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
 @utils.service_type('database')
 def do_user_list(cs, args):
-    """Lists the users for a instance."""
+    """Lists the users for an instance."""
     wrapper = cs.users.list(args.instance)
     users = wrapper.items
     while (wrapper.next):
@@ -432,7 +432,7 @@ def do_user_list(cs, args):
            help='Optional host of user.')
 @utils.service_type('database')
 def do_user_delete(cs, args):
-    """Deletes a user from the instance."""
+    """Deletes a user from an instance."""
     cs.users.delete(args.instance, args.name, hostname=args.host)
 
 
@@ -444,7 +444,7 @@ def do_user_delete(cs, args):
 # Quoting is not working now that we aren't using httplib2
 # anymore and instead are using requests
 def do_user_show(cs, args):
-    """Gets a user from the instance."""
+    """Gets a user from an instance."""
     user = cs.users.get(args.instance, args.name, hostname=args.host)
     _print_instance(user)
 
@@ -457,7 +457,7 @@ def do_user_show(cs, args):
 # Quoting is not working now that we aren't using httplib2
 # anymore and instead are using requests
 def do_user_show_access(cs, args):
-    """Gets a users access from the instance."""
+    """Gets a users access from an instance."""
     access = cs.users.list_access(args.instance, args.name, hostname=args.host)
     utils.print_list(access, ['name'])
 
@@ -476,7 +476,7 @@ def do_user_show_access(cs, args):
 # Quoting is not working now that we aren't using httplib2
 # anymore and instead are using requests
 def do_user_update_attributes(cs, args):
-    """Updates a users attributes from the instance."""
+    """Updates a users attributes from an instance."""
     new_attrs = {}
     if args.new_name:
         new_attrs['name'] = args.new_name
@@ -531,7 +531,7 @@ def do_limit_list(cs, args):
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
 @utils.service_type('database')
 def do_root_enable(cs, args):
-    """Enables root for a instance."""
+    """Enables root for an instance."""
     root = cs.root.create(args.instance)
     utils.print_dict({'name': root[0], 'password': root[1]})
 
@@ -539,7 +539,7 @@ def do_root_enable(cs, args):
 @utils.arg('instance', metavar='<instance>', help='UUID of the instance.')
 @utils.service_type('database')
 def do_root_show(cs, args):
-    """Gets root enabled status for a instance."""
+    """Gets root enabled status for an instance."""
     root = cs.root.is_root_enabled(args.instance)
     utils.print_dict({'is_root_enabled': root.rootEnabled})
 
