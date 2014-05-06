@@ -292,10 +292,10 @@ def do_backup_show(cs, args):
     _print_instance(backup)
 
 
+@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
 @utils.arg('--limit', metavar='<limit>',
            default=None,
            help='Return up to N number of the most recent backups.')
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
 @utils.service_type('database')
 def do_backup_list_instance(cs, args):
     """Lists available backups for an instance."""
@@ -332,8 +332,8 @@ def do_backup_delete(cs, args):
     cs.backups.delete(args.backup)
 
 
-@utils.arg('name', metavar='<name>', help='Name of the backup.')
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('name', metavar='<name>', help='Name of the backup.')
 @utils.arg('--description', metavar='<description>',
            default=None,
            help='An optional description for the backup.')
@@ -638,14 +638,14 @@ def do_datastore_version_show(cs, args):
 
 # configuration group related functions
 
-@utils.arg('configuration',
-           metavar='<configuration>',
-           type=str,
-           help='ID of the configuration group to attach to the instance.')
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
            help='ID of the instance.')
+@utils.arg('configuration',
+           metavar='<configuration>',
+           type=str,
+           help='ID of the configuration group to attach to the instance.')
 @utils.service_type('database')
 def do_configuration_attach(cs, args):
     """Attaches a configuration group to an instance."""
