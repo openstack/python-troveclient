@@ -96,6 +96,20 @@ class Instances(base.ManagerWithFind):
         resp, body = self.api.client.put(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
+    def edit(self, instance_id, configuration=None, name=None):
+        body = {
+            "instance": {
+            }
+        }
+        if configuration is not None:
+            body["instance"]["configuration"] = configuration
+        if name is not None:
+            body["instance"]["name"] = name
+
+        url = "/instances/%s" % instance_id
+        resp, body = self.api.client.patch(url, body=body)
+        common.check_for_exceptions(resp, body, url)
+
     def list(self, limit=None, marker=None):
         """
         Get a list of all instances.
