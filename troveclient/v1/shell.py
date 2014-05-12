@@ -609,7 +609,7 @@ def do_datastore_show(cs, args):
 
 
 @utils.arg('datastore', metavar='<datastore>',
-           help='ID of the datastore.')
+           help='ID or name of the datastore.')
 @utils.service_type('database')
 def do_datastore_version_list(cs, args):
     """Lists available versions for a datastore."""
@@ -622,7 +622,7 @@ def do_datastore_version_list(cs, args):
            help='ID or name of the datastore. Optional if UUID of the'
                 ' datastore_version is provided.')
 @utils.arg('datastore_version', metavar='<datastore_version>',
-           help='ID of the datastore version.')
+           help='ID or name of the datastore version.')
 @utils.service_type('database')
 def do_datastore_version_show(cs, args):
     """Shows details of a datastore version."""
