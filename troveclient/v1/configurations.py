@@ -151,7 +151,7 @@ class ConfigurationParameters(base.ManagerWithFind):
         Get a list of valid parameters that can be changed.
         """
         return self._get("/datastores/%s/versions/%s/parameters/%s" %
-                        (datastore, version, key))
+                         (datastore, version, key))
 
     def parameters_by_version(self, version):
         """
@@ -165,7 +165,7 @@ class ConfigurationParameters(base.ManagerWithFind):
         Get a list of valid parameters that can be changed.
         """
         return self._get("/datastores/versions/%s/parameters/%s" %
-                        (version, key))
+                         (version, key))
 
     # Appease the abc gods
     def list(self):

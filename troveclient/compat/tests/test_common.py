@@ -54,7 +54,7 @@ class CommonTest(testtools.TestCase):
         status = [400, 422, 500]
         for s in status:
             resp = mock.Mock()
-            #compat still uses status
+            # compat still uses status
             resp.status = s
             self.assertRaises(Exception,
                               common.check_for_exceptions, resp, "body")

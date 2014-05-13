@@ -68,14 +68,14 @@ class Client(object):
         config_parameters = configurations.ConfigurationParameters(self)
         self.configuration_parameters = config_parameters
 
-        #self.hosts = Hosts(self)
-        #self.quota = Quotas(self)
-        #self.storage = StorageInfo(self)
-        #self.management = Management(self)
-        #self.mgmt_flavor = MgmtFlavors(self)
-        #self.accounts = Accounts(self)
-        #self.diagnostics = DiagnosticsInterrogator(self)
-        #self.hwinfo = HwInfoInterrogator(self)
+        # self.hosts = Hosts(self)
+        # self.quota = Quotas(self)
+        # self.storage = StorageInfo(self)
+        # self.management = Management(self)
+        # self.mgmt_flavor = MgmtFlavors(self)
+        # self.accounts = Accounts(self)
+        # self.diagnostics = DiagnosticsInterrogator(self)
+        # self.hwinfo = HwInfoInterrogator(self)
 
         # Add in any extensions...
         if extensions:
