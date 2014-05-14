@@ -627,7 +627,7 @@ def main():
         sys.exit(130)
     except Exception as e:
         logger.debug(e, exc_info=1)
-        message = e.message
+        message = six.text_type(e)
         if not isinstance(message, six.string_types):
             message = str(message)
         print("ERROR: %s" % strutils.safe_encode(message), file=sys.stderr)
