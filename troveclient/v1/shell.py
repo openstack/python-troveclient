@@ -250,7 +250,7 @@ def do_create(cs, args):
            help='ID of the instance.')
 @utils.arg('flavor_id',
            metavar='<flavor_id>',
-           help='Flavor of the instance.')
+           help='New flavor of the instance.')
 @utils.service_type('database')
 def do_resize_flavor(cs, args):
     """Resizes the flavor of an instance."""
@@ -265,7 +265,7 @@ def do_resize_flavor(cs, args):
            metavar='<size>',
            type=int,
            default=None,
-           help='Size of the instance disk in GB.')
+           help='New size of the instance disk volume in GB.')
 @utils.service_type('database')
 def do_resize_volume(cs, args):
     """Resizes the volume size of an instance."""
@@ -342,7 +342,7 @@ def do_backup_delete(cs, args):
            ' incremental backup from.')
 @utils.service_type('database')
 def do_backup_create(cs, args):
-    """Creates a backup."""
+    """Creates a backup of an instance."""
     backup = cs.backups.create(args.name, args.instance,
                                description=args.description,
                                parent_id=args.parent)
@@ -387,7 +387,7 @@ def do_database_list(cs, args):
 @utils.arg('database', metavar='<database>', help='Name of the database.')
 @utils.service_type('database')
 def do_database_delete(cs, args):
-    """Deletes a database."""
+    """Deletes a database from an instance."""
     cs.databases.delete(args.instance, args.database)
 
 
@@ -403,7 +403,7 @@ def do_database_delete(cs, args):
            nargs="+", default=[])
 @utils.service_type('database')
 def do_user_create(cs, args):
-    """Creates a user."""
+    """Creates a user on an instance."""
     databases = [{'name': value} for value in args.databases]
     user = {'name': args.name, 'password': args.password,
             'databases': databases}
@@ -442,10 +442,8 @@ def do_user_delete(cs, args):
 @utils.arg('--host', metavar='<host>', default=None,
            help='Optional host of user.')
 @utils.service_type('database')
-# Quoting is not working now that we aren't using httplib2
-# anymore and instead are using requests
 def do_user_show(cs, args):
-    """Gets a user from an instance."""
+    """Shows details of a user of an instance."""
     user = cs.users.get(args.instance, args.name, hostname=args.host)
     _print_instance(user)
 
@@ -455,10 +453,8 @@ def do_user_show(cs, args):
 @utils.arg('--host', metavar='<host>', default=None,
            help='Optional host of user.')
 @utils.service_type('database')
-# Quoting is not working now that we aren't using httplib2
-# anymore and instead are using requests
 def do_user_show_access(cs, args):
-    """Gets a users access from an instance."""
+    """Shows access details of a user of an instance."""
     access = cs.users.list_access(args.instance, args.name, hostname=args.host)
     utils.print_list(access, ['name'])
 
@@ -540,7 +536,7 @@ def do_root_enable(cs, args):
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
 @utils.service_type('database')
 def do_root_show(cs, args):
-    """Gets root enabled status for an instance."""
+    """Shows 'root enabled' status of a instance."""
     root = cs.root.is_root_enabled(args.instance)
     utils.print_dict({'is_root_enabled': root.rootEnabled})
 
@@ -563,7 +559,7 @@ def do_secgroup_list(cs, args):
            help='ID of the security group.')
 @utils.service_type('database')
 def do_secgroup_show(cs, args):
-    """Shows details about a security group."""
+    """Shows details of a security group."""
     sec_grp = cs.security_groups.get(args.security_group)
     _print_instance(sec_grp)
 
