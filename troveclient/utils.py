@@ -138,35 +138,54 @@ def _print(pt, order):
         print(strutils.safe_encode(pt.get_string(sortby=order)))
 
 
-def print_list(objs, fields, formatters={}, order_by=None, obj_is_dict=False):
+def print_list(objs, fields, formatters={}, order_by=None, obj_is_dict=False,
+               labels={}):
     try:
         _output_override(objs, 'list')
         return
     except BaseException:
         pass
-    mixed_case_fields = []
-    pt = prettytable.PrettyTable([f for f in fields], caching=False)
-    pt.aligns = ['l' for f in fields]
+    # Make nice labels from the fields, if not provided in the labels arg
+    if not labels:
+        labels = {}
+    for field in fields:
+        if field not in labels:
+            # No underscores (use spaces instead) and uppercase any ID's
+            label = field.replace("_", " ").replace("id", "ID")
+            # Uppercase anything else that's less than 3 chars
+            if len(label) < 3:
+                label = label.upper()
+            # Capitalize each word otherwise
+            else:
+                label = ' '.join(word[0].upper() + word[1:]
+                                 for word in label.split())
+            labels[field] = label
 
-    for o in objs:
+    pt = prettytable.PrettyTable(
+        [labels[field] for field in fields], caching=False)
+    # set the default alignment to left-aligned
+    align = dict((labels[field], 'l') for field in fields)
+    set_align = True
+    for obj in objs:
         row = []
         for field in fields:
-            if field in formatters:
-                row.append(formatters[field](o))
+            if formatters and field in formatters:
+                row.append(formatters[field](obj))
+            elif obj_is_dict:
+                data = obj.get(field, '')
             else:
-                if field in mixed_case_fields:
-                    field_name = field.replace(' ', '_')
-                else:
-                    field_name = field.lower().replace(' ', '_')
-                if not obj_is_dict:
-                    data = getattr(o, field_name, '')
-                else:
-                    data = o.get(field_name, '')
-                row.append(data)
+                data = getattr(obj, field, '')
+            row.append(data)
+            # set the alignment to right-aligned if it's a numeric
+            if set_align and hasattr(data, '__int__'):
+                align[labels[field]] = 'r'
+        set_align = False
         pt.add_row(row)
+    pt._align = align
 
-    if order_by is None:
+    if not order_by:
         order_by = fields[0]
+    order_by = labels[order_by]
     _print(pt, order_by)
 
 
@@ -177,7 +196,7 @@ def print_dict(d, property="Property"):
     except BaseException:
         pass
     pt = prettytable.PrettyTable([property, 'Value'], caching=False)
-    pt.aligns = ['l', 'l']
+    pt.align = 'l'
     [pt.add_row(list(r)) for r in six.iteritems(d)]
     _print(pt, property)
 
