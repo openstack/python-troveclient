@@ -75,13 +75,12 @@ class Users(base.ManagerWithFind):
 
         :rtype: :class:`User`.
         """
+        if not newuserattr:
+            raise Exception("No updates specified for user %s" % username)
         instance_id = base.getid(instance)
         user = common.quote_user_host(username, hostname)
         user_dict = {}
-        if not newuserattr:
-            newuserattr = {}
-        else:
-            user_dict['user'] = newuserattr
+        user_dict['user'] = newuserattr
         url = "/instances/%s/users/%s" % (instance_id, user)
         resp, body = self.api.client.put(url, body=user_dict)
         common.check_for_exceptions(resp, body, url)

@@ -473,10 +473,10 @@ def do_user_show_access(cs, args):
 @utils.arg('--new_host', metavar='<new_host>', default=None,
            help='Optional new host of user.')
 @utils.service_type('database')
-# Quoting is not working now that we aren't using httplib2
-# anymore and instead are using requests
 def do_user_update_attributes(cs, args):
-    """Updates a users attributes from an instance."""
+    """Updates a user's attributes on an instance.
+    At least one optional argument must be provided.
+    """
     new_attrs = {}
     if args.new_name:
         new_attrs['name'] = args.new_name
