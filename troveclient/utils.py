@@ -118,7 +118,7 @@ def _output_override(objs, print_as):
     If an output override global flag is set, print with override
     raise BaseException if no printing was overridden.
     """
-    if 'json_output' in globals():
+    if globals().get('json_output', False):
         if print_as == 'list':
             new_objs = []
             for o in objs:
