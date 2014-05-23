@@ -15,15 +15,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import testtools
 import mock
+import testtools
+
 from troveclient.v1 import limits
 
 
 class LimitsTest(testtools.TestCase):
-    """
-    This class tests the calling code for the Limits API
-    """
+    """This class tests the calling code for the Limits API."""
 
     def setUp(self):
         super(LimitsTest, self).setUp()

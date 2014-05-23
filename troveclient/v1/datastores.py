@@ -30,25 +30,21 @@ class DatastoreVersion(base.Resource):
 
 
 class Datastores(base.ManagerWithFind):
-    """
-    Manage :class:`Datastore` resources.
-    """
+    """Manage :class:`Datastore` resources."""
     resource_class = Datastore
 
     def __repr__(self):
         return "<Datastore Manager at %s>" % id(self)
 
     def list(self, limit=None, marker=None):
-        """
-        Get a list of all datastores.
+        """Get a list of all datastores.
 
         :rtype: list of :class:`Datastore`.
         """
         return self._paginated("/datastores", "datastores", limit, marker)
 
     def get(self, datastore):
-        """
-        Get a specific datastore.
+        """Get a specific datastore.
 
         :rtype: :class:`Datastore`
         """
@@ -57,17 +53,14 @@ class Datastores(base.ManagerWithFind):
 
 
 class DatastoreVersions(base.ManagerWithFind):
-    """
-    Manage :class:`DatastoreVersion` resources.
-    """
+    """Manage :class:`DatastoreVersion` resources."""
     resource_class = DatastoreVersion
 
     def __repr__(self):
         return "<DatastoreVersions Manager at %s>" % id(self)
 
     def list(self, datastore, limit=None, marker=None):
-        """
-        Get a list of all datastore versions.
+        """Get a list of all datastore versions.
 
         :rtype: list of :class:`DatastoreVersion`.
         """
@@ -75,8 +68,7 @@ class DatastoreVersions(base.ManagerWithFind):
                                "versions", limit, marker)
 
     def get(self, datastore, datastore_version):
-        """
-        Get a specific datastore version.
+        """Get a specific datastore version.
 
         :rtype: :class:`DatastoreVersion`
         """
@@ -85,8 +77,8 @@ class DatastoreVersions(base.ManagerWithFind):
                          "version")
 
     def get_by_uuid(self, datastore_version):
-        """
-        Get a specific datastore version.
+        """Get a specific datastore version.
+
         :rtype: :class:`DatastoreVersion`
         """
         return self._get("/datastores/versions/%s" %

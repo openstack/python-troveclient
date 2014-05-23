@@ -18,31 +18,25 @@ from troveclient import base
 
 
 class Flavor(base.Resource):
-    """
-    A Flavor is an Instance type, specifying among other things, RAM size.
-    """
+    """A Flavor is an Instance type, specifying other things, like RAM size."""
 
     def __repr__(self):
         return "<Flavor: %s>" % self.name
 
 
 class Flavors(base.ManagerWithFind):
-    """
-    Manage :class:`Flavor` resources.
-    """
+    """Manage :class:`Flavor` resources."""
     resource_class = Flavor
 
     def list(self):
-        """
-        Get a list of all flavors.
+        """Get a list of all flavors.
 
         :rtype: list of :class:`Flavor`.
         """
         return self._list("/flavors", "flavors")
 
     def get(self, flavor):
-        """
-        Get a specific flavor.
+        """Get a specific flavor.
 
         :rtype: :class:`Flavor`
         """

@@ -15,21 +15,20 @@
 #    under the License.
 
 from troveclient import base
-from troveclient.v1 import users
 from troveclient import common
+from troveclient.v1 import users
 
 
 class Root(base.ManagerWithFind):
-    """
-    Manager class for Root resource
-    """
+    """Manager class for Root resource."""
     resource_class = users.User
     url = "/instances/%s/root"
 
     def create(self, instance_id):
-        """
+        """Implements root-enable API.
+
         Enable the root user and return the root password for the
-        specified db instance
+        specified db instance.
         """
         resp, body = self.api.client.post(self.url % instance_id)
         common.check_for_exceptions(resp, body, self.url)

@@ -19,39 +19,34 @@ from troveclient import common
 
 
 class Database(base.Resource):
-    """
-    According to Wikipedia, "A database is a system intended to organize,
-    store, and retrieve
-    large amounts of data easily."
+    """Wikipedia definition for database.
+
+    "A database is a system intended to organize, store, and retrieve large
+    amounts of data easily."
     """
     def __repr__(self):
         return "<Database: %s>" % self.name
 
 
 class Databases(base.ManagerWithFind):
-    """
-    Manage :class:`Databases` resources.
-    """
+    """Manage :class:`Databases` resources."""
     resource_class = Database
 
     def create(self, instance_id, databases):
-        """
-        Create new databases within the specified instance
-        """
+        """Create new databases within the specified instance."""
         body = {"databases": databases}
         url = "/instances/%s/databases" % instance_id
         resp, body = self.api.client.post(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
     def delete(self, instance_id, dbname):
-        """Delete an existing database in the specified instance"""
+        """Delete an existing database in the specified instance."""
         url = "/instances/%s/databases/%s" % (instance_id, dbname)
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
 
     def list(self, instance, limit=None, marker=None):
-        """
-        Get a list of all Databases from the instance.
+        """Get a list of all Databases from the instance.
 
         :rtype: list of :class:`Database`.
         """

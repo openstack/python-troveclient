@@ -35,9 +35,10 @@ except NameError:
 
 
 def getid(obj):
-    """
-    Abstracts the common pattern of allowing both an object or an object's ID
-    as a parameter when dealing with relationships.
+    """Retrives an id from object or integer.
+
+    Abstracts the common pattern of allowing both an object or an object's
+    ID as a parameter when dealing with relationships.
     """
     try:
         return obj.id
@@ -46,9 +47,10 @@ def getid(obj):
 
 
 class Manager(utils.HookableMixin):
-    """
-    Managers interact with a particular type of API (servers, flavors, images,
-    etc.) and provide CRUD operations for them.
+    """Manager defining CRUD operations for API.
+
+    Managers interact with a particular type of API (servers, flavors,
+    images, etc.) and provide CRUD operations for them.
     """
     resource_class = None
 
@@ -81,7 +83,8 @@ class Manager(utils.HookableMixin):
 
     @contextlib.contextmanager
     def completion_cache(self, cache_type, obj_class, mode):
-        """
+        """Bash-completion cache.
+
         The completion cache store items that can be used for bash
         autocompletion, like UUIDs or human-friendly IDs.
 
@@ -164,13 +167,10 @@ class Manager(utils.HookableMixin):
 
 
 class ManagerWithFind(Manager):
-    """
-    Like a `Manager`, but with additional `find()`/`findall()` methods.
-    """
+    """Like a `Manager`, but with additional `find()`/`findall()` methods."""
 
     def find(self, **kwargs):
-        """
-        Find a single item with attributes matching ``**kwargs``.
+        """Find a single item with attributes matching ``**kwargs``.
 
         This isn't very efficient: it loads the entire list then filters on
         the Python side.
@@ -186,8 +186,7 @@ class ManagerWithFind(Manager):
             return matches[0]
 
     def findall(self, **kwargs):
-        """
-        Find all items with attributes matching ``**kwargs``.
+        """Find all items with attributes matching ``**kwargs``.
 
         This isn't very efficient: it loads the entire list then filters on
         the Python side.
@@ -210,10 +209,9 @@ class ManagerWithFind(Manager):
 
 
 class Resource(object):
-    """
-    A resource represents a particular instance of an object (server, flavor,
-    etc). This is pretty much just a bag for attributes.
+    """A resource represents a particular instance of an object like server.
 
+    This is pretty much just a bag for attributes.
     :param manager: Manager object
     :param info: dictionary representing resource attributes
     :param loaded: prevent lazy-loading if set to True
@@ -238,9 +236,7 @@ class Resource(object):
 
     @property
     def human_id(self):
-        """Subclasses may override this provide a pretty ID which can be used
-        for bash completion.
-        """
+        """Provides a pretty ID which can be used for bash completion."""
         if 'name' in self.__dict__ and self.HUMAN_ID:
             return utils.slugify(self.name)
         return None

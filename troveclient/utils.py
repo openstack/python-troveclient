@@ -17,12 +17,12 @@
 from __future__ import print_function
 
 import os
+import simplejson as json
 import sys
 import uuid
-import simplejson as json
 
-import six
 import prettytable
+import six
 
 from troveclient.openstack.common.apiclient import exceptions
 from troveclient.openstack.common import strutils
@@ -37,8 +37,9 @@ def arg(*args, **kwargs):
 
 
 def env(*vars, **kwargs):
-    """
-    returns the first environment variable set
+    """Returns environment variables.
+
+    Returns the first environment variable set
     if none are non-empty, defaults to '' or keyword arg default
     """
     for v in vars:
@@ -63,8 +64,8 @@ def add_arg(f, *args, **kwargs):
 
 
 def unauthenticated(f):
-    """
-    Adds 'unauthenticated' attribute to decorated function.
+    """Adds 'unauthenticated' attribute to decorated function.
+
     Usage:
         @unauthenticated
         def mymethod(f):
@@ -75,7 +76,8 @@ def unauthenticated(f):
 
 
 def isunauthenticated(f):
-    """
+    """Decorator to mark authentication-non-required.
+
     Checks to see if the function is marked as not requiring authentication
     with the @unauthenticated decorator. Returns True if decorator is
     set to True, False otherwise.
@@ -84,8 +86,8 @@ def isunauthenticated(f):
 
 
 def service_type(stype):
-    """
-    Adds 'service_type' attribute to decorated function.
+    """Adds 'service_type' attribute to decorated function.
+
     Usage:
         @service_type('database')
         def mymethod(f):
@@ -98,9 +100,7 @@ def service_type(stype):
 
 
 def get_service_type(f):
-    """
-    Retrieves service type from function
-    """
+    """Retrieves service type from function."""
     return getattr(f, 'service_type', None)
 
 
@@ -113,11 +113,12 @@ def translate_keys(collection, convert):
 
 
 def _output_override(objs, print_as):
-    """
+    """Output override flag checking.
+
     If an output override global flag is set, print with override
     raise BaseException if no printing was overridden.
     """
-    if 'json_output' in globals() and json_output:
+    if 'json_output' in globals():
         if print_as == 'list':
             new_objs = []
             for o in objs:
@@ -280,7 +281,8 @@ def safe_issubclass(*args):
 # http://code.activestate.com/recipes/
 #   577257-slugify-make-a-string-usable-in-a-url-or-filename/
 def slugify(value):
-    """
+    """Converts a string usable in a url or filename.
+
     Normalizes string, converts to lowercase, removes non-alpha characters,
     and converts spaces to hyphens.
 

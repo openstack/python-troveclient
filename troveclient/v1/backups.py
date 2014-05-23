@@ -20,23 +20,18 @@ from troveclient import common
 
 
 class Backup(base.Resource):
-    """
-    Backup is a resource used to hold backup information.
-    """
+    """Backup is a resource used to hold backup information."""
     def __repr__(self):
         return "<Backup: %s>" % self.name
 
 
 class Backups(base.ManagerWithFind):
-    """
-    Manage :class:`Backups` information.
-    """
+    """Manage :class:`Backups` information."""
 
     resource_class = Backup
 
     def get(self, backup):
-        """
-        Get a specific backup.
+        """Get a specific backup.
 
         :rtype: :class:`Backups`
         """
@@ -44,17 +39,14 @@ class Backups(base.ManagerWithFind):
                          "backup")
 
     def list(self, limit=None, marker=None):
-        """
-        Get a list of all backups.
+        """Get a list of all backups.
 
         :rtype: list of :class:`Backups`.
         """
         return self._paginated("/backups", "backups", limit, marker)
 
     def create(self, name, instance, description=None, parent_id=None):
-        """
-        Create a new backup from the given instance.
-        """
+        """Create a new backup from the given instance."""
         body = {
             "backup": {
                 "name": name,
@@ -68,8 +60,7 @@ class Backups(base.ManagerWithFind):
         return self._create("/backups", body, "backup")
 
     def delete(self, backup_id):
-        """
-        Delete the specified backup.
+        """Delete the specified backup.
 
         :param backup_id: The backup id to delete
         """

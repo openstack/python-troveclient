@@ -19,17 +19,13 @@ from troveclient import common
 
 
 class Account(base.Resource):
-    """
-    Account is an opaque instance used to hold account information.
-    """
+    """Account is an opaque instance used to hold account information."""
     def __repr__(self):
         return "<Account: %s>" % self.name
 
 
 class Accounts(base.ManagerWithFind):
-    """
-    Manage :class:`Account` information.
-    """
+    """Manage :class:`Account` information."""
 
     resource_class = Account
 
@@ -40,7 +36,7 @@ class Accounts(base.ManagerWithFind):
         return self.resource_class(self, body[response_key])
 
     def index(self):
-        """Get a list of all accounts with non-deleted instances"""
+        """Get a list of all accounts with non-deleted instances."""
 
         url = "/mgmt/accounts"
         resp, body = self.api.client.get(url)
@@ -50,8 +46,7 @@ class Accounts(base.ManagerWithFind):
         return base.Resource(self, body)
 
     def show(self, account):
-        """
-        Get details of one account.
+        """Get details of one account.
 
         :rtype: :class:`Account`.
         """

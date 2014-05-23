@@ -19,17 +19,13 @@ from troveclient import common
 
 
 class Host(base.Resource):
-    """
-    A Hosts is an opaque instance used to store Host instances.
-    """
+    """A Hosts is an opaque instance used to store Host instances."""
     def __repr__(self):
         return "<Host: %s>" % self.name
 
 
 class Hosts(base.ManagerWithFind):
-    """
-    Manage :class:`Host` resources.
-    """
+    """Manage :class:`Host` resources."""
     resource_class = Host
 
     def _list(self, url, response_key):
@@ -39,31 +35,25 @@ class Hosts(base.ManagerWithFind):
         return [self.resource_class(self, res) for res in body[response_key]]
 
     def _action(self, host_id, body):
-        """
-        Perform a host "action" -- update
-        """
+        """Perform a host "action" -- update."""
         url = "/mgmt/hosts/%s/instances/action" % host_id
         resp, body = self.api.client.post(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
     def update_all(self, host_id):
-        """
-        Update all instances on a host.
-        """
+        """Update all instances on a host."""
         body = {'update': ''}
         self._action(host_id, body)
 
     def index(self):
-        """
-        Get a list of all hosts.
+        """Get a list of all hosts.
 
         :rtype: list of :class:`Hosts`.
         """
         return self._list("/mgmt/hosts", "hosts")
 
     def get(self, host):
-        """
-        Get a specific host.
+        """Get a specific host.
 
         :rtype: :class:`host`
         """

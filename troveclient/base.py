@@ -26,10 +26,10 @@ import os
 import six
 from six.moves.urllib import parse
 
+from troveclient import common
 from troveclient.openstack.common.apiclient import base
 from troveclient.openstack.common.apiclient import exceptions
 from troveclient import utils
-from troveclient import common
 
 # Python 2.4 compat
 try:
@@ -40,9 +40,10 @@ except NameError:
 
 
 def getid(obj):
-    """
-    Abstracts the common pattern of allowing both an object or an object's ID
-    as a parameter when dealing with relationships.
+    """Retrieves an id from object or integer.
+
+    Abstracts the common pattern of allowing both an object or an object's
+    ID as a parameter when dealing with relationships.
     """
     try:
         return obj.id
@@ -51,9 +52,10 @@ def getid(obj):
 
 
 class Manager(utils.HookableMixin):
-    """
-    Managers interact with a particular type of API (servers, flavors, images,
-    etc.) and provide CRUD operations for them.
+    """Manager defining CRUD operations for API.
+
+    Managers interact with a particular type of API (servers, flavors,
+    images, etc.) and provide CRUD operations for them.
     """
     resource_class = None
 
@@ -101,7 +103,8 @@ class Manager(utils.HookableMixin):
 
     @contextlib.contextmanager
     def completion_cache(self, cache_type, obj_class, mode):
-        """
+        """Bash-completion cache.
+
         The completion cache store items that can be used for bash
         autocompletion, like UUIDs or human-friendly IDs.
 
@@ -185,17 +188,14 @@ class Manager(utils.HookableMixin):
 
 
 class ManagerWithFind(six.with_metaclass(abc.ABCMeta, Manager)):
-    """
-    Like a `Manager`, but with additional `find()`/`findall()` methods.
-    """
+    """Like a `Manager`, but with additional `find()`/`findall()` methods."""
 
     @abc.abstractmethod
     def list(self):
         pass
 
     def find(self, **kwargs):
-        """
-        Find a single item with attributes matching ``**kwargs``.
+        """Find a single item with attributes matching ``**kwargs``.
 
         This isn't very efficient: it loads the entire list then filters on
         the Python side.
@@ -211,8 +211,7 @@ class ManagerWithFind(six.with_metaclass(abc.ABCMeta, Manager)):
             return matches[0]
 
     def findall(self, **kwargs):
-        """
-        Find all items with attributes matching ``**kwargs``.
+        """Find all items with attributes matching ``**kwargs``.
 
         This isn't very efficient: it loads the entire list then filters on
         the Python side.
@@ -232,10 +231,9 @@ class ManagerWithFind(six.with_metaclass(abc.ABCMeta, Manager)):
 
 
 class Resource(base.Resource):
-    """
-    A resource represents a particular instance of an object (server, flavor,
-    etc). This is pretty much just a bag for attributes.
+    """A resource represents a particular instance of an object like server.
 
+    This is pretty much just a bag for attributes.
     :param manager: Manager object
     :param info: dictionary representing resource attributes
     :param loaded: prevent lazy-loading if set to True

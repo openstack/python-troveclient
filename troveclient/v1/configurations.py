@@ -20,23 +20,18 @@ from troveclient import common
 
 
 class Configuration(base.Resource):
-    """
-    Configuration is a resource used to hold configuration information.
-    """
+    """Configuration is a resource used to hold configuration information."""
     def __repr__(self):
         return "<Configuration: %s>" % self.name
 
 
 class Configurations(base.ManagerWithFind):
-    """
-    Manage :class:`Configurations` information.
-    """
+    """Manage :class:`Configurations` information."""
 
     resource_class = Configuration
 
     def get(self, configuration):
-        """
-        Get a specific configuration.
+        """Get a specific configuration.
 
         :rtype: :class:`Configurations`
         """
@@ -44,8 +39,7 @@ class Configurations(base.ManagerWithFind):
                          "configuration")
 
     def instances(self, configuration, limit=None, marker=None):
-        """
-        Get a list of instances on a configuration.
+        """Get a list of instances on a configuration.
 
         :rtype: :class:`Configurations`
         """
@@ -54,8 +48,7 @@ class Configurations(base.ManagerWithFind):
                           "instances", limit, marker)
 
     def list(self, limit=None, marker=None):
-        """
-        Get a list of all configurations.
+        """Get a list of all configurations.
 
         :rtype: list of :class:`Configurations`.
         """
@@ -63,9 +56,7 @@ class Configurations(base.ManagerWithFind):
 
     def create(self, name, values, description=None, datastore=None,
                datastore_version=None):
-        """
-        Create a new configuration.
-        """
+        """Create a new configuration."""
         body = {
             "configuration": {
                 "name": name,
@@ -84,9 +75,7 @@ class Configurations(base.ManagerWithFind):
         return self._create("/configurations", body, "configuration")
 
     def update(self, configuration_id, values, name=None, description=None):
-        """
-        Update an existing configuration.
-        """
+        """Update an existing configuration."""
         body = {
             "configuration": {
                 "values": json.loads(values)
@@ -101,9 +90,7 @@ class Configurations(base.ManagerWithFind):
         common.check_for_exceptions(resp, body, url)
 
     def edit(self, configuration_id, values):
-        """
-        Update an existing configuration.
-        """
+        """Update an existing configuration."""
         body = {
             "configuration": {
                 "values": json.loads(values)
@@ -114,8 +101,7 @@ class Configurations(base.ManagerWithFind):
         common.check_for_exceptions(resp, body, url)
 
     def delete(self, configuration_id):
-        """
-        Delete the specified configuration.
+        """Delete the specified configuration.
 
         :param configuration_id: The configuration id to delete
         """
@@ -125,45 +111,33 @@ class Configurations(base.ManagerWithFind):
 
 
 class ConfigurationParameter(base.Resource):
-    """
-    Configuration Parameter.
-    """
+    """Configuration Parameter."""
     def __repr__(self):
         return "<ConfigurationParameter: %s>" % self.__dict__
 
 
 class ConfigurationParameters(base.ManagerWithFind):
-    """
-    Manage :class:`ConfigurationParameters` information.
-    """
+    """Manage :class:`ConfigurationParameters` information."""
 
     resource_class = ConfigurationParameter
 
     def parameters(self, datastore, version):
-        """
-        Get a list of valid parameters that can be changed.
-        """
+        """Get a list of valid parameters that can be changed."""
         return self._list("/datastores/%s/versions/%s/parameters" %
                           (datastore, version), "configuration-parameters")
 
     def get_parameter(self, datastore, version, key):
-        """
-        Get a list of valid parameters that can be changed.
-        """
+        """Get a list of valid parameters that can be changed."""
         return self._get("/datastores/%s/versions/%s/parameters/%s" %
                         (datastore, version, key))
 
     def parameters_by_version(self, version):
-        """
-        Get a list of valid parameters that can be changed.
-        """
+        """Get a list of valid parameters that can be changed."""
         return self._list("/datastores/versions/%s/parameters" % version,
                           "configuration-parameters")
 
     def get_parameter_by_version(self, version, key):
-        """
-        Get a list of valid parameters that can be changed.
-        """
+        """Get a list of valid parameters that can be changed."""
         return self._get("/datastores/versions/%s/parameters/%s" %
                         (version, key))
 

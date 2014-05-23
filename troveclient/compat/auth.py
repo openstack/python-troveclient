@@ -38,8 +38,7 @@ def get_authenticator_cls(cls_or_name):
 
 
 class Authenticator(object):
-    """
-    Helper class to perform Keystone or other miscellaneous authentication.
+    """Helper class to perform Keystone or other miscellaneous authentication.
 
     The "authenticate" method returns a ServiceCatalog, which can be used
     to obtain a token.
@@ -154,7 +153,8 @@ class RaxAuthenticator(Authenticator):
 
 
 class RaxAuthenticator2(RaxAuthenticator):
-    """
+    """Rax specific authenticator.
+
     Necessary to be able to call using the same auth url as the new client
     uses for Rax auth.
     """
@@ -225,7 +225,8 @@ class ServiceCatalog(object):
 
     def _url_for(self, attr=None, filter_value=None,
                  endpoint_type='publicURL'):
-        """
+        """Fetch requested URL.
+
         Fetch the public URL from the Trove service for a particular
         endpoint attribute. If none given, return the first.
         """

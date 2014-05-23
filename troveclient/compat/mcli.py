@@ -43,24 +43,24 @@ def _pretty_print(info):
 
 
 class HostCommands(common.AuthedCommandsBase):
-    """Commands to list info on hosts"""
+    """Commands to list info on hosts."""
 
     params = [
         'name',
     ]
 
     def update_all(self):
-        """Update all instances on a host"""
+        """Update all instances on a host."""
         self._require('name')
         self.dbaas.hosts.update_all(self.name)
 
     def get(self):
-        """List details for the specified host"""
+        """List details for the specified host."""
         self._require('name')
         self._pretty_print(self.dbaas.hosts.get, self.name)
 
     def list(self):
-        """List all compute hosts"""
+        """List all compute hosts."""
         self._pretty_list(self.dbaas.hosts.index)
 
 
@@ -73,12 +73,12 @@ class QuotaCommands(common.AuthedCommandsBase):
               'backups']
 
     def list(self):
-        """List all quotas for a tenant"""
+        """List all quotas for a tenant."""
         self._require('id')
         self._pretty_print(self.dbaas.quota.show, self.id)
 
     def update(self):
-        """Update quota limits for a tenant"""
+        """Update quota limits for a tenant."""
         self._require('id')
         self._pretty_print(self.dbaas.quota.update, self.id,
                            dict((param, getattr(self, param))
@@ -99,18 +99,18 @@ class RootCommands(common.AuthedCommandsBase):
 
 
 class AccountCommands(common.AuthedCommandsBase):
-    """Commands to list account info"""
+    """Commands to list account info."""
 
     params = [
         'id',
     ]
 
     def list(self):
-        """List all accounts with non-deleted instances"""
+        """List all accounts with non-deleted instances."""
         self._pretty_print(self.dbaas.accounts.index)
 
     def get(self):
-        """List details for the account provided"""
+        """List details for the account provided."""
         self._require('id')
         self._pretty_print(self.dbaas.accounts.show, self.id)
 
@@ -132,7 +132,7 @@ class InstanceCommands(common.AuthedCommandsBase):
         self._pretty_print(self.dbaas.management.show, self.id)
 
     def list(self):
-        """List all instances for account"""
+        """List all instances for account."""
         deleted = None
         if self.deleted is not None:
             if self.deleted.lower() in ['true']:
@@ -173,17 +173,17 @@ class InstanceCommands(common.AuthedCommandsBase):
 
 
 class StorageCommands(common.AuthedCommandsBase):
-    """Commands to list devices info"""
+    """Commands to list devices info."""
 
     params = []
 
     def list(self):
-        """List details for the storage device"""
+        """List details for the storage device."""
         self._pretty_list(self.dbaas.storage.index)
 
 
 class FlavorsCommands(common.AuthedCommandsBase):
-    """Commands for managing Flavors"""
+    """Commands for managing Flavors."""
 
     params = [
         'name',
@@ -198,7 +198,7 @@ class FlavorsCommands(common.AuthedCommandsBase):
     ]
 
     def create(self):
-        """Create a new flavor"""
+        """Create a new flavor."""
         self._require('name', 'ram', 'disk', 'vcpus',
                       'flavor_id', 'service_type')
         self._pretty_print(self.dbaas.mgmt_flavor.create, self.name,

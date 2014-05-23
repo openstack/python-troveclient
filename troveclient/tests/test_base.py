@@ -18,12 +18,12 @@
 import contextlib
 import os
 
-import testtools
 import mock
+import testtools
 
 from troveclient import base
-from troveclient.openstack.common.apiclient import exceptions
 from troveclient import common
+from troveclient.openstack.common.apiclient import exceptions
 from troveclient import utils
 
 """

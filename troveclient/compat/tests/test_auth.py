@@ -15,10 +15,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import testtools
-from troveclient.compat import auth
 import mock
+import testtools
 
+from troveclient.compat import auth
 from troveclient.compat import exceptions
 
 """

@@ -26,9 +26,7 @@ class Limit(base.Resource):
 
 
 class Limits(base.ManagerWithFind):
-    """
-    Manages :class `Limit` resources
-    """
+    """Manages :class `Limit` resources."""
     resource_class = Limit
 
     def __repr__(self):
@@ -46,7 +44,5 @@ class Limits(base.ManagerWithFind):
         return [self.resource_class(self, res) for res in body[response_key]]
 
     def list(self):
-        """
-        Retrieve the limits
-        """
+        """Retrieve the limits."""
         return self._list("/limits", "limits")

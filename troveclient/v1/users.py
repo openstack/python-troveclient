@@ -15,43 +15,36 @@
 #    under the License.
 
 from troveclient import base
-from troveclient.v1 import databases
 from troveclient import common
+from troveclient.v1 import databases
 
 
 class User(base.Resource):
-    """
-    A database user
-    """
+    """A database user."""
     def __repr__(self):
         return "<User: %s>" % self.name
 
 
 class Users(base.ManagerWithFind):
-    """
-    Manage :class:`Users` resources.
-    """
+    """Manage :class:`Users` resources."""
     resource_class = User
 
     def create(self, instance_id, users):
-        """
-        Create users with permissions to the specified databases
-        """
+        """Create users with permissions to the specified databases."""
         body = {"users": users}
         url = "/instances/%s/users" % instance_id
         resp, body = self.api.client.post(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
     def delete(self, instance_id, username, hostname=None):
-        """Delete an existing user in the specified instance"""
+        """Delete an existing user in the specified instance."""
         user = common.quote_user_host(username, hostname)
         url = "/instances/%s/users/%s" % (instance_id, user)
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
 
     def list(self, instance, limit=None, marker=None):
-        """
-        Get a list of all Users from the instance's Database.
+        """Get a list of all Users from the instance's Database.
 
         :rtype: list of :class:`User`.
         """
@@ -59,8 +52,7 @@ class Users(base.ManagerWithFind):
         return self._paginated(url, "users", limit, marker)
 
     def get(self, instance_id, username, hostname=None):
-        """
-        Get a single User from the instance's Database.
+        """Get a single User from the instance's Database.
 
         :rtype: :class:`User`.
         """
@@ -70,8 +62,7 @@ class Users(base.ManagerWithFind):
 
     def update_attributes(self, instance, username, newuserattr=None,
                           hostname=None):
-        """
-        Update attributes of a single User in an instance.
+        """Update attributes of a single User in an instance.
 
         :rtype: :class:`User`.
         """
@@ -86,7 +77,7 @@ class Users(base.ManagerWithFind):
         common.check_for_exceptions(resp, body, url)
 
     def list_access(self, instance, username, hostname=None):
-        """Show all databases the given user has access to. """
+        """Show all databases the given user has access to."""
         instance_id = base.getid(instance)
         user = common.quote_user_host(username, hostname)
         url = "/instances/%(instance_id)s/users/%(user)s/databases"
