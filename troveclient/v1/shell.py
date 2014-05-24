@@ -92,7 +92,7 @@ def do_flavor_list(cs, args):
                      labels={'ram': 'RAM'})
 
 
-@utils.arg('flavor', metavar='<flavor>', help='ID of the flavor.')
+@utils.arg('flavor', metavar='<flavor>', help='ID or name of the flavor.')
 @utils.service_type('database')
 def do_flavor_show(cs, args):
     """Shows details of a flavor."""
@@ -121,7 +121,8 @@ def do_list(cs, args):
                                  'flavor_id', 'size'])
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.service_type('database')
 def do_show(cs, args):
     """Shows details of an instance."""
