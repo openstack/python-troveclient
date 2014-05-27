@@ -82,7 +82,7 @@ class InstanceCommands(common.AuthedCommandsBase):
         """Modify an instance."""
         self._require('id')
         self._pretty_print(self.dbaas.instances.modify, self.id,
-                           configuration_ref=self._get_configuration_ref())
+                           configuration=self._get_configuration_ref())
 
     def delete(self):
         """Delete the specified instance."""
