@@ -17,7 +17,6 @@
 
 import Crypto.Random
 import os
-import six
 import tempfile
 import testtools
 
@@ -49,13 +48,6 @@ class UtilsTest(testtools.TestCase):
         os.environ['test_abc'] = 'passing'
         self.assertEqual('passing', utils.env('test_abc'))
         self.assertEqual('', utils.env('test_abcd'))
-
-    def test_slugify(self):
-        import unicodedata  # noqa
-
-        self.assertEqual('not_unicode', utils.slugify('not_unicode'))
-        self.assertEqual('unicode', utils.slugify(six.u('unicode')))
-        self.assertEqual('slugify-test', utils.slugify('SLUGIFY% test!'))
 
     def test_encode_decode_data(self):
         text_data_str = 'This is a text string'

@@ -26,7 +26,6 @@ import prettytable
 import six
 
 from oslo_utils import encodeutils
-from oslo_utils import strutils
 
 from troveclient.openstack.common.apiclient import exceptions
 
@@ -276,21 +275,6 @@ def safe_issubclass(*args):
         pass
 
     return False
-
-
-# http://code.activestate.com/recipes/
-#   577257-slugify-make-a-string-usable-in-a-url-or-filename/
-def slugify(value):
-    """Converts a string usable in a url or filename.
-
-    Normalizes string, converts to lowercase, removes non-alpha characters,
-    and converts spaces to hyphens.
-
-    From Django's "django/template/defaultfilters.py".
-
-    Make use strutils.to_slug from openstack common
-    """
-    return strutils.to_slug(value, incoming=None, errors="strict")
 
 
 def is_uuid_like(val):
