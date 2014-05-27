@@ -177,6 +177,17 @@ class InstancesTest(testtools.TestCase):
         resp.status_code = 500
         self.assertRaises(Exception, self.instances.modify, 'instance1')
 
+    def test_edit(self):
+        resp = mock.Mock()
+        resp.status_code = 204
+        body = None
+        self.instances.api.client.patch = mock.Mock(return_value=(resp, body))
+        self.instances.edit(123)
+        self.instances.edit(123, 321)
+        self.instances.edit(123, 321, 'name-1234')
+        resp.status_code = 500
+        self.assertRaises(Exception, self.instances.edit, 'instance1')
+
     def test_configuration(self):
         def side_effect_func(path, inst):
             return path, inst

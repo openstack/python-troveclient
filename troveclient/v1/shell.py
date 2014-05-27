@@ -148,6 +148,26 @@ def do_delete(cs, args):
     cs.instances.delete(args.instance)
 
 
+@utils.arg('instance',
+           metavar='<instance>',
+           type=str,
+           help='UUID of the instance.')
+@utils.arg('--name',
+           metavar='<name>',
+           type=str,
+           default=None,
+           help='Name of the instance.')
+@utils.arg('--configuration',
+           metavar='<configuration>',
+           type=str,
+           default=None,
+           help='ID of the configuration reference to attach.')
+@utils.service_type('database')
+def do_update(cs, args):
+    """Updates an instance name or configuration."""
+    cs.instances.edit(args.instance, args.configuration, args.name)
+
+
 @utils.arg('name',
            metavar='<name>',
            type=str,
