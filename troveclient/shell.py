@@ -61,7 +61,7 @@ class TroveClientArgumentParser(argparse.ArgumentParser):
         exits.
         """
         self.print_usage(sys.stderr)
-        #FIXME(lzyeval): if changes occur in argparse.ArgParser._check_value
+        # FIXME(lzyeval): if changes occur in argparse.ArgParser._check_value
         choose_from = ' (choose from'
         progparts = self.prog.partition(' ')
         self.exit(2, "error: %(errmsg)s\nTry '%(mainp)s help %(subp)s'"
@@ -389,7 +389,7 @@ class OpenStackTroveShell(object):
             service_type = DEFAULT_TROVE_SERVICE_TYPE
             service_type = utils.get_service_type(args.func) or service_type
 
-        #FIXME(usrleon): Here should be restrict for project id same as
+        # FIXME(usrleon): Here should be restrict for project id same as
         # for os_username or os_password but for compatibility it is not.
 
         if not utils.isunauthenticated(args.func):
@@ -452,7 +452,7 @@ class OpenStackTroveShell(object):
                     "Change its value via either --os-database-api-version "
                     "or env[OS_DATABASE_API_VERSION]")
                    % (options.os_database_api_version, endpoint_api_version))
-            #raise exc.InvalidAPIVersion(msg)
+            # raise exc.InvalidAPIVersion(msg)
             raise exc.UnsupportedVersion(msg)
 
         # Override printing to json output

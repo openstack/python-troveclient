@@ -19,7 +19,7 @@
 Exception definitions
 """
 
-#flake8: noqa
+# flake8: noqa
 # alias exceptions from apiclient for users of this module
 from troveclient.openstack.common.apiclient.exceptions import *
 
