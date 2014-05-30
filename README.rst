@@ -73,7 +73,7 @@ You'll find complete documentation on the shell by running
 
      Positional arguments:
        <subcommand>
-         backup-create       Creates a backup.
+         backup-create       Creates a backup of an instance.
          backup-delete       Deletes a backup.
          backup-list         Lists available backups.
          backup-list-instance
@@ -104,7 +104,7 @@ You'll find complete documentation on the shell by running
                              Updates a configuration group.
          create              Creates a new instance.
          database-create     Creates a database on an instance.
-         database-delete     Deletes a database.
+         database-delete     Deletes a database from an instance.
          database-list       Lists available databases on an instance.
          datastore-list      Lists available datastores.
          datastore-show      Shows details of a datastore.
@@ -119,24 +119,24 @@ You'll find complete documentation on the shell by running
          list                Lists all the instances.
          resize-flavor       Resizes the flavor of an instance.
          resize-volume       Resizes the volume size of an instance.
-         restart             Restarts the instance.
-         root-enable         Enables root for a instance.
-         root-show           Gets root enabled status for a instance.
+         restart             Restarts an instance.
+         root-enable         Enables root for an instance.
+         root-show           Shows 'root enabled' status of an instance.
          secgroup-add-rule   Creates a security group rule.
          secgroup-delete-rule
                              Deletes a security group rule.
          secgroup-list       Lists all security groups.
-         secgroup-show       Shows details about a security group.
+         secgroup-show       Shows details of a security group.
          show                Shows details of an instance.
-         user-create         Creates a user.
-         user-delete         Deletes a user from the instance.
+         user-create         Creates a user on an instance.
+         user-delete         Deletes a user from an instance.
          user-grant-access   Grants access to a database(s) for a user.
-         user-list           Lists the users for a instance.
+         user-list           Lists the users for an instance.
          user-revoke-access  Revokes access to a database for a user.
-         user-show           Gets a user from the instance.
-         user-show-access    Gets a users access from the instance.
+         user-show           Shows details of a user of an instance.
+         user-show-access    Shows access details of a user of an instance.
          user-update-attributes
-                             Updates a users attributes from the instance.
+                             Updates a user's attributes on an instance.
          bash-completion     Prints arguments for bash_completion.
          help                Displays help about this program or one of its
                              subcommands.

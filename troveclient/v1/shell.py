@@ -556,7 +556,7 @@ def do_root_enable(cs, args):
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
 @utils.service_type('database')
 def do_root_show(cs, args):
-    """Shows 'root enabled' status of a instance."""
+    """Shows 'root enabled' status of an instance."""
     root = cs.root.is_root_enabled(args.instance)
     utils.print_dict({'is_root_enabled': root.rootEnabled})
 
