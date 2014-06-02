@@ -273,8 +273,21 @@ def do_create(cs, args):
            help='New flavor of the instance.')
 @utils.service_type('database')
 def do_resize_flavor(cs, args):
-    """Resizes the flavor of an instance."""
-    cs.instances.resize_flavor(args.instance, args.flavor_id)
+    """[DEPRECATED] Please use resize-instance instead."""
+    do_resize_instance(cs, args)
+
+
+@utils.arg('instance',
+           metavar='<instance>',
+           type=str,
+           help='ID of the instance.')
+@utils.arg('flavor_id',
+           metavar='<flavor_id>',
+           help='New flavor of the instance.')
+@utils.service_type('database')
+def do_resize_instance(cs, args):
+    """Resizes an instance with a new flavor."""
+    cs.instances.resize_instance(args.instance, args.flavor_id)
 
 
 @utils.arg('instance',

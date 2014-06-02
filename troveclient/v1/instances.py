@@ -147,7 +147,7 @@ class Instances(base.ManagerWithFind):
         self._action(instance_id, body)
 
     def resize_instance(self, instance_id, flavor_id):
-        """Resize the volume on an existing instances."""
+        """Resizes an instance with a new flavor."""
         body = {"resize": {"flavorRef": flavor_id}}
         self._action(instance_id, body)
 
@@ -166,9 +166,6 @@ class Instances(base.ManagerWithFind):
         """
         return self._get("/instances/%s/configuration" % base.getid(instance),
                          "instance")
-
-
-Instances.resize_flavor = Instances.resize_instance
 
 
 class InstanceStatus(object):
