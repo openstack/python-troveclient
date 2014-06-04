@@ -218,6 +218,10 @@ def do_update(cs, args):
            metavar='<configuration>',
            default=None,
            help='ID of the configuration group to attach to the instance.')
+@utils.arg('--slave_of',
+           metavar='<master_id>',
+           default=None,
+           help='ID of an existing instance to replicate from.')
 @utils.service_type('database')
 def do_create(cs, args):
     """Creates a new instance."""
@@ -251,7 +255,8 @@ def do_create(cs, args):
                                    datastore=args.datastore,
                                    datastore_version=args.datastore_version,
                                    nics=nics,
-                                   configuration=args.configuration)
+                                   configuration=args.configuration,
+                                   slave_of=args.slave_of)
     if hasattr(instance, 'configuration'):
         instance._info['configuration'] = instance.configuration['id']
     instance._info['flavor'] = instance.flavor['id']
