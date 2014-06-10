@@ -38,12 +38,17 @@ class Backups(base.ManagerWithFind):
         return self._get("/backups/%s" % base.getid(backup),
                          "backup")
 
-    def list(self, limit=None, marker=None):
+    def list(self, limit=None, marker=None, datastore=None):
         """Get a list of all backups.
 
         :rtype: list of :class:`Backups`.
         """
-        return self._paginated("/backups", "backups", limit, marker)
+        query_strings = {}
+        if datastore:
+            query_strings = {'datastore': datastore}
+
+        return self._paginated("/backups", "backups", limit, marker,
+                               query_strings)
 
     def create(self, name, instance, description=None, parent_id=None):
         """Create a new backup from the given instance."""

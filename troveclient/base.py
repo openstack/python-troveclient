@@ -62,8 +62,12 @@ class Manager(utils.HookableMixin):
     def __init__(self, api):
         self.api = api
 
-    def _paginated(self, url, response_key, limit=None, marker=None):
-        resp, body = self.api.client.get(common.limit_url(url, limit, marker))
+    def _paginated(self, url, response_key, limit=None, marker=None,
+                   query_strings=None):
+        query_strings = query_strings or {}
+        url = common.append_query_strings(url, limit=limit, marker=marker,
+                                          **query_strings)
+        resp, body = self.api.client.get(url)
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
         links = body.get('links', [])

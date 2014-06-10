@@ -23,16 +23,12 @@ def check_for_exceptions(resp, body, url):
         raise exceptions.from_response(resp, body, url)
 
 
-def limit_url(url, limit=None, marker=None):
-    if not limit and not marker:
+def append_query_strings(url, **query_strings):
+    if not query_strings:
         return url
-    query = []
-    if marker:
-        query.append("marker=%s" % marker)
-    if limit:
-        query.append("limit=%s" % limit)
-    query = '?' + '&'.join(query)
-    return url + query
+    query = '&'.join('{0}={1}'.format(key, val)
+                     for key, val in query_strings.items() if val)
+    return url + ('?' + query if query else "")
 
 
 def quote_user_host(user, host):
