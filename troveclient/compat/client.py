@@ -311,6 +311,7 @@ class Dbaas(object):
         from troveclient.v1 import instances
         from troveclient.v1 import limits
         from troveclient.v1 import management
+        from troveclient.v1 import metadata
         from troveclient.v1 import quota
         from troveclient.v1 import root
         from troveclient.v1 import security_groups
@@ -347,6 +348,7 @@ class Dbaas(object):
         self.configurations = configurations.Configurations(self)
         config_parameters = configurations.ConfigurationParameters(self)
         self.configuration_parameters = config_parameters
+        self.metadata = metadata.Metadata(self)
 
         class Mgmt(object):
             def __init__(self, dbaas):

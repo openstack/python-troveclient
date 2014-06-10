@@ -22,6 +22,7 @@ from troveclient.v1 import datastores
 from troveclient.v1 import flavors
 from troveclient.v1 import instances
 from troveclient.v1 import limits
+from troveclient.v1 import metadata
 from troveclient.v1 import root
 from troveclient.v1 import security_groups
 from troveclient.v1 import users
@@ -66,6 +67,7 @@ class Client(object):
         self.configurations = configurations.Configurations(self)
         config_parameters = configurations.ConfigurationParameters(self)
         self.configuration_parameters = config_parameters
+        self.metadata = metadata.Metadata(self)
 
         # self.hosts = Hosts(self)
         # self.quota = Quotas(self)

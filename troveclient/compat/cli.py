@@ -415,6 +415,20 @@ class SecurityGroupCommands(common.AuthedCommandsBase):
         self.dbaas.security_group_rules.delete(self.id)
 
 
+class MetadataCommands(common.AuthedCommandsBase):
+    """Commands to create/update/replace/delete/show metadata for an instance
+    """
+    params = [
+        'instance_id',
+        'metadata'
+    ]
+
+    def show(self):
+        """Show instance metadata."""
+        self._require('instance_id')
+        self._pretty_print(self.dbaas.metadata.show(self.instance_id))
+
+
 COMMANDS = {
     'auth': common.Auth,
     'instance': InstanceCommands,
@@ -427,6 +441,7 @@ COMMANDS = {
     'root': RootCommands,
     'version': VersionCommands,
     'secgroup': SecurityGroupCommands,
+    'metadata': MetadataCommands,
 }
 
 

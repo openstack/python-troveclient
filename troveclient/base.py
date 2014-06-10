@@ -186,6 +186,10 @@ class Manager(utils.HookableMixin):
         resp, body = self.api.client.put(url, body=body)
         return body
 
+    def _edit(self, url, body):
+        resp, body = self.api.client.patch(url, body=body)
+        return body
+
 
 class ManagerWithFind(six.with_metaclass(abc.ABCMeta, Manager)):
     """Like a `Manager`, but with additional `find()`/`findall()` methods."""
