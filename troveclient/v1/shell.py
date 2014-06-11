@@ -102,10 +102,16 @@ def do_flavor_show(cs, args):
 
 # Instance related calls
 
+@utils.arg('--limit', metavar='<limit>', type=int, default=None,
+           help='Limit the number of results displayed.')
+@utils.arg('--marker', metavar='<ID>', type=str, default=None,
+           help='Begin displaying the results for IDs greater than the '
+                'specified marker. When used with --limit, set this to '
+                'the last ID displayed in the previous run.')
 @utils.service_type('database')
 def do_list(cs, args):
     """Lists all the instances."""
-    instances = cs.instances.list()
+    instances = cs.instances.list(limit=args.limit, marker=args.marker)
 
     for instance in instances:
         setattr(instance, 'flavor_id', instance.flavor['id'])
