@@ -594,20 +594,21 @@ def do_secgroup_list(cs, args):
         wrapper = cs.security_groups.list()
         sec_grps += wrapper.items
 
-    utils.print_list(sec_grps, ['id', 'name', 'rules', 'instance_id'])
+    utils.print_list(sec_grps, ['id', 'name', 'instance_id'])
 
 
 @utils.arg('security_group', metavar='<security_group>',
-           help='ID of the security group.')
+           help='Security group ID')
 @utils.service_type('database')
 def do_secgroup_show(cs, args):
     """Shows details of a security group."""
     sec_grp = cs.security_groups.get(args.security_group)
+    del sec_grp._info['rules']
     _print_instance(sec_grp)
 
 
 @utils.arg('security_group', metavar='<security_group>',
-           help='Security group name.')
+           help='Security group ID.')
 @utils.arg('cidr', metavar='<cidr>', help='CIDR address.')
 @utils.service_type('database')
 def do_secgroup_add_rule(cs, args):
@@ -618,6 +619,18 @@ def do_secgroup_add_rule(cs, args):
     utils.print_list(rules, [
         'id', 'security_group_id', 'protocol',
         'from_port', 'to_port', 'cidr', 'created'], obj_is_dict=True)
+
+
+@utils.arg('security_group', metavar='<security_group>',
+           help='Security group ID.')
+@utils.service_type('database')
+def do_secgroup_list_rules(cs, args):
+    """Lists all rules for a security group."""
+    sec_grp = cs.security_groups.get(args.security_group)
+    rules = sec_grp._info['rules']
+    utils.print_list(
+        rules, ['id', 'protocol', 'from_port', 'to_port', 'cidr'],
+        obj_is_dict=True)
 
 
 @utils.arg('security_group_rule', metavar='<security_group_rule>',

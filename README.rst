@@ -125,6 +125,7 @@ You'll find complete documentation on the shell by running
          secgroup-add-rule   Creates a security group rule.
          secgroup-delete-rule
                              Deletes a security group rule.
+         secgroup-list-rules Lists all rules for a security group.
          secgroup-list       Lists all security groups.
          secgroup-show       Shows details of a security group.
          show                Shows details of an instance.
