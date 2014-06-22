@@ -169,10 +169,16 @@ def do_delete(cs, args):
            type=str,
            default=None,
            help='ID of the configuration reference to attach.')
+@utils.arg('--detach-replica-source',
+           dest='detach_replica_source',
+           action="store_true",
+           default=False,
+           help='Detach the replica instance from its replication source .')
 @utils.service_type('database')
 def do_update(cs, args):
-    """Updates an instance name or configuration."""
-    cs.instances.edit(args.instance, args.configuration, args.name)
+    """Updates an instance: Edits name, configuration, or replica source."""
+    cs.instances.edit(args.instance, args.configuration, args.name,
+                      args.detach_replica_source)
 
 
 @utils.arg('name',
@@ -328,7 +334,16 @@ def do_restart(cs, args):
     cs.instances.restart(args.instance)
 
 
+@utils.arg('instance',
+           metavar='<instance>',
+           type=str,
+           help='ID of the instance.')
+def do_detach_replica(cs, args):
+    """Detaches a replica instance from its replication source."""
+    cs.instances.edit(args.instance, detach_replica_source=True)
+
 # Backup related commands
+
 
 @utils.arg('backup', metavar='<backup>', help='ID of the backup.')
 @utils.service_type('database')

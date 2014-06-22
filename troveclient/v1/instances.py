@@ -38,6 +38,10 @@ class Instance(base.Resource):
         """Restart the database instance."""
         self.manager.restart(self.id)
 
+    def detach_replica(self):
+        """Stops the replica database from being replicated to."""
+        self.manager.edit(self.id, detach_replica_source=True)
+
 
 class Instances(base.ManagerWithFind):
     """Manage :class:`Instance` resources."""
@@ -89,7 +93,8 @@ class Instances(base.ManagerWithFind):
         resp, body = self.api.client.put(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
-    def edit(self, instance_id, configuration=None, name=None):
+    def edit(self, instance_id, configuration=None, name=None,
+             detach_replica_source=False):
         body = {
             "instance": {
             }
@@ -98,6 +103,8 @@ class Instances(base.ManagerWithFind):
             body["instance"]["configuration"] = configuration
         if name is not None:
             body["instance"]["name"] = name
+        if detach_replica_source:
+            body["instance"]["slave_of"] = None
 
         url = "/instances/%s" % instance_id
         resp, body = self.api.client.patch(url, body=body)

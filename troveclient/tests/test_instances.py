@@ -62,6 +62,13 @@ class InstanceTest(testtools.TestCase):
         self.instance.restart()
         self.assertEqual(1, db_restart_mock.call_count)
 
+    def test_detach_replica(self):
+        db_detach_mock = mock.Mock(return_value=None)
+        self.instance.manager.edit = db_detach_mock
+        self.instance.id = 1
+        self.instance.detach_replica()
+        self.assertEqual(1, db_detach_mock.call_count)
+
 
 class InstancesTest(testtools.TestCase):
 
@@ -185,6 +192,7 @@ class InstancesTest(testtools.TestCase):
         self.instances.edit(123)
         self.instances.edit(123, 321)
         self.instances.edit(123, 321, 'name-1234')
+        self.instances.edit(123, 321, 'name-1234', True)
         resp.status_code = 500
         self.assertRaises(Exception, self.instances.edit, 'instance1')
 
