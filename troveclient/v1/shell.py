@@ -852,8 +852,9 @@ def do_configuration_instances(cs, args):
 def do_configuration_list(cs, args):
     """Lists all configuration groups."""
     config_grps = cs.configurations.list()
-    utils.print_list(config_grps, ['id', 'name', 'description',
-                                   'datastore_version_id'])
+    utils.print_list(config_grps, [
+        'id', 'name', 'description',
+        'datastore_name', 'datastore_version_name'])
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
@@ -863,6 +864,8 @@ def do_configuration_show(cs, args):
     """Shows details of a configuration group."""
     config_grp = cs.configurations.get(args.configuration_group)
     config_grp._info['values'] = json.dumps(config_grp.values)
+
+    del config_grp._info['datastore_version_id']
     _print_instance(config_grp)
 
 
