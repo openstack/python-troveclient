@@ -396,6 +396,30 @@ def do_backup_create(cs, args):
     _print_instance(backup)
 
 
+@utils.arg('name', metavar='<name>', help='Name of the backup.')
+@utils.arg('backup', metavar='<backup>',
+           help='Backup ID of the source backup.',
+           default=None)
+@utils.arg('--region', metavar='<region>', help='Region where the source '
+                                                'backup resides.',
+           default=None)
+@utils.arg('--description', metavar='<description>',
+           default=None,
+           help='An optional description for the backup.')
+@utils.service_type('database')
+def do_backup_copy(cs, args):
+    """Creates a backup from another backup."""
+    if args.backup:
+        backup_ref = {"id": args.backup,
+                      "region": args.region}
+    else:
+        backup_ref = None
+    backup = cs.backups.create(args.name, instance=None,
+                               description=args.description,
+                               parent_id=None, backup=backup_ref,)
+    _print_instance(backup)
+
+
 # Database related actions
 
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
