@@ -220,7 +220,7 @@ class OpenStackTroveShell(object):
                             action='store_true',
                             default=utils.env('OS_JSON_OUTPUT',
                                               default=False),
-                            help='Output json instead of prettyprint. '
+                            help='Output JSON instead of prettyprint. '
                                  'Defaults to env[OS_JSON_OUTPUT].')
 
         return parser

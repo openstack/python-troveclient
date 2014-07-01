@@ -175,7 +175,7 @@ You'll find complete documentation on the shell by running
                              env[OS_CACERT].
        --retries <retries>   Number of retries.
        --json, --os-json-output
-                             Output json instead of prettyprint. Defaults to
+                             Output JSON instead of prettyprint. Defaults to
                              env[OS_JSON_OUTPUT].
 
 Python API
