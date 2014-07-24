@@ -183,7 +183,8 @@ def do_update(cs, args):
            metavar='<size>',
            type=int,
            default=None,
-           help='Size of the instance disk in GB.')
+           help="Size of the instance disk volume in GB. "
+                "Required when volume support is enabled.")
 @utils.arg('flavor_id',
            metavar='<flavor_id>',
            help='Flavor of the instance.')
