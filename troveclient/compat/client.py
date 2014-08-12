@@ -302,6 +302,7 @@ class Dbaas(object):
         from troveclient.compat import versions
         from troveclient.v1 import accounts
         from troveclient.v1 import backups
+        from troveclient.v1 import clusters
         from troveclient.v1 import configurations
         from troveclient.v1 import databases
         from troveclient.v1 import datastores
@@ -335,6 +336,7 @@ class Dbaas(object):
         self.hosts = hosts.Hosts(self)
         self.quota = quota.Quotas(self)
         self.backups = backups.Backups(self)
+        self.clusters = clusters.Clusters(self)
         self.security_groups = security_groups.SecurityGroups(self)
         self.security_group_rules = security_groups.SecurityGroupRules(self)
         self.datastores = datastores.Datastores(self)
@@ -343,6 +345,7 @@ class Dbaas(object):
                                           DatastoreVersionMembers(self))
         self.storage = storage.StorageInfo(self)
         self.management = management.Management(self)
+        self.mgmt_cluster = management.MgmtClusters(self)
         self.mgmt_flavor = management.MgmtFlavors(self)
         self.accounts = accounts.Accounts(self)
         self.diagnostics = diagnostics.DiagnosticsInterrogator(self)

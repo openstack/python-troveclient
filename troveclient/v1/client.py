@@ -16,6 +16,7 @@
 
 from troveclient import client as trove_client
 from troveclient.v1 import backups
+from troveclient.v1 import clusters
 from troveclient.v1 import configurations
 from troveclient.v1 import databases
 from troveclient.v1 import datastores
@@ -57,6 +58,7 @@ class Client(object):
         self.users = users.Users(self)
         self.databases = databases.Databases(self)
         self.backups = backups.Backups(self)
+        self.clusters = clusters.Clusters(self)
         self.instances = instances.Instances(self)
         self.limits = limits.Limits(self)
         self.root = root.Root(self)
@@ -73,6 +75,7 @@ class Client(object):
         # self.quota = Quotas(self)
         # self.storage = StorageInfo(self)
         # self.management = Management(self)
+        # self.management = MgmtClusters(self)
         # self.mgmt_flavor = MgmtFlavors(self)
         # self.accounts = Accounts(self)
         # self.diagnostics = DiagnosticsInterrogator(self)

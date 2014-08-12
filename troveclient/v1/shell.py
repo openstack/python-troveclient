@@ -95,6 +95,11 @@ def _find_instance(cs, instance):
     return utils.find_resource(cs.instances, instance)
 
 
+def _find_cluster(cs, cluster):
+    """Get a cluster by ID."""
+    return utils.find_resource(cs.clusters, cluster)
+
+
 def _find_flavor(cs, flavor):
     """Get a flavor by ID."""
     return utils.find_resource(cs.flavors, flavor)
@@ -131,10 +136,15 @@ def do_flavor_show(cs, args):
            help='Begin displaying the results for IDs greater than the '
                 'specified marker. When used with --limit, set this to '
                 'the last ID displayed in the previous run.')
+@utils.arg('--include-clustered', dest='include_clustered',
+           action="store_true", default=False,
+           help="Include instances that are part of a cluster "
+                "(default false).")
 @utils.service_type('database')
 def do_list(cs, args):
     """Lists all the instances."""
-    instances = cs.instances.list(limit=args.limit, marker=args.marker)
+    instances = cs.instances.list(limit=args.limit, marker=args.marker,
+                                  include_clustered=args.include_clustered)
 
     for instance in instances:
         setattr(instance, 'flavor_id', instance.flavor['id'])
@@ -150,6 +160,26 @@ def do_list(cs, args):
                                  'flavor_id', 'size'])
 
 
+@utils.arg('--limit', metavar='<limit>', type=int, default=None,
+           help='Limit the number of results displayed.')
+@utils.arg('--marker', metavar='<ID>', type=str, default=None,
+           help='Begin displaying the results for IDs greater than the '
+                'specified marker. When used with --limit, set this to '
+                'the last ID displayed in the previous run.')
+@utils.service_type('database')
+def do_cluster_list(cs, args):
+    """Lists all the clusters."""
+    clusters = cs.clusters.list(limit=args.limit, marker=args.marker)
+
+    for cluster in clusters:
+        setattr(cluster, 'datastore_version',
+                cluster.datastore['version'])
+        setattr(cluster, 'datastore', cluster.datastore['type'])
+        setattr(cluster, 'task_name', cluster.task['name'])
+    utils.print_list(clusters, ['id', 'name', 'datastore',
+                                'datastore_version', 'task_name'])
+
+
 @utils.arg('instance', metavar='<instance>',
            help='ID or name of the instance.')
 @utils.service_type('database')
@@ -159,11 +189,51 @@ def do_show(cs, args):
     _print_instance(instance)
 
 
+@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.service_type('database')
+def do_cluster_show(cs, args):
+    """Shows details of a cluster."""
+    cluster = _find_cluster(cs, args.cluster)
+    info = cluster._info.copy()
+    info['datastore'] = cluster.datastore['type']
+    info['datastore_version'] = cluster.datastore['version']
+    info['task_name'] = cluster.task['name']
+    info['task_description'] = cluster.task['description']
+    del info['task']
+    if hasattr(cluster, 'ip'):
+        info['ip'] = ', '.join(cluster.ip)
+    del info['instances']
+    cluster._info = info
+    _print_instance(cluster)
+
+
+@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.service_type('database')
+def do_cluster_instances(cs, args):
+    """Lists all instances of a cluster."""
+    cluster = _find_cluster(cs, args.cluster)
+    instances = cluster._info['instances']
+    for instance in instances:
+        instance['flavor_id'] = instance['flavor']['id']
+        if instance.get('volume'):
+            instance['size'] = instance['volume']['size']
+    utils.print_list(
+        instances, ['id', 'name', 'flavor_id', 'size', 'status'],
+        obj_is_dict=True)
+
+
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
 @utils.service_type('database')
 def do_delete(cs, args):
     """Deletes an instance."""
     cs.instances.delete(args.instance)
+
+
+@utils.arg('cluster', metavar='<cluster>', help='ID of the cluster.')
+@utils.service_type('database')
+def do_cluster_delete(cs, args):
+    """Deletes a cluster."""
+    cs.clusters.delete(args.cluster)
 
 
 @utils.arg('instance',
@@ -288,6 +358,56 @@ def do_create(cs, args):
                                    configuration=args.configuration,
                                    slave_of=args.slave_of)
     _print_instance(instance)
+
+
+@utils.arg('name',
+           metavar='<name>',
+           type=str,
+           help='Name of the cluster.')
+@utils.arg('datastore',
+           metavar='<datastore>',
+           help='A datastore name or UUID.')
+@utils.arg('datastore_version',
+           metavar='<datastore_version>',
+           help='A datastore version name or UUID.')
+@utils.arg('--instance',
+           metavar="<flavor_id=flavor_id,volume=volume>",
+           action='append',
+           dest='instances',
+           default=[],
+           help="Create an instance for the cluster.  Specify multiple "
+                "times to create multiple instances.")
+@utils.service_type('database')
+def do_cluster_create(cs, args):
+    """Creates a new cluster."""
+    instances = []
+    for instance_str in args.instances:
+        instance_info = {}
+        for z in instance_str.split(","):
+            for (k, v) in [z.split("=", 1)[:2]]:
+                if k == "flavor_id":
+                    instance_info["flavorRef"] = v
+                elif k == "volume":
+                    instance_info["volume"] = {"size": v}
+                else:
+                    instance_info[k] = v
+        if not instance_info.get('flavorRef'):
+            err_msg = ("flavor_id is required. Instance arguments must be "
+                       "of the form --instance <flavor_id=flavor_id,"
+                       "volume=volume>.")
+            raise exceptions.CommandError(err_msg)
+        instances.append(instance_info)
+    cluster = cs.clusters.create(args.name,
+                                 args.datastore,
+                                 args.datastore_version,
+                                 instances=instances)
+    cluster._info['task_name'] = cluster.task['name']
+    cluster._info['task_description'] = cluster.task['description']
+    del cluster._info['task']
+    cluster._info['datastore'] = cluster.datastore['type']
+    cluster._info['datastore_version'] = cluster.datastore['version']
+    del cluster._info['instances']
+    _print_instance(cluster)
 
 
 @utils.arg('instance',
