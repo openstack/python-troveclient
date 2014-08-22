@@ -94,11 +94,16 @@ class Instances(base.ManagerWithFind):
         common.check_for_exceptions(resp, body, url)
 
     def edit(self, instance_id, configuration=None, name=None,
-             detach_replica_source=False):
+             detach_replica_source=False, remove_configuration=False):
         body = {
             "instance": {
             }
         }
+        if configuration and remove_configuration:
+            raise Exception("Cannot attach and detach configuration "
+                            "simultaneosly.")
+        if remove_configuration:
+            body["instance"]["configuration"] = None
         if configuration is not None:
             body["instance"]["configuration"] = configuration
         if name is not None:
