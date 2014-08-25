@@ -54,6 +54,8 @@ Since Keystone can return multiple regions in the Service Catalog, you
 can specify the one you want with ``--os-region-name`` (or
 ``export OS_REGION_NAME``). It defaults to the first in the list returned.
 
+Argument ``--profile`` is available only when the osprofiler lib is installed.
+
 You'll find complete documentation on the shell by running
 ``trove help``::
     usage: trove [--version] [--debug] [--os-username <auth-user-name>]
@@ -183,6 +185,15 @@ You'll find complete documentation on the shell by running
       --retries <retries>             Number of retries.
       --json, --os-json-output        Output JSON instead of prettyprint. Defaults
                                       to env[OS_JSON_OUTPUT].
+      --profile HMAC_KEY              HMAC key to use for encrypting context data
+                                      for performance profiling of operation. This
+                                      key should be the value of HMAC key
+                                      configured in osprofiler middleware in
+                                      Trove, it is specified in paste configure
+                                      file at /etc/trove/api-paste.ini. Without
+                                      key the profiling will not be triggered even
+                                      if osprofiler is enabled on server side.
+                                      Defaults to env[OS_PROFILE_HMACKEY].
 
 Python API
 ----------

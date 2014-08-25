@@ -28,6 +28,7 @@ import requests
 from keystoneclient import adapter
 from troveclient.openstack.common.apiclient import client
 from troveclient.openstack.common.apiclient import exceptions
+from troveclient.openstack.common import importutils
 from troveclient import service_catalog
 
 try:
@@ -49,6 +50,8 @@ except ImportError:
 if not hasattr(urlparse, 'parse_qsl'):
     import cgi
     urlparse.parse_qsl = cgi.parse_qsl
+
+osprofiler_web = importutils.try_import("osprofiler.web")
 
 
 class TroveClientMixin(object):
@@ -157,6 +160,8 @@ class HTTPClient(TroveClientMixin):
         kwargs.setdefault('headers', kwargs.get('headers', {}))
         kwargs['headers']['User-Agent'] = self.USER_AGENT
         kwargs['headers']['Accept'] = 'application/json'
+        if osprofiler_web:
+            kwargs['headers'].update(osprofiler_web.get_trace_id_headers())
         if 'body' in kwargs:
             kwargs['headers']['Content-Type'] = 'application/json'
             kwargs['data'] = json.dumps(kwargs['body'])

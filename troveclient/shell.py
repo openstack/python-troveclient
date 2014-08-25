@@ -44,6 +44,7 @@ from troveclient import client
 from troveclient.openstack.common.apiclient import exceptions as exc
 from troveclient.openstack.common import gettextutils as gtu
 from troveclient.openstack.common.gettextutils import _  # noqa
+from troveclient.openstack.common import importutils
 from troveclient.openstack.common import strutils
 from troveclient import utils
 from troveclient.v1 import shell as shell_v1
@@ -54,6 +55,7 @@ DEFAULT_TROVE_ENDPOINT_TYPE = 'publicURL'
 DEFAULT_TROVE_SERVICE_TYPE = 'database'
 
 logger = logging.getLogger(__name__)
+osprofiler_profiler = importutils.try_import("osprofiler.profiler")
 
 
 class TroveClientArgumentParser(argparse.ArgumentParser):
@@ -172,6 +174,22 @@ class OpenStackTroveShell(object):
                                               default=False),
                             help='Output JSON instead of prettyprint. '
                                  'Defaults to env[OS_JSON_OUTPUT].')
+
+        if osprofiler_profiler:
+            parser.add_argument('--profile',
+                                metavar='HMAC_KEY',
+                                default=utils.env('OS_PROFILE_HMACKEY',
+                                                  default=None),
+                                help='HMAC key to use for encrypting context '
+                                'data for performance profiling of operation. '
+                                'This key should be the value of HMAC key '
+                                'configured in osprofiler middleware in '
+                                'Trove, it is specified in paste '
+                                'configure file at /etc/trove/api-paste.ini. '
+                                'Without key the profiling will not be '
+                                'triggered even if osprofiler is enabled '
+                                'on server side. '
+                                'Defaults to env[OS_PROFILE_HMACKEY].')
 
         self._append_global_identity_args(parser)
 
@@ -452,6 +470,10 @@ class OpenStackTroveShell(object):
                     project_domain_id=args.os_project_domain_id,
                     project_domain_name=args.os_project_domain_name)
 
+        profile = osprofiler_profiler and options.profile
+        if profile:
+            osprofiler_profiler.init(options.profile)
+
         self.cs = client.Client(options.os_database_api_version, os_username,
                                 os_password, os_tenant_name, os_auth_url,
                                 insecure, region_name=os_region_name,
@@ -498,7 +520,14 @@ class OpenStackTroveShell(object):
         else:
             utils.json_output = False
 
-        args.func(self.cs, args)
+        try:
+            args.func(self.cs, args)
+        finally:
+            if profile:
+                trace_id = osprofiler_profiler.get().get_base_id()
+                print("Trace ID: %s" % trace_id)
+                print("To display trace use next command:\n"
+                      "osprofiler trace show --html %s" % trace_id)
 
     def _run_extension_hooks(self, hook_type, *args, **kwargs):
         """Run hooks for all registered extensions."""
