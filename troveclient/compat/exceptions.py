@@ -108,6 +108,12 @@ class NotFound(ClientException):
     message = "Not found"
 
 
+class Conflict(ClientException):
+    """HTTP 409 - Conflict."""
+    http_status = 409
+    message = "Conflict"
+
+
 class OverLimit(ClientException):
     """HTTP 413
     - Over limit: you're over the API limits for this time period.
@@ -138,8 +144,8 @@ class UnprocessableEntity(ClientException):
 #
 # Instead, we have to hardcode it:
 _code_map = dict((c.http_status, c) for c in [BadRequest, Unauthorized,
-                                              Forbidden, NotFound, OverLimit,
-                                              HTTPNotImplemented,
+                                              Forbidden, NotFound, Conflict,
+                                              OverLimit, HTTPNotImplemented,
                                               UnprocessableEntity])
 
 

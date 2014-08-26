@@ -339,6 +339,8 @@ class Dbaas(object):
         self.security_group_rules = security_groups.SecurityGroupRules(self)
         self.datastores = datastores.Datastores(self)
         self.datastore_versions = datastores.DatastoreVersions(self)
+        self.datastore_version_members = (datastores.
+                                          DatastoreVersionMembers(self))
         self.storage = storage.StorageInfo(self)
         self.management = management.Management(self)
         self.mgmt_flavor = management.MgmtFlavors(self)
