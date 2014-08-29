@@ -61,10 +61,33 @@ def _poll_for_status(poll_fn, obj_id, action, final_ok_states,
 
 
 def _print_instance(instance):
+    info = instance._info.copy()
+    info['flavor'] = instance.flavor['id']
+    if hasattr(instance, 'volume'):
+        info['volume'] = instance.volume['size']
+        if 'used' in instance.volume:
+            info['volume_used'] = instance.volume['used']
+    if hasattr(instance, 'ip'):
+        info['ip'] = ', '.join(instance.ip)
+    if hasattr(instance, 'datastore'):
+        info['datastore'] = instance.datastore['type']
+        info['datastore_version'] = instance.datastore['version']
+    if hasattr(instance, 'configuration'):
+        info['configuration'] = instance.configuration['id']
+    if hasattr(instance, 'slave_of'):
+        info['slave_of'] = instance.slave_of['id']
+    if hasattr(instance, 'slaves'):
+        slaves = [slave['id'] for slave in instance.slaves]
+        info['slaves'] = ', '.join(slaves)
+    info.pop('links', None)
+    utils.print_dict(info)
+
+
+def _print_object(obj):
     # Get rid of those ugly links
-    if instance._info.get('links'):
-        del(instance._info['links'])
-    utils.print_dict(instance._info)
+    if obj._info.get('links'):
+        del(obj._info['links'])
+    utils.print_dict(obj._info)
 
 
 def _find_instance(cs, instance):
@@ -97,7 +120,7 @@ def do_flavor_list(cs, args):
 def do_flavor_show(cs, args):
     """Shows details of a flavor."""
     flavor = _find_flavor(cs, args.flavor)
-    _print_instance(flavor)
+    _print_object(flavor)
 
 
 # Instance related calls
@@ -133,18 +156,6 @@ def do_list(cs, args):
 def do_show(cs, args):
     """Shows details of an instance."""
     instance = _find_instance(cs, args.instance)
-    instance._info['flavor'] = instance.flavor['id']
-    if hasattr(instance, 'volume'):
-        instance._info['volume'] = instance.volume['size']
-        if 'used' in instance.volume:
-            instance._info['volume_used'] = instance.volume['used']
-    if hasattr(instance, 'ip'):
-        instance._info['ip'] = ', '.join(instance.ip)
-    if hasattr(instance, 'datastore'):
-        instance._info['datastore'] = instance.datastore['type']
-        instance._info['datastore_version'] = instance.datastore['version']
-    if hasattr(instance, 'configuration'):
-        instance._info['configuration'] = instance.configuration['id']
     _print_instance(instance)
 
 
@@ -265,15 +276,6 @@ def do_create(cs, args):
                                    nics=nics,
                                    configuration=args.configuration,
                                    slave_of=args.slave_of)
-    if hasattr(instance, 'configuration'):
-        instance._info['configuration'] = instance.configuration['id']
-    instance._info['flavor'] = instance.flavor['id']
-    if hasattr(instance, 'volume'):
-        instance._info['volume'] = instance.volume['size']
-    if hasattr(instance, 'datastore'):
-        instance._info['datastore'] = instance.datastore['type']
-        instance._info['datastore_version'] = instance.datastore['version']
-    del(instance._info['links'])
     _print_instance(instance)
 
 
@@ -335,7 +337,7 @@ def do_restart(cs, args):
 def do_backup_show(cs, args):
     """Shows details of a backup."""
     backup = _find_backup(cs, args.backup)
-    _print_instance(backup)
+    _print_object(backup)
 
 
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
@@ -395,7 +397,7 @@ def do_backup_create(cs, args):
     backup = cs.backups.create(args.name, args.instance,
                                description=args.description,
                                parent_id=args.parent)
-    _print_instance(backup)
+    _print_object(backup)
 
 
 @utils.arg('name', metavar='<name>', help='Name of the backup.')
@@ -419,7 +421,7 @@ def do_backup_copy(cs, args):
     backup = cs.backups.create(args.name, instance=None,
                                description=args.description,
                                parent_id=None, backup=backup_ref,)
-    _print_instance(backup)
+    _print_object(backup)
 
 
 # Database related actions
@@ -518,7 +520,7 @@ def do_user_delete(cs, args):
 def do_user_show(cs, args):
     """Shows details of a user of an instance."""
     user = cs.users.get(args.instance, args.name, hostname=args.host)
-    _print_instance(user)
+    _print_object(user)
 
 
 @utils.arg('instance', metavar='<instance>', help='ID of the instance.')
@@ -592,7 +594,7 @@ def do_limit_list(cs, args):
     limits = cs.limits.list()
     # Pop the first one, its absolute limits
     absolute = limits.pop(0)
-    _print_instance(absolute)
+    _print_object(absolute)
     utils.print_list(limits, ['value', 'verb', 'remaining', 'unit'])
 
 
@@ -635,7 +637,7 @@ def do_secgroup_show(cs, args):
     """Shows details of a security group."""
     sec_grp = cs.security_groups.get(args.security_group)
     del sec_grp._info['rules']
-    _print_instance(sec_grp)
+    _print_object(sec_grp)
 
 
 @utils.arg('security_group', metavar='<security_group>',
@@ -688,7 +690,7 @@ def do_datastore_show(cs, args):
     if hasattr(datastore, 'default_version'):
         datastore._info['default_version'] = getattr(datastore,
                                                      'default_version')
-    _print_instance(datastore)
+    _print_object(datastore)
 
 
 @utils.arg('datastore', metavar='<datastore>',
@@ -719,7 +721,7 @@ def do_datastore_version_show(cs, args):
         raise exceptions.NoUniqueMatch('The datastore name or id is required'
                                        ' to retrieve a datastore version'
                                        ' by name.')
-    _print_instance(datastore_version)
+    _print_object(datastore_version)
 
 
 # configuration group related functions
@@ -758,7 +760,7 @@ def do_configuration_create(cs, args):
         datastore=args.datastore,
         datastore_version=args.datastore_version)
     config_grp._info['values'] = json.dumps(config_grp.values)
-    _print_instance(config_grp)
+    _print_object(config_grp)
 
 
 @utils.arg('instance',
@@ -813,7 +815,7 @@ def do_configuration_parameter_show(cs, args):
         param = cs.configuration_parameters.get_parameter_by_version(
             args.datastore_version,
             args.parameter)
-    _print_instance(param)
+    _print_object(param)
 
 
 @utils.arg('--datastore', metavar='<datastore>',
@@ -881,7 +883,7 @@ def do_configuration_show(cs, args):
     config_grp._info['values'] = json.dumps(config_grp.values)
 
     del config_grp._info['datastore_version_id']
-    _print_instance(config_grp)
+    _print_object(config_grp)
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
@@ -907,7 +909,7 @@ def do_configuration_update(cs, args):
 def do_metadata_list(cs, args):
     """Shows all metadata for instance <id>."""
     result = cs.metadata.list(args.instance_id)
-    _print_instance(result)
+    _print_object(result)
 
 
 @utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance')
@@ -916,7 +918,7 @@ def do_metadata_list(cs, args):
 def do_metadata_show(cs, args):
     """Shows metadata entry for key <key> and instance <id>."""
     result = cs.metadata.show(args.instance_id, args.key)
-    _print_instance(result)
+    _print_object(result)
 
 
 @utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance')
@@ -946,7 +948,7 @@ def do_metadata_update(cs, args):
 def do_metadata_create(cs, args):
     """Creates metadata in the database for instance <id>."""
     result = cs.metadata.create(args.instance_id, args.key, args.value)
-    _print_instance(result)
+    _print_object(result)
 
 
 @utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance')
