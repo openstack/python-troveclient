@@ -74,11 +74,11 @@ def _print_instance(instance):
         info['datastore_version'] = instance.datastore['version']
     if hasattr(instance, 'configuration'):
         info['configuration'] = instance.configuration['id']
-    if hasattr(instance, 'slave_of'):
-        info['slave_of'] = instance.slave_of['id']
-    if hasattr(instance, 'slaves'):
-        slaves = [slave['id'] for slave in instance.slaves]
-        info['slaves'] = ', '.join(slaves)
+    if hasattr(instance, 'replica_of'):
+        info['replica_of'] = instance.replica_of['id']
+    if hasattr(instance, 'replicas'):
+        replicas = [replica['id'] for replica in instance.replicas]
+        info['replicas'] = ', '.join(replicas)
     info.pop('links', None)
     utils.print_dict(info)
 
@@ -318,8 +318,8 @@ def do_update(cs, args):
            metavar='<configuration>',
            default=None,
            help='ID of the configuration group to attach to the instance.')
-@utils.arg('--slave_of',
-           metavar='<master_id>',
+@utils.arg('--replica_of',
+           metavar='<source_id>',
            default=None,
            help='ID of an existing instance to replicate from.')
 @utils.service_type('database')
@@ -356,7 +356,7 @@ def do_create(cs, args):
                                    datastore_version=args.datastore_version,
                                    nics=nics,
                                    configuration=args.configuration,
-                                   slave_of=args.slave_of)
+                                   replica_of=args.replica_of)
     _print_instance(instance)
 
 
