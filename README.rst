@@ -56,127 +56,133 @@ can specify the one you want with ``--os-region-name`` (or
 
 You'll find complete documentation on the shell by running
 ``trove help``::
+    usage: trove [--version] [--debug] [--os-username <auth-user-name>]
+                 [--os-password <auth-password>]
+                 [--os-tenant-name <auth-tenant-name>]
+                 [--os-tenant-id <auth-tenant-id>] [--os-auth-url <auth-url>]
+                 [--os-region-name <region-name>] [--service-type <service-type>]
+                 [--service-name <service-name>] [--bypass-url <bypass-url>]
+                 [--database-service-name <database-service-name>]
+                 [--endpoint-type <endpoint-type>]
+                 [--os-database-api-version <database-api-ver>]
+                 [--os-cacert <ca-certificate>] [--retries <retries>] [--json]
+                 <subcommand> ...
 
-     usage: trove [--version] [--debug] [--os-username <auth-user-name>]
-                  [--os-password <auth-password>]
-                  [--os-tenant-name <auth-tenant-name>]
-                  [--os-tenant-id <auth-tenant-id>] [--os-auth-url <auth-url>]
-                  [--os-region-name <region-name>] [--service-type <service-type>]
-                  [--service-name <service-name>] [--bypass-url <bypass-url>]
-                  [--database-service-name <database-service-name>]
-                  [--endpoint-type <endpoint-type>]
-                  [--os-database-api-version <database-api-ver>]
-                  [--os-cacert <ca-certificate>] [--retries <retries>] [--json]
-                  <subcommand> ...
+    Command-line interface to the OpenStack Trove API.
 
-     Command-line interface to the OpenStack Trove API.
+    Positional arguments:
+      <subcommand>
+        backup-copy                   Creates a backup from another backup.
+        backup-create                 Creates a backup of an instance.
+        backup-delete                 Deletes a backup.
+        backup-list                   Lists available backups.
+        backup-list-instance          Lists available backups for an instance.
+        backup-show                   Shows details of a backup.
+        cluster-create                Creates a new cluster.
+        cluster-delete                Deletes a cluster.
+        cluster-instances             Lists all instances of a cluster.
+        cluster-list                  Lists all the clusters.
+        cluster-show                  Shows details of a cluster.
+        configuration-attach          Attaches a configuration group to an
+                                      instance.
+        configuration-create          Creates a configuration group.
+        configuration-default         Shows the default configuration of an
+                                      instance.
+        configuration-delete          Deletes a configuration group.
+        configuration-detach          Detaches a configuration group from an
+                                      instance.
+        configuration-instances       Lists all instances associated with a
+                                      configuration group.
+        configuration-list            Lists all configuration groups.
+        configuration-parameter-list  Lists available parameters for a
+                                      configuration group.
+        configuration-parameter-show  Shows details of a configuration parameter.
+        configuration-patch           Patches a configuration group.
+        configuration-show            Shows details of a configuration group.
+        configuration-update          Updates a configuration group.
+        create                        Creates a new instance.
+        database-create               Creates a database on an instance.
+        database-delete               Deletes a database from an instance.
+        database-list                 Lists available databases on an instance.
+        datastore-list                Lists available datastores.
+        datastore-show                Shows details of a datastore.
+        datastore-version-list        Lists available versions for a datastore.
+        datastore-version-show        Shows details of a datastore version.
+        delete                        Deletes an instance.
+        detach-replica                Detaches a replica instance from its
+                                      replication source.
+        flavor-list                   Lists available flavors.
+        flavor-show                   Shows details of a flavor.
+        limit-list                    Lists the limits for a tenant.
+        list                          Lists all the instances.
+        metadata-create               Creates metadata in the database for
+                                      instance <id>.
+        metadata-delete               Deletes metadata for instance <id>.
+        metadata-edit                 Replaces metadata value with a new one, this
+                                      is non-destructive.
+        metadata-list                 Shows all metadata for instance <id>.
+        metadata-show                 Shows metadata entry for key <key> and
+                                      instance <id>.
+        metadata-update               Updates metadata, this is destructive.
+        resize-flavor                 [DEPRECATED] Please use resize-instance
+                                      instead.
+        resize-instance               Resizes an instance with a new flavor.
+        resize-volume                 Resizes the volume size of an instance.
+        restart                       Restarts an instance.
+        root-enable                   Enables root for an instance and resets if
+                                      already exists.
+        root-show                     Gets status if root was ever enabled for an
+                                      instance.
+        secgroup-add-rule             Creates a security group rule.
+        secgroup-delete-rule          Deletes a security group rule.
+        secgroup-list                 Lists all security groups.
+        secgroup-list-rules           Lists all rules for a security group.
+        secgroup-show                 Shows details of a security group.
+        show                          Shows details of an instance.
+        update                        Updates an instance: Edits name,
+                                      configuration, or replica source.
+        user-create                   Creates a user on an instance.
+        user-delete                   Deletes a user from an instance.
+        user-grant-access             Grants access to a database(s) for a user.
+        user-list                     Lists the users for an instance.
+        user-revoke-access            Revokes access to a database for a user.
+        user-show                     Shows details of a user of an instance.
+        user-show-access              Shows access details of a user of an
+                                      instance.
+        user-update-attributes        Updates a user's attributes on an instance.
+        bash-completion               Prints arguments for bash_completion.
+        help                          Displays help about this program or one of
+                                      its subcommands.
 
-     Positional arguments:
-       <subcommand>
-         backup-create       Creates a backup of an instance.
-         backup-delete       Deletes a backup.
-         backup-list         Lists available backups.
-         backup-list-instance
-                             Lists available backups for an instance.
-         backup-show         Shows details of a backup.
-         configuration-attach
-                             Attaches a configuration group to an instance.
-         configuration-create
-                             Creates a configuration group.
-         configuration-default
-                             Shows the default configuration of an instance.
-         configuration-delete
-                             Deletes a configuration group.
-         configuration-detach
-                             Detaches a configuration group from an instance.
-         configuration-instances
-                             Lists all instances associated with a configuration
-                             group.
-         configuration-list  Lists all configuration groups.
-         configuration-parameter-list
-                             Lists available parameters for a configuration group.
-         configuration-parameter-show
-                             Shows details of a configuration parameter.
-         configuration-patch
-                             Patches a configuration group.
-         configuration-show  Shows details of a configuration group.
-         configuration-update
-                             Updates a configuration group.
-         create              Creates a new instance.
-         database-create     Creates a database on an instance.
-         database-delete     Deletes a database from an instance.
-         database-list       Lists available databases on an instance.
-         datastore-list      Lists available datastores.
-         datastore-show      Shows details of a datastore.
-         datastore-version-list
-                             Lists available versions for a datastore.
-         datastore-version-show
-                             Shows details of a datastore version.
-         delete              Deletes an instance.
-         flavor-list         Lists available flavors.
-         flavor-show         Shows details of a flavor.
-         limit-list          Lists the limits for a tenant.
-         list                Lists all the instances.
-         resize-flavor       Resizes the flavor of an instance.
-         resize-volume       Resizes the volume size of an instance.
-         restart             Restarts an instance.
-         root-enable         Enables root for an instance and resets if already exists.
-         root-show           Gets status if root was ever enabled for an instance.
-         secgroup-add-rule   Creates a security group rule.
-         secgroup-delete-rule
-                             Deletes a security group rule.
-         secgroup-list-rules Lists all rules for a security group.
-         secgroup-list       Lists all security groups.
-         secgroup-show       Shows details of a security group.
-         show                Shows details of an instance.
-         user-create         Creates a user on an instance.
-         user-delete         Deletes a user from an instance.
-         user-grant-access   Grants access to a database(s) for a user.
-         user-list           Lists the users for an instance.
-         user-revoke-access  Revokes access to a database for a user.
-         user-show           Shows details of a user of an instance.
-         user-show-access    Shows access details of a user of an instance.
-         user-update-attributes
-                             Updates a user's attributes on an instance.
-         bash-completion     Prints arguments for bash_completion.
-         help                Displays help about this program or one of its
-                             subcommands.
-
-     Optional arguments:
-       --version             show program's version number and exit
-       --debug               Print debugging output.
-       --os-username <auth-user-name>
-                             Defaults to env[OS_USERNAME].
-       --os-password <auth-password>
-                             Defaults to env[OS_PASSWORD].
-       --os-tenant-name <auth-tenant-name>
-                             Defaults to env[OS_TENANT_NAME].
-       --os-tenant-id <auth-tenant-id>
-                             Defaults to env[OS_TENANT_ID].
-       --os-auth-url <auth-url>
-                             Defaults to env[OS_AUTH_URL].
-       --os-region-name <region-name>
-                             Defaults to env[OS_REGION_NAME].
-       --service-type <service-type>
-                             Defaults to database for most actions.
-       --service-name <service-name>
-                             Defaults to env[TROVE_SERVICE_NAME].
-       --bypass-url <bypass-url>
-                             Defaults to env[TROVE_BYPASS_URL].
-       --database-service-name <database-service-name>
-                             Defaults to env[TROVE_DATABASE_SERVICE_NAME].
-       --endpoint-type <endpoint-type>
-                             Defaults to env[TROVE_ENDPOINT_TYPE] or publicURL.
-       --os-database-api-version <database-api-ver>
-                             Accepts 1, defaults to env[OS_DATABASE_API_VERSION].
-       --os-cacert <ca-certificate>
-                             Specify a CA bundle file to use in verifying a TLS
-                             (https) server certificate. Defaults to
-                             env[OS_CACERT].
-       --retries <retries>   Number of retries.
-       --json, --os-json-output
-                             Output JSON instead of prettyprint. Defaults to
-                             env[OS_JSON_OUTPUT].
+    Optional arguments:
+      --version                       Show program's version number and exit
+      --debug                         Print debugging output.
+      --os-username <auth-user-name>  Defaults to env[OS_USERNAME].
+      --os-password <auth-password>   Defaults to env[OS_PASSWORD].
+      --os-tenant-name <auth-tenant-name>
+                                      Defaults to env[OS_TENANT_NAME].
+      --os-tenant-id <auth-tenant-id>
+                                      Defaults to env[OS_TENANT_ID].
+      --os-auth-url <auth-url>        Defaults to env[OS_AUTH_URL].
+      --os-region-name <region-name>  Defaults to env[OS_REGION_NAME].
+      --service-type <service-type>   Defaults to database for most actions.
+      --service-name <service-name>   Defaults to env[TROVE_SERVICE_NAME].
+      --bypass-url <bypass-url>       Defaults to env[TROVE_BYPASS_URL].
+      --database-service-name <database-service-name>
+                                      Defaults to
+                                      env[TROVE_DATABASE_SERVICE_NAME].
+      --endpoint-type <endpoint-type>
+                                      Defaults to env[TROVE_ENDPOINT_TYPE] or
+                                      publicURL.
+      --os-database-api-version <database-api-ver>
+                                      Accepts 1, defaults to
+                                      env[OS_DATABASE_API_VERSION].
+      --os-cacert <ca-certificate>    Specify a CA bundle file to use in verifying
+                                      a TLS (https) server certificate. Defaults
+                                      to env[OS_CACERT].
+      --retries <retries>             Number of retries.
+      --json, --os-json-output        Output JSON instead of prettyprint. Defaults
+                                      to env[OS_JSON_OUTPUT].
 
 Python API
 ----------
