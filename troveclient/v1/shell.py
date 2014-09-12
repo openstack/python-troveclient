@@ -204,7 +204,7 @@ def do_cluster_show(cs, args):
         info['ip'] = ', '.join(cluster.ip)
     del info['instances']
     cluster._info = info
-    _print_instance(cluster)
+    _print_object(cluster)
 
 
 @utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
@@ -407,7 +407,7 @@ def do_cluster_create(cs, args):
     cluster._info['datastore'] = cluster.datastore['type']
     cluster._info['datastore_version'] = cluster.datastore['version']
     del cluster._info['instances']
-    _print_instance(cluster)
+    _print_object(cluster)
 
 
 @utils.arg('instance',
