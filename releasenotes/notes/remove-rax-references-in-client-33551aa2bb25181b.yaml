@@ -1,0 +1,4 @@
+---
+fixes:
+  - Remove all the rax references in the client. Use the rackspace plugin for
+    auth if you want to use rax auth with troveclient. Bug 1401804

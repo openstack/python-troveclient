@@ -161,8 +161,8 @@ class CliOptions(object):
         add_option("tenant_id",
                    help="Tenant Id associated with the account.")
         add_option("auth_type",
-                   help="Auth type to support different auth environments, \
-                                Supported values are 'keystone', 'rax'.")
+                   help="Auth type to support different auth environments, "
+                        "Supported value are 'keystone'.")
         add_option("service_type",
                    help="Service type is a name associated for the catalog.")
         add_option("service_name",

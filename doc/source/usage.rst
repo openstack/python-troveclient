@@ -76,7 +76,6 @@ call to the constructor.
     client.authenticate()
 
 The default authentication strategy assumes a Keystone compliant auth system.
-For Rackspace auth, use the keyword argument "auth_strategy='rax'".
 
 
 Versions
