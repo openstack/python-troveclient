@@ -205,20 +205,15 @@ def print_dict(d, property="Property"):
 def find_resource(manager, name_or_id):
     """Helper for the _find_* methods."""
     # first try to get entity as integer id
-    try:
-        if isinstance(name_or_id, int) or name_or_id.isdigit():
-            return manager.get(int(name_or_id))
-    except exceptions.NotFound:
-        pass
 
-    if sys.version_info <= (3, 0):
+    if isinstance(name_or_id, int) or name_or_id.isdigit():
+        name_or_id = int(name_or_id)
+    elif sys.version_info <= (3, 0):
         name_or_id = strutils.safe_decode(name_or_id)
 
-    # now try to get entity as uuid
     try:
-        uuid.UUID(name_or_id)
         return manager.get(name_or_id)
-    except (ValueError, exceptions.NotFound):
+    except exceptions.NotFound:
         pass
 
     try:
