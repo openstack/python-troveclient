@@ -75,7 +75,7 @@ call to the constructor.
                   auth_url=AUTH_URL)
     client.authenticate()
 
-The default authentication strategy assumes a Keystone complaint auth system.
+The default authentication strategy assumes a Keystone compliant auth system.
 For Rackspace auth, use the keyword argument "auth_strategy='rax'".
 
 
@@ -119,8 +119,8 @@ The following example creates a 512 MB instance with a 1 GB volume:
     flavor_id = "1"
     volume = {'size':1}
     databases = [{"name": "my_db",
-                  "character_set": "latin2",      # This and the next field are
-                  "collate": "latin2_general_ci"}] # optional.
+                  "character_set": "latin2",           # These two fields
+                  "collate": "latin2_general_ci"}]     # are optional.
     users = [{"name": "jsmith", "password": "12345",
               "databases": [{"name": "my_db"}]
              }]
