@@ -47,11 +47,13 @@ class Client(object):
     def __init__(self, username, password, project_id=None, auth_url='',
                  insecure=False, timeout=None, tenant_id=None,
                  proxy_tenant_id=None, proxy_token=None, region_name=None,
-                 endpoint_type='publicURL', extensions=None,
+                 endpoint_type=None, extensions=None,
                  service_type='database', service_name=None,
                  database_service_name=None, retries=None,
                  http_log_debug=False,
-                 cacert=None, bypass_url=None):
+                 cacert=None, bypass_url=None,
+                 auth_system='keystone', auth_plugin=None, session=None,
+                 auth=None):
         # self.limits = limits.LimitsManager(self)
 
         # extensions
@@ -91,11 +93,11 @@ class Client(object):
                     setattr(self, extension.name,
                             extension.manager_class(self))
 
-        self.client = trove_client.HTTPClient(
-            username,
-            password,
-            project_id,
-            auth_url,
+        self.client = trove_client._construct_http_client(
+            username=username,
+            password=password,
+            project_id=project_id,
+            auth_url=auth_url,
             insecure=insecure,
             timeout=timeout,
             tenant_id=tenant_id,
@@ -109,7 +111,11 @@ class Client(object):
             retries=retries,
             http_log_debug=http_log_debug,
             cacert=cacert,
-            bypass_url=bypass_url)
+            bypass_url=bypass_url,
+            auth_system=auth_system,
+            auth_plugin=auth_plugin,
+            session=session,
+            auth=auth)
 
     def authenticate(self):
         """Authenticate against the server.
