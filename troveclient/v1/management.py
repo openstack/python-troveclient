@@ -200,9 +200,9 @@ class MgmtConfigurationParameters(configurations.ConfigurationParameters):
                 "data_type": data_type,
             }
         }
-        if max_size:
+        if max_size is not None:
             body["configuration-parameter"]["max_size"] = max_size
-        if min_size:
+        if min_size is not None:
             body["configuration-parameter"]["min_size"] = min_size
 
         url = "/mgmt/datastores/versions/%s/parameters" % version
@@ -229,9 +229,9 @@ class MgmtConfigurationParameters(configurations.ConfigurationParameters):
                 "data_type": data_type,
             }
         }
-        if max_size:
+        if max_size is not None:
             body["configuration-parameter"]["max_size"] = max_size
-        if min_size:
+        if min_size is not None:
             body["configuration-parameter"]["min_size"] = min_size
         output = {
             'version': version,
