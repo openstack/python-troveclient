@@ -29,17 +29,17 @@ class Users(base.ManagerWithFind):
     """Manage :class:`Users` resources."""
     resource_class = User
 
-    def create(self, instance_id, users):
+    def create(self, instance, users):
         """Create users with permissions to the specified databases."""
         body = {"users": users}
-        url = "/instances/%s/users" % instance_id
+        url = "/instances/%s/users" % base.getid(instance)
         resp, body = self.api.client.post(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
-    def delete(self, instance_id, username, hostname=None):
+    def delete(self, instance, username, hostname=None):
         """Delete an existing user in the specified instance."""
         user = common.quote_user_host(username, hostname)
-        url = "/instances/%s/users/%s" % (instance_id, user)
+        url = "/instances/%s/users/%s" % (base.getid(instance), user)
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
 
@@ -51,13 +51,13 @@ class Users(base.ManagerWithFind):
         url = "/instances/%s/users" % base.getid(instance)
         return self._paginated(url, "users", limit, marker)
 
-    def get(self, instance_id, username, hostname=None):
+    def get(self, instance, username, hostname=None):
         """Get a single User from the instance's Database.
 
         :rtype: :class:`User`.
         """
         user = common.quote_user_host(username, hostname)
-        url = "/instances/%s/users/%s" % (instance_id, user)
+        url = "/instances/%s/users/%s" % (base.getid(instance), user)
         return self._get(url, "user")
 
     def update_attributes(self, instance, username, newuserattr=None,

@@ -60,7 +60,7 @@ class Backups(base.ManagerWithFind):
         }
 
         if instance:
-            body['backup']['instance'] = instance
+            body['backup']['instance'] = base.getid(instance)
         if backup:
             body["backup"]['backup'] = backup
         if description:

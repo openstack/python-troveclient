@@ -18,7 +18,6 @@
 import mock
 import testtools
 
-from troveclient import base
 from troveclient.v1 import users
 
 """
@@ -51,13 +50,12 @@ class UsersTest(testtools.TestCase):
         self.users.api = mock.Mock()
         self.users.api.client = mock.Mock()
 
-        self.orig_base_getid = base.getid
-        base.getid = mock.Mock(return_value="instance1")
+        self.instance_with_id = mock.Mock()
+        self.instance_with_id.id = 215
 
     def tearDown(self):
         super(UsersTest, self).tearDown()
         users.Users.__init__ = self.orig__init
-        base.getid = self.orig_base_getid
 
     def _get_mock_method(self):
         self._resp = mock.Mock()
@@ -102,6 +100,10 @@ class UsersTest(testtools.TestCase):
         self.users.create(23, [user])
         self.assertEqual({"users": [user]}, self._body)
 
+        # test creation with the instance as an object
+        self.users.create(self.instance_with_id, [user])
+        self.assertEqual({"users": [user]}, self._body)
+
         # Make sure that response of 400 is recognized as an error.
         user['host'] = '%'
         self._resp.status_code = 400
@@ -112,18 +114,21 @@ class UsersTest(testtools.TestCase):
         self._resp.status_code = 200
         self.users.delete(27, 'user1')
         self.assertEqual('/instances/27/users/user1', self._url)
+        self.users.delete(self.instance_with_id, 'user1')
+        self.assertEqual('/instances/%s/users/user1' %
+                         self.instance_with_id.id, self._url)
         self._resp.status_code = 400
         self.assertRaises(Exception, self.users.delete, 34, 'user1')
 
     def test_list(self):
         page_mock = mock.Mock()
         self.users._paginated = page_mock
-        self.users.list(1)
+        self.users.list('instance1')
         page_mock.assert_called_with('/instances/instance1/users',
                                      'users', None, None)
         limit = 'test-limit'
         marker = 'test-marker'
-        self.users.list(1, limit, marker)
+        self.users.list('instance1', limit, marker)
         page_mock.assert_called_with('/instances/instance1/users',
                                      'users', limit, marker)
 
