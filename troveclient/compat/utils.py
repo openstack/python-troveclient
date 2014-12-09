@@ -14,7 +14,7 @@
 
 import os
 
-from troveclient.openstack.common import strutils
+from oslo.utils import strutils
 
 
 class HookableMixin(object):

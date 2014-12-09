@@ -24,8 +24,10 @@ import uuid
 import prettytable
 import six
 
+from oslo.utils import encodeutils
+from oslo.utils import strutils
+
 from troveclient.openstack.common.apiclient import exceptions
-from troveclient.openstack.common import strutils
 
 
 def arg(*args, **kwargs):
@@ -136,7 +138,7 @@ def _print(pt, order):
     if sys.version_info >= (3, 0):
         print(pt.get_string(sortby=order))
     else:
-        print(strutils.safe_encode(pt.get_string(sortby=order)))
+        print(encodeutils.safe_encode(pt.get_string(sortby=order)))
 
 
 def print_list(objs, fields, formatters={}, order_by=None, obj_is_dict=False,
@@ -209,7 +211,7 @@ def find_resource(manager, name_or_id):
     if isinstance(name_or_id, int) or name_or_id.isdigit():
         name_or_id = int(name_or_id)
     elif sys.version_info <= (3, 0):
-        name_or_id = strutils.safe_decode(name_or_id)
+        name_or_id = encodeutils.safe_decode(name_or_id)
 
     try:
         return manager.get(name_or_id)
