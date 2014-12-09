@@ -111,11 +111,23 @@ def _find_backup(cs, backup):
 
 
 # Flavor related calls
-
+@utils.arg('--datastore_type', metavar='<datastore_type>',
+           default=None,
+           help='Type of the datastore. For eg: mysql.')
+@utils.arg("--datastore_version_id", metavar="<datastore_version_id>",
+           default=None, help="ID of the datastore version.")
 @utils.service_type('database')
 def do_flavor_list(cs, args):
     """Lists available flavors."""
-    flavors = cs.flavors.list()
+    if args.datastore_type and args.datastore_version_id:
+        flavors = cs.flavors.list_datastore_version_associated_flavors(
+            args.datastore_type, args.datastore_version_id)
+    elif not args.datastore_type and not args.datastore_version_id:
+        flavors = cs.flavors.list()
+    else:
+        err_msg = ("Specify both <datastore_type> and <datastore_version_id>"
+                   " to list datastore version associated flavors.")
+        raise exceptions.CommandError(err_msg)
     utils.print_list(flavors, ['id', 'name', 'ram'],
                      labels={'ram': 'RAM'})
 
