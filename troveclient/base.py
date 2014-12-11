@@ -231,7 +231,7 @@ class ManagerWithFind(six.with_metaclass(abc.ABCMeta, Manager)):
             try:
                 if all(getattr(obj, attr) == value
                        for (attr, value) in searches):
-                    found.append(obj)
+                    found.append(self.get(obj.id))
             except AttributeError:
                 continue
 
