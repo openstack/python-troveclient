@@ -87,6 +87,13 @@ def _print_object(obj):
     # Get rid of those ugly links
     if obj._info.get('links'):
         del(obj._info['links'])
+
+    # Fallback to str_id for flavors, where necessary
+    if hasattr(obj, 'str_id'):
+        if hasattr(obj, 'id') and not obj.id:
+            obj._info['id'] = obj.str_id
+        del(obj._info['str_id'])
+
     utils.print_dict(obj._info)
 
 
@@ -128,7 +135,15 @@ def do_flavor_list(cs, args):
         err_msg = ("Specify both <datastore_type> and <datastore_version_id>"
                    " to list datastore version associated flavors.")
         raise exceptions.CommandError(err_msg)
-    utils.print_list(flavors, ['id', 'name', 'ram'],
+
+    # Fallback to str_id where necessary.
+    _flavors = []
+    for f in flavors:
+        if not f.id and hasattr(f, 'str_id'):
+            f.id = f.str_id
+        _flavors.append(f)
+
+    utils.print_list(_flavors, ['id', 'name', 'ram'],
                      labels={'ram': 'RAM'})
 
 
