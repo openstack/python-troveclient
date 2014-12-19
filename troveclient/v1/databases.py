@@ -32,16 +32,16 @@ class Databases(base.ManagerWithFind):
     """Manage :class:`Databases` resources."""
     resource_class = Database
 
-    def create(self, instance_id, databases):
+    def create(self, instance, databases):
         """Create new databases within the specified instance."""
         body = {"databases": databases}
-        url = "/instances/%s/databases" % instance_id
+        url = "/instances/%s/databases" % base.getid(instance)
         resp, body = self.api.client.post(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
-    def delete(self, instance_id, dbname):
+    def delete(self, instance, dbname):
         """Delete an existing database in the specified instance."""
-        url = "/instances/%s/databases/%s" % (instance_id, dbname)
+        url = "/instances/%s/databases/%s" % (base.getid(instance), dbname)
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
 

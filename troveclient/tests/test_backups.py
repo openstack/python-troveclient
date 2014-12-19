@@ -46,6 +46,8 @@ class BackupManagerTest(testtools.TestCase):
     def setUp(self):
         super(BackupManagerTest, self).setUp()
         self.backups = backups.Backups(mock.Mock())
+        self.instance_with_id = mock.Mock()
+        self.instance_with_id.id = 215
 
     def tearDown(self):
         super(BackupManagerTest, self).tearDown()
@@ -64,6 +66,14 @@ class BackupManagerTest(testtools.TestCase):
         args = {'name': 'test_backup', 'instance': '1', 'description': 'foo'}
         body = {'backup': args}
         self.backups.create(**args)
+        create_mock.assert_called_with('/backups', body, 'backup')
+
+    def test_create_with_instance_obj(self):
+        create_mock = mock.Mock()
+        self.backups._create = create_mock
+        args = {'name': 'test_backup', 'instance': self.instance_with_id.id}
+        body = {'backup': args}
+        self.backups.create('test_backup', self.instance_with_id)
         create_mock.assert_called_with('/backups', body, 'backup')
 
     def test_create_incremental(self):

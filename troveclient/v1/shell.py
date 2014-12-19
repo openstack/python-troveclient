@@ -234,11 +234,13 @@ def do_cluster_instances(cs, args):
         obj_is_dict=True)
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name  of the instance.')
 @utils.service_type('database')
 def do_delete(cs, args):
     """Deletes an instance."""
-    cs.instances.delete(args.instance)
+    instance = _find_instance(cs, args.instance)
+    cs.instances.delete(instance)
 
 
 @utils.arg('cluster', metavar='<cluster>', help='ID of the cluster.')
@@ -251,7 +253,7 @@ def do_cluster_delete(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='UUID of the instance.')
+           help='ID or name of the instance.')
 @utils.arg('--name',
            metavar='<name>',
            type=str,
@@ -275,7 +277,8 @@ def do_cluster_delete(cs, args):
 @utils.service_type('database')
 def do_update(cs, args):
     """Updates an instance: Edits name, configuration, or replica source."""
-    cs.instances.edit(args.instance, args.configuration, args.name,
+    instance = _find_instance(cs, args.instance)
+    cs.instances.edit(instance, args.configuration, args.name,
                       args.detach_replica_source, args.remove_configuration)
 
 
@@ -331,18 +334,21 @@ def do_update(cs, args):
            default=None,
            help='ID of the configuration group to attach to the instance.')
 @utils.arg('--replica_of',
-           metavar='<source_id>',
+           metavar='<source_instance>',
            default=None,
-           help='ID of an existing instance to replicate from.')
+           help='ID or name of an existing instance to replicate from.')
 @utils.service_type('database')
 def do_create(cs, args):
     """Creates a new instance."""
     volume = None
+    replica_of_instance = None
     if args.size:
         volume = {"size": args.size}
     restore_point = None
     if args.backup:
         restore_point = {"backupRef": args.backup}
+    if args.replica_of:
+        replica_of_instance = _find_instance(cs, args.replica_of)
     databases = [{'name': value} for value in args.databases]
     users = [{'name': n, 'password': p, 'databases': databases} for (n, p) in
              [z.split(':')[:2] for z in args.users]]
@@ -368,7 +374,7 @@ def do_create(cs, args):
                                    datastore_version=args.datastore_version,
                                    nics=nics,
                                    configuration=args.configuration,
-                                   replica_of=args.replica_of)
+                                   replica_of=replica_of_instance)
     _print_instance(instance)
 
 
@@ -425,7 +431,7 @@ def do_cluster_create(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID of the instance.')
+           help='ID or name of the instance.')
 @utils.arg('flavor_id',
            metavar='<flavor_id>',
            help='New flavor of the instance.')
@@ -438,20 +444,21 @@ def do_resize_flavor(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID of the instance.')
+           help='ID or name of the instance.')
 @utils.arg('flavor_id',
            metavar='<flavor_id>',
            help='New flavor of the instance.')
 @utils.service_type('database')
 def do_resize_instance(cs, args):
     """Resizes an instance with a new flavor."""
-    cs.instances.resize_instance(args.instance, args.flavor_id)
+    instance = _find_instance(cs, args.instance)
+    cs.instances.resize_instance(instance, args.flavor_id)
 
 
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID of the instance.')
+           help='ID or name of the instance.')
 @utils.arg('size',
            metavar='<size>',
            type=int,
@@ -460,26 +467,29 @@ def do_resize_instance(cs, args):
 @utils.service_type('database')
 def do_resize_volume(cs, args):
     """Resizes the volume size of an instance."""
-    cs.instances.resize_volume(args.instance, args.size)
+    instance = _find_instance(cs, args.instance)
+    cs.instances.resize_volume(instance, args.size)
 
 
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID of the instance.')
+           help='ID or name of the instance.')
 @utils.service_type('database')
 def do_restart(cs, args):
     """Restarts an instance."""
-    cs.instances.restart(args.instance)
+    instance = _find_instance(cs, args.instance)
+    cs.instances.restart(instance)
 
 
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID of the instance.')
+           help='ID or name of the instance.')
 def do_detach_replica(cs, args):
     """Detaches a replica instance from its replication source."""
-    cs.instances.edit(args.instance, detach_replica_source=True)
+    instance = _find_instance(cs, args.instance)
+    cs.instances.edit(instance, detach_replica_source=True)
 
 # Backup related commands
 
@@ -492,17 +502,19 @@ def do_backup_show(cs, args):
     _print_object(backup)
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.arg('--limit', metavar='<limit>',
            default=None,
            help='Return up to N number of the most recent backups.')
 @utils.service_type('database')
 def do_backup_list_instance(cs, args):
     """Lists available backups for an instance."""
-    wrapper = cs.instances.backups(args.instance, limit=args.limit)
+    instance = _find_instance(cs, args.instance)
+    wrapper = cs.instances.backups(instance, limit=args.limit)
     backups = wrapper.items
     while wrapper.next and not args.limit:
-        wrapper = cs.instances.backups(args.instance, marker=wrapper.next)
+        wrapper = cs.instances.backups(instance, marker=wrapper.next)
         backups += wrapper.items
     utils.print_list(backups, ['id', 'name', 'status',
                                'parent_id', 'updated'],
@@ -535,7 +547,8 @@ def do_backup_delete(cs, args):
     cs.backups.delete(args.backup)
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.arg('name', metavar='<name>', help='Name of the backup.')
 @utils.arg('--description', metavar='<description>',
            default=None,
@@ -546,7 +559,8 @@ def do_backup_delete(cs, args):
 @utils.service_type('database')
 def do_backup_create(cs, args):
     """Creates a backup of an instance."""
-    backup = cs.backups.create(args.name, args.instance,
+    instance = _find_instance(cs, args.instance)
+    backup = cs.backups.create(args.name, instance,
                                description=args.description,
                                parent_id=args.parent)
     _print_object(backup)
@@ -578,7 +592,8 @@ def do_backup_copy(cs, args):
 
 # Database related actions
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.arg('name', metavar='<name>', help='Name of the database.')
 @utils.arg('--character_set', metavar='<character_set>',
            default=None,
@@ -588,39 +603,45 @@ def do_backup_copy(cs, args):
 @utils.service_type('database')
 def do_database_create(cs, args):
     """Creates a database on an instance."""
+    instance = _find_instance(cs, args.instance)
     database_dict = {'name': args.name}
     if args.collate:
         database_dict['collate'] = args.collate
     if args.character_set:
         database_dict['character_set'] = args.character_set
-    cs.databases.create(args.instance,
+    cs.databases.create(instance,
                         [database_dict])
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.service_type('database')
 def do_database_list(cs, args):
     """Lists available databases on an instance."""
-    wrapper = cs.databases.list(args.instance)
+    instance = _find_instance(cs, args.instance)
+    wrapper = cs.databases.list(instance)
     databases = wrapper.items
     while (wrapper.next):
-        wrapper = cs.databases.list(args.instance, marker=wrapper.next)
+        wrapper = cs.databases.list(instance, marker=wrapper.next)
         databases += wrapper.items
 
     utils.print_list(databases, ['name'])
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name  of the instance.')
 @utils.arg('database', metavar='<database>', help='Name of the database.')
 @utils.service_type('database')
 def do_database_delete(cs, args):
     """Deletes a database from an instance."""
-    cs.databases.delete(args.instance, args.database)
+    instance = _find_instance(cs, args.instance)
+    cs.databases.delete(instance, args.database)
 
 
 # User related actions
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name  of the instance.')
 @utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('password', metavar='<password>', help='Password of user.')
 @utils.arg('--host', metavar='<host>', default=None,
@@ -631,22 +652,25 @@ def do_database_delete(cs, args):
 @utils.service_type('database')
 def do_user_create(cs, args):
     """Creates a user on an instance."""
+    instance = _find_instance(cs, args.instance)
     databases = [{'name': value} for value in args.databases]
     user = {'name': args.name, 'password': args.password,
             'databases': databases}
     if args.host:
         user['host'] = args.host
-    cs.users.create(args.instance, [user])
+    cs.users.create(instance, [user])
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.service_type('database')
 def do_user_list(cs, args):
     """Lists the users for an instance."""
-    wrapper = cs.users.list(args.instance)
+    instance = _find_instance(cs, args.instance)
+    wrapper = cs.users.list(instance)
     users = wrapper.items
     while (wrapper.next):
-        wrapper = cs.users.list(args.instance, marker=wrapper.next)
+        wrapper = cs.users.list(instance, marker=wrapper.next)
         users += wrapper.items
     for user in users:
         db_names = [db['name'] for db in user.databases]
@@ -654,39 +678,46 @@ def do_user_list(cs, args):
     utils.print_list(users, ['name', 'host', 'databases'])
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('--host', metavar='<host>', default=None,
            help='Optional host of user.')
 @utils.service_type('database')
 def do_user_delete(cs, args):
     """Deletes a user from an instance."""
-    cs.users.delete(args.instance, args.name, hostname=args.host)
+    instance = _find_instance(cs, args.instance)
+    cs.users.delete(instance, args.name, hostname=args.host)
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('--host', metavar='<host>', default=None,
            help='Optional host of user.')
 @utils.service_type('database')
 def do_user_show(cs, args):
     """Shows details of a user of an instance."""
-    user = cs.users.get(args.instance, args.name, hostname=args.host)
+    instance = _find_instance(cs, args.instance)
+    user = cs.users.get(instance, args.name, hostname=args.host)
     _print_object(user)
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('--host', metavar='<host>', default=None,
            help='Optional host of user.')
 @utils.service_type('database')
 def do_user_show_access(cs, args):
     """Shows access details of a user of an instance."""
-    access = cs.users.list_access(args.instance, args.name, hostname=args.host)
+    instance = _find_instance(cs, args.instance)
+    access = cs.users.list_access(instance, args.name, hostname=args.host)
     utils.print_list(access, ['name'])
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('--host', metavar='<host>', default=None,
            help='Optional host of user.')
@@ -701,6 +732,7 @@ def do_user_update_attributes(cs, args):
     """Updates a user's attributes on an instance.
     At least one optional argument must be provided.
     """
+    instance = _find_instance(cs, args.instance)
     new_attrs = {}
     if args.new_name:
         new_attrs['name'] = args.new_name
@@ -708,11 +740,12 @@ def do_user_update_attributes(cs, args):
         new_attrs['password'] = args.new_password
     if args.new_host:
         new_attrs['host'] = args.new_host
-    cs.users.update_attributes(args.instance, args.name,
+    cs.users.update_attributes(instance, args.name,
                                newuserattr=new_attrs, hostname=args.host)
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('--host', metavar='<host>', default=None,
            help='Optional host of user.')
@@ -722,11 +755,13 @@ def do_user_update_attributes(cs, args):
 @utils.service_type('database')
 def do_user_grant_access(cs, args):
     """Grants access to a database(s) for a user."""
-    cs.users.grant(args.instance, args.name,
+    instance = _find_instance(cs, args.instance)
+    cs.users.grant(instance, args.name,
                    args.databases, hostname=args.host)
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('database', metavar='<database>', help='A single database.')
 @utils.arg('--host', metavar='<host>', default=None,
@@ -734,7 +769,8 @@ def do_user_grant_access(cs, args):
 @utils.service_type('database')
 def do_user_revoke_access(cs, args):
     """Revokes access to a database for a user."""
-    cs.users.revoke(args.instance, args.name,
+    instance = _find_instance(cs, args.instance)
+    cs.users.revoke(instance, args.name,
                     args.database, hostname=args.host)
 
 
@@ -752,19 +788,23 @@ def do_limit_list(cs, args):
 
 # Root related commands
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.service_type('database')
 def do_root_enable(cs, args):
     """Enables root for an instance and resets if already exists."""
-    root = cs.root.create(args.instance)
+    instance = _find_instance(cs, args.instance)
+    root = cs.root.create(instance)
     utils.print_dict({'name': root[0], 'password': root[1]})
 
 
-@utils.arg('instance', metavar='<instance>', help='ID of the instance.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.service_type('database')
 def do_root_show(cs, args):
     """Gets status if root was ever enabled for an instance."""
-    root = cs.root.is_root_enabled(args.instance)
+    instance = _find_instance(cs, args.instance)
+    root = cs.root.is_root_enabled(instance)
     utils.print_dict({'is_root_enabled': root.rootEnabled})
 
 
@@ -881,7 +921,7 @@ def do_datastore_version_show(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID of the instance.')
+           help='ID or name of the instance.')
 @utils.arg('configuration',
            metavar='<configuration>',
            type=str,
@@ -889,7 +929,8 @@ def do_datastore_version_show(cs, args):
 @utils.service_type('database')
 def do_configuration_attach(cs, args):
     """Attaches a configuration group to an instance."""
-    cs.instances.modify(args.instance, args.configuration)
+    instance = _find_instance(cs, args.instance)
+    cs.instances.modify(instance, args.configuration)
 
 
 @utils.arg('name', metavar='<name>', help='Name of the configuration group.')
@@ -918,11 +959,12 @@ def do_configuration_create(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID of the instance.')
+           help='ID or name of the instance.')
 @utils.service_type('database')
 def do_configuration_default(cs, args):
     """Shows the default configuration of an instance."""
-    configs = cs.instances.configuration(args.instance)
+    instance = _find_instance(cs, args.instance)
+    configs = cs.instances.configuration(instance)
     utils.print_dict(configs._info['configuration'])
 
 
@@ -937,11 +979,12 @@ def do_configuration_delete(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID of the instance.')
+           help='ID or name of the instance.')
 @utils.service_type('database')
 def do_configuration_detach(cs, args):
     """Detaches a configuration group from an instance."""
-    cs.instances.modify(args.instance)
+    instance = _find_instance(cs, args.instance)
+    cs.instances.modify(instance)
 
 
 @utils.arg('--datastore', metavar='<datastore>',

@@ -24,19 +24,19 @@ class Root(base.ManagerWithFind):
     resource_class = users.User
     url = "/instances/%s/root"
 
-    def create(self, instance_id):
+    def create(self, instance):
         """Implements root-enable API.
 
         Enable the root user and return the root password for the
         specified db instance.
         """
-        resp, body = self.api.client.post(self.url % instance_id)
+        resp, body = self.api.client.post(self.url % base.getid(instance))
         common.check_for_exceptions(resp, body, self.url)
         return body['user']['name'], body['user']['password']
 
-    def is_root_enabled(self, instance_id):
+    def is_root_enabled(self, instance):
         """Return whether root is enabled for the instance."""
-        resp, body = self.api.client.get(self.url % instance_id)
+        resp, body = self.api.client.get(self.url % base.getid(instance))
         common.check_for_exceptions(resp, body, self.url)
         return self.resource_class(self, body, loaded=True)
 

@@ -80,22 +80,22 @@ class Instances(base.ManagerWithFind):
         if configuration:
             body["instance"]["configuration"] = configuration
         if replica_of or slave_of:
-            body["instance"]["replica_of"] = replica_of or slave_of
+            body["instance"]["replica_of"] = base.getid(replica_of) or slave_of
 
         return self._create("/instances", body, "instance")
 
-    def modify(self, instance_id, configuration=None):
+    def modify(self, instance, configuration=None):
         body = {
             "instance": {
             }
         }
         if configuration is not None:
             body["instance"]["configuration"] = configuration
-        url = "/instances/%s" % instance_id
+        url = "/instances/%s" % base.getid(instance)
         resp, body = self.api.client.put(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
-    def edit(self, instance_id, configuration=None, name=None,
+    def edit(self, instance, configuration=None, name=None,
              detach_replica_source=False, remove_configuration=False):
         body = {
             "instance": {
@@ -116,7 +116,7 @@ class Instances(base.ManagerWithFind):
             body["instance"]["slave_of"] = None
             body["instance"]["replica_of"] = None
 
-        url = "/instances/%s" % instance_id
+        url = "/instances/%s" % base.getid(instance)
         resp, body = self.api.client.patch(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
@@ -147,38 +147,39 @@ class Instances(base.ManagerWithFind):
     def delete(self, instance):
         """Delete the specified instance.
 
-        :param instance_id: The instance id to delete
+        :param instance: A reference to the instance to delete
         """
         url = "/instances/%s" % base.getid(instance)
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
 
-    def _action(self, instance_id, body):
+    def _action(self, instance, body):
         """Perform a server "action" -- reboot/rebuild/resize/etc."""
-        url = "/instances/%s/action" % instance_id
+        url = "/instances/%s/action" % base.getid(instance)
         resp, body = self.api.client.post(url, body=body)
         common.check_for_exceptions(resp, body, url)
         if body:
             return self.resource_class(self, body, loaded=True)
         return body
 
-    def resize_volume(self, instance_id, volume_size):
+    def resize_volume(self, instance, volume_size):
         """Resize the volume on an existing instances."""
         body = {"resize": {"volume": {"size": volume_size}}}
-        self._action(instance_id, body)
+        self._action(instance, body)
 
-    def resize_instance(self, instance_id, flavor_id):
+    def resize_instance(self, instance, flavor_id):
         """Resizes an instance with a new flavor."""
         body = {"resize": {"flavorRef": flavor_id}}
-        self._action(instance_id, body)
+        self._action(instance, body)
 
-    def restart(self, instance_id):
+    def restart(self, instance):
         """Restart the database instance.
 
-        :param instance_id: The :class:`Instance` (or its ID) to share onto.
+        :param instance: The :class:`Instance` (or its ID) of the database
+        instance to restart.
         """
         body = {'restart': {}}
-        self._action(instance_id, body)
+        self._action(instance, body)
 
     def configuration(self, instance):
         """Get a configuration on instances.

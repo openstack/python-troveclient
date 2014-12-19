@@ -81,13 +81,12 @@ class InstancesTest(testtools.TestCase):
         self.instances.api.client = mock.Mock()
         self.instances.resource_class = mock.Mock(return_value="instance-1")
 
-        self.orig_base_getid = base.getid
-        base.getid = mock.Mock(return_value="instance1")
+        self.instance_with_id = mock.Mock()
+        self.instance_with_id.id = 215
 
     def tearDown(self):
         super(InstancesTest, self).tearDown()
         instances.Instances.__init__ = self.orig__init
-        base.getid = self.orig_base_getid
 
     def test_create(self):
         def side_effect_func(path, body, inst):
@@ -128,7 +127,7 @@ class InstancesTest(testtools.TestCase):
 
         self.instances._get = mock.Mock(side_effect=side_effect_func)
         self.assertEqual(('/instances/instance1', 'instance'),
-                         self.instances.get(1))
+                         self.instances.get('instance1'))
 
     def test_delete(self):
         resp = mock.Mock()
@@ -136,6 +135,7 @@ class InstancesTest(testtools.TestCase):
         body = None
         self.instances.api.client.delete = mock.Mock(return_value=(resp, body))
         self.instances.delete('instance1')
+        self.instances.delete(self.instance_with_id)
         resp.status_code = 500
         self.assertRaises(Exception, self.instances.delete, 'instance1')
 
@@ -150,31 +150,51 @@ class InstancesTest(testtools.TestCase):
         self.assertIsNone(self.instances._action(1, body))
 
     def _set_action_mock(self):
-        def side_effect_func(instance_id, body):
-            self._instance_id = instance_id
+        def side_effect_func(instance, body):
+            self._instance_id = base.getid(instance)
             self._body = body
 
         self._instance_id = None
         self._body = None
         self.instances._action = mock.Mock(side_effect=side_effect_func)
 
-    def test_resize_volume(self):
+    def _test_resize_volume(self, instance, id):
         self._set_action_mock()
-        self.instances.resize_volume(152, 512)
-        self.assertEqual(152, self._instance_id)
-        self.assertEqual({"resize": {"volume": {"size": 512}}}, self._body)
+        self.instances.resize_volume(instance, 1024)
+        self.assertEqual(id, self._instance_id)
+        self.assertEqual({"resize": {"volume": {"size": 1024}}}, self._body)
 
-    def test_resize_instance(self):
+    def test_resize_volume_with_id(self):
+        self._test_resize_volume(152, 152)
+
+    def test_resize_volume_with_obj(self):
+        self._test_resize_volume(self.instance_with_id,
+                                 self.instance_with_id.id)
+
+    def _test_resize_instance(self, instance, id):
         self._set_action_mock()
-        self.instances.resize_instance(4725, 103)
-        self.assertEqual(4725, self._instance_id)
+        self.instances.resize_instance(instance, 103)
+        self.assertEqual(id, self._instance_id)
         self.assertEqual({"resize": {"flavorRef": 103}}, self._body)
 
-    def test_restart(self):
+    def test_resize_instance_with_id(self):
+        self._test_resize_instance(4725, 4725)
+
+    def test_resize_instance_with_obj(self):
+        self._test_resize_instance(self.instance_with_id,
+                                   self.instance_with_id.id)
+
+    def _test_restart(self, instance, id):
         self._set_action_mock()
-        self.instances.restart(253)
-        self.assertEqual(253, self._instance_id)
+        self.instances.restart(instance)
+        self.assertEqual(id, self._instance_id)
         self.assertEqual({'restart': {}}, self._body)
+
+    def test_restart_with_id(self):
+        self._test_restart(253, 253)
+
+    def test_restart_with_obj(self):
+        self._test_restart(self.instance_with_id, self.instance_with_id.id)
 
     def test_modify(self):
         resp = mock.Mock()
@@ -183,6 +203,8 @@ class InstancesTest(testtools.TestCase):
         self.instances.api.client.put = mock.Mock(return_value=(resp, body))
         self.instances.modify(123)
         self.instances.modify(123, 321)
+        self.instances.modify(self.instance_with_id)
+        self.instances.modify(self.instance_with_id, 123)
         resp.status_code = 500
         self.assertRaises(Exception, self.instances.modify, 'instance1')
 
@@ -195,6 +217,10 @@ class InstancesTest(testtools.TestCase):
         self.instances.edit(123, 321)
         self.instances.edit(123, 321, 'name-1234')
         self.instances.edit(123, 321, 'name-1234', True)
+        self.instances.edit(self.instance_with_id)
+        self.instances.edit(self.instance_with_id, 123)
+        self.instances.edit(self.instance_with_id, 123, 'name-1234')
+        self.instances.edit(self.instance_with_id, 123, 'name-1234', True)
         resp.status_code = 500
         self.assertRaises(Exception, self.instances.edit, 'instance1')
 
@@ -204,7 +230,7 @@ class InstancesTest(testtools.TestCase):
 
         self.instances._get = mock.Mock(side_effect=side_effect_func)
         self.assertEqual(('/instances/instance1/configuration', 'instance'),
-                         self.instances.configuration(1))
+                         self.instances.configuration('instance1'))
 
 
 class InstanceStatusTest(testtools.TestCase):
