@@ -204,6 +204,9 @@ Quick-start using keystone::
 
     # use v2.0 auth with http://example.com:5000/v2.0/")
     >>> from troveclient.v1 import client
-    >>> nt = client.Client(USER, PASS, TENANT, AUTH_URL, service_type="database")
+    >>> nt = client.Client(USERNAME,
+                           PASSWORD,
+                           project_id=TENANT_NAME,
+                           auth_url=AUTH_URL))
     >>> nt.instances.list()
     [...]

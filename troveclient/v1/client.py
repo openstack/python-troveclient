@@ -35,7 +35,10 @@ class Client(object):
 
     Create an instance with your creds::
 
-        >> client = Client(USERNAME, PASSWORD, PROJECT_ID, AUTH_URL)
+        >> client = Client(USERNAME,
+                           PASSWORD,
+                           project_id=TENANT_NAME,
+                           auth_url=AUTH_URL)
 
     Then call methods on its managers::
 
@@ -47,7 +50,7 @@ class Client(object):
     def __init__(self, username, password, project_id=None, auth_url='',
                  insecure=False, timeout=None, tenant_id=None,
                  proxy_tenant_id=None, proxy_token=None, region_name=None,
-                 endpoint_type=None, extensions=None,
+                 endpoint_type='publicURL', extensions=None,
                  service_type='database', service_name=None,
                  database_service_name=None, retries=None,
                  http_log_debug=False,
