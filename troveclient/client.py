@@ -427,19 +427,21 @@ class HTTPClient(TroveClientMixin):
 
 class SessionClient(adapter.LegacyJsonAdapter, TroveClientMixin):
 
-    def __init__(self, session, auth, service_type=None, service_name=None,
-                 region_name=None, endpoint_type='publicURL',
-                 database_service_name=None, endpoint_override=None):
-        self.endpoint_type = endpoint_type
-        self.database_service_name = database_service_name
-        self.endpoint_override = endpoint_override
+    def __init__(self, session, auth, **kwargs):
+        self.database_service_name = kwargs.pop('database_service_name', None)
+
         super(SessionClient, self).__init__(session=session,
                                             auth=auth,
-                                            interface=endpoint_type,
-                                            service_type=service_type,
-                                            service_name=service_name,
-                                            region_name=region_name)
-        self.management_url = self._get_endpoint_url()
+                                            **kwargs)
+
+        # FIXME(jamielennox): this is going to cause an authentication request
+        # on client init. This is different to how the other clients work.
+        endpoint = self.get_endpoint()
+
+        if not endpoint:
+            raise exceptions.EndpointNotFound()
+
+        self.management_url = endpoint.rstrip('/')
 
     def request(self, url, method, **kwargs):
         raise_exc = kwargs.pop('raise_exc', True)
@@ -453,16 +455,6 @@ class SessionClient(adapter.LegacyJsonAdapter, TroveClientMixin):
 
         return resp, body
 
-    def _get_endpoint_url(self):
-        endpoint_url = self.session.get_endpoint(
-            self.auth, interface=self.endpoint_type,
-            service_type=self.service_type)
-
-        if not endpoint_url:
-            raise exceptions.EndpointNotFound
-
-        return endpoint_url.rstrip('/')
-
 
 def _construct_http_client(username=None, password=None, project_id=None,
                            auth_url=None, insecure=False, timeout=None,
@@ -475,37 +467,42 @@ def _construct_http_client(username=None, password=None, project_id=None,
                            auth_system='keystone', auth_plugin=None,
                            cacert=None, bypass_url=None, tenant_id=None,
                            session=None,
-                           auth=None):
+                           **kwargs):
     if session:
+        try:
+            kwargs.setdefault('interface', endpoint_type)
+        except KeyError:
+            pass
+
         return SessionClient(session=session,
-                             auth=auth,
                              service_type=service_type,
                              service_name=service_name,
                              region_name=region_name,
-                             endpoint_type=endpoint_type,
-                             database_service_name=database_service_name)
-
-    return HTTPClient(username,
-                      password,
-                      projectid=project_id,
-                      auth_url=auth_url,
-                      insecure=insecure,
-                      timeout=timeout,
-                      tenant_id=tenant_id,
-                      proxy_token=proxy_token,
-                      proxy_tenant_id=proxy_tenant_id,
-                      region_name=region_name,
-                      endpoint_type=endpoint_type,
-                      service_type=service_type,
-                      service_name=service_name,
-                      database_service_name=database_service_name,
-                      retries=retries,
-                      http_log_debug=http_log_debug,
-                      cacert=cacert,
-                      bypass_url=bypass_url,
-                      auth_system=auth_system,
-                      auth_plugin=auth_plugin,
-                      )
+                             database_service_name=database_service_name,
+                             connect_retries=retries,
+                             **kwargs)
+    else:
+        return HTTPClient(username,
+                          password,
+                          projectid=project_id,
+                          auth_url=auth_url,
+                          insecure=insecure,
+                          timeout=timeout,
+                          tenant_id=tenant_id,
+                          proxy_token=proxy_token,
+                          proxy_tenant_id=proxy_tenant_id,
+                          region_name=region_name,
+                          endpoint_type=endpoint_type,
+                          service_type=service_type,
+                          service_name=service_name,
+                          database_service_name=database_service_name,
+                          retries=retries,
+                          http_log_debug=http_log_debug,
+                          cacert=cacert,
+                          bypass_url=bypass_url,
+                          auth_system=auth_system,
+                          auth_plugin=auth_plugin,
+                          )
 
 
 def get_version_map():
