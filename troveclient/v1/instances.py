@@ -103,7 +103,7 @@ class Instances(base.ManagerWithFind):
         }
         if configuration and remove_configuration:
             raise Exception("Cannot attach and detach configuration "
-                            "simultaneosly.")
+                            "simultaneously.")
         if remove_configuration:
             body["instance"]["configuration"] = None
         if configuration is not None:
