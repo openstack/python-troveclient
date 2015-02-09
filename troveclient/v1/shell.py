@@ -177,6 +177,8 @@ def do_list(cs, args):
         setattr(instance, 'flavor_id', instance.flavor['id'])
         if hasattr(instance, 'volume'):
             setattr(instance, 'size', instance.volume['size'])
+        else:
+            setattr(instance, 'size', '-')
         if hasattr(instance, 'datastore'):
             if instance.datastore.get('version'):
                 setattr(instance, 'datastore_version',
