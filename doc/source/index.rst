@@ -19,11 +19,10 @@
    :maxdepth: 2
 
    usage
-   pydocs
+   ref/v1/index
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
