@@ -56,7 +56,7 @@ class Client(object):
                  http_log_debug=False,
                  cacert=None, bypass_url=None,
                  auth_system='keystone', auth_plugin=None, session=None,
-                 auth=None):
+                 auth=None, **kwargs):
         # self.limits = limits.LimitsManager(self)
 
         # extensions
@@ -118,7 +118,8 @@ class Client(object):
             auth_system=auth_system,
             auth_plugin=auth_plugin,
             session=session,
-            auth=auth)
+            auth=auth,
+            **kwargs)
 
     def authenticate(self):
         """Authenticate against the server.
