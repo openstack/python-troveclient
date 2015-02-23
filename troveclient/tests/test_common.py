@@ -44,7 +44,7 @@ class CommonTest(testtools.TestCase):
         self.assertTrue(result.startswith(url + '?'))
         self.assertIn("limit=%s" % limit, result)
         self.assertIn("marker=%s" % marker, result)
-        self.assertEqual(result.count('&'), 1)
+        self.assertEqual(1, result.count('&'))
 
         opts = {}
         self.assertEqual(url, common.append_query_strings(
@@ -54,7 +54,7 @@ class CommonTest(testtools.TestCase):
         result = common.append_query_strings(url, limit=None, marker=marker,
                                              **opts)
         self.assertTrue(result.startswith(url + '?'))
-        self.assertEqual(result.count('&'), 1)
+        self.assertEqual(1, result.count('&'))
         self.assertNotIn("limit=%s" % limit, result)
         self.assertIn("marker=%s" % marker, result)
         self.assertIn("key1=%s" % opts['key1'], result)
