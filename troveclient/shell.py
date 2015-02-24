@@ -186,15 +186,14 @@ class OpenStackTroveShell(object):
                                 metavar='HMAC_KEY',
                                 default=utils.env('OS_PROFILE_HMACKEY',
                                                   default=None),
-                                help='HMAC key to use for encrypting context '
-                                'data for performance profiling of operation. '
-                                'This key should be the value of HMAC key '
-                                'configured in osprofiler middleware in '
-                                'Trove, it is specified in paste '
-                                'configure file at /etc/trove/api-paste.ini. '
-                                'Without key the profiling will not be '
-                                'triggered even if osprofiler is enabled '
-                                'on server side. '
+                                help='HMAC key used to encrypt context '
+                                'data when profiling the performance of an '
+                                'operation.  This key should be set to one of '
+                                'the HMAC keys configured in Trove (they are '
+                                'found in api-paste.ini, typically in '
+                                '/etc/trove).  Without the key, profiling '
+                                'will not be triggered even if it is enabled '
+                                'on the server side. '
                                 'Defaults to env[OS_PROFILE_HMACKEY].')
 
         self._append_global_identity_args(parser)
@@ -546,7 +545,7 @@ class OpenStackTroveShell(object):
             if profile:
                 trace_id = osprofiler_profiler.get().get_base_id()
                 print("Trace ID: %s" % trace_id)
-                print("To display trace use next command:\n"
+                print("To display the trace, use the following command:\n"
                       "osprofiler trace show --html %s" % trace_id)
 
     def _run_extension_hooks(self, hook_type, *args, **kwargs):
