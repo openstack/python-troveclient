@@ -38,7 +38,7 @@ class BackupTest(testtools.TestCase):
         super(BackupTest, self).tearDown()
 
     def test___repr__(self):
-        self.assertEqual(repr(self.backup), '<Backup: my backup>')
+        self.assertEqual('<Backup: my backup>', repr(self.backup))
 
 
 class BackupManagerTest(testtools.TestCase):

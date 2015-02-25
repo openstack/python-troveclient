@@ -296,20 +296,20 @@ class MangerPaginationTests(ManagerTest):
     def test_pagination(self):
         resp = self.manager._paginated(self.url, self.response_key)
         self.manager.api.client.get.assert_called_with(self.url)
-        self.assertEqual(resp.items[0].foo, 'p1')
-        self.assertEqual(resp.items[1].foo, 'p2')
-        self.assertEqual(resp.next, self.marker)
-        self.assertEqual(resp.links, self.links)
+        self.assertEqual('p1', resp.items[0].foo)
+        self.assertEqual('p2', resp.items[1].foo)
+        self.assertEqual(self.marker, resp.next)
+        self.assertEqual(self.links, resp.links)
         self.assertTrue(isinstance(resp, common.Paginated))
 
     def test_pagination_next(self):
         resp = self.manager._paginated(self.url, self.response_key,
                                        limit=self.limit, marker=self.marker)
         self.manager.api.client.get.assert_called_with(self.next_url)
-        self.assertEqual(resp.items[0].foo, 'p3')
-        self.assertEqual(resp.items[1].foo, 'p4')
-        self.assertEqual(resp.next, None)
-        self.assertEqual(resp.links, [])
+        self.assertEqual('p3', resp.items[0].foo)
+        self.assertEqual('p4', resp.items[1].foo)
+        self.assertEqual(None, resp.next)
+        self.assertEqual([], resp.links)
         self.assertTrue(isinstance(resp, common.Paginated))
 
     def test_pagination_error(self):
@@ -364,23 +364,23 @@ class FindResourceTestCase(testtools.TestCase):
 
     def test_find_by_integer_id(self):
         output = utils.find_resource(self.manager, 1234)
-        self.assertEqual(output, self.manager.get('1234'))
+        self.assertEqual(self.manager.get('1234'), output)
 
     def test_find_by_str_id(self):
         output = utils.find_resource(self.manager, '1234')
-        self.assertEqual(output, self.manager.get('1234'))
+        self.assertEqual(self.manager.get('1234'), output)
 
     def test_find_by_uuid(self):
         output = utils.find_resource(self.manager, UUID)
-        self.assertEqual(output, self.manager.get(UUID))
+        self.assertEqual(self.manager.get(UUID), output)
 
     def test_find_by_str_name(self):
         output = utils.find_resource(self.manager, 'entity_one')
-        self.assertEqual(output, self.manager.get('1234'))
+        self.assertEqual(self.manager.get('1234'), output)
 
     def test_find_by_str_displayname(self):
         output = utils.find_resource(self.manager, 'entity_three')
-        self.assertEqual(output, self.manager.get('4242'))
+        self.assertEqual(self.manager.get('4242'), output)
 
 
 class ResourceTest(testtools.TestCase):
