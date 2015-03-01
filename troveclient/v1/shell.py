@@ -954,7 +954,8 @@ def do_configuration_attach(cs, args):
 @utils.arg('values', metavar='<values>',
            help='Dictionary of the values to set.')
 @utils.arg('--datastore', metavar='<datastore>',
-           help='Datastore assigned to the configuration group.')
+           help='Datastore assigned to the configuration group. Required if '
+                'default datastore is not configured.')
 @utils.arg('--datastore_version', metavar='<datastore_version>',
            help='Datastore version ID assigned to the configuration group.')
 @utils.arg('--description', metavar='<description>',
