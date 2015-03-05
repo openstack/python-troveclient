@@ -125,7 +125,7 @@ class Manager(utils.HookableMixin):
         # NOTE(sirp): Keep separate UUID caches for each username + endpoint
         # pair
         username = utils.env('OS_USERNAME', 'TROVE_USERNAME')
-        url = utils.env('OS_URL', 'TROVE_URL')
+        url = utils.env('OS_URL', 'NOVA_URL')
         uniqifier = hashlib.md5(username.encode('utf-8') +
                                 url.encode('utf-8')).hexdigest()
 
