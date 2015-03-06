@@ -354,6 +354,11 @@ def do_update(cs, args):
            metavar='<source_instance>',
            default=None,
            help='ID or name of an existing instance to replicate from.')
+@utils.arg('--replica_count',
+           metavar='<count>',
+           type=int,
+           default=1,
+           help='Number of replicas to create (defaults to 1).')
 @utils.service_type('database')
 def do_create(cs, args):
     """Creates a new instance."""
@@ -380,6 +385,7 @@ def do_create(cs, args):
                        "(but not both) specified." % nic_str)
             raise exceptions.CommandError(err_msg)
         nics.append(nic_info)
+
     instance = cs.instances.create(args.name,
                                    args.flavor_id,
                                    volume=volume,
@@ -391,7 +397,8 @@ def do_create(cs, args):
                                    datastore_version=args.datastore_version,
                                    nics=nics,
                                    configuration=args.configuration,
-                                   replica_of=replica_of_instance)
+                                   replica_of=replica_of_instance,
+                                   replica_count=args.replica_count)
     _print_instance(instance)
 
 
@@ -498,6 +505,8 @@ def do_restart(cs, args):
     instance = _find_instance(cs, args.instance)
     cs.instances.restart(instance)
 
+# Replication related commands
+
 
 @utils.arg('instance',
            metavar='<instance>',
@@ -507,6 +516,26 @@ def do_detach_replica(cs, args):
     """Detaches a replica instance from its replication source."""
     instance = _find_instance(cs, args.instance)
     cs.instances.edit(instance, detach_replica_source=True)
+
+
+@utils.arg('instance',
+           metavar='<instance>',
+           type=str,
+           help='ID or name of the instance.')
+def do_promote_to_replica_source(cs, args):
+    """Promotes a replica to be the new replica source of its set."""
+    instance = _find_instance(cs, args.instance)
+    cs.instances.promote_to_replica_source(instance)
+
+
+@utils.arg('instance',
+           metavar='<instance>',
+           type=str,
+           help='ID or name of the instance.')
+def do_eject_replica_source(cs, args):
+    """Ejects a replica source from its set."""
+    instance = _find_instance(cs, args.instance)
+    cs.instances.eject_replica_source(instance)
 
 # Backup related commands
 
