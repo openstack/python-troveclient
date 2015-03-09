@@ -79,7 +79,7 @@ class HTTPClient(TroveClientMixin):
                  http_log_debug=False, cacert=None, bypass_url=None,
                  auth_system='keystone', auth_plugin=None):
 
-        if auth_system != 'keystone' and not auth_plugin:
+        if auth_system and auth_system != 'keystone' and not auth_plugin:
             raise exceptions.AuthSystemNotFound(auth_system)
 
         if not auth_url and auth_system and auth_system != 'keystone':
@@ -91,14 +91,6 @@ class HTTPClient(TroveClientMixin):
         self.password = password
         self.projectid = projectid
         self.tenant_id = tenant_id
-
-        if auth_system and auth_system != 'keystone' and not auth_plugin:
-            raise exceptions.AuthSystemNotFound(auth_system)
-
-        if not auth_url and auth_system and auth_system != 'keystone':
-            auth_url = auth_plugin.get_auth_url()
-            if not auth_url:
-                raise exceptions.EndpointNotFound()
 
         self.auth_url = auth_url.rstrip('/') if auth_url else auth_url
         self.version = 'v1'
