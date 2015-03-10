@@ -5,6 +5,7 @@ dist/*
 build/*
 html/*
 *.egg*
+cover/*
 .coverage
 rdserver.txt
 python-troveclient.iml
