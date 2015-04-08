@@ -23,23 +23,20 @@ from troveclient import utils
 
 class UtilsTest(testtools.TestCase):
 
-    def test_add_hookable_mixin(self):
-        def func():
-            pass
+    def func(self):
+        pass
 
+    def test_add_hookable_mixin(self):
         hook_type = "hook_type"
         mixin = utils.HookableMixin()
-        mixin.add_hook(hook_type, func)
+        mixin.add_hook(hook_type, self.func)
         self.assertTrue(hook_type in mixin._hooks_map)
-        self.assertTrue(func in mixin._hooks_map[hook_type])
+        self.assertTrue(self.func in mixin._hooks_map[hook_type])
 
     def test_run_hookable_mixin(self):
-        def func():
-            pass
-
         hook_type = "hook_type"
         mixin = utils.HookableMixin()
-        mixin.add_hook(hook_type, func)
+        mixin.add_hook(hook_type, self.func)
         mixin.run_hooks(hook_type)
 
     def test_environment(self):

@@ -87,10 +87,6 @@ class ManagerTest(testtools.TestCase):
 
         # no cache object, nothing should happen
         manager.write_to_completion_cache("non-exist", "val")
-
-        def side_effect_func(val):
-            return val
-
         manager._mock_cache = mock.Mock()
         manager._mock_cache.write = mock.Mock(return_value=None)
         manager.write_to_completion_cache("mock", "val")
@@ -213,9 +209,6 @@ class ManagerListTest(ManagerTest):
 
     def tearDown(self):
         super(ManagerListTest, self).tearDown()
-
-    def obj_class(self, res, loaded=True):
-        return res
 
     def test_list_with_body_none(self):
         body = None
@@ -490,28 +483,25 @@ class ResourceTest(testtools.TestCase):
         self.assertEqual("test-human-id", robj.name)
         self.assertEqual(5, robj.test_attr)
 
-    def tes___eq__(self):
+    def test___eq__(self):
         robj = self.get_mock_resource_obj()
         other = base.Resource()
 
         info_ = {"name": "test-human-id", "test_attr": 5}
         robj._info = info_
         other._info = {}
-        self.assertNotTrue(robj.__eq__(other))
-
-        robj._info = info_
-        self.assertTrue(robj.__eq__(other))
+        self.assertFalse(robj.__eq__(other))
 
         robj.id = "rid"
         other.id = "oid"
-        self.assertNotTrue(robj.__eq__(other))
+        self.assertFalse(robj.__eq__(other))
 
         other.id = "rid"
         self.assertTrue(robj.__eq__(other))
 
         # not instance of the same class
         other = mock.Mock()
-        self.assertNotTrue(robj.__eq__(other))
+        self.assertEqual(robj.__eq__(other), NotImplemented)
 
     def test_is_loaded(self):
         robj = self.get_mock_resource_obj()

@@ -23,18 +23,6 @@ Unit tests for databases.py
 """
 
 
-class DatabaseTest(testtools.TestCase):
-    def setUp(self):
-        super(DatabaseTest, self).setUp()
-        self.orig__init = databases.Database.__init__
-        databases.Database.__init__ = mock.Mock(return_value=None)
-        self.database = databases.Database()
-
-    def tearDown(self):
-        super(DatabaseTest, self).tearDown()
-        databases.Database.__init__ = self.orig__init
-
-
 class DatabasesTest(testtools.TestCase):
     def setUp(self):
         super(DatabasesTest, self).setUp()

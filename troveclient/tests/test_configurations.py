@@ -118,8 +118,6 @@ class ConfigurationsTest(testtools.TestCase):
                          self.configurations.instances(123))
 
     def test_update(self):
-        def side_effect_func(path, config):
-            return path
         self.configurations.api.client.put = self._get_mock_method()
         self._resp.status_code = 200
         config = '{"test":12}'
@@ -129,8 +127,6 @@ class ConfigurationsTest(testtools.TestCase):
         self.assertRaises(Exception, self.configurations.update, 34)
 
     def test_edit(self):
-        def side_effect_func(path, config):
-            return path
         self.configurations.api.client.patch = self._get_mock_method()
         self._resp.status_code = 200
         config = '{"test":12}'
@@ -153,18 +149,6 @@ class ConfigurationParametersTest(testtools.TestCase):
     def tearDown(self):
         super(ConfigurationParametersTest, self).tearDown()
         configurations.ConfigurationParameters.__init__ = self.orig__init
-
-    def _get_mock_method(self):
-        self._resp = mock.Mock()
-        self._body = None
-        self._url = None
-
-        def side_effect_func(url, body=None):
-            self._body = body
-            self._url = url
-            return (self._resp, body)
-
-        return mock.Mock(side_effect=side_effect_func)
 
     def test_list_parameters(self):
         def side_effect_func(path, config):
