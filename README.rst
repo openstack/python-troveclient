@@ -210,3 +210,9 @@ Quick-start using keystone::
                            auth_url=AUTH_URL))
     >>> nt.instances.list()
     [...]
+
+
+* License: Apache License, Version 2.0
+* Documentation: http://docs.openstack.org/developer/python-troveclient
+* Source: http://git.openstack.org/cgit/openstack/python-troveclient
+* Bugs: http://bugs.launchpad.net/python-troveclient
