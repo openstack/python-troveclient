@@ -30,7 +30,7 @@ class ClientTest(testtools.TestCase):
         version_map = other_client.get_version_map()
         output = client.BaseClient.get_class('database',
                                              '1.0', version_map)
-        self.assertEqual(output, troveclient.v1.client.Client)
+        self.assertEqual(troveclient.v1.client.Client, output)
 
     def test_get_client_class_unknown(self):
         version_map = other_client.get_version_map()

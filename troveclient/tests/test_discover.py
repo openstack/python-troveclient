@@ -40,7 +40,7 @@ class DiscoverTest(testtools.TestCase):
         def test():
             shell = troveclient.shell.OpenStackTroveShell()
             for name, module in shell._discover_via_entry_points():
-                self.assertEqual(name, 'foo')
+                self.assertEqual('foo', name)
                 self.assertTrue(inspect.ismodule(module))
 
         test()
@@ -68,13 +68,13 @@ class DiscoverTest(testtools.TestCase):
         def test():
             shell = troveclient.shell.OpenStackTroveShell()
             extensions = shell._discover_extensions('1.0')
-            self.assertEqual(len(extensions), 3)
+            self.assertEqual(3, len(extensions))
             names = sorted(['foo', 'bar', 'baz'])
             sorted_extensions = sorted(extensions, key=lambda ext: ext.name)
             for i in range(len(names)):
                 ext = sorted_extensions[i]
                 name = names[i]
-                self.assertEqual(ext.name, name)
+                self.assertEqual(name, ext.name)
                 self.assertTrue(inspect.ismodule(ext.module))
 
         test()
