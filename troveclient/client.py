@@ -25,7 +25,7 @@ import logging
 import requests
 
 from keystoneclient import adapter
-from oslo.utils import importutils
+from oslo_utils import importutils
 from troveclient.openstack.common.apiclient import client
 from troveclient.openstack.common.apiclient import exceptions
 from troveclient import service_catalog
