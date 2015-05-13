@@ -14,7 +14,7 @@
 
 import os
 
-from oslo.utils import strutils
+from oslo_utils import strutils
 
 
 class HookableMixin(object):

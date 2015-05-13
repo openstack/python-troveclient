@@ -24,8 +24,8 @@ import uuid
 import prettytable
 import six
 
-from oslo.utils import encodeutils
-from oslo.utils import strutils
+from oslo_utils import encodeutils
+from oslo_utils import strutils
 
 from troveclient.openstack.common.apiclient import exceptions
 

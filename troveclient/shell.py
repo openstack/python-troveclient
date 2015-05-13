@@ -38,8 +38,8 @@ from keystoneclient.auth.identity.generic import token
 from keystoneclient.auth.identity import v3 as identity
 from keystoneclient import session as ks_session
 
-from oslo.utils import encodeutils
-from oslo.utils import importutils
+from oslo_utils import encodeutils
+from oslo_utils import importutils
 
 import troveclient
 import troveclient.auth_plugin
