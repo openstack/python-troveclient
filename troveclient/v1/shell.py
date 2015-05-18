@@ -20,7 +20,9 @@ import sys
 import time
 
 INSTANCE_ERROR = ("Instance argument(s) must be of the form --instance "
-                  "<flavor=flavor_name_or_id, volume=volume>")
+                  "<opt=value[,opt=value]> - see help for details.")
+NIC_ERROR = ("Invalid NIC argument %s. Must specify either net-id or port-id "
+             "but not both. Please refer to help.")
 
 try:
     import simplejson as json
@@ -449,12 +451,7 @@ def do_create(cs, args):
     for nic_str in args.nics:
         nic_info = dict([(k, v) for (k, v) in [z.split("=", 1)[:2] for z in
                                                nic_str.split(",")]])
-        if bool(nic_info.get('net-id')) == bool(nic_info.get('port-id')):
-            err_msg = ("Invalid nic argument '%s'. Nic arguments must be of "
-                       "the form --nic <net-id=net-uuid,v4-fixed-ip=ip-addr,"
-                       "port-id=port-uuid>, with at minimum net-id or port-id "
-                       "(but not both) specified." % nic_str)
-            raise exceptions.ValidationError(err_msg)
+        _validate_nic_info(nic_info, nic_str)
         nics.append(nic_info)
 
     instance = cs.instances.create(args.name,
@@ -473,41 +470,139 @@ def do_create(cs, args):
     _print_instance(instance)
 
 
+def _validate_nic_info(nic_info, nic_str):
+    if bool(nic_info.get('net-id')) or bool(nic_info.get('port-id')):
+        if bool(nic_info.get('net-id')) and bool(nic_info.get('port-id')):
+            raise exceptions.ValidationError(NIC_ERROR % nic_str)
+    else:
+        raise exceptions.ValidationError(NIC_ERROR % nic_str)
+
+
+def _get_flavors(cs, instance_str):
+    if 'flavor' in instance_str:
+        try:
+            flavor_arg = instance_str.split("flavor")[1]
+            flavor_value = flavor_arg.split(',')[0]
+            flavor_num = flavor_value.split('=')[1]
+            flavor_id = _find_flavor(cs, flavor_num).id
+        except IndexError:
+            err_msg = ("Invalid flavor parameter. %s." % INSTANCE_ERROR)
+            raise exceptions.ValidationError(err_msg)
+
+        return str(flavor_id)
+    else:
+        err_msg = ("flavor is required. %s." % INSTANCE_ERROR)
+        raise exceptions.ValidationError(err_msg)
+
+
+def _get_networks(instance_str):
+    nic_info = {}
+    nic_arg_list = ['net-id', 'port-id', 'v4-fixed-ip']
+
+    nics_present = False
+    nic_arg = ''
+    for arg in nic_arg_list:
+        if arg in instance_str:
+            nics_present = True
+            nic_arg = arg + instance_str.split(arg)[1]
+            break
+
+    if 'nic' in instance_str:
+        nic_arg = instance_str.split("nic")[1]
+        if nic_arg.split('=')[0]:
+            err_msg = (NIC_ERROR % ("nic%s" % nic_arg))
+            raise exceptions.ValidationError(err_msg)
+        try:
+            for arg in nic_arg_list:
+                if arg in nic_arg:
+                    single_arg = nic_arg.split(arg)[1]
+                    single_value = single_arg.split('=')[1]
+                    single_num = single_value.split(',')[0]
+                    nic_info[str(arg)] = str(single_num)
+        except IndexError:
+            err_msg = (NIC_ERROR % ("nic%s" % nic_arg))
+            raise exceptions.ValidationError(err_msg)
+
+        _validate_nic_info(nic_info, "nic%s" % nic_arg)
+
+        return [nic_info]
+    elif 'nic' not in instance_str and nics_present:
+        err_msg = ("Invalid NIC argument. Must specify nic='%s'."
+                   " Please refer to help" % (nic_arg))
+        raise exceptions.ValidationError(err_msg)
+
+    else:
+        return None
+
+
+def _get_volumes(instance_str):
+    try:
+        volume_arg = instance_str.split("volume")[1]
+        volume_value = volume_arg.split(',')[0]
+        volume_num = volume_value.split('=')[1]
+    except IndexError:
+        err_msg = ("Invalid volume parameter. %s." % INSTANCE_ERROR)
+        raise exceptions.ValidationError(err_msg)
+
+    return {"size": volume_num}
+
+
+def _get_availability_zones(instance_str):
+    if 'availability_zone' in instance_str:
+        try:
+            az_arg = instance_str.split("availability_zone")[1]
+            az_value = az_arg.split(',')[0]
+            az_num = az_value.split('=')[1]
+        except IndexError:
+            err_msg = ("Invalid availability zone parameter. %s."
+                       % INSTANCE_ERROR)
+            raise exceptions.ValidationError(err_msg)
+
+        return str(az_num)
+    else:
+        return None
+
+
 @utils.arg('name',
            metavar='<name>',
            type=str,
            help='Name of the cluster.')
 @utils.arg('datastore',
            metavar='<datastore>',
-           help='A datastore name or UUID.')
+           help='A datastore name or ID.')
 @utils.arg('datastore_version',
            metavar='<datastore_version>',
-           help='A datastore version name or UUID.')
+           help='A datastore version name or ID.')
 @utils.arg('--instance',
-           metavar="<flavor=flavor_name_or_id,volume=volume>",
+           metavar="<opt=value,opt=value,...>",
+           help="Create an instance for the cluster.  Specify multiple "
+                "times to create multiple instances.  "
+                "Valid options are: flavor=flavor_name_or_id, "
+                "volume=disk_size_in_GB, "
+                "nic='net-id=net-uuid,v4-fixed-ip=ip-addr,port-id=port-uuid' "
+                "(where net-id=network_id, v4-fixed-ip=IPv4r_fixed_address, "
+                "port-id=port_id), availability_zone=AZ_hint_for_Nova.",
            action='append',
            dest='instances',
-           default=[],
-           help="Create an instance for the cluster.  Specify multiple "
-                "times to create multiple instances.")
+           default=[])
 @utils.service_type('database')
 def do_cluster_create(cs, args):
     """Creates a new cluster."""
     instances = []
     for instance_str in args.instances:
         instance_info = {}
-        for z in instance_str.split(","):
-            for (k, v) in [z.split("=", 1)[:2]]:
-                if k == "flavor":
-                    flavor_id = _find_flavor(cs, v).id
-                    instance_info["flavorRef"] = str(flavor_id)
-                elif k == "volume":
-                    instance_info["volume"] = {"size": v}
-                else:
-                    instance_info[k] = v
-        if not instance_info.get('flavorRef'):
-            err_msg = ("flavor is required. %s." % INSTANCE_ERROR)
-            raise exceptions.ValidationError(err_msg)
+
+        instance_info["flavorRef"] = _get_flavors(cs, instance_str)
+        instance_info["volume"] = _get_volumes(instance_str)
+
+        nics = _get_networks(instance_str)
+        if nics:
+            instance_info["nics"] = nics
+
+        availability_zones = _get_availability_zones(instance_str)
+        if availability_zones:
+            instance_info["availability-zone"] = availability_zones
+
         instances.append(instance_info)
 
     if len(instances) == 0:

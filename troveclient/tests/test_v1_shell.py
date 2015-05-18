@@ -199,7 +199,8 @@ class ShellTest(utils.TestCase):
         cmd = ('create test-member-1 1 --size 1 '
                '--nic net-id=some-id,port-id=some-id')
         self.assertRaisesRegexp(
-            exceptions.ValidationError, 'Invalid nic argument',
+            exceptions.ValidationError,
+            'Invalid NIC argument net-id=some-id,port-id=some-id.',
             self.run_command, cmd)
 
     def test_cluster_create(self):
@@ -260,6 +261,52 @@ class ShellTest(utils.TestCase):
         cmd = ('cluster-shrink cls-1234 1234')
         self.run_command(cmd)
         self.assert_called('POST', '/clusters/cls-1234')
+
+    def test_cluster_create_with_nic_az(self):
+        cmd = ('cluster-create test-clstr1 vertica 7.1 '
+               '--instance flavor=2,volume=2,nic=net-id=some-id,'
+               'availability_zone=2 '
+               '--instance flavor=2,volume=2,nic=net-id=some-id,'
+               'availability_zone=2')
+        self.run_command(cmd)
+        self.assert_called_anytime(
+            'POST', '/clusters',
+            {'cluster': {
+                'instances': [
+                    {
+                        'flavorRef': '2',
+                        'volume': {'size': '2'},
+                        'nics': [{'net-id': 'some-id'}],
+                        'availability-zone': '2'
+                    },
+                    {
+                        'flavorRef': '2',
+                        'volume': {'size': '2'},
+                        'nics': [{'net-id': 'some-id'}],
+                        'availability-zone': '2'
+                    }],
+                'datastore': {'version': '7.1', 'type': 'vertica'},
+                'name': 'test-clstr1'}})
+
+    def test_cluster_create_with_nic_az_error(self):
+        cmd = ('cluster-create test-clstr vertica 7.1 '
+               '--instance flavor=2,volume=2,nic=net-id=some-id,'
+               'port-id=some-port-id,availability_zone=2 '
+               '--instance flavor=2,volume=1,nic=net-id=some-id,'
+               'port-id=some-port-id,availability_zone=2')
+        self.assertRaisesRegexp(
+            exceptions.ValidationError, 'Invalid NIC argument',
+            self.run_command, cmd)
+
+    def test_cluster_create_with_nic_az_error_again(self):
+        cmd = ('cluster-create test-clstr vertica 7.1 '
+               '--instance flavor=2,volume=2,nic=\'v4-fixed-ip=10.0.0.1\','
+               'availability_zone=2 '
+               '--instance flavor=2,volume=1,nic=\'v4-fixed-ip=10.0.0.1\','
+               'availability_zone=2')
+        self.assertRaisesRegexp(
+            exceptions.ValidationError, 'Invalid NIC argument',
+            self.run_command, cmd)
 
     def test_datastore_list(self):
         self.run_command('datastore-list')
