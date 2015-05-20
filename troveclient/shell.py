@@ -436,9 +436,9 @@ class OpenStackTroveShell(object):
         # V3 stuff
         project_info_provided = (self.options.os_tenant_name or
                                  self.options.os_tenant_id or
-                                (self.options.os_project_name and
-                                 (self.options.os_project_domain_name or
-                                  self.options.os_project_domain_id)) or
+                                 (self.options.os_project_name and
+                                  (self.options.os_project_domain_name or
+                                   self.options.os_project_domain_id)) or
                                  self.options.os_project_id)
 
         if (not project_info_provided):

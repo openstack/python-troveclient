@@ -41,7 +41,7 @@ class Flavors(base.ManagerWithFind):
         :rtype: list of :class:`Flavor`.
         """
         return self._list("/datastores/%s/versions/%s/flavors" %
-                         (datastore, version_id),
+                          (datastore, version_id),
                           "flavors")
 
     def get(self, flavor):

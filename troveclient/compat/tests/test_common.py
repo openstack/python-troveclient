@@ -40,7 +40,7 @@ class CommonTest(testtools.TestCase):
         sys.exit = self.orig_sys_exit
 
     def test_methods_of(self):
-        class DummyClass:
+        class DummyClass(object):
             def dummyMethod(self):
                 print("just for test")
 
