@@ -392,6 +392,7 @@ class OpenStackTroveShell(object):
         os_region_name = args.os_region_name
         os_tenant_id = args.os_tenant_id
         os_auth_system = args.os_auth_system
+        os_auth_token = args.os_auth_token
         endpoint_type = args.endpoint_type
         insecure = args.insecure
         service_type = args.service_type
@@ -426,8 +427,8 @@ class OpenStackTroveShell(object):
                         "You must provide a username "
                         "via either --os-username or env[OS_USERNAME]")
 
-            if not os_password:
-                os_password = getpass.getpass()
+            if not os_password and not os_auth_token:
+                args.os_password = getpass.getpass()
 
             if not os_auth_url:
                 if os_auth_system and os_auth_system != 'keystone':
@@ -585,16 +586,22 @@ class OpenStackTroveShell(object):
 
     def _get_keystone_auth(self, session, auth_url, **kwargs):
         auth_token = kwargs.pop('auth_token', None)
+        username=kwargs.pop('username')
+        user_id=kwargs.pop('user_id')
+        mypassword=kwargs.pop('password')
+        user_domain_id=kwargs.pop('user_domain_id')
+        user_domain_name=kwargs.pop('user_domain_name')
+
         if auth_token:
             return token.Token(auth_url, auth_token, **kwargs)
         else:
             return password.Password(
                 auth_url,
-                username=kwargs.pop('username'),
-                user_id=kwargs.pop('user_id'),
-                password=kwargs.pop('password'),
-                user_domain_id=kwargs.pop('user_domain_id'),
-                user_domain_name=kwargs.pop('user_domain_name'),
+                username=username,
+                user_id=user_id,
+                password=mypassword,
+                user_domain_id=user_domain_id,
+                user_domain_name=user_domain_name,
                 **kwargs)
 
 
