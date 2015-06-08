@@ -60,21 +60,17 @@ class SecGroupTest(testtools.TestCase):
 
 class SecGroupRuleTest(testtools.TestCase):
 
-    def setUp(self):
+    @mock.patch.object(security_groups.SecurityGroupRules, '__init__',
+                       mock.Mock(return_value=None))
+    @mock.patch.object(security_groups.SecurityGroupRule, '__init__',
+                       mock.Mock(return_value=None))
+    def setUp(self, *args):
         super(SecGroupRuleTest, self).setUp()
-        self.orig__init = security_groups.SecurityGroupRule.__init__
-        security_groups.SecurityGroupRule.__init__ = mock.Mock(
-            return_value=None
-        )
-        security_groups.SecurityGroupRules.__init__ = mock.Mock(
-            return_value=None
-        )
         self.security_group_rule = security_groups.SecurityGroupRule()
         self.security_group_rules = security_groups.SecurityGroupRules()
 
     def tearDown(self):
         super(SecGroupRuleTest, self).tearDown()
-        security_groups.SecurityGroupRule.__init__ = self.orig__init
 
     def test___repr__(self):
         self.security_group_rule.group_id = 1
