@@ -268,6 +268,11 @@ class RootCommands(common.AuthedCommandsBase):
         except Exception:
             print(sys.exc_info()[1])
 
+    def delete(self):
+        """Disable the instance's root user."""
+        self._require('id')
+        print(self.dbaas.root.delete(self.id))
+
     def enabled(self):
         """Check the instance for root access."""
         self._require('id')

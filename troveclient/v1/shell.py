@@ -1024,6 +1024,15 @@ def do_root_enable(cs, args):
     utils.print_dict({'name': root[0], 'password': root[1]})
 
 
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
+@utils.service_type('database')
+def do_root_disable(cs, args):
+    """Disables root for an instance."""
+    instance = _find_instance(cs, args.instance)
+    cs.root.disable_instance_root(instance)
+
+
 @utils.arg('instance_or_cluster', metavar='<instance_or_cluster>',
            help='ID or name of the instance or cluster.')
 @utils.service_type('database')
