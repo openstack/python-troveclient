@@ -210,6 +210,9 @@ class OpenStackTroveShell(object):
         ks_session.Session.register_cli_options(parser)
         identity.Password.register_argparse_arguments(parser)
 
+        parser.set_defaults(insecure=utils.env('TROVECLIENT_INSECURE',
+                            default=False))
+
         parser.add_argument('--os-tenant-name',
                             metavar='<auth-tenant-name>',
                             default=utils.env('OS_TENANT_NAME'),
