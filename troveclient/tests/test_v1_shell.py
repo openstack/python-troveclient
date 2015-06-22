@@ -132,6 +132,10 @@ class ShellTest(utils.TestCase):
         self.run_command('flavor-show 1')
         self.assert_called('GET', '/flavors/1')
 
+    def test_flavor_show_uuid(self):
+        self.run_command('flavor-show m1.uuid')
+        self.assert_called('GET', '/flavors/m1.uuid')
+
     def test_cluster_list(self):
         self.run_command('cluster-list')
         self.assert_called('GET', '/clusters')

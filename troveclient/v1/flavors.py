@@ -20,6 +20,11 @@ from troveclient import base
 class Flavor(base.Resource):
     """A Flavor is an Instance type, specifying other things, like RAM size."""
 
+    def __init__(self, manager, info, loaded=False):
+        super(Flavor, self).__init__(manager, info, loaded)
+        if self.id is None and self.str_id is not None:
+            self.id = self.str_id
+
     def __repr__(self):
         return "<Flavor: %s>" % self.name
 

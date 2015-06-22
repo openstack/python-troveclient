@@ -90,8 +90,7 @@ def _print_object(obj):
 
     # Fallback to str_id for flavors, where necessary
     if hasattr(obj, 'str_id'):
-        if hasattr(obj, 'id') and not obj.id:
-            obj._info['id'] = obj.str_id
+        obj._info['id'] = obj.id
         del(obj._info['str_id'])
 
     utils.print_dict(obj._info)

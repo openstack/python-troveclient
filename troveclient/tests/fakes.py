@@ -192,13 +192,22 @@ class FakeHTTPClient(base_client.HTTPClient):
                 "str_id": "3",
                 "ram": 4096,
                 "id": 3,
-                "name": "m1.medium"}]})
+                "name": "m1.medium"},
+            {
+                "str_id": "7d0d16e5-875f-4198-b6da-90ab2d3e899e",
+                "ram": 8192,
+                "id": None,
+                "name": "m1.uuid"}]})
 
     def get_datastores_mysql_versions_some_version_id_flavors(self, **kw):
         return self.get_flavors()
 
     def get_flavors_1(self, **kw):
         r = {'flavor': self.get_flavors()[2]['flavors'][0]}
+        return (200, {}, r)
+
+    def get_flavors_m1_uuid(self, **kw):
+        r = {'flavor': self.get_flavors()[2]['flavors'][4]}
         return (200, {}, r)
 
     def get_clusters(self, **kw):
