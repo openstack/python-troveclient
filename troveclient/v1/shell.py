@@ -23,6 +23,7 @@ INSTANCE_ERROR = ("Instance argument(s) must be of the form --instance "
                   "<opt=value[,opt=value]> - see help for details.")
 NIC_ERROR = ("Invalid NIC argument: %s. Must specify either net-id or port-id "
              "but not both. Please refer to help.")
+NO_LOG_FOUND_ERROR = "ERROR: No published '%s' log was found for %s."
 
 try:
     import simplejson as json
@@ -1392,6 +1393,157 @@ def do_metadata_create(cs, args):
 def do_metadata_delete(cs, args):
     """Deletes metadata for instance <id>."""
     cs.metadata.delete(args.instance_id, args.key)
+
+
+@utils.arg('instance', metavar='<instance>',
+           help='Id or Name of the instance.')
+@utils.service_type('database')
+def do_log_list(cs, args):
+    """Lists the log files available for instance."""
+    instance = _find_instance(cs, args.instance)
+    log_list = cs.instances.log_list(instance)
+    utils.print_list(log_list,
+                     ['name', 'type', 'status', 'published', 'pending',
+                      'container', 'prefix'])
+
+
+@utils.arg('instance', metavar='<instance>',
+           help='Id or Name of the instance.')
+@utils.arg('log_name', metavar='<log_name>', help='Name of log to show.')
+@utils.service_type('database')
+def do_log_show(cs, args):
+    """Instructs Trove guest to show details of log."""
+    try:
+        instance = _find_instance(cs, args.instance)
+        log_info = cs.instances.log_show(instance, args.log_name)
+        _print_object(log_info)
+    except exceptions.GuestLogNotFoundError:
+        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+    except Exception as ex:
+        error_msg = ex.message.split('\n')
+        print(error_msg[0])
+
+
+@utils.arg('instance', metavar='<instance>',
+           help='Id or Name of the instance.')
+@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+@utils.service_type('database')
+def do_log_enable(cs, args):
+    """Instructs Trove guest to start collecting log details."""
+    try:
+        instance = _find_instance(cs, args.instance)
+        log_info = cs.instances.log_enable(instance, args.log_name)
+        _print_object(log_info)
+    except exceptions.GuestLogNotFoundError:
+        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+    except Exception as ex:
+        error_msg = ex.message.split('\n')
+        print(error_msg[0])
+
+
+@utils.arg('instance', metavar='<instance>',
+           help='Id or Name of the instance.')
+@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+@utils.arg('--discard', action='store_true', default=False,
+           help='Discard published contents of specified log.')
+@utils.service_type('database')
+def do_log_disable(cs, args):
+    """Instructs Trove guest to stop collecting log details."""
+    try:
+        instance = _find_instance(cs, args.instance)
+        log_info = cs.instances.log_disable(instance, args.log_name,
+                                            discard=args.discard)
+        _print_object(log_info)
+    except exceptions.GuestLogNotFoundError:
+        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+    except Exception as ex:
+        error_msg = ex.message.split('\n')
+        print(error_msg[0])
+
+
+@utils.arg('instance', metavar='<instance>',
+           help='Id or Name of the instance.')
+@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+@utils.arg('--disable', action='store_true', default=False,
+           help='Stop collection of specified log.')
+@utils.arg('--discard', action='store_true', default=False,
+           help='Discard published contents of specified log.')
+@utils.service_type('database')
+def do_log_publish(cs, args):
+    """Instructs Trove guest to publish latest log entries on instance."""
+    try:
+        instance = _find_instance(cs, args.instance)
+        log_info = cs.instances.log_publish(
+            instance, args.log_name, disable=args.disable,
+            discard=args.discard)
+        _print_object(log_info)
+    except exceptions.GuestLogNotFoundError:
+        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+    except Exception as ex:
+        error_msg = ex.message.split('\n')
+        print(error_msg[0])
+
+
+@utils.arg('instance', metavar='<instance>',
+           help='Id or Name of the instance.')
+@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+@utils.service_type('database')
+def do_log_discard(cs, args):
+    """Instructs Trove guest to discard the container of the published log."""
+    try:
+        instance = _find_instance(cs, args.instance)
+        log_info = cs.instances.log_discard(instance, args.log_name)
+        _print_object(log_info)
+    except exceptions.GuestLogNotFoundError:
+        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+    except Exception as ex:
+        error_msg = ex.message.split('\n')
+        print(error_msg[0])
+
+
+@utils.arg('instance', metavar='<instance>',
+           help='Id or Name of the instance.')
+@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+@utils.arg('--publish', action='store_true', default=False,
+           help='Publish latest entries from guest before display.')
+@utils.arg('--lines', metavar='<lines>', default=50, type=int,
+           help='Publish latest entries from guest before display.')
+@utils.service_type('database')
+def do_log_tail(cs, args):
+    """Display log entries for instance."""
+    try:
+        instance = _find_instance(cs, args.instance)
+        log_gen = cs.instances.log_generator(instance, args.log_name,
+                                             args.publish, args.lines)
+        for log_part in log_gen():
+            print(log_part, end="")
+    except exceptions.GuestLogNotFoundError:
+        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+    except Exception as ex:
+        error_msg = ex.message.split('\n')
+        print(error_msg[0])
+
+
+@utils.arg('instance', metavar='<instance>',
+           help='Id or Name of the instance.')
+@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+@utils.arg('--publish', action='store_true', default=False,
+           help='Publish latest entries from guest before display.')
+@utils.arg('--file', metavar='<file>', default=None,
+           help='Path of file to save log to for instance.')
+@utils.service_type('database')
+def do_log_save(cs, args):
+    """Save log file for instance."""
+    try:
+        instance = _find_instance(cs, args.instance)
+        filename = cs.instances.log_save(instance, args.log_name,
+                                         args.publish, args.file)
+        print('Log "%s" written to %s' % (args.log_name, filename))
+    except exceptions.GuestLogNotFoundError:
+        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+    except Exception as ex:
+        error_msg = ex.message.split('\n')
+        print(error_msg[0])
 
 
 # @utils.arg('datastore_version',
