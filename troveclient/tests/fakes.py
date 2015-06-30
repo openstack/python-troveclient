@@ -502,7 +502,13 @@ class FakeHTTPClient(base_client.HTTPClient):
     def post_instances_1234_root(self, **kw):
         return (202, {}, {"user": {"password": "password", "name": "root"}})
 
+    def post_clusters_cls_1234_root(self, **kw):
+        return (202, {}, {"user": {"password": "password", "name": "root"}})
+
     def get_instances_1234_root(self, **kw):
+        return (200, {}, {"rootEnabled": 'True'})
+
+    def get_clusters_cls_1234_root(self, **kw):
         return (200, {}, {"rootEnabled": 'True'})
 
     def get_security_groups(self, **kw):
