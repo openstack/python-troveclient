@@ -19,6 +19,9 @@ from __future__ import print_function
 import sys
 import time
 
+INSTANCE_ERROR = ("Instance argument(s) must be of the form --instance "
+                  "<flavor=flavor_name_or_id, volume=volume>")
+
 try:
     import simplejson as json
 except ImportError:
@@ -436,11 +439,14 @@ def do_cluster_create(cs, args):
                 else:
                     instance_info[k] = v
         if not instance_info.get('flavorRef'):
-            err_msg = ("flavor is required. Instance arguments must be "
-                       "of the form --instance <flavor=flavor_name_or_id,",
-                       "volume=volume>.")
+            err_msg = ("flavor is required. %s." % INSTANCE_ERROR)
             raise exceptions.CommandError(err_msg)
         instances.append(instance_info)
+
+    if len(instances) == 0:
+        err_msg = ("An instance must be specified. %s." % INSTANCE_ERROR)
+        raise exceptions.CommandError(err_msg)
+
     cluster = cs.clusters.create(args.name,
                                  args.datastore,
                                  args.datastore_version,
