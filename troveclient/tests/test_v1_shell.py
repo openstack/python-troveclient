@@ -85,8 +85,8 @@ class ShellTest(utils.TestCase):
         self.run_command('update 1234')
         self.assert_called('PATCH', '/instances/1234')
 
-    def test_resize_flavor(self):
-        self.run_command('resize-flavor 1234 1')
+    def test_resize_instance(self):
+        self.run_command('resize-instance 1234 1')
         self.assert_called('POST', '/instances/1234/action')
 
     def test_resize_volume(self):
@@ -132,6 +132,10 @@ class ShellTest(utils.TestCase):
         self.run_command('flavor-show 1')
         self.assert_called('GET', '/flavors/1')
 
+    def test_flavor_show_by_name(self):
+        self.run_command('flavor-show m1.tiny')  # defined in fakes.py
+        self.assert_called('GET', '/flavors/m1.tiny')
+
     def test_flavor_show_uuid(self):
         self.run_command('flavor-show m1.uuid')
         self.assert_called('GET', '/flavors/m1.uuid')
@@ -158,7 +162,18 @@ class ShellTest(utils.TestCase):
             'POST', '/instances',
             {'instance': {
                 'volume': {'size': 1},
-                'flavorRef': '1',
+                'flavorRef': 1,
+                'name': 'test-member-1',
+                'replica_count': 1
+            }})
+
+    def test_boot_by_flavor_name(self):
+        self.run_command('create test-member-1 m1.tiny --size 1')
+        self.assert_called_anytime(
+            'POST', '/instances',
+            {'instance': {
+                'volume': {'size': 1},
+                'flavorRef': 1,
                 'name': 'test-member-1',
                 'replica_count': 1
             }})
@@ -172,8 +187,28 @@ class ShellTest(utils.TestCase):
 
     def test_cluster_create(self):
         cmd = ('cluster-create test-clstr vertica 7.1 '
-               '--instance flavor_id=2,volume=2 '
-               '--instance flavor_id=2,volume=1')
+               '--instance flavor=2,volume=2 '
+               '--instance flavor=2,volume=1')
+        self.run_command(cmd)
+        self.assert_called_anytime(
+            'POST', '/clusters',
+            {'cluster': {
+                'instances': [
+                    {
+                        'volume': {'size': '2'},
+                        'flavorRef': '2'
+                    },
+                    {
+                        'volume': {'size': '1'},
+                        'flavorRef': '2'
+                    }],
+                'datastore': {'version': '7.1', 'type': 'vertica'},
+                'name': 'test-clstr'}})
+
+    def test_cluster_create_by_flavor_name(self):
+        cmd = ('cluster-create test-clstr vertica 7.1 '
+               '--instance flavor=m1.small,volume=2 '
+               '--instance flavor=m1.small,volume=1')
         self.run_command(cmd)
         self.assert_called_anytime(
             'POST', '/clusters',
@@ -192,9 +227,9 @@ class ShellTest(utils.TestCase):
 
     def test_cluster_create_error(self):
         cmd = ('cluster-create test-clstr vertica 7.1 --instance volume=2 '
-               '--instance flavor_id=2,volume=1')
+               '--instance flavor=2,volume=1')
         self.assertRaisesRegexp(
-            exceptions.CommandError, 'flavor_id is required',
+            exceptions.CommandError, 'flavor is required',
             self.run_command, cmd)
 
     def test_datastore_list(self):

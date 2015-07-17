@@ -206,6 +206,18 @@ class FakeHTTPClient(base_client.HTTPClient):
         r = {'flavor': self.get_flavors()[2]['flavors'][0]}
         return (200, {}, r)
 
+    def get_flavors_2(self, **kw):
+        r = {'flavor': self.get_flavors()[2]['flavors'][2]}
+        return (200, {}, r)
+
+    def get_flavors_m1_tiny(self, **kw):
+        r = {'flavor': self.get_flavors()[2]['flavors'][0]}
+        return (200, {}, r)
+
+    def get_flavors_m1_small(self, **kw):
+        r = {'flavor': self.get_flavors()[2]['flavors'][2]}
+        return (200, {}, r)
+
     def get_flavors_m1_uuid(self, **kw):
         r = {'flavor': self.get_flavors()[2]['flavors'][4]}
         return (200, {}, r)

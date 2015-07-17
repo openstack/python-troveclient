@@ -259,11 +259,12 @@ def do_delete(cs, args):
     cs.instances.delete(instance)
 
 
-@utils.arg('cluster', metavar='<cluster>', help='ID of the cluster.')
+@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
 @utils.service_type('database')
 def do_cluster_delete(cs, args):
     """Deletes a cluster."""
-    cs.clusters.delete(args.cluster)
+    cluster = _find_cluster(cs, args.cluster)
+    cs.clusters.delete(cluster)
 
 
 @utils.arg('instance',
@@ -308,9 +309,9 @@ def do_update(cs, args):
            default=None,
            help="Size of the instance disk volume in GB. "
                 "Required when volume support is enabled.")
-@utils.arg('flavor_id',
-           metavar='<flavor_id>',
-           help='Flavor of the instance.')
+@utils.arg('flavor',
+           metavar='<flavor>',
+           help='Flavor ID or name of the instance.')
 @utils.arg('--databases', metavar='<databases>',
            help='Optional list of databases.',
            nargs="+", default=[])
@@ -363,6 +364,7 @@ def do_create(cs, args):
     """Creates a new instance."""
     volume = None
     replica_of_instance = None
+    flavor_id = _find_flavor(cs, args.flavor).id
     if args.size:
         volume = {"size": args.size}
     restore_point = None
@@ -386,7 +388,7 @@ def do_create(cs, args):
         nics.append(nic_info)
 
     instance = cs.instances.create(args.name,
-                                   args.flavor_id,
+                                   flavor_id,
                                    volume=volume,
                                    databases=databases,
                                    users=users,
@@ -412,7 +414,7 @@ def do_create(cs, args):
            metavar='<datastore_version>',
            help='A datastore version name or UUID.')
 @utils.arg('--instance',
-           metavar="<flavor_id=flavor_id,volume=volume>",
+           metavar="<flavor=flavor_name_or_id,volume=volume>",
            action='append',
            dest='instances',
            default=[],
@@ -426,15 +428,16 @@ def do_cluster_create(cs, args):
         instance_info = {}
         for z in instance_str.split(","):
             for (k, v) in [z.split("=", 1)[:2]]:
-                if k == "flavor_id":
-                    instance_info["flavorRef"] = v
+                if k == "flavor":
+                    flavor_id = _find_flavor(cs, v).id
+                    instance_info["flavorRef"] = str(flavor_id)
                 elif k == "volume":
                     instance_info["volume"] = {"size": v}
                 else:
                     instance_info[k] = v
         if not instance_info.get('flavorRef'):
-            err_msg = ("flavor_id is required. Instance arguments must be "
-                       "of the form --instance <flavor_id=flavor_id,"
+            err_msg = ("flavor is required. Instance arguments must be "
+                       "of the form --instance <flavor=flavor_name_or_id,",
                        "volume=volume>.")
             raise exceptions.CommandError(err_msg)
         instances.append(instance_info)
@@ -455,27 +458,15 @@ def do_cluster_create(cs, args):
            metavar='<instance>',
            type=str,
            help='ID or name of the instance.')
-@utils.arg('flavor_id',
-           metavar='<flavor_id>',
-           help='New flavor of the instance.')
-@utils.service_type('database')
-def do_resize_flavor(cs, args):
-    """[DEPRECATED] Please use resize-instance instead."""
-    do_resize_instance(cs, args)
-
-
-@utils.arg('instance',
-           metavar='<instance>',
-           type=str,
-           help='ID or name of the instance.')
-@utils.arg('flavor_id',
-           metavar='<flavor_id>',
+@utils.arg('flavor',
+           metavar='<flavor>',
            help='New flavor of the instance.')
 @utils.service_type('database')
 def do_resize_instance(cs, args):
     """Resizes an instance with a new flavor."""
     instance = _find_instance(cs, args.instance)
-    cs.instances.resize_instance(instance, args.flavor_id)
+    flavor_id = _find_flavor(cs, args.flavor).id
+    cs.instances.resize_instance(instance, flavor_id)
 
 
 @utils.arg('instance',
