@@ -253,6 +253,58 @@ def do_cluster_instances(cs, args):
         obj_is_dict=True)
 
 
+@utils.arg('--instance',
+           metavar="<name=name,flavor=flavor_name_or_id,volume=volume>",
+           action='append',
+           dest='instances',
+           default=[],
+           help="Add an instance to the cluster. Specify "
+                "multiple times to create multiple instances.")
+@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.service_type('database')
+def do_cluster_grow(cs, args):
+    """Adds more instances to a cluster."""
+    cluster = _find_cluster(cs, args.cluster)
+    instances = []
+    for instance_str in args.instances:
+        instance_info = {}
+        for z in instance_str.split(","):
+            for (k, v) in [z.split("=", 1)[:2]]:
+                if k == "name":
+                    instance_info[k] = v
+                elif k == "flavor":
+                    flavor_id = _find_flavor(cs, v).id
+                    instance_info["flavorRef"] = str(flavor_id)
+                elif k == "volume":
+                    instance_info["volume"] = {"size": v}
+                else:
+                    instance_info[k] = v
+        if not instance_info.get('flavorRef'):
+            raise exceptions.CommandError(
+                'flavor is required. '
+                'Instance arguments must be of the form '
+                '--instance <flavor=flavor_name_or_id,volume=volume,data=data>'
+            )
+        instances.append(instance_info)
+    cs.clusters.grow(cluster, instances=instances)
+
+
+@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.arg('instances',
+           nargs='+',
+           metavar='<instance>',
+           default=[],
+           help="Drop instance(s) from the cluster. Specify "
+                "multiple ids to drop multiple instances.")
+@utils.service_type('database')
+def do_cluster_shrink(cs, args):
+    """Drops instances from a cluster."""
+    cluster = _find_cluster(cs, args.cluster)
+    instances = [{'id': _find_instance(cs, instance).id}
+                 for instance in args.instances]
+    cs.clusters.shrink(cluster, instances=instances)
+
+
 @utils.arg('instance', metavar='<instance>',
            help='ID or name  of the instance.')
 @utils.service_type('database')

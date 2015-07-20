@@ -270,6 +270,9 @@ class FakeHTTPClient(base_client.HTTPClient):
                 assert_has_keys(instance, required=['volume', 'flavorRef'])
         return (202, {}, self.get_clusters_cls_1234()[2])
 
+    def post_clusters_cls_1234(self, body, **kw):
+        return (202, {}, None)
+
     def post_instances_1234_action(self, **kw):
         return (202, {}, None)
 
