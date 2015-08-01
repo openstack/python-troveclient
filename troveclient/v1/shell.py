@@ -99,22 +99,6 @@ def _print_object(obj):
     utils.print_dict(obj._info)
 
 
-def _find_instance_or_cluster(cs, instance_or_cluster):
-    """Returns an instance or cluster, found by id, along with the type of
-    resource, instance or cluster, that was found.
-    Raises CommandError if none is found.
-    """
-    try:
-        return _find_instance(cs, instance_or_cluster), 'instance'
-    except exceptions.CommandError:
-        try:
-            return _find_cluster(cs, instance_or_cluster), 'cluster'
-        except Exception:
-            raise exceptions.CommandError(
-                "No instance or cluster with a name or ID of '%s' exists."
-                % instance_or_cluster)
-
-
 def _find_instance(cs, instance):
     """Get an instance by ID."""
     return utils.find_resource(cs.instances, instance)
@@ -856,37 +840,23 @@ def do_limit_list(cs, args):
 
 # Root related commands
 
-@utils.arg('instance_or_cluster', metavar='<instance_or_cluster>',
-           help='ID or name of the instance or cluster.')
-@utils.arg('--root_password',
-           metavar='<root_password>',
-           default=None,
-           help='Root password to set.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.service_type('database')
 def do_root_enable(cs, args):
     """Enables root for an instance and resets if already exists."""
-    instance_or_cluster, resource_type = _find_instance_or_cluster(
-        cs, args.instance_or_cluster)
-    if resource_type == 'instance':
-        root = cs.root.create_instance_root(instance_or_cluster,
-                                            args.root_password)
-    else:
-        root = cs.root.create_cluster_root(instance_or_cluster,
-                                           args.root_password)
+    instance = _find_instance(cs, args.instance)
+    root = cs.root.create(instance)
     utils.print_dict({'name': root[0], 'password': root[1]})
 
 
-@utils.arg('instance_or_cluster', metavar='<instance_or_cluster>',
-           help='ID or name of the instance or cluster.')
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
 @utils.service_type('database')
 def do_root_show(cs, args):
-    """Gets status if root was ever enabled for an instance or cluster."""
-    instance_or_cluster, resource_type = _find_instance_or_cluster(
-        cs, args.instance_or_cluster)
-    if resource_type == 'instance':
-        root = cs.root.is_instance_root_enabled(instance_or_cluster)
-    else:
-        root = cs.root.is_cluster_root_enabled(instance_or_cluster)
+    """Gets status if root was ever enabled for an instance."""
+    instance = _find_instance(cs, args.instance)
+    root = cs.root.is_root_enabled(instance)
     utils.print_dict({'is_root_enabled': root.rootEnabled})
 
 

@@ -22,41 +22,22 @@ from troveclient.v1 import users
 class Root(base.ManagerWithFind):
     """Manager class for Root resource."""
     resource_class = users.User
-    instances_url = "/instances/%s/root"
-    clusters_url = "/clusters/%s/root"
+    url = "/instances/%s/root"
 
-    def create_instance_root(self, instance, root_password=None):
-        """Implements root-enable for instances."""
-        return self._enable_root(self.instances_url % base.getid(instance),
-                                 root_password)
-
-    def create_cluster_root(self, cluster, root_password=None):
-        """Implements root-enable for clusters."""
-        return self._enable_root(self.clusters_url % base.getid(cluster),
-                                 root_password)
-
-    def _enable_root(self, uri, root_password=None):
+    def create(self, instance):
         """Implements root-enable API.
+
         Enable the root user and return the root password for the
-        specified db instance or cluster.
+        specified db instance.
         """
-        body = {"password": root_password} if root_password else {}
-        resp, body = self.api.client.post(uri, body=body)
-        common.check_for_exceptions(resp, body, uri)
+        resp, body = self.api.client.post(self.url % base.getid(instance))
+        common.check_for_exceptions(resp, body, self.url)
         return body['user']['name'], body['user']['password']
 
-    def is_instance_root_enabled(self, instance):
-        """Returns whether root is enabled for the instance."""
-        return self._is_root_enabled(self.instances_url % base.getid(instance))
-
-    def is_cluster_root_enabled(self, cluster):
-        """Returns whether root is enabled for the cluster."""
-        return self._is_root_enabled(self.clusters_url % base.getid(cluster))
-
-    def _is_root_enabled(self, uri):
-        """Return whether root is enabled for the instance or the cluster."""
-        resp, body = self.api.client.get(uri)
-        common.check_for_exceptions(resp, body, uri)
+    def is_root_enabled(self, instance):
+        """Return whether root is enabled for the instance."""
+        resp, body = self.api.client.get(self.url % base.getid(instance))
+        common.check_for_exceptions(resp, body, self.url)
         return self.resource_class(self, body, loaded=True)
 
     # Appease the abc gods
