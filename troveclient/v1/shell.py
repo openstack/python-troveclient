@@ -134,9 +134,8 @@ def do_flavor_list(cs, args):
     elif not args.datastore_type and not args.datastore_version_id:
         flavors = cs.flavors.list()
     else:
-        err_msg = ("Specify both <datastore_type> and <datastore_version_id>"
-                   " to list datastore version associated flavors.")
-        raise exceptions.CommandError(err_msg)
+        raise exceptions.MissingArgs(['datastore_type',
+                                      'datastore_version_id'])
 
     # Fallback to str_id where necessary.
     _flavors = []
@@ -387,7 +386,7 @@ def do_create(cs, args):
                        "the form --nic <net-id=net-uuid,v4-fixed-ip=ip-addr,"
                        "port-id=port-uuid>, with at minimum net-id or port-id "
                        "(but not both) specified." % nic_str)
-            raise exceptions.CommandError(err_msg)
+            raise exceptions.ValidationError(err_msg)
         nics.append(nic_info)
 
     instance = cs.instances.create(args.name,
@@ -440,12 +439,11 @@ def do_cluster_create(cs, args):
                     instance_info[k] = v
         if not instance_info.get('flavorRef'):
             err_msg = ("flavor is required. %s." % INSTANCE_ERROR)
-            raise exceptions.CommandError(err_msg)
+            raise exceptions.ValidationError(err_msg)
         instances.append(instance_info)
 
     if len(instances) == 0:
-        err_msg = ("An instance must be specified. %s." % INSTANCE_ERROR)
-        raise exceptions.CommandError(err_msg)
+        raise exceptions.MissingArgs(['instance'])
 
     cluster = cs.clusters.create(args.name,
                                  args.datastore,
