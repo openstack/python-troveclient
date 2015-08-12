@@ -549,11 +549,16 @@ def do_backup_show(cs, args):
 @utils.arg('--limit', metavar='<limit>',
            default=None,
            help='Return up to N number of the most recent backups.')
+@utils.arg('--marker', metavar='<ID>', type=str, default=None,
+           help='Begin displaying the results for IDs greater than the '
+                'specified marker. When used with --limit, set this to '
+                'the last ID displayed in the previous run.')
 @utils.service_type('database')
 def do_backup_list_instance(cs, args):
     """Lists available backups for an instance."""
     instance = _find_instance(cs, args.instance)
-    wrapper = cs.instances.backups(instance, limit=args.limit)
+    wrapper = cs.instances.backups(instance, limit=args.limit,
+                                   marker=args.marker)
     backups = wrapper.items
     while wrapper.next and not args.limit:
         wrapper = cs.instances.backups(instance, marker=wrapper.next)
@@ -566,13 +571,18 @@ def do_backup_list_instance(cs, args):
 @utils.arg('--limit', metavar='<limit>',
            default=None,
            help='Return up to N number of the most recent backups.')
+@utils.arg('--marker', metavar='<ID>', type=str, default=None,
+           help='Begin displaying the results for IDs greater than the '
+                'specified marker. When used with --limit, set this to '
+                'the last ID displayed in the previous run.')
 @utils.arg('--datastore', metavar='<datastore>',
            default=None,
            help='Name or ID of the datastore to list backups for.')
 @utils.service_type('database')
 def do_backup_list(cs, args):
     """Lists available backups."""
-    wrapper = cs.backups.list(limit=args.limit, datastore=args.datastore)
+    wrapper = cs.backups.list(limit=args.limit, datastore=args.datastore,
+                              marker=args.marker)
     backups = wrapper.items
     while wrapper.next and not args.limit:
         wrapper = cs.backups.list(marker=wrapper.next)
