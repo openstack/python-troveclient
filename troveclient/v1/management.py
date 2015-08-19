@@ -14,10 +14,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
+
 from troveclient import base
 from troveclient import common
 from troveclient.v1 import clusters
 from troveclient.v1 import configurations
+from troveclient.v1 import datastores
 from troveclient.v1 import flavors
 from troveclient.v1 import instances
 
@@ -250,5 +253,59 @@ class MgmtConfigurationParameters(configurations.ConfigurationParameters):
         }
         url = ("/mgmt/datastores/versions/%(version_id)s/"
                "parameters/%(parameter_name)s" % output)
+        resp, body = self.api.client.delete(url)
+        common.check_for_exceptions(resp, body, url)
+
+
+class MgmtDatastoreVersions(base.ManagerWithFind):
+    """Manage :class:`DatastoreVersion` resources."""
+    resource_class = datastores.DatastoreVersion
+
+    def list(self, limit=None, marker=None):
+        """List all datastore versions."""
+        return self._paginated("/mgmt/datastore-versions", "versions",
+                               limit, marker)
+
+    def get(self, datastore_version_id):
+        """Get details of a datastore version."""
+        return self._get("/mgmt/datastore-versions/%s" % datastore_version_id,
+                         "version")
+
+    def create(self, name, datastore_name, datastore_manager, image,
+               packages=[], active='true', default='false'):
+        """Create a new datastore version."""
+        body = {"version": {
+            "name": name,
+            "datastore_name": datastore_name,
+            "datastore_manager": datastore_manager,
+            "image": image,
+            "packages": packages,
+            "active": json.loads(active),
+            "default": json.loads(default)
+        }}
+
+        return self._create("/mgmt/datastore-versions", body, None, True)
+
+    def edit(self, datastore_version_id, datastore_manager=None, image=None,
+             packages=[], active=None, default=None):
+        """Update a datastore-version."""
+        body = {}
+        if datastore_manager is not None:
+            body['datastore_manager'] = datastore_manager
+        if image:
+            body['image'] = image
+        if packages:
+            body['packages'] = packages
+        if active is not None:
+            body['active'] = json.loads(active)
+        if default is not None:
+            body['default'] = json.loads(default)
+        url = ("/mgmt/datastore-versions/%s" % datastore_version_id)
+        resp, body = self.api.client.patch(url, body=body)
+        common.check_for_exceptions(resp, body, url)
+
+    def delete(self, datastore_version_id):
+        """Delete a datastore version."""
+        url = ("/mgmt/datastore-versions/%s" % datastore_version_id)
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
