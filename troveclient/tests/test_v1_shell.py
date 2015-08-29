@@ -56,7 +56,23 @@ class ShellTest(utils.TestCase):
     @mock.patch('sys.stdout', new_callable=six.StringIO)
     @mock.patch('troveclient.client.get_version_map',
                 return_value=fakes.get_version_map())
-    def run_command(self, cmd, mock_stdout, mock_get_version_map):
+    @mock.patch('troveclient.v1.shell._find_instance_or_cluster',
+                return_value=('1234', 'instance'))
+    def run_command(self, cmd, mock_find_instance_or_cluster,
+                    mock_get_version_map, mock_stdout):
+        if isinstance(cmd, list):
+            self.shell.main(cmd)
+        else:
+            self.shell.main(cmd.split())
+        return mock_stdout.getvalue()
+
+    @mock.patch('sys.stdout', new_callable=six.StringIO)
+    @mock.patch('troveclient.client.get_version_map',
+                return_value=fakes.get_version_map())
+    @mock.patch('troveclient.v1.shell._find_instance_or_cluster',
+                return_value=('cls-1234', 'cluster'))
+    def run_command_clusters(self, cmd, mock_find_instance_or_cluster,
+                             mock_get_version_map, mock_stdout):
         if isinstance(cmd, list):
             self.shell.main(cmd)
         else:
@@ -448,13 +464,21 @@ class ShellTest(utils.TestCase):
         self.assert_called('DELETE',
                            '/instances/1234/users/jacob/databases/db1')
 
-    def test_root_enable(self):
+    def test_root_enable_instance(self):
         self.run_command('root-enable 1234')
         self.assert_called_anytime('POST', '/instances/1234/root')
 
-    def test_root_show(self):
+    def test_root_enable_cluster(self):
+        self.run_command_clusters('root-enable cls-1234')
+        self.assert_called_anytime('POST', '/clusters/cls-1234/root')
+
+    def test_root_show_instance(self):
         self.run_command('root-show 1234')
         self.assert_called('GET', '/instances/1234/root')
+
+    def test_root_show_cluster(self):
+        self.run_command_clusters('root-show cls-1234')
+        self.assert_called('GET', '/clusters/cls-1234/root')
 
     def test_secgroup_list(self):
         self.run_command('secgroup-list')
@@ -480,3 +504,29 @@ class ShellTest(utils.TestCase):
                 'cidr': '15.0.0.0/24',
                 'group_id': '2',
             }})
+
+    @mock.patch('sys.stdout', new_callable=six.StringIO)
+    @mock.patch('troveclient.client.get_version_map',
+                return_value=fakes.get_version_map())
+    @mock.patch('troveclient.v1.shell._find_instance',
+                side_effect=exceptions.CommandError)
+    @mock.patch('troveclient.v1.shell._find_cluster',
+                return_value='cls-1234')
+    def test_find_instance_or_cluster_find_cluster(self, mock_find_cluster,
+                                                   mock_find_instance,
+                                                   mock_get_version_map,
+                                                   mock_stdout):
+        cmd = 'root-show cls-1234'
+        self.shell.main(cmd.split())
+        self.assert_called('GET', '/clusters/cls-1234/root')
+
+    @mock.patch('sys.stdout', new_callable=six.StringIO)
+    @mock.patch('troveclient.client.get_version_map',
+                return_value=fakes.get_version_map())
+    @mock.patch('troveclient.v1.shell._find_instance',
+                return_value='1234')
+    def test_find_instance_or_cluster(self, mock_find_instance,
+                                      mock_get_version_map, mock_stdout):
+        cmd = 'root-show 1234'
+        self.shell.main(cmd.split())
+        self.assert_called('GET', '/instances/1234/root')
