@@ -123,11 +123,11 @@ class ShellTest(utils.TestCase):
 
     def test_flavor_list_error(self):
         cmd = 'flavor-list --datastore_type mysql'
-        exepcted_error_msg = ('Specify both <datastore_type> and '
-                              '<datastore_version_id> to list datastore '
-                              'version associated flavors')
+        exepcted_error_msg = ('Missing argument\(s\): '
+                              'datastore_type, datastore_version_id')
         self.assertRaisesRegexp(
-            exceptions.CommandError, exepcted_error_msg, self.run_command, cmd)
+            exceptions.MissingArgs, exepcted_error_msg, self.run_command,
+            cmd)
 
     def test_flavor_show(self):
         self.run_command('flavor-show 1')
@@ -183,7 +183,7 @@ class ShellTest(utils.TestCase):
         cmd = ('create test-member-1 1 --size 1 '
                '--nic net-id=some-id,port-id=some-id')
         self.assertRaisesRegexp(
-            exceptions.CommandError, 'Invalid nic argument',
+            exceptions.ValidationError, 'Invalid nic argument',
             self.run_command, cmd)
 
     def test_cluster_create(self):
@@ -230,7 +230,7 @@ class ShellTest(utils.TestCase):
         cmd = ('cluster-create test-clstr vertica 7.1 --instance volume=2 '
                '--instance flavor=2,volume=1')
         self.assertRaisesRegexp(
-            exceptions.CommandError, 'flavor is required',
+            exceptions.ValidationError, 'flavor is required',
             self.run_command, cmd)
 
     def test_cluster_grow(self):

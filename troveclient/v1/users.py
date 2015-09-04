@@ -16,11 +16,13 @@
 
 from troveclient import base
 from troveclient import common
+from troveclient import exceptions
 from troveclient.v1 import databases
 
 
 class User(base.Resource):
     """A database user."""
+
     def __repr__(self):
         return "<User: %s>" % self.name
 
@@ -67,7 +69,8 @@ class Users(base.ManagerWithFind):
         :rtype: :class:`User`.
         """
         if not newuserattr:
-            raise Exception("No updates specified for user %s" % username)
+            raise exceptions.ValidationError("No updates specified for user %s"
+                                             % username)
         instance_id = base.getid(instance)
         user = common.quote_user_host(username, hostname)
         user_dict = {}
