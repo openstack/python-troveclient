@@ -175,12 +175,15 @@ class Manager(utils.HookableMixin):
     def _create(self, url, body, response_key, return_raw=False, **kwargs):
         self.run_hooks('modify_body_for_create', body, **kwargs)
         resp, body = self.api.client.post(url, body=body)
-        if return_raw:
-            return body[response_key]
+        if body:
+            if return_raw:
+                return body[response_key]
 
-        with self.completion_cache('human_id', self.resource_class, mode="a"):
-            with self.completion_cache('uuid', self.resource_class, mode="a"):
-                return self.resource_class(self, body[response_key])
+            with self.completion_cache('human_id', self.resource_class,
+                                       mode="a"):
+                with self.completion_cache('uuid', self.resource_class,
+                                           mode="a"):
+                    return self.resource_class(self, body[response_key])
 
     def _delete(self, url):
         resp, body = self.api.client.delete(url)

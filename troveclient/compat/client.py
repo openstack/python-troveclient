@@ -355,6 +355,7 @@ class Dbaas(object):
         self.configuration_parameters = config_parameters
         self.metadata = metadata.Metadata(self)
         self.mgmt_configs = management.MgmtConfigurationParameters(self)
+        self.mgmt_datastore_versions = management.MgmtDatastoreVersions(self)
 
         class Mgmt(object):
             def __init__(self, dbaas):
@@ -362,6 +363,7 @@ class Dbaas(object):
                 self.hosts = dbaas.hosts
                 self.accounts = dbaas.accounts
                 self.storage = dbaas.storage
+                self.datastore_version = dbaas.mgmt_datastore_versions
 
         self.mgmt = Mgmt(self)
 
