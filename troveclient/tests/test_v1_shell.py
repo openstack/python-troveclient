@@ -13,10 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import fixtures
-import mock
 import six
 
+import fixtures
+import mock
 import troveclient.client
 from troveclient import exceptions
 import troveclient.shell
@@ -26,6 +26,7 @@ import troveclient.v1.shell
 
 
 class ShellFixture(fixtures.Fixture):
+
     def setUp(self):
         super(ShellFixture, self).setUp()
         self.shell = troveclient.shell.OpenStackTroveShell()
@@ -231,6 +232,18 @@ class ShellTest(utils.TestCase):
         self.assertRaisesRegexp(
             exceptions.CommandError, 'flavor is required',
             self.run_command, cmd)
+
+    def test_cluster_grow(self):
+        cmd = ('cluster-grow cls-1234 '
+               '--instance flavor=2,volume=2 '
+               '--instance flavor=2,volume=1')
+        self.run_command(cmd)
+        self.assert_called('POST', '/clusters/cls-1234')
+
+    def test_cluster_shrink(self):
+        cmd = ('cluster-shrink cls-1234 1234')
+        self.run_command(cmd)
+        self.assert_called('POST', '/clusters/cls-1234')
 
     def test_datastore_list(self):
         self.run_command('datastore-list')

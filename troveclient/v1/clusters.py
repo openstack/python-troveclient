@@ -70,6 +70,15 @@ class Clusters(base.ManagerWithFind):
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
 
+    def _action(self, cluster, body):
+        """Perform a cluster "action" -- grow/shrink/etc."""
+        url = "/clusters/%s" % base.getid(cluster)
+        resp, body = self.api.client.post(url, body=body)
+        common.check_for_exceptions(resp, body, url)
+        if body:
+            return self.resource_class(self, body['cluster'], loaded=True)
+        return body
+
     def add_shard(self, cluster):
         """Adds a shard to the specified cluster.
 
@@ -82,6 +91,24 @@ class Clusters(base.ManagerWithFind):
         if body:
             return self.resource_class(self, body, loaded=True)
         return body
+
+    def grow(self, cluster, instances=None):
+        """Grow a cluster.
+
+        :param cluster:     The cluster to grow
+        :param instances:   List of instances to add
+        """
+        body = {"grow": instances}
+        return self._action(cluster, body)
+
+    def shrink(self, cluster, instances=None):
+        """Shrink a cluster.
+
+        :param cluster:     The cluster to shrink
+        :param instances:   List of instances to drop
+        """
+        body = {"shrink": instances}
+        return self._action(cluster, body)
 
 
 class ClusterStatus(object):
