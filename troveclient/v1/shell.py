@@ -21,7 +21,7 @@ import time
 
 INSTANCE_ERROR = ("Instance argument(s) must be of the form --instance "
                   "<opt=value[,opt=value]> - see help for details.")
-NIC_ERROR = ("Invalid NIC argument %s. Must specify either net-id or port-id "
+NIC_ERROR = ("Invalid NIC argument: %s. Must specify either net-id or port-id "
              "but not both. Please refer to help.")
 
 try:
@@ -381,6 +381,11 @@ def do_update(cs, args):
            default=None,
            help="Size of the instance disk volume in GB. "
                 "Required when volume support is enabled.")
+@utils.arg('--volume_type',
+           metavar='<volume_type>',
+           type=str,
+           default=None,
+           help="Volume type. Optional when volume support is enabled.")
 @utils.arg('flavor',
            metavar='<flavor>',
            help='Flavor ID or name of the instance.')
@@ -438,7 +443,8 @@ def do_create(cs, args):
     replica_of_instance = None
     flavor_id = _find_flavor(cs, args.flavor).id
     if args.size:
-        volume = {"size": args.size}
+        volume = {"size": args.size,
+                  "type": args.volume_type}
     restore_point = None
     if args.backup:
         restore_point = {"backupRef": args.backup}
@@ -471,96 +477,92 @@ def do_create(cs, args):
 
 
 def _validate_nic_info(nic_info, nic_str):
-    if bool(nic_info.get('net-id')) or bool(nic_info.get('port-id')):
-        if bool(nic_info.get('net-id')) and bool(nic_info.get('port-id')):
-            raise exceptions.ValidationError(NIC_ERROR % nic_str)
-    else:
-        raise exceptions.ValidationError(NIC_ERROR % nic_str)
+    # need one or the other, not both, not none (!= ~ XOR)
+    if not (bool(nic_info.get('net-id')) != bool(nic_info.get('port-id'))):
+        raise exceptions.ValidationError(NIC_ERROR % ("nic='%s'" % nic_str))
 
 
 def _get_flavors(cs, instance_str):
-    if 'flavor' in instance_str:
-        try:
-            flavor_arg = instance_str.split("flavor")[1]
-            flavor_value = flavor_arg.split(',')[0]
-            flavor_num = flavor_value.split('=')[1]
-            flavor_id = _find_flavor(cs, flavor_num).id
-        except IndexError:
-            err_msg = ("Invalid flavor parameter. %s." % INSTANCE_ERROR)
-            raise exceptions.ValidationError(err_msg)
-
-        return str(flavor_id)
-    else:
-        err_msg = ("flavor is required. %s." % INSTANCE_ERROR)
-        raise exceptions.ValidationError(err_msg)
+    flavor_name = _get_instance_property(instance_str, 'flavor', True)
+    flavor_id = _find_flavor(cs, flavor_name).id
+    return str(flavor_id)
 
 
 def _get_networks(instance_str):
+    nic_args = _dequote(_get_instance_property(instance_str, 'nic',
+                                               is_required=False, quoted=True))
+
     nic_info = {}
-    nic_arg_list = ['net-id', 'port-id', 'v4-fixed-ip']
+    if nic_args:
+        net_id = _get_instance_property(nic_args, 'net-id', False)
+        port_id = _get_instance_property(nic_args, 'port-id', False)
+        fixed_ipv4 = _get_instance_property(nic_args, 'v4-fixed-ip', False)
 
-    nics_present = False
-    nic_arg = ''
-    for arg in nic_arg_list:
-        if arg in instance_str:
-            nics_present = True
-            nic_arg = arg + instance_str.split(arg)[1]
-            break
+        if net_id:
+            nic_info.update({'net-id': net_id})
+        if port_id:
+            nic_info.update({'port-id': port_id})
+        if fixed_ipv4:
+            nic_info.update({'v4-fixed-ip': fixed_ipv4})
 
-    if 'nic' in instance_str:
-        nic_arg = instance_str.split("nic")[1]
-        if nic_arg.split('=')[0]:
-            err_msg = (NIC_ERROR % ("nic%s" % nic_arg))
-            raise exceptions.ValidationError(err_msg)
-        try:
-            for arg in nic_arg_list:
-                if arg in nic_arg:
-                    single_arg = nic_arg.split(arg)[1]
-                    single_value = single_arg.split('=')[1]
-                    single_num = single_value.split(',')[0]
-                    nic_info[str(arg)] = str(single_num)
-        except IndexError:
-            err_msg = (NIC_ERROR % ("nic%s" % nic_arg))
-            raise exceptions.ValidationError(err_msg)
-
-        _validate_nic_info(nic_info, "nic%s" % nic_arg)
-
+        _validate_nic_info(nic_info, nic_args)
         return [nic_info]
-    elif 'nic' not in instance_str and nics_present:
-        err_msg = ("Invalid NIC argument. Must specify nic='%s'."
-                   " Please refer to help" % (nic_arg))
-        raise exceptions.ValidationError(err_msg)
 
-    else:
-        return None
+    return None
+
+
+def _dequote(value):
+    def _strip_quotes(value, quote_char):
+        if value:
+            return value.strip(quote_char)
+        return value
+
+    return _strip_quotes(_strip_quotes(value, "'"), '"')
 
 
 def _get_volumes(instance_str):
-    try:
-        volume_arg = instance_str.split("volume")[1]
-        volume_value = volume_arg.split(',')[0]
-        volume_num = volume_value.split('=')[1]
-    except IndexError:
-        err_msg = ("Invalid volume parameter. %s." % INSTANCE_ERROR)
-        raise exceptions.ValidationError(err_msg)
+    volume_size = _get_instance_property(instance_str, 'volume', True)
+    volume_type = _get_instance_property(instance_str, 'volume_type', False)
 
-    return {"size": volume_num}
+    volume_info = {"size": volume_size}
+    if volume_type:
+        volume_info.update({"type": volume_type})
+
+    return volume_info
 
 
 def _get_availability_zones(instance_str):
-    if 'availability_zone' in instance_str:
-        try:
-            az_arg = instance_str.split("availability_zone")[1]
-            az_value = az_arg.split(',')[0]
-            az_num = az_value.split('=')[1]
-        except IndexError:
-            err_msg = ("Invalid availability zone parameter. %s."
-                       % INSTANCE_ERROR)
-            raise exceptions.ValidationError(err_msg)
+    return _get_instance_property(instance_str, 'availability_zone', False)
 
-        return str(az_num)
-    else:
-        return None
+
+def _get_instance_property(instance_str, property_name, is_required=True,
+                           quoted=False):
+    if property_name in instance_str:
+        try:
+            left = instance_str.split('%s=' % property_name)[1]
+
+            # Handle complex (quoted) properties. Strip the quotes.
+            quote = left[0]
+            if quote in ["'", '"']:
+                left = left[1:]
+            else:
+                if quoted:
+                    # Fail if quotes are required.
+                    raise exceptions.ValidationError(
+                        "Invalid '%s' parameter. The value must be quoted."
+                        % property_name)
+                quote = ''
+
+            property_value = left.split('%s,' % quote)[0]
+            return str(property_value).strip()
+        except IndexError:
+            raise exceptions.ValidationError("Invalid '%s' parameter. %s."
+                                             % (property_name, INSTANCE_ERROR))
+
+    if is_required:
+        raise exceptions.MissingArgs([property_name])
+
+    return None
 
 
 @utils.arg('name',
@@ -574,11 +576,11 @@ def _get_availability_zones(instance_str):
            metavar='<datastore_version>',
            help='A datastore version name or ID.')
 @utils.arg('--instance',
-           metavar="<opt=value,opt=value,...>",
+           metavar='"<opt=value,opt=value,...>"',
            help="Create an instance for the cluster.  Specify multiple "
                 "times to create multiple instances.  "
                 "Valid options are: flavor=flavor_name_or_id, "
-                "volume=disk_size_in_GB, "
+                "volume=disk_size_in_GB, volume_type=type, "
                 "nic='net-id=net-uuid,v4-fixed-ip=ip-addr,port-id=port-uuid' "
                 "(where net-id=network_id, v4-fixed-ip=IPv4r_fixed_address, "
                 "port-id=port_id), availability_zone=AZ_hint_for_Nova.",

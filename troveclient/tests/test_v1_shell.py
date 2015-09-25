@@ -174,39 +174,41 @@ class ShellTest(utils.TestCase):
         self.assert_called('DELETE', '/clusters/cls-1234')
 
     def test_boot(self):
-        self.run_command('create test-member-1 1 --size 1')
+        self.run_command('create test-member-1 1 --size 1 --volume_type lvm')
         self.assert_called_anytime(
             'POST', '/instances',
             {'instance': {
-                'volume': {'size': 1},
+                'volume': {'size': 1, 'type': 'lvm'},
                 'flavorRef': 1,
                 'name': 'test-member-1',
                 'replica_count': 1
             }})
 
     def test_boot_by_flavor_name(self):
-        self.run_command('create test-member-1 m1.tiny --size 1')
+        self.run_command(
+            'create test-member-1 m1.tiny --size 1 --volume_type lvm')
         self.assert_called_anytime(
             'POST', '/instances',
             {'instance': {
-                'volume': {'size': 1},
+                'volume': {'size': 1, 'type': 'lvm'},
                 'flavorRef': 1,
                 'name': 'test-member-1',
                 'replica_count': 1
             }})
 
     def test_boot_nic_error(self):
-        cmd = ('create test-member-1 1 --size 1 '
+        cmd = ('create test-member-1 1 --size 1 --volume_type lvm '
                '--nic net-id=some-id,port-id=some-id')
         self.assertRaisesRegexp(
             exceptions.ValidationError,
-            'Invalid NIC argument net-id=some-id,port-id=some-id.',
+            'Invalid NIC argument: nic=\'net-id=some-id,port-id=some-id\'',
             self.run_command, cmd)
 
     def test_cluster_create(self):
         cmd = ('cluster-create test-clstr vertica 7.1 '
                '--instance flavor=2,volume=2 '
-               '--instance flavor=2,volume=1')
+               '--instance flavor=2,volume=1 '
+               '--instance flavor=2,volume=1,volume_type=my-type-1')
         self.run_command(cmd)
         self.assert_called_anytime(
             'POST', '/clusters',
@@ -218,6 +220,10 @@ class ShellTest(utils.TestCase):
                     },
                     {
                         'volume': {'size': '1'},
+                        'flavorRef': '2'
+                    },
+                    {
+                        'volume': {'size': '1', 'type': 'my-type-1'},
                         'flavorRef': '2'
                     }],
                 'datastore': {'version': '7.1', 'type': 'vertica'},
@@ -247,7 +253,7 @@ class ShellTest(utils.TestCase):
         cmd = ('cluster-create test-clstr vertica 7.1 --instance volume=2 '
                '--instance flavor=2,volume=1')
         self.assertRaisesRegexp(
-            exceptions.ValidationError, 'flavor is required',
+            exceptions.MissingArgs, 'Missing argument\(s\): flavor',
             self.run_command, cmd)
 
     def test_cluster_grow(self):
@@ -264,9 +270,9 @@ class ShellTest(utils.TestCase):
 
     def test_cluster_create_with_nic_az(self):
         cmd = ('cluster-create test-clstr1 vertica 7.1 '
-               '--instance flavor=2,volume=2,nic=net-id=some-id,'
+               '--instance flavor=2,volume=2,nic=\'net-id=some-id\','
                'availability_zone=2 '
-               '--instance flavor=2,volume=2,nic=net-id=some-id,'
+               '--instance flavor=2,volume=2,nic=\'net-id=some-id\','
                'availability_zone=2')
         self.run_command(cmd)
         self.assert_called_anytime(
@@ -295,7 +301,8 @@ class ShellTest(utils.TestCase):
                '--instance flavor=2,volume=1,nic=net-id=some-id,'
                'port-id=some-port-id,availability_zone=2')
         self.assertRaisesRegexp(
-            exceptions.ValidationError, 'Invalid NIC argument',
+            exceptions.ValidationError, "Invalid 'nic' parameter. "
+            "The value must be quoted.",
             self.run_command, cmd)
 
     def test_cluster_create_with_nic_az_error_again(self):
