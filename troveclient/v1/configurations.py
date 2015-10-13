@@ -74,7 +74,7 @@ class Configurations(base.ManagerWithFind):
             body['configuration']['description'] = description
         return self._create("/configurations", body, "configuration")
 
-    def update(self, configuration_id, values, name=None, description=None):
+    def update(self, configuration, values, name=None, description=None):
         """Update an existing configuration."""
         body = {
             "configuration": {
@@ -85,27 +85,27 @@ class Configurations(base.ManagerWithFind):
             body['configuration']['name'] = name
         if description:
             body['configuration']['description'] = description
-        url = "/configurations/%s" % configuration_id
+        url = "/configurations/%s" % base.getid(configuration)
         resp, body = self.api.client.put(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
-    def edit(self, configuration_id, values):
+    def edit(self, configuration, values):
         """Update an existing configuration."""
         body = {
             "configuration": {
                 "values": json.loads(values)
             }
         }
-        url = "/configurations/%s" % configuration_id
+        url = "/configurations/%s" % base.getid(configuration)
         resp, body = self.api.client.patch(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
-    def delete(self, configuration_id):
+    def delete(self, configuration):
         """Delete the specified configuration.
 
-        :param configuration_id: The configuration id to delete
+        :param configuration: The configuration id to delete
         """
-        url = "/configurations/%s" % configuration_id
+        url = "/configurations/%s" % base.getid(configuration)
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
 

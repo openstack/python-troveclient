@@ -156,6 +156,11 @@ def _find_datastore_version(cs, datastore_version):
     return utils.find_resource(cs.datastores, datastore_version)
 
 
+def _find_configuration(cs, configuration):
+    """Get a configuration by ID."""
+    return utils.find_resource(cs.configurations, configuration)
+
+
 # Flavor related calls
 @utils.arg('--datastore_type', metavar='<datastore_type>',
            default=None,
@@ -1248,12 +1253,14 @@ def do_datastore_version_show(cs, args):
 @utils.arg('configuration',
            metavar='<configuration>',
            type=str,
-           help='ID of the configuration group to attach to the instance.')
+           help='ID or name of the configuration group to attach to the'
+                ' instance.')
 @utils.service_type('database')
 def do_configuration_attach(cs, args):
     """Attaches a configuration group to an instance."""
     instance = _find_instance(cs, args.instance)
-    cs.instances.modify(instance, args.configuration)
+    configuration = _find_configuration(cs, args.configuration)
+    cs.instances.modify(instance, configuration)
 
 
 @utils.arg('name', metavar='<name>', help='Name of the configuration group.')
@@ -1293,11 +1300,12 @@ def do_configuration_default(cs, args):
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
-           help='ID of the configuration group.')
+           help='ID or name of the configuration group.')
 @utils.service_type('database')
 def do_configuration_delete(cs, args):
     """Deletes a configuration group."""
-    cs.configurations.delete(args.configuration_group)
+    configuration = _find_configuration(cs, args.configuration_group)
+    cs.configurations.delete(configuration)
 
 
 @utils.arg('instance',
@@ -1365,22 +1373,23 @@ def do_configuration_parameter_list(cs, args):
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
-           help='ID of the configuration group.')
+           help='ID or name of the configuration group.')
 @utils.arg('values', metavar='<values>',
            help='Dictionary of the values to set.')
 @utils.service_type('database')
 def do_configuration_patch(cs, args):
     """Patches a configuration group."""
-    cs.configurations.edit(args.configuration_group,
-                           args.values)
+    configuration = _find_configuration(cs, args.configuration_group)
+    cs.configurations.edit(configuration, args.values)
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
-           help='ID of the configuration group.')
+           help='ID or name of the configuration group.')
 @utils.service_type('database')
 def do_configuration_instances(cs, args):
     """Lists all instances associated with a configuration group."""
-    params = cs.configurations.instances(args.configuration_group)
+    configuration = _find_configuration(cs, args.configuration_group)
+    params = cs.configurations.instances(configuration)
     utils.print_list(params, ['id', 'name'])
 
 
@@ -1394,11 +1403,12 @@ def do_configuration_list(cs, args):
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
-           help='ID of the configuration group.')
+           help='ID or name of the configuration group.')
 @utils.service_type('database')
 def do_configuration_show(cs, args):
     """Shows details of a configuration group."""
-    config_grp = cs.configurations.get(args.configuration_group)
+    configuration = _find_configuration(cs, args.configuration_group)
+    config_grp = cs.configurations.get(configuration)
     config_grp._info['values'] = json.dumps(config_grp.values)
 
     del config_grp._info['datastore_version_id']
@@ -1406,7 +1416,7 @@ def do_configuration_show(cs, args):
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
-           help='ID of the configuration group.')
+           help='ID or name of the configuration group.')
 @utils.arg('values', metavar='<values>',
            help='Dictionary of the values to set.')
 @utils.arg('--name', metavar='<name>', default=None,
@@ -1417,7 +1427,8 @@ def do_configuration_show(cs, args):
 @utils.service_type('database')
 def do_configuration_update(cs, args):
     """Updates a configuration group."""
-    cs.configurations.update(args.configuration_group,
+    configuration = _find_configuration(cs, args.configuration_group)
+    cs.configurations.update(configuration,
                              args.values,
                              args.name,
                              args.description)
