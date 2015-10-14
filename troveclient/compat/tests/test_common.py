@@ -115,7 +115,7 @@ class CliOptionsTest(testtools.TestCase):
         co = common.CliOptions()
         self.check_default_options(co)
 
-    def test_deafult(self):
+    def test_default(self):
         co = common.CliOptions.default()
         self.check_default_options(co)
 
