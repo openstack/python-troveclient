@@ -1,6 +1,14 @@
 Python bindings to the OpenStack Trove API
 ===========================================
 
+.. image:: https://img.shields.io/pypi/v/python-troveclient.svg
+    :target: https://pypi.python.org/pypi/python-troveclient/
+    :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/dm/python-troveclient.svg
+    :target: https://pypi.python.org/pypi/python-troveclient/
+    :alt: Downloads
+
 This is a client for the OpenStack Trove API. There's a Python API (the
 ``troveclient`` module), and a command-line script (``trove``). Each
 implements 100% of the OpenStack Trove API.
