@@ -69,11 +69,11 @@ class Backups(base.ManagerWithFind):
             body['backup']['parent_id'] = parent_id
         return self._create("/backups", body, "backup")
 
-    def delete(self, backup_id):
+    def delete(self, backup):
         """Delete the specified backup.
 
-        :param backup_id: The backup id to delete
+        :param backup: The backup to delete
         """
-        url = "/backups/%s" % backup_id
+        url = "/backups/%s" % base.getid(backup)
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
