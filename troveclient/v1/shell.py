@@ -344,7 +344,7 @@ def do_cluster_shrink(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name  of the instance.')
+           help='ID or name of the instance.')
 @utils.service_type('database')
 def do_delete(cs, args):
     """Deletes an instance."""
@@ -411,7 +411,7 @@ def do_update(cs, args):
            help="Volume type. Optional when volume support is enabled.")
 @utils.arg('flavor',
            metavar='<flavor>',
-           help='Flavor ID or name of the instance.')
+           help='A flavor name or ID.')
 @utils.arg('--databases', metavar='<database>',
            help='Optional list of databases.',
            nargs="+", default=[])
@@ -421,7 +421,7 @@ def do_update(cs, args):
 @utils.arg('--backup',
            metavar='<backup>',
            default=None,
-           help='A backup ID.')
+           help='A backup name or ID.')
 @utils.arg('--availability_zone',
            metavar='<availability_zone>',
            default=None,
@@ -475,7 +475,7 @@ def do_create(cs, args):
                   "type": args.volume_type}
     restore_point = None
     if args.backup:
-        restore_point = {"backupRef": args.backup}
+        restore_point = {"backupRef": _find_backup(cs, args.backup).id}
     if args.replica_of:
         replica_of_instance = _find_instance(cs, args.replica_of)
     databases = [{'name': value} for value in args.databases]
@@ -783,7 +783,7 @@ def do_eject_replica_source(cs, args):
 # Backup related commands
 
 
-@utils.arg('backup', metavar='<backup>', help='ID of the backup.')
+@utils.arg('backup', metavar='<backup>', help='ID or name of the backup.')
 @utils.service_type('database')
 def do_backup_show(cs, args):
     """Shows details of a backup."""
@@ -824,7 +824,7 @@ def do_backup_list_instance(cs, args):
                 'the last ID displayed in the previous run.')
 @utils.arg('--datastore', metavar='<datastore>',
            default=None,
-           help='Name or ID of the datastore to list backups for.')
+           help='ID or name of the datastore (to filter backups by).')
 @utils.service_type('database')
 def do_backup_list(cs, args):
     """Lists available backups."""
@@ -929,7 +929,7 @@ def do_database_list(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name  of the instance.')
+           help='ID or name of the instance.')
 @utils.arg('database', metavar='<database>', help='Name of the database.')
 @utils.service_type('database')
 def do_database_delete(cs, args):
@@ -941,7 +941,7 @@ def do_database_delete(cs, args):
 # User related actions
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name  of the instance.')
+           help='ID or name of the instance.')
 @utils.arg('name', metavar='<name>', help='Name of user.')
 @utils.arg('password', metavar='<password>', help='Password of user.')
 @utils.arg('--host', metavar='<host>', default=None,
