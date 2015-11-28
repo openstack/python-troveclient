@@ -601,7 +601,7 @@ def do_cluster_create(cs, args):
 
         availability_zones = _get_availability_zones(instance_str)
         if availability_zones:
-            instance_info["availability-zone"] = availability_zones
+            instance_info["availability_zone"] = availability_zones
 
         instances.append(instance_info)
 
