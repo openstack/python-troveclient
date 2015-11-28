@@ -753,11 +753,12 @@ def do_backup_list(cs, args):
                      order_by='updated')
 
 
-@utils.arg('backup', metavar='<backup>', help='ID of the backup.')
+@utils.arg('backup', metavar='<backup>', help='ID or name of the backup.')
 @utils.service_type('database')
 def do_backup_delete(cs, args):
     """Deletes a backup."""
-    cs.backups.delete(args.backup)
+    backup = _find_backup(cs, args.backup)
+    cs.backups.delete(backup)
 
 
 @utils.arg('instance', metavar='<instance>',
