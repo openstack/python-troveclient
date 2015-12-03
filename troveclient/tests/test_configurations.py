@@ -96,11 +96,13 @@ class ConfigurationsTest(testtools.TestCase):
         self.assertRaises(Exception, self.configurations.delete, 34)
 
     def test_list(self):
-        def side_effect_func(path, user, limit, marker):
-            return path
-
-        self.configurations._list = mock.Mock(side_effect=side_effect_func)
-        self.assertEqual('/configurations', self.configurations.list(1))
+        page_mock = mock.Mock()
+        self.configurations._paginated = page_mock
+        limit = "test-limit"
+        marker = "test-marker"
+        self.configurations.list(limit, marker)
+        page_mock.assert_called_with("/configurations", "configurations",
+                                     limit, marker)
 
     def test_get(self):
         def side_effect_func(path, config):
@@ -111,11 +113,15 @@ class ConfigurationsTest(testtools.TestCase):
                          self.configurations.get(123))
 
     def test_instances(self):
-        def side_effect_func(path, config, limit, marker):
-            return path
-        self.configurations._list = mock.Mock(side_effect=side_effect_func)
-        self.assertEqual('/configurations/configuration1/instances',
-                         self.configurations.instances(123))
+        page_mock = mock.Mock()
+        self.configurations._paginated = page_mock
+        limit = "test-limit"
+        marker = "test-marker"
+        configuration = "configuration1"
+        self.configurations.instances(configuration, limit, marker)
+        page_mock.assert_called_with(
+            "/configurations/" + configuration + "/instances",
+            "instances", limit, marker)
 
     def test_update(self):
         self.configurations.api.client.put = self._get_mock_method()

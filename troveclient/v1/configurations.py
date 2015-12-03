@@ -43,16 +43,17 @@ class Configurations(base.ManagerWithFind):
 
         :rtype: :class:`Configurations`
         """
-        return self._list("/configurations/%s/instances" %
-                          base.getid(configuration),
-                          "instances", limit, marker)
+        return self._paginated("/configurations/%s/instances" %
+                               base.getid(configuration),
+                               "instances", limit, marker)
 
     def list(self, limit=None, marker=None):
         """Get a list of all configurations.
 
         :rtype: list of :class:`Configurations`.
         """
-        return self._list("/configurations", "configurations", limit, marker)
+        return self._paginated("/configurations", "configurations",
+                               limit, marker)
 
     def create(self, name, values, description=None, datastore=None,
                datastore_version=None):
