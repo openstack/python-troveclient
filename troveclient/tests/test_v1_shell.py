@@ -283,13 +283,13 @@ class ShellTest(utils.TestCase):
                         'flavorRef': '2',
                         'volume': {'size': '2'},
                         'nics': [{'net-id': 'some-id'}],
-                        'availability-zone': '2'
+                        'availability_zone': '2'
                     },
                     {
                         'flavorRef': '2',
                         'volume': {'size': '2'},
                         'nics': [{'net-id': 'some-id'}],
-                        'availability-zone': '2'
+                        'availability_zone': '2'
                     }],
                 'datastore': {'version': '7.1', 'type': 'vertica'},
                 'name': 'test-clstr1'}})
