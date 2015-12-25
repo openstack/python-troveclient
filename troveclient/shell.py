@@ -102,7 +102,8 @@ class OpenStackTroveShell(object):
 
         parser.add_argument('--version',
                             action='version',
-                            version=troveclient.__version__)
+                            version=troveclient.__version__,
+                            help="Show program's version number and exit.")
 
         parser.add_argument('--debug',
                             action='store_true',

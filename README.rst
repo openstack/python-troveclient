@@ -165,7 +165,7 @@ You'll find complete documentation on the shell by running
                                       its subcommands.
 
     Optional arguments:
-      --version                       Show program's version number and exit
+      --version                       Show program's version number and exit.
       --debug                         Print debugging output.
       --os-username <auth-user-name>  Defaults to env[OS_USERNAME].
       --os-password <auth-password>   Defaults to env[OS_PASSWORD].
@@ -210,12 +210,12 @@ There's also a complete Python API, but it has not yet been documented.
 
 Quick-start using keystone::
 
-    # use v2.0 auth with http://example.com:5000/v2.0/")
+    # use v2.0 auth with http://example.com:5000/v2.0/
     >>> from troveclient.v1 import client
     >>> nt = client.Client(USERNAME,
                            PASSWORD,
                            project_id=TENANT_NAME,
-                           auth_url=AUTH_URL))
+                           auth_url=AUTH_URL)
     >>> nt.instances.list()
     [...]
 
