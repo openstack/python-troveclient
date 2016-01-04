@@ -301,7 +301,7 @@ class MangerPaginationTests(ManagerTest):
         self.manager.api.client.get.assert_called_with(self.next_url)
         self.assertEqual('p3', resp.items[0].foo)
         self.assertEqual('p4', resp.items[1].foo)
-        self.assertEqual(None, resp.next)
+        self.assertIsNone(resp.next)
         self.assertEqual([], resp.links)
         self.assertTrue(isinstance(resp, common.Paginated))
 
