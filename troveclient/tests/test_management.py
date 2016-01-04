@@ -94,7 +94,7 @@ class ManagementTest(testtools.TestCase):
         self.management.api.client.get = mock.Mock(return_value=('resp', body))
         management.RootHistory.__init__ = mock.Mock(return_value=None)
         rh = self.management.root_enabled_history("instance")
-        self.assertTrue(isinstance(rh, management.RootHistory))
+        self.assertIsInstance(rh, management.RootHistory)
 
     def test__action(self):
         resp = mock.Mock()
