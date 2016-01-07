@@ -248,4 +248,4 @@ class MgmtConfigurationParametersTest(testtools.TestCase):
         self.config_params.delete('id', 'param_id')
         self.assertEqual('/mgmt/datastores/versions/id/parameters/param_id',
                          self._url)
-        self.assertEqual(None, self._body)
+        self.assertIsNone(self._body)
