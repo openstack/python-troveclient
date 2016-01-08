@@ -77,7 +77,7 @@ class AccountsTest(testtools.TestCase):
         self.accounts.api.client.get = mock.Mock(return_value=(resp, body))
         self.assertRaises(Exception, self.accounts.index)
         resp.status_code = 200
-        self.assertTrue(isinstance(self.accounts.index(), base.Resource))
+        self.assertIsInstance(self.accounts.index(), base.Resource)
         self.accounts.api.client.get = mock.Mock(return_value=(resp, None))
         self.assertRaises(Exception, self.accounts.index)
 

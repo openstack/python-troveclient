@@ -293,7 +293,7 @@ class MangerPaginationTests(ManagerTest):
         self.assertEqual('p2', resp.items[1].foo)
         self.assertEqual(self.marker, resp.next)
         self.assertEqual(self.links, resp.links)
-        self.assertTrue(isinstance(resp, common.Paginated))
+        self.assertIsInstance(resp, common.Paginated)
 
     def test_pagination_next(self):
         resp = self.manager._paginated(self.url, self.response_key,
@@ -303,7 +303,7 @@ class MangerPaginationTests(ManagerTest):
         self.assertEqual('p4', resp.items[1].foo)
         self.assertIsNone(resp.next)
         self.assertEqual([], resp.links)
-        self.assertTrue(isinstance(resp, common.Paginated))
+        self.assertIsInstance(resp, common.Paginated)
 
     def test_pagination_error(self):
         self.manager.api.client.get = mock.Mock(return_value=(None, None))
