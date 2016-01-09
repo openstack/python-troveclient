@@ -22,6 +22,7 @@ Base utilities to build API operation managers and objects on top of.
 import contextlib
 import hashlib
 import os
+from oslo_utils import reflection
 from troveclient.compat import exceptions
 from troveclient.compat import utils
 
@@ -264,7 +265,9 @@ class Resource(object):
         reprkeys = sorted(k for k in self.__dict__.keys()
                           if k[0] != '_' and k != 'manager')
         info = ", ".join("%s=%s" % (k, getattr(self, k)) for k in reprkeys)
-        return "<%s %s>" % (self.__class__.__name__, info)
+        self_cls_name = reflection.get_class_name(self,
+                                                  fully_qualified=False)
+        return "<%s %s>" % (self_cls_name, info)
 
     def get(self):
         # set_loaded() first ... so if we have to bail, we know we tried.
