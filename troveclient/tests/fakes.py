@@ -508,6 +508,9 @@ class FakeHTTPClient(base_client.HTTPClient):
     def post_clusters_cls_1234_root(self, **kw):
         return (202, {}, {"user": {"password": "password", "name": "root"}})
 
+    def delete_instances_1234_root(self, **kw):
+        return (202, {}, None)
+
     def get_instances_1234_root(self, **kw):
         return (200, {}, {"rootEnabled": 'True'})
 

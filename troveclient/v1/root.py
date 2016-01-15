@@ -55,6 +55,21 @@ class Root(base.ManagerWithFind):
         common.check_for_exceptions(resp, body, uri)
         return body['user']['name'], body['user']['password']
 
+    def delete(self, instance):
+        """Implements root-disable API.
+        Disables access to the root user for the specified db instance.
+        :param instance: The instance on which the root user is enabled
+        """
+        self.disable_instance_root(instance)
+
+    def disable_instance_root(self, instance):
+        """Implements root-disable for instances."""
+        self._disable_root(self.instances_url % base.getid(instance))
+
+    def _disable_root(self, url):
+        resp, body = self.api.client.delete(url)
+        common.check_for_exceptions(resp, body, url)
+
     def is_root_enabled(self, instance):
         """Return whether root is enabled for the instance."""
         return self.is_instance_root_enabled(instance)

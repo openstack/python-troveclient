@@ -539,6 +539,10 @@ class ShellTest(utils.TestCase):
         self.run_command_clusters('root-enable cls-1234')
         self.assert_called_anytime('POST', '/clusters/cls-1234/root')
 
+    def test_root_disable_instance(self):
+        self.run_command('root-disable 1234')
+        self.assert_called_anytime('DELETE', '/instances/1234/root')
+
     def test_root_show_instance(self):
         self.run_command('root-show 1234')
         self.assert_called('GET', '/instances/1234/root')
