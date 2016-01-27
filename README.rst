@@ -17,7 +17,7 @@ See the `OpenStack CLI guide`_ for information on how to use the ``trove``
 command-line tool. You may also want to look at the
 `OpenStack API documentation`_.
 
-.. _OpenStack CLI Guide: http://docs.openstack.org/cli/quick-start/content/
+.. _OpenStack CLI Guide: http://docs.openstack.org/user-guide/cli.html
 .. _OpenStack API documentation: http://docs.openstack.org/api/
 
 The project is hosted on `Launchpad`_, where bugs can be filed. The code is
