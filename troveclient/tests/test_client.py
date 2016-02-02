@@ -186,8 +186,9 @@ class ClientTest(testtools.TestCase):
                                 'http://foo.com/trove/')
 
     def test_log_req(self):
-        self.logger = self.useFixture(
+        logger = self.useFixture(
             fixtures.FakeLogger(
+                name='troveclient.client',
                 format="%(message)s",
                 level=logging.DEBUG,
                 nuke_handlers=True
@@ -207,7 +208,7 @@ class ClientTest(testtools.TestCase):
              'data': '{"auth": {"passwordCredentials": '
              '{"password": "password"}}}'})
 
-        output = self.logger.output.split('\n')
+        output = logger.output.split('\n')
 
         self.assertIn("REQ: curl -i /foo -X GET", output)
         self.assertIn(
