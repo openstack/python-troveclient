@@ -15,27 +15,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
-
 from troveclient import base
 from troveclient import common
 from troveclient import exceptions
 
-from swiftclient import client
+from swiftclient import client as swift_client
 
 REBOOT_SOFT = 'SOFT'
 REBOOT_HARD = 'HARD'
-
-
-def swift_client():
-    auth_url = os.getenv("OS_AUTH_URL")
-    user = os.getenv("OS_USERNAME")
-    key = os.getenv("OS_PASSWORD")
-    tenant = os.getenv("OS_TENANT_NAME")
-    os_options = {'region_name': os.getenv("OS_REGION_NAME")}
-
-    return client.Connection(auth_url, user, key, tenant_name=tenant,
-                             auth_version="2.0", os_options=os_options)
 
 
 class Instance(base.Resource):
@@ -70,7 +57,26 @@ class Instances(base.ManagerWithFind):
     """Manage :class:`Instance` resources."""
     resource_class = Instance
 
-    log_cache = {}
+    def _get_swift_client(self):
+        if hasattr(self.api.client, 'auth'):
+            auth_url = self.api.client.auth.auth_url
+            user = self.api.client.auth._username
+            key = self.api.client.auth._password
+            tenant_name = self.api.client.auth._project_name
+        else:
+            auth_url = self.api.client.auth_url
+            user = self.api.client.username
+            key = self.api.client.password
+            tenant_name = self.api.client.tenant
+        # remove '/tokens' from the end of auth_url so it works for swift
+        token_str = "/tokens"
+        if auth_url.endswith(token_str):
+            auth_url = auth_url[:-len(token_str)]
+        region_name = self.api.client.region_name
+        os_options = {'tenant_name': tenant_name, 'region_name': region_name}
+
+        return swift_client.Connection(
+            auth_url, user, key, auth_version="2.0", os_options=os_options)
 
     def create(self, name, flavor_id, volume=None, databases=None, users=None,
                restorePoint=None, availability_zone=None, datastore=None,
@@ -293,7 +299,7 @@ class Instances(base.ManagerWithFind):
             prefix = log_info.prefix
             metadata_file = log_info.metafile
             return container, prefix, metadata_file
-        except client.ClientException as ex:
+        except swift_client.ClientException as ex:
             if ex.http_status == 404:
                 raise exceptions.GuestLogNotFoundError()
             raise
@@ -312,7 +318,7 @@ class Instances(base.ManagerWithFind):
         """
 
         if not swift:
-            swift = swift_client()
+            swift = self._get_swift_client()
 
         def _log_generator(instance, log_name, publish, lines, swift):
             try:
@@ -346,7 +352,7 @@ class Instances(base.ManagerWithFind):
                     headers, log_obj = swift.get_object(container,
                                                         log_part['name'])
                     yield log_obj
-            except client.ClientException as ex:
+            except swift_client.ClientException as ex:
                 if ex.http_status == 404:
                     raise exceptions.GuestLogNotFoundError()
                 raise
