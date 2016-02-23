@@ -16,6 +16,7 @@
 
 from __future__ import print_function
 
+import argparse
 import sys
 import time
 
@@ -136,6 +137,21 @@ def _find_flavor(cs, flavor):
 def _find_backup(cs, backup):
     """Get a backup by ID."""
     return utils.find_resource(cs.backups, backup)
+
+
+def _find_module(cs, module):
+    """Get a module by ID."""
+    return utils.find_resource(cs.modules, module)
+
+
+def _find_datastore(cs, datastore):
+    """Get a datastore by ID."""
+    return utils.find_resource(cs.datastores, datastore)
+
+
+def _find_datastore_version(cs, datastore_version):
+    """Get a datastore version by ID."""
+    return utils.find_resource(cs.datastores, datastore_version)
 
 
 # Flavor related calls
@@ -1393,6 +1409,155 @@ def do_metadata_create(cs, args):
 def do_metadata_delete(cs, args):
     """Deletes metadata for instance <id>."""
     cs.metadata.delete(args.instance_id, args.key)
+
+
+@utils.arg('--datastore', metavar='<datastore>',
+           help='Name or ID of datastore to list modules for.')
+@utils.service_type('database')
+def do_module_list(cs, args):
+    """Lists the modules available."""
+    datastore = None
+    if args.datastore:
+        datastore = _find_datastore(cs, args.datastore)
+    module_list = cs.modules.list(datastore=datastore)
+    utils.print_list(
+        module_list,
+        ['id', 'tenant', 'name', 'type', 'datastore',
+         'datastore_version', 'auto_apply', 'visible'],
+        labels={'datastore_version': 'Version'})
+
+
+@utils.arg('module', metavar='<module>',
+           help='ID or name of the module.')
+@utils.service_type('database')
+def do_module_show(cs, args):
+    """Shows details of a module."""
+    module = _find_module(cs, args.module)
+    _print_object(module)
+
+
+@utils.arg('name', metavar='<name>', type=str, help='Name of the module.')
+@utils.arg('type', metavar='<type>', type=str,
+           help='Type of the module. The type must be supported by a '
+                'corresponding module plugin on the datastore it is '
+                'applied to.')
+@utils.arg('file', metavar='<filename>', type=argparse.FileType('rb', 0),
+           help='File containing data contents for the module.')
+@utils.arg('--description', metavar='<description>', type=str,
+           help='Description of the module.')
+@utils.arg('--datastore', metavar='<datastore>',
+           help='Name or ID of datastore this module can be applied to. '
+                'If not specified, module can be applied to all datastores.')
+@utils.arg('--datastore_version', metavar='<version>',
+           help='Name or ID of datastore version this module can be applied '
+                'to. If not specified, module can be applied to all versions.')
+@utils.arg('--auto_apply', action='store_true', default=False,
+           help='Automatically apply this module when creating an instance '
+                'or cluster.')
+@utils.arg('--all_tenants', action='store_true', default=False,
+           help='Module is valid for all tenants (Admin only).')
+# This option is to suppress the module from module-list for non-admin
+@utils.arg('--hidden', action='store_true', default=False,
+           help=argparse.SUPPRESS)
+@utils.arg('--live_update', action='store_true', default=False,
+           help='Allow module to be updated even if it is already applied '
+                'to a current instance or cluster. Automatically attempt to '
+                'reapply this module if the contents change.')
+@utils.service_type('database')
+def do_module_create(cs, args):
+    """Create a module."""
+
+    contents = args.file.read()
+    if not contents:
+        raise exceptions.ValidationError(
+            "The file '%s' must contain some data" % args.file)
+
+    module = cs.modules.create(
+        args.name, args.type, contents, description=args.description,
+        all_tenants=args.all_tenants, datastore=args.datastore,
+        datastore_version=args.datastore_version,
+        auto_apply=args.auto_apply, visible=not args.hidden,
+        live_update=args.live_update)
+    _print_object(module)
+
+
+@utils.arg('module', metavar='<module>', type=str,
+           help='Name or ID of the module.')
+@utils.arg('--name', metavar='<name>', type=str, default=None,
+           help='Name of the module.')
+@utils.arg('--type', metavar='<type>', type=str, default=None,
+           help='Type of the module. The type must be supported by a '
+                'corresponding module plugin on the datastore it is '
+                'applied to.')
+@utils.arg('--file', metavar='<filename>', type=argparse.FileType('rb', 0),
+           default=None,
+           help='File containing data contents for the module.')
+@utils.arg('--description', metavar='<description>', type=str, default=None,
+           help='Description of the module.')
+@utils.arg('--datastore', metavar='<datastore>',
+           help='Name or ID of datastore this module can be applied to. '
+                'If not specified, module can be applied to all datastores.')
+@utils.arg('--all_datastores', dest='datastore', action='store_const',
+           const=None,
+           help='Module is valid for all datastores.')
+@utils.arg('--datastore_version', metavar='<version>',
+           help='Name or ID of datastore version this module can be applied '
+                'to. If not specified, module can be applied to all versions.')
+@utils.arg('--all_datastore_versions', dest='datastore_version',
+           action='store_const', const=None,
+           help='Module is valid for all datastore version.')
+@utils.arg('--auto_apply', action='store_true', default=None,
+           help='Automatically apply this module when creating an instance '
+                'or cluster.')
+@utils.arg('--no_auto_apply', dest='auto_apply', action='store_false',
+           default=None,
+           help='Do not automatically apply this module when creating an '
+                'instance or cluster.')
+@utils.arg('--all_tenants', action='store_true', default=None,
+           help='Module is valid for all tenants (Admin only).')
+@utils.arg('--no_all_tenants', dest='all_tenants', action='store_false',
+           default=None,
+           help='Module is valid for current tenant only (Admin only).')
+# This option is to suppress the module from module-list for non-admin
+@utils.arg('--hidden', action='store_true', default=None,
+           help=argparse.SUPPRESS)
+# This option is to allow the module to be seen from module-list for non-admin
+@utils.arg('--no_hidden', dest='hidden', action='store_false', default=None,
+           help=argparse.SUPPRESS)
+@utils.arg('--live_update', action='store_true', default=None,
+           help='Allow module to be updated or deleted even if it is already '
+                'applied to a current instance or cluster. Automatically '
+                'attempt to reapply this module if the contents change.')
+@utils.arg('--no_live_update', dest='live_update', action='store_false',
+           default=None,
+           help='Restricts a module from being updated or deleted if it is '
+                'already applied to a current instance or cluster.')
+@utils.service_type('database')
+def do_module_update(cs, args):
+    """Create a module."""
+    module = _find_module(cs, args.module)
+    contents = args.file.read() if args.file else None
+    visible = not args.hidden if args.hidden is not None else None
+    datastore_args = {}
+    if args.datastore:
+        datastore_args['datastore'] = args.datastore
+    if args.datastore_version:
+        datastore_args['datastore_version'] = args.datastore_version
+    updated_module = cs.modules.update(
+        module, name=args.name, module_type=args.type, contents=contents,
+        description=args.description, all_tenants=args.all_tenants,
+        auto_apply=args.auto_apply, visible=visible,
+        live_update=args.live_update, **datastore_args)
+    _print_object(updated_module)
+
+
+@utils.arg('module', metavar='<module>',
+           help='ID or name of the module.')
+@utils.service_type('database')
+def do_module_delete(cs, args):
+    """Delete a module."""
+    module = _find_module(cs, args.module)
+    cs.modules.delete(module)
 
 
 @utils.arg('instance', metavar='<instance>',
