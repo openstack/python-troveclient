@@ -25,6 +25,7 @@ from troveclient.v1 import instances
 from troveclient.v1 import limits
 # from troveclient.v1 import management
 from troveclient.v1 import metadata
+from troveclient.v1 import modules
 from troveclient.v1 import root
 from troveclient.v1 import security_groups
 from troveclient.v1 import users
@@ -76,6 +77,7 @@ class Client(object):
         config_parameters = configurations.ConfigurationParameters(self)
         self.configuration_parameters = config_parameters
         self.metadata = metadata.Metadata(self)
+        self.modules = modules.Modules(self)
 
         # self.hosts = Hosts(self)
         # self.quota = Quotas(self)
