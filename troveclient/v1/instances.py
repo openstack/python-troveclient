@@ -15,9 +15,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import warnings
+
 from troveclient import base
 from troveclient import common
 from troveclient import exceptions
+from troveclient.i18n import _LW
 
 from swiftclient import client as swift_client
 
@@ -78,10 +81,11 @@ class Instances(base.ManagerWithFind):
         return swift_client.Connection(
             auth_url, user, key, auth_version="2.0", os_options=os_options)
 
+    # TODO(mriedem): Remove slave_of after liberty-eol for Trove.
     def create(self, name, flavor_id, volume=None, databases=None, users=None,
                restorePoint=None, availability_zone=None, datastore=None,
                datastore_version=None, nics=None, configuration=None,
-               replica_of=None, replica_count=None):
+               replica_of=None, slave_of=None, replica_count=None):
         """Create (boot) a new instance."""
 
         body = {"instance": {
@@ -109,8 +113,14 @@ class Instances(base.ManagerWithFind):
             body["instance"]["nics"] = nics
         if configuration:
             body["instance"]["configuration"] = configuration
-        if replica_of:
-            body["instance"]["replica_of"] = base.getid(replica_of)
+        if replica_of or slave_of:
+            if slave_of:
+                warnings.warn(_LW("The 'slave_of' argument is deprecated in "
+                                  "favor of 'replica_of' and will be removed "
+                                  "after the Trove liberty series is end of "
+                                  "life."),
+                              category=DeprecationWarning)
+            body["instance"]["replica_of"] = base.getid(replica_of) or slave_of
         if replica_count:
             body["instance"]["replica_count"] = replica_count
 
@@ -143,6 +153,8 @@ class Instances(base.ManagerWithFind):
         if name is not None:
             body["instance"]["name"] = name
         if detach_replica_source:
+            # NOTE(mriedem): We don't send slave_of since it was removed from
+            # the trove API in mitaka.
             body["instance"]["replica_of"] = None
 
         url = "/instances/%s" % base.getid(instance)
