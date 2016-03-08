@@ -13,15 +13,26 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import six
+try:
+    # handle py34
+    import builtins
+except ImportError:
+    # and py27
+    import __builtin__ as builtins
 
+import base64
 import fixtures
 import mock
+import re
+import six
+import testtools
+
 import troveclient.client
 from troveclient import exceptions
 import troveclient.shell
 from troveclient.tests import fakes
 from troveclient.tests import utils
+import troveclient.v1.modules
 import troveclient.v1.shell
 
 
@@ -85,6 +96,76 @@ class ShellTest(utils.TestCase):
 
     def assert_called_anytime(self, method, url, body=None):
         return self.shell.cs.assert_called_anytime(method, url, body)
+
+    def test__strip_option(self):
+        # Format is: opt_name, opt_string, _strip_options_kwargs,
+        #            expected_value, expected_opt_string, exception_msg
+        data = [
+            ["volume", "volume=10",
+             {}, "10", "", None],
+            ["volume", ",volume=10,,type=mine,",
+             {}, "10", "type=mine", None],
+            ["volume", "type=mine",
+             {}, "", "type=mine", "Missing option 'volume'.*"],
+            ["volume", "type=mine",
+             {'is_required': False}, None, "type=mine", None],
+            ["volume", "volume=1, volume=2",
+             {}, "", "", "Option 'volume' found more than once.*"],
+            ["volume", "volume=1, volume=2",
+             {'allow_multiple': True}, ['1', '2'], "", None],
+            ["volume", "volume=1, volume=2,,  volume=4, volume=6",
+             {'allow_multiple': True}, ['1', '2', '4', '6'], "", None],
+            ["module", ",flavor=10,,nic='net-id=net',module=test, module=test",
+             {'allow_multiple': True}, ['test'],
+             "flavor=10,,nic='net-id=net'", None],
+            ["nic", ",flavor=10,,nic=net-id=net, module=test",
+             {'quotes_required': True}, "", "",
+             "Invalid 'nic' option. The value must be quoted.*"],
+            ["nic", ",flavor=10,,nic='net-id=net', module=test",
+             {'quotes_required': True}, "net-id=net",
+             "flavor=10,, module=test", None],
+            ["nic",
+             ",nic='port-id=port',flavor=10,,nic='net-id=net', module=test",
+             {'quotes_required': True, 'allow_multiple': True},
+             ["net-id=net", "port-id=port"],
+             "flavor=10,, module=test", None],
+        ]
+
+        count = 0
+        for datum in data:
+            count += 1
+            opt_name = datum[0]
+            opts_str = datum[1]
+            kwargs = datum[2]
+            expected_value = datum[3]
+            expected_opt_string = datum[4]
+            exception_msg = datum[5]
+            msg = "Error (test data line %s): " % count
+            try:
+                value, opt_string = troveclient.v1.shell._strip_option(
+                    opts_str, opt_name, **kwargs)
+                if exception_msg:
+                    self.assertEqual(True, False,
+                                     "%sException not thrown, expecting %s" %
+                                     (msg, exception_msg))
+                if isinstance(expected_value, list):
+                    self.assertEqual(
+                        set(value), set(expected_value),
+                        "%sValue not correct" % msg)
+                else:
+                    self.assertEqual(value, expected_value,
+                                     "%sValue not correct" % msg)
+                self.assertEqual(opt_string, expected_opt_string,
+                                 "%sOption string not correct" % msg)
+            except Exception as ex:
+                if exception_msg:
+                    msg = ex.message if hasattr(ex, 'message') else str(ex)
+                    self.assertThat(msg,
+                                    testtools.matchers.MatchesRegex(
+                                        exception_msg, re.DOTALL),
+                                    exception_msg, "%sWrong ex" % msg)
+                else:
+                    raise
 
     def test_instance_list(self):
         self.run_command('list')
@@ -184,6 +265,19 @@ class ShellTest(utils.TestCase):
                 'replica_count': 1
             }})
 
+    def test_boot_with_modules(self):
+        self.run_command('create test-member-1 1 --size 1 --volume_type lvm '
+                         '--module 4321 --module 8765')
+        self.assert_called_anytime(
+            'POST', '/instances',
+            {'instance': {
+                'volume': {'size': 1, 'type': 'lvm'},
+                'flavorRef': 1,
+                'name': 'test-member-1',
+                'replica_count': 1,
+                'modules': [{'id': '4321'}, {'id': '8765'}]
+            }})
+
     def test_boot_by_flavor_name(self):
         self.run_command(
             'create test-member-1 m1.tiny --size 1 --volume_type lvm')
@@ -253,7 +347,7 @@ class ShellTest(utils.TestCase):
         cmd = ('cluster-create test-clstr vertica 7.1 --instance volume=2 '
                '--instance flavor=2,volume=1')
         self.assertRaisesRegexp(
-            exceptions.MissingArgs, 'Missing argument\(s\): flavor',
+            exceptions.MissingArgs, "Missing option 'flavor'",
             self.run_command, cmd)
 
     def test_cluster_grow(self):
@@ -301,7 +395,7 @@ class ShellTest(utils.TestCase):
                '--instance flavor=2,volume=1,nic=net-id=some-id,'
                'port-id=some-port-id,availability_zone=2')
         self.assertRaisesRegexp(
-            exceptions.ValidationError, "Invalid 'nic' parameter. "
+            exceptions.ValidationError, "Invalid 'nic' option. "
             "The value must be quoted.",
             self.run_command, cmd)
 
@@ -426,6 +520,91 @@ class ShellTest(utils.TestCase):
     def test_metadata_show(self):
         self.run_command('metadata-show 1234 key123')
         self.assert_called('GET', '/instances/1234/metadata/key123')
+
+    def test_module_list(self):
+        self.run_command('module-list')
+        self.assert_called('GET', '/modules')
+
+    def test_module_list_datastore(self):
+        self.run_command('module-list --datastore all')
+        self.assert_called('GET', '/modules?datastore=all')
+
+    def test_module_show(self):
+        self.run_command('module-show 4321')
+        self.assert_called('GET', '/modules/4321')
+
+    def test_module_create(self):
+        with mock.patch.object(builtins, 'open'):
+            return_value = b'mycontents'
+            expected_contents = str(return_value.decode('utf-8'))
+            mock_encode = mock.Mock(return_value=return_value)
+            with mock.patch.object(base64, 'b64encode', mock_encode):
+                self.run_command('module-create mod1 type filename')
+                self.assert_called_anytime(
+                    'POST', '/modules',
+                    {'module': {'contents': expected_contents,
+                                'all_tenants': 0,
+                                'module_type': 'type', 'visible': 1,
+                                'auto_apply': 0, 'live_update': 0,
+                                'name': 'mod1'}})
+
+    def test_module_update(self):
+        with mock.patch.object(troveclient.v1.modules.Module, '__repr__',
+                               mock.Mock(return_value='4321')):
+            self.run_command('module-update 4321 --name mod3')
+            self.assert_called_anytime(
+                'PUT', '/modules/4321',
+                {'module': {'name': 'mod3'}})
+
+    def test_module_delete(self):
+        with mock.patch.object(troveclient.v1.modules.Module, '__repr__',
+                               mock.Mock(return_value='4321')):
+            self.run_command('module-delete 4321')
+            self.assert_called_anytime('DELETE', '/modules/4321')
+
+    def test_module_list_instance(self):
+        self.run_command('module-list-instance 1234')
+        self.assert_called_anytime('GET', '/instances/1234/modules')
+
+    def test_module_instances(self):
+        with mock.patch.object(troveclient.v1.modules.Module, '__repr__',
+                               mock.Mock(return_value='4321')):
+            self.run_command('module-instances 4321')
+            self.assert_called_anytime('GET', '/modules/4321/instances')
+
+    def test_module_instances_clustered(self):
+        with mock.patch.object(troveclient.v1.modules.Module, '__repr__',
+                               mock.Mock(return_value='4321')):
+            self.run_command('module-instances 4321 --include_clustered')
+            self.assert_called_anytime(
+                'GET', '/modules/4321/instances?include_clustered=True')
+
+    def test_cluster_modules(self):
+        self.run_command('cluster-modules cls-1234')
+        self.assert_called_anytime('GET', '/clusters/cls-1234')
+
+    def test_module_apply(self):
+        self.run_command('module-apply 1234 4321 8765')
+        self.assert_called_anytime('POST', '/instances/1234/modules',
+                                   {'modules':
+                                    [{'id': '4321'}, {'id': '8765'}]})
+
+    def test_module_remove(self):
+        self.run_command('module-remove 1234 4321')
+        self.assert_called_anytime('DELETE', '/instances/1234/modules/4321')
+
+    def test_module_query(self):
+        self.run_command('module-query 1234')
+        self.assert_called('GET', '/instances/1234/modules?from_guest=True')
+
+    def test_module_retrieve(self):
+        with mock.patch.object(troveclient.v1.modules.Module, '__getattr__',
+                               mock.Mock(return_value='4321')):
+            self.run_command('module-retrieve 1234')
+            self.assert_called(
+                'GET',
+                '/instances/1234/modules?'
+                'include_contents=True&from_guest=True')
 
     def test_limit_list(self):
         self.run_command('limit-list')

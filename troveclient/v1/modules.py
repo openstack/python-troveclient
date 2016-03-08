@@ -14,27 +14,32 @@
 #    under the License.
 #
 
-import base64
-
 from troveclient import base
 from troveclient import common
+from troveclient import utils
 
 
 class Module(base.Resource):
 
     NO_CHANGE_TO_ARG = 'no_change_to_argument'
+    ALL_KEYWORD = 'all'
 
     def __repr__(self):
         return "<Module: %s>" % self.name
+
+    def __hash__(self):
+        return hash(repr(self))
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
 
 
 class Modules(base.ManagerWithFind):
     """Manage :class:`Module` resources."""
     resource_class = Module
-
-    def _encode_string(self, data_str):
-        byte_array = bytearray(data_str, 'utf-8')
-        return base64.b64encode(byte_array)
 
     def create(self, name, module_type, contents, description=None,
                all_tenants=None, datastore=None,
@@ -42,7 +47,7 @@ class Modules(base.ManagerWithFind):
                visible=None, live_update=None):
         """Create a new module."""
 
-        contents = self._encode_string(contents)
+        contents = utils.encode_data(contents)
         body = {"module": {
             "name": name,
             "module_type": module_type,
@@ -86,7 +91,7 @@ class Modules(base.ManagerWithFind):
         if module_type is not None:
             body["module"]["type"] = module_type
         if contents is not None:
-            contents = self._encode_string(contents)
+            contents = utils.encode_data(contents)
             body["module"]["contents"] = contents
         if description is not None:
             body["module"]["description"] = description
@@ -116,7 +121,7 @@ class Modules(base.ManagerWithFind):
         """Get a list of all modules."""
         query_strings = None
         if datastore:
-            query_strings = {"datastore": datastore}
+            query_strings = {"datastore": base.getid(datastore)}
         return self._paginated(
             "/modules", "modules", limit, marker, query_strings=query_strings)
 
@@ -130,3 +135,13 @@ class Modules(base.ManagerWithFind):
         url = "/modules/%s" % base.getid(module)
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
+
+    def instances(self, module, limit=None, marker=None,
+                  include_clustered=False):
+        """Get a list of all instances this module has been applied to."""
+        url = "/modules/%s/instances" % base.getid(module)
+        query_strings = {}
+        if include_clustered:
+            query_strings['include_clustered'] = include_clustered
+        return self._paginated(url, "instances", limit, marker,
+                               query_strings=query_strings)

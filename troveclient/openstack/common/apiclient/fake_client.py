@@ -31,6 +31,7 @@ import six
 from six.moves.urllib import parse
 
 from troveclient.openstack.common.apiclient import client
+from troveclient.tests import utils
 
 
 def assert_has_keys(dct, required=[], optional=[]):
@@ -86,8 +87,9 @@ class FakeHTTPClient(client.HTTPClient):
     def assert_called(self, method, url, body=None, pos=-1):
         """Assert than an API method was just called.
         """
-        expected = (method, url)
-        called = self.callstack[pos][0:2]
+        expected = (method, utils.order_url(url))
+        called = (self.callstack[pos][0],
+                  utils.order_url(self.callstack[pos][1]))
         assert self.callstack, \
             "Expected %s %s but no calls were made." % expected
 
@@ -102,7 +104,7 @@ class FakeHTTPClient(client.HTTPClient):
     def assert_called_anytime(self, method, url, body=None):
         """Assert than an API method was called anytime in the test.
         """
-        expected = (method, url)
+        expected = (method, utils.order_url(url))
 
         assert self.callstack, \
             "Expected %s %s but no calls were made." % expected
@@ -110,7 +112,7 @@ class FakeHTTPClient(client.HTTPClient):
         found = False
         entry = None
         for entry in self.callstack:
-            if expected == entry[0:2]:
+            if expected == (entry[0], utils.order_url(entry[1])):
                 found = True
                 break
 

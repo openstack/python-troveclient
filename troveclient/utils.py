@@ -16,6 +16,7 @@
 
 from __future__ import print_function
 
+import base64
 import os
 import simplejson as json
 import sys
@@ -301,3 +302,25 @@ def is_uuid_like(val):
         return str(uuid.UUID(val)) == val
     except (TypeError, ValueError, AttributeError):
         return False
+
+
+def encode_data(data):
+    """Encode the data using the base64 codec."""
+
+    try:
+        # py27str - if we've got text data, this should encode it
+        # py27aa/py34aa - if we've got a bytearray, this should work too
+        encoded = str(base64.b64encode(data).decode('utf-8'))
+    except TypeError:
+        # py34str - convert to bytes first, then we can encode
+        data_bytes = bytes([ord(item) for item in data])
+        encoded = base64.b64encode(data_bytes).decode('utf-8')
+
+    return encoded
+
+
+def decode_data(data):
+    """Encode the data using the base64 codec."""
+
+    # py27 & py34 seem to understand bytearray the same
+    return bytearray([item for item in base64.b64decode(data)])

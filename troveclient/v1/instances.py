@@ -15,12 +15,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
 import warnings
 
 from troveclient import base
 from troveclient import common
 from troveclient import exceptions
 from troveclient.i18n import _LW
+from troveclient import utils
+from troveclient.v1 import modules as core_modules
 
 from swiftclient import client as swift_client
 
@@ -85,7 +88,8 @@ class Instances(base.ManagerWithFind):
     def create(self, name, flavor_id, volume=None, databases=None, users=None,
                restorePoint=None, availability_zone=None, datastore=None,
                datastore_version=None, nics=None, configuration=None,
-               replica_of=None, slave_of=None, replica_count=None):
+               replica_of=None, slave_of=None, replica_count=None,
+               modules=None):
         """Create (boot) a new instance."""
 
         body = {"instance": {
@@ -123,6 +127,8 @@ class Instances(base.ManagerWithFind):
             body["instance"]["replica_of"] = base.getid(replica_of) or slave_of
         if replica_count:
             body["instance"]["replica_count"] = replica_count
+        if modules:
+            body["instance"]["modules"] = self._get_module_list(modules)
 
         return self._create("/instances", body, "instance")
 
@@ -247,6 +253,85 @@ class Instances(base.ManagerWithFind):
         """
         body = {'eject_replica_source': {}}
         self._action(instance, body)
+
+    def modules(self, instance):
+        """Get the list of modules for a specific instance."""
+        return self._modules_get(instance)
+
+    def module_query(self, instance):
+        """Query an instance about installed modules."""
+        return self._modules_get(instance, from_guest=True)
+
+    def module_retrieve(self, instance, directory=None, prefix=None):
+        """Retrieve the module data file from an instance.  This includes
+        the contents of the module data file.
+        """
+        if directory:
+            try:
+                os.makedirs(directory, exist_ok=True)
+            except TypeError:
+                # py27
+                try:
+                    os.makedirs(directory)
+                except OSError:
+                    if not os.path.isdir(directory):
+                        raise
+        else:
+            directory = '.'
+        prefix = prefix or ''
+        if prefix and not prefix.endswith('_'):
+            prefix += '_'
+        module_list = self._modules_get(
+            instance, from_guest=True, include_contents=True)
+        saved_modules = {}
+        for module in module_list:
+            filename = '%s%s_%s_%s.dat' % (prefix, module.name,
+                                           module.datastore,
+                                           module.datastore_version)
+            full_filename = os.path.expanduser(
+                os.path.join(directory, filename))
+            with open(full_filename, 'wb') as fh:
+                fh.write(utils.decode_data(module.contents))
+            saved_modules[module.name] = full_filename
+        return saved_modules
+
+    def _modules_get(self, instance, from_guest=None, include_contents=None):
+        url = "/instances/%s/modules" % base.getid(instance)
+        query_strings = {}
+        if from_guest is not None:
+            query_strings["from_guest"] = from_guest
+        if include_contents is not None:
+            query_strings["include_contents"] = include_contents
+        url = common.append_query_strings(url, **query_strings)
+        resp, body = self.api.client.get(url)
+        common.check_for_exceptions(resp, body, url)
+        return [core_modules.Module(self, module, loaded=True)
+                for module in body['modules']]
+
+    def module_apply(self, instance, modules):
+        """Apply modules to an instance."""
+        url = "/instances/%s/modules" % base.getid(instance)
+        body = {"modules": self._get_module_list(modules)}
+        resp, body = self.api.client.post(url, body=body)
+        common.check_for_exceptions(resp, body, url)
+        return [core_modules.Module(self, module, loaded=True)
+                for module in body['modules']]
+
+    def _get_module_list(self, modules):
+        """Build a list of module ids."""
+        module_list = []
+        for module in modules:
+            module_info = {'id': base.getid(module)}
+            module_list.append(module_info)
+        return module_list
+
+    def module_remove(self, instance, module):
+        """Remove a module from an instance.
+        """
+        url = "/instances/%s/modules/%s" % (base.getid(instance),
+                                            base.getid(module))
+        resp, body = self.api.client.delete(url)
+        common.check_for_exceptions(resp, body, url)
 
     def log_list(self, instance):
         """Get a list of all guest logs.

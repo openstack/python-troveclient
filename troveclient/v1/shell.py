@@ -20,8 +20,9 @@ import argparse
 import sys
 import time
 
+INSTANCE_METAVAR = '"opt=<value>[,opt=<value> ...] "'
 INSTANCE_ERROR = ("Instance argument(s) must be of the form --instance "
-                  "<opt=value[,opt=value]> - see help for details.")
+                  + INSTANCE_METAVAR + " - see help for details.")
 NIC_ERROR = ("Invalid NIC argument: %s. Must specify either net-id or port-id "
              "but not both. Please refer to help.")
 NO_LOG_FOUND_ERROR = "ERROR: No published '%s' log was found for %s."
@@ -33,6 +34,7 @@ except ImportError:
 
 from troveclient import exceptions
 from troveclient import utils
+from troveclient.v1.modules import Module
 
 
 def _poll_for_status(poll_fn, obj_id, action, final_ok_states,
@@ -199,16 +201,22 @@ def do_flavor_show(cs, args):
            help='Begin displaying the results for IDs greater than the '
                 'specified marker. When used with --limit, set this to '
                 'the last ID displayed in the previous run.')
-@utils.arg('--include-clustered', dest='include_clustered',
+@utils.arg('--include_clustered', '--include-clustered',
+           dest='include_clustered',
            action="store_true", default=False,
            help="Include instances that are part of a cluster "
-                "(default false).")
+                "(default %(default)s).  --include-clustered may be "
+                "deprecated in the future, retaining just "
+                "--include_clustered.")
 @utils.service_type('database')
 def do_list(cs, args):
     """Lists all the instances."""
     instances = cs.instances.list(limit=args.limit, marker=args.marker,
                                   include_clustered=args.include_clustered)
+    _print_instances(instances)
 
+
+def _print_instances(instances):
     for instance in instances:
         setattr(instance, 'flavor_id', instance.flavor['id'])
         if hasattr(instance, 'volume'):
@@ -287,22 +295,21 @@ def do_cluster_instances(cs, args):
         obj_is_dict=True)
 
 
-@utils.arg('--instance',
-           metavar="<name=name,flavor=flavor_name_or_id,volume=volume>",
-           action='append',
-           dest='instances',
-           default=[],
-           help="Add an instance to the cluster. Specify "
-                "multiple times to create multiple instances.")
+@utils.arg('--instance', metavar=INSTANCE_METAVAR,
+           action='append', dest='instances', default=[],
+           help="Add an instance to the cluster. Specify multiple "
+                "times to create multiple instances.  Valid options are: "
+                "name=<name>, flavor=<flavor_name_or_id>, volume=<volume>, "
+                "module=<module_name_or_id>.")
 @utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
 @utils.service_type('database')
 def do_cluster_grow(cs, args):
     """Adds more instances to a cluster."""
     cluster = _find_cluster(cs, args.cluster)
     instances = []
-    for instance_str in args.instances:
+    for instance_opts in args.instances:
         instance_info = {}
-        for z in instance_str.split(","):
+        for z in instance_opts.split(","):
             for (k, v) in [z.split("=", 1)[:2]]:
                 if k == "name":
                     instance_info[k] = v
@@ -324,10 +331,7 @@ def do_cluster_grow(cs, args):
 
 
 @utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
-@utils.arg('instances',
-           nargs='+',
-           metavar='<instance>',
-           default=[],
+@utils.arg('instances', metavar='<instance>', nargs='+', default=[],
            help="Drop instance(s) from the cluster. Specify "
                 "multiple ids to drop multiple instances.")
 @utils.service_type('database')
@@ -370,11 +374,13 @@ def do_cluster_delete(cs, args):
            type=str,
            default=None,
            help='ID of the configuration reference to attach.')
-@utils.arg('--detach-replica-source',
+@utils.arg('--detach_replica_source', '--detach-replica-source',
            dest='detach_replica_source',
            action="store_true",
            default=False,
-           help='Detach the replica instance from its replication source.')
+           help='Detach the replica instance from its replication source. '
+                '--detach-replica-source may be deprecated in the future '
+                'in favor of just --detach_replica_source')
 @utils.arg('--remove_configuration',
            dest='remove_configuration',
            action="store_true",
@@ -406,11 +412,11 @@ def do_update(cs, args):
 @utils.arg('flavor',
            metavar='<flavor>',
            help='Flavor ID or name of the instance.')
-@utils.arg('--databases', metavar='<databases>',
+@utils.arg('--databases', metavar='<database>',
            help='Optional list of databases.',
            nargs="+", default=[])
-@utils.arg('--users', metavar='<users>',
-           help='Optional list of users in the form user:password.',
+@utils.arg('--users', metavar='<user:password>',
+           help='Optional list of users.',
            nargs="+", default=[])
 @utils.arg('--backup',
            metavar='<backup>',
@@ -419,7 +425,7 @@ def do_update(cs, args):
 @utils.arg('--availability_zone',
            metavar='<availability_zone>',
            default=None,
-           help='The Zone hint to give to nova.')
+           help='The Zone hint to give to Nova.')
 @utils.arg('--datastore',
            metavar='<datastore>',
            default=None,
@@ -429,7 +435,8 @@ def do_update(cs, args):
            default=None,
            help='A datastore version name or ID.')
 @utils.arg('--nic',
-           metavar="<net-id=net-uuid,v4-fixed-ip=ip-addr,port-id=port-uuid>",
+           metavar="<net-id=<net-uuid>,v4-fixed-ip=<ip-addr>,"
+                   "port-id=<port-uuid>>",
            action='append',
            dest='nics',
            default=[],
@@ -452,7 +459,11 @@ def do_update(cs, args):
            metavar='<count>',
            type=int,
            default=1,
-           help='Number of replicas to create (defaults to 1).')
+           help='Number of replicas to create (defaults to %(default)s).')
+@utils.arg('--module', metavar='<module>',
+           type=str, dest='modules', action='append', default=[],
+           help='ID or name of the module to apply.  Specify multiple '
+                'times to apply multiple modules.')
 @utils.service_type('database')
 def do_create(cs, args):
     """Creates a new instance."""
@@ -476,6 +487,9 @@ def do_create(cs, args):
                                                nic_str.split(",")]])
         _validate_nic_info(nic_info, nic_str)
         nics.append(nic_info)
+    modules = []
+    for module in args.modules:
+        modules.append(_find_module(cs, module).id)
 
     instance = cs.instances.create(args.name,
                                    flavor_id,
@@ -489,7 +503,8 @@ def do_create(cs, args):
                                    nics=nics,
                                    configuration=args.configuration,
                                    replica_of=replica_of_instance,
-                                   replica_count=args.replica_count)
+                                   replica_count=args.replica_count,
+                                   modules=modules)
     _print_instance(instance)
 
 
@@ -499,22 +514,26 @@ def _validate_nic_info(nic_info, nic_str):
         raise exceptions.ValidationError(NIC_ERROR % ("nic='%s'" % nic_str))
 
 
-def _get_flavors(cs, instance_str):
-    flavor_name = _get_instance_property(instance_str, 'flavor', True)
+def _get_flavor(cs, opts_str):
+    flavor_name, opts_str = _strip_option(opts_str, 'flavor', True)
     flavor_id = _find_flavor(cs, flavor_name).id
-    return str(flavor_id)
+    return str(flavor_id), opts_str
 
 
-def _get_networks(instance_str):
-    nic_args = _dequote(_get_instance_property(instance_str, 'nic',
-                                               is_required=False, quoted=True))
-
-    nic_info = {}
-    if nic_args:
-        net_id = _get_instance_property(nic_args, 'net-id', False)
-        port_id = _get_instance_property(nic_args, 'port-id', False)
-        fixed_ipv4 = _get_instance_property(nic_args, 'v4-fixed-ip', False)
-
+def _get_networks(opts_str):
+    nic_args_list, opts_str = _strip_option(opts_str, 'nic', is_required=False,
+                                            quotes_required=True,
+                                            allow_multiple=True)
+    nic_info_list = []
+    for nic_args in nic_args_list:
+        orig_nic_args = nic_args = _unquote(nic_args)
+        nic_info = {}
+        net_id, nic_args = _strip_option(nic_args, 'net-id', False)
+        port_id, nic_args = _strip_option(nic_args, 'port-id', False)
+        fixed_ipv4, nic_args = _strip_option(nic_args, 'v4-fixed-ip', False)
+        if nic_args:
+            raise exceptions.ValidationError(
+                "Unknown args '%s' in 'nic' option" % nic_args)
         if net_id:
             nic_info.update({'net-id': net_id})
         if port_id:
@@ -522,13 +541,13 @@ def _get_networks(instance_str):
         if fixed_ipv4:
             nic_info.update({'v4-fixed-ip': fixed_ipv4})
 
-        _validate_nic_info(nic_info, nic_args)
-        return [nic_info]
+        _validate_nic_info(nic_info, orig_nic_args)
+        nic_info_list.append(nic_info)
 
-    return None
+    return nic_info_list, opts_str
 
 
-def _dequote(value):
+def _unquote(value):
     def _strip_quotes(value, quote_char):
         if value:
             return value.strip(quote_char)
@@ -537,49 +556,86 @@ def _dequote(value):
     return _strip_quotes(_strip_quotes(value, "'"), '"')
 
 
-def _get_volumes(instance_str):
-    volume_size = _get_instance_property(instance_str, 'volume', True)
-    volume_type = _get_instance_property(instance_str, 'volume_type', False)
+def _get_volume(opts_str):
+    volume_size, opts_str = _strip_option(opts_str, 'volume', is_required=True)
+    volume_type, opts_str = _strip_option(opts_str, 'volume_type',
+                                          is_required=False)
 
     volume_info = {"size": volume_size}
     if volume_type:
         volume_info.update({"type": volume_type})
 
-    return volume_info
+    return volume_info, opts_str
 
 
-def _get_availability_zones(instance_str):
-    return _get_instance_property(instance_str, 'availability_zone', False)
+def _get_availability_zone(opts_str):
+    return _strip_option(opts_str, 'availability_zone', is_required=False)
 
 
-def _get_instance_property(instance_str, property_name, is_required=True,
-                           quoted=False):
-    if property_name in instance_str:
+def _get_modules(cs, opts_str):
+    modules, opts_str = _strip_option(
+        opts_str, 'module', is_required=False, allow_multiple=True)
+    module_list = []
+    for module in modules:
+        module_info = {'id': _find_module(cs, module).id}
+        module_list.append(module_info)
+    return module_list, opts_str
+
+
+def _strip_option(opts_str, opt_name, is_required=True,
+                  quotes_required=False, allow_multiple=False):
+    opt_value = [] if allow_multiple else None
+    opts_str = opts_str.strip().strip(",")
+    if opt_name in opts_str:
         try:
-            left = instance_str.split('%s=' % property_name)[1]
+            split_str = '%s=' % opt_name
+            parts = opts_str.split(split_str)
+            before = parts[0]
+            after = parts[1]
+            if len(parts) > 2:
+                if allow_multiple:
+                    after = split_str.join(parts[1:])
+                    value, after = _strip_option(
+                        after, opt_name, is_required=is_required,
+                        quotes_required=quotes_required,
+                        allow_multiple=allow_multiple)
+                    opt_value.extend(value)
+                else:
+                    raise exceptions.ValidationError((
+                        "Option '%s' found more than once in argument "
+                        "--instance " % opt_name) + INSTANCE_METAVAR)
 
             # Handle complex (quoted) properties. Strip the quotes.
-            quote = left[0]
+            quote = after[0]
             if quote in ["'", '"']:
-                left = left[1:]
+                after = after[1:]
             else:
-                if quoted:
-                    # Fail if quotes are required.
+                if quotes_required:
                     raise exceptions.ValidationError(
-                        "Invalid '%s' parameter. The value must be quoted."
-                        % property_name)
+                        "Invalid '%s' option. The value must be quoted. "
+                        "(Or perhaps you're missing quotes around the entire "
+                        "argument string)"
+                        % opt_name)
                 quote = ''
 
-            property_value = left.split('%s,' % quote)[0]
-            return str(property_value).strip()
+            split_str = '%s,' % quote
+            parts = after.split(split_str)
+            value = str(parts[0]).strip()
+            if allow_multiple:
+                opt_value.append(value)
+                opt_value = list(set(opt_value))
+            else:
+                opt_value = value
+            opts_str = before + split_str.join(parts[1:])
         except IndexError:
             raise exceptions.ValidationError("Invalid '%s' parameter. %s."
-                                             % (property_name, INSTANCE_ERROR))
+                                             % (opt_name, INSTANCE_ERROR))
 
-    if is_required:
-        raise exceptions.MissingArgs([property_name])
+    if is_required and not opt_value:
+        msg = "Missing option '%s' for argument --instance " + INSTANCE_METAVAR
+        raise exceptions.MissingArgs([opt_name], message=msg)
 
-    return None
+    return opt_value, opts_str.strip().strip(",")
 
 
 @utils.arg('name',
@@ -592,35 +648,46 @@ def _get_instance_property(instance_str, property_name, is_required=True,
 @utils.arg('datastore_version',
            metavar='<datastore_version>',
            help='A datastore version name or ID.')
-@utils.arg('--instance',
-           metavar='"<opt=value,opt=value,...>"',
+@utils.arg('--instance', metavar=INSTANCE_METAVAR,
+           action='append', dest='instances', default=[],
            help="Create an instance for the cluster.  Specify multiple "
                 "times to create multiple instances.  "
-                "Valid options are: flavor=flavor_name_or_id, "
-                "volume=disk_size_in_GB, volume_type=type, "
-                "nic='net-id=net-uuid,v4-fixed-ip=ip-addr,port-id=port-uuid' "
+                "Valid options are: flavor=<flavor_name_or_id>, "
+                "volume=<disk_size_in_GB>, volume_type=<type>, "
+                "nic='<net-id=<net-uuid>, v4-fixed-ip=<ip-addr>, "
+                "port-id=<port-uuid>>' "
                 "(where net-id=network_id, v4-fixed-ip=IPv4r_fixed_address, "
-                "port-id=port_id), availability_zone=AZ_hint_for_Nova.",
-           action='append',
-           dest='instances',
-           default=[])
+                "port-id=port_id), availability_zone=<AZ_hint_for_Nova>, "
+                "module=<module_name_or_id>.")
 @utils.service_type('database')
 def do_cluster_create(cs, args):
     """Creates a new cluster."""
     instances = []
-    for instance_str in args.instances:
+    for instance_opts in args.instances:
         instance_info = {}
 
-        instance_info["flavorRef"] = _get_flavors(cs, instance_str)
-        instance_info["volume"] = _get_volumes(instance_str)
+        flavor, instance_opts = _get_flavor(cs, instance_opts)
+        instance_info["flavorRef"] = flavor
+        volume, instance_opts = _get_volume(instance_opts)
+        instance_info["volume"] = volume
 
-        nics = _get_networks(instance_str)
+        nics, instance_opts = _get_networks(instance_opts)
         if nics:
             instance_info["nics"] = nics
 
-        availability_zones = _get_availability_zones(instance_str)
-        if availability_zones:
-            instance_info["availability_zone"] = availability_zones
+        availability_zone, instance_opts = _get_availability_zone(
+            instance_opts)
+        if availability_zone:
+            instance_info["availability_zone"] = availability_zone
+
+        modules, instance_opts = _get_modules(cs, instance_opts)
+        if modules:
+            instance_info["modules"] = modules
+
+        if instance_opts:
+            raise exceptions.ValidationError(
+                "Unknown option(s) '%s' specified for instance" %
+                instance_opts)
 
         instances.append(instance_info)
 
@@ -1412,18 +1479,30 @@ def do_metadata_delete(cs, args):
 
 
 @utils.arg('--datastore', metavar='<datastore>',
-           help='Name or ID of datastore to list modules for.')
+           help="Name or ID of datastore to list modules for. Use '%s' "
+                "to list modules that apply to all datastores." %
+                Module.ALL_KEYWORD)
 @utils.service_type('database')
 def do_module_list(cs, args):
     """Lists the modules available."""
     datastore = None
     if args.datastore:
-        datastore = _find_datastore(cs, args.datastore)
+        if args.datastore.lower() == Module.ALL_KEYWORD:
+            datastore = args.datastore.lower()
+        else:
+            datastore = _find_datastore(cs, args.datastore)
     module_list = cs.modules.list(datastore=datastore)
+    field_list = ['id', 'name', 'type', 'datastore',
+                  'datastore_version', 'auto_apply', 'tenant', 'visible']
+    is_admin = False
+    if hasattr(cs.client, 'auth'):
+        roles = cs.client.auth.auth_ref['user']['roles']
+        role_names = [role['name'] for role in roles]
+        is_admin = 'admin' in role_names
+    if not is_admin:
+        field_list = field_list[:-2]
     utils.print_list(
-        module_list,
-        ['id', 'tenant', 'name', 'type', 'datastore',
-         'datastore_version', 'auto_apply', 'visible'],
+        module_list, field_list,
         labels={'datastore_version': 'Version'})
 
 
@@ -1441,7 +1520,8 @@ def do_module_show(cs, args):
            help='Type of the module. The type must be supported by a '
                 'corresponding module plugin on the datastore it is '
                 'applied to.')
-@utils.arg('file', metavar='<filename>', type=argparse.FileType('rb', 0),
+@utils.arg('file', metavar='<filename>',
+           type=argparse.FileType(mode='rb', bufsize=0),
            help='File containing data contents for the module.')
 @utils.arg('--description', metavar='<description>', type=str,
            help='Description of the module.')
@@ -1534,7 +1614,7 @@ def do_module_create(cs, args):
                 'already applied to a current instance or cluster.')
 @utils.service_type('database')
 def do_module_update(cs, args):
-    """Create a module."""
+    """Update a module."""
     module = _find_module(cs, args.module)
     contents = args.file.read() if args.file else None
     visible = not args.hidden if args.hidden is not None else None
@@ -1558,6 +1638,126 @@ def do_module_delete(cs, args):
     """Delete a module."""
     module = _find_module(cs, args.module)
     cs.modules.delete(module)
+
+
+@utils.arg('instance', metavar='<instance>', type=str,
+           help='ID or name of the instance.')
+@utils.service_type('database')
+def do_module_list_instance(cs, args):
+    """Lists the modules that have been applied to an instance."""
+    instance = _find_instance(cs, args.instance)
+    module_list = cs.instances.modules(instance)
+    utils.print_list(
+        module_list, ['id', 'name', 'type', 'md5', 'created', 'updated'])
+
+
+@utils.arg('module', metavar='<module>', type=str,
+           help='ID or name of the module.')
+@utils.arg('--include_clustered', action="store_true", default=False,
+           help="Include instances that are part of a cluster "
+                "(default %(default)s).")
+@utils.arg('--limit', metavar='<limit>', default=None,
+           help='Return up to N number of the most recent results.')
+@utils.arg('--marker', metavar='<ID>', type=str, default=None,
+           help='Begin displaying the results for IDs greater than the '
+                'specified marker. When used with --limit, set this to '
+                'the last ID displayed in the previous run.')
+@utils.service_type('database')
+def do_module_instances(cs, args):
+    """Lists the instances that have a particular module applied."""
+    module = _find_module(cs, args.module)
+    wrapper = cs.modules.instances(
+        module, limit=args.limit, marker=args.marker,
+        include_clustered=args.include_clustered)
+    instance_list = wrapper.items
+    while not args.limit and wrapper.next:
+        wrapper = cs.modules.instances(module, marker=wrapper.next)
+        instance_list += wrapper.items
+    _print_instances(instance_list)
+
+
+@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.service_type('database')
+def do_cluster_modules(cs, args):
+    """Lists all modules for each instance of a cluster."""
+    cluster = _find_cluster(cs, args.cluster)
+    instances = cluster._info['instances']
+    module_list = []
+    for instance in instances:
+        new_list = cs.instances.modules(instance['id'])
+        for item in new_list:
+            item.instance_id = instance['id']
+            item.instance_name = instance['name']
+        module_list += new_list
+    utils.print_list(
+        module_list,
+        ['instance_name', 'name', 'type', 'md5', 'created', 'updated'],
+        labels={'name': 'Module Name', 'type': 'Module Type'})
+
+
+@utils.arg('instance', metavar='<instance>', type=str,
+           help='ID or name of the instance.')
+@utils.arg('modules', metavar='<module>', type=str, nargs='+', default=[],
+           help='ID or name of the module.')
+@utils.service_type('database')
+def do_module_apply(cs, args):
+    """Apply modules to an instance."""
+    instance = _find_instance(cs, args.instance)
+    modules = []
+    for module in args.modules:
+        modules.append(_find_module(cs, module))
+
+    result_list = cs.instances.module_apply(instance, modules)
+    utils.print_list(
+        result_list,
+        ['name', 'type', 'datastore',
+         'datastore_version', 'status', 'message'],
+        labels={'datastore_version': 'Version'})
+
+
+@utils.arg('instance', metavar='<instance>', type=str,
+           help='ID or name of the instance.')
+@utils.arg('module', metavar='<module>', type=str,
+           help='ID or name of the module.')
+@utils.service_type('database')
+def do_module_remove(cs, args):
+    """Remove a module from an instance."""
+    instance = _find_instance(cs, args.instance)
+    module = _find_module(cs, args.module)
+    cs.instances.module_remove(instance, module)
+
+
+@utils.arg('instance', metavar='<instance>', type=str,
+           help='ID or name of the instance.')
+@utils.service_type('database')
+def do_module_query(cs, args):
+    """Query the status of the modules on an instance."""
+    instance = _find_instance(cs, args.instance)
+    result_list = cs.instances.module_query(instance)
+    utils.print_list(
+        result_list,
+        ['name', 'type', 'datastore',
+         'datastore_version', 'status', 'message', 'created', 'updated'],
+        labels={'datastore_version': 'Version'})
+
+
+@utils.arg('instance', metavar='<instance>', type=str,
+           help='ID or name of the instance.')
+@utils.arg('--directory', metavar='<directory>', type=str,
+           help='Directory to write module content files in. It will '
+                'be created if it does not exist. Defaults to the '
+                'current directory.')
+@utils.arg('--prefix', metavar='<filename_prefix>', type=str,
+           help='Prefix to prepend to generated filename for each module.')
+@utils.service_type('database')
+def do_module_retrieve(cs, args):
+    """Retrieve module contents from an instance."""
+    instance = _find_instance(cs, args.instance)
+    saved_modules = cs.instances.module_retrieve(
+        instance, args.directory, args.prefix)
+    for module_name, filename in saved_modules.items():
+        print("Module contents for '%s' written to '%s'" %
+              (module_name, filename))
 
 
 @utils.arg('instance', metavar='<instance>',

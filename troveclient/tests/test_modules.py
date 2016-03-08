@@ -14,8 +14,10 @@
 #    under the License.
 #
 
+import Crypto.Random
 import mock
 import testtools
+
 from troveclient.v1 import modules
 
 
@@ -52,25 +54,29 @@ class TestModules(testtools.TestCase):
         def side_effect_func(path, body, mod):
             return path, body, mod
 
-        self.modules._create = mock.Mock(side_effect=side_effect_func)
-        path, body, mod = self.modules.create(
-            self.module_name, "test", "my_contents",
-            description="my desc",
-            all_tenants=False,
-            datastore="ds",
-            datastore_version="ds-version",
-            auto_apply=True,
-            visible=True,
-            live_update=False)
-        self.assertEqual("/modules", path)
-        self.assertEqual("module", mod)
-        self.assertEqual(self.module_name, body["module"]["name"])
-        self.assertEqual("ds", body["module"]["datastore"]["type"])
-        self.assertEqual("ds-version", body["module"]["datastore"]["version"])
-        self.assertFalse(body["module"]["all_tenants"])
-        self.assertTrue(body["module"]["auto_apply"])
-        self.assertTrue(body["module"]["visible"])
-        self.assertFalse(body["module"]["live_update"])
+        text_contents = "my_contents"
+        binary_contents = Crypto.Random.new().read(20)
+        for contents in [text_contents, binary_contents]:
+            self.modules._create = mock.Mock(side_effect=side_effect_func)
+            path, body, mod = self.modules.create(
+                self.module_name, "test", contents,
+                description="my desc",
+                all_tenants=False,
+                datastore="ds",
+                datastore_version="ds-version",
+                auto_apply=True,
+                visible=True,
+                live_update=False)
+            self.assertEqual("/modules", path)
+            self.assertEqual("module", mod)
+            self.assertEqual(self.module_name, body["module"]["name"])
+            self.assertEqual("ds", body["module"]["datastore"]["type"])
+            self.assertEqual("ds-version",
+                             body["module"]["datastore"]["version"])
+            self.assertFalse(body["module"]["all_tenants"])
+            self.assertTrue(body["module"]["auto_apply"])
+            self.assertTrue(body["module"]["visible"])
+            self.assertFalse(body["module"]["live_update"])
 
     def test_update(self):
         resp = mock.Mock()

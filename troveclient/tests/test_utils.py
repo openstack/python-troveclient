@@ -15,9 +15,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import Crypto.Random
 import os
 import six
+import tempfile
 import testtools
+
 from troveclient import utils
 
 
@@ -53,3 +56,52 @@ class UtilsTest(testtools.TestCase):
         self.assertEqual('not_unicode', utils.slugify('not_unicode'))
         self.assertEqual('unicode', utils.slugify(six.u('unicode')))
         self.assertEqual('slugify-test', utils.slugify('SLUGIFY% test!'))
+
+    def test_encode_decode_data(self):
+        text_data_str = 'This is a text string'
+        try:
+            text_data_bytes = bytes('This is a byte stream', 'utf-8')
+        except TypeError:
+            text_data_bytes = bytes('This is a byte stream')
+        random_data_str = Crypto.Random.new().read(12)
+        random_data_bytes = bytearray(Crypto.Random.new().read(12))
+        special_char_str = '\x00\xFF\x00\xFF\xFF\x00'
+        special_char_bytes = bytearray(
+            [ord(item) for item in special_char_str])
+        data = [text_data_str,
+                text_data_bytes,
+                random_data_str,
+                random_data_bytes,
+                special_char_str,
+                special_char_bytes]
+
+        for datum in data:
+            # the deserialized data is always a bytearray
+            try:
+                expected_deserialized = bytearray(
+                    [ord(item) for item in datum])
+            except TypeError:
+                expected_deserialized = bytearray(
+                    [item for item in datum])
+            serialized_data = utils.encode_data(datum)
+            self.assertIsNotNone(serialized_data, "'%s' serialized is None" %
+                                 datum)
+            deserialized_data = utils.decode_data(serialized_data)
+            self.assertIsNotNone(deserialized_data, "'%s' deserialized is None"
+                                 % datum)
+            self.assertEqual(expected_deserialized, deserialized_data,
+                             "Serialize/Deserialize failed")
+            # Now we write the data to a file and read it back in
+            # to make sure the round-trip doesn't change anything.
+            with tempfile.NamedTemporaryFile() as temp_file:
+                with open(temp_file.name, 'wb') as fh_w:
+                    fh_w.write(
+                        bytearray([ord(item) for item in serialized_data]))
+                with open(temp_file.name, 'rb') as fh_r:
+                    new_serialized_data = fh_r.read()
+                new_deserialized_data = utils.decode_data(
+                    new_serialized_data)
+                self.assertIsNotNone(new_deserialized_data,
+                                     "'%s' deserialized is None" % datum)
+                self.assertEqual(expected_deserialized, new_deserialized_data,
+                                 "Serialize/Deserialize with files failed")

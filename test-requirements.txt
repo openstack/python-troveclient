@@ -13,3 +13,4 @@ testscenarios>=0.4 # Apache-2.0/BSD
 testtools>=1.4.0 # MIT
 mock>=1.2 # BSD
 httplib2>=0.7.5 # MIT
+pycrypto>=2.6  # Public Domain
