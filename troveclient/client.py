@@ -24,7 +24,7 @@ from __future__ import print_function
 import logging
 import requests
 
-from keystoneclient import adapter
+from keystoneauth1 import adapter
 from oslo_utils import importutils
 from troveclient import exceptions
 from troveclient.openstack.common.apiclient import client

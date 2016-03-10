@@ -15,7 +15,7 @@ import re
 import sys
 
 import fixtures
-from keystoneclient import fixture
+from keystoneauth1 import fixture
 import mock
 import requests_mock
 import six
@@ -161,7 +161,7 @@ class ShellTest(testtools.TestCase):
         else:
             self.fail('CommandError not raised')
 
-    @mock.patch('keystoneclient._discover.get_version_data',
+    @mock.patch('keystoneauth1.discover.get_version_data',
                 return_value=[{u'status': u'stable', u'id': version_id,
                                u'links': links}])
     @mock.patch('troveclient.v1.datastores.DatastoreVersions.list')
@@ -182,7 +182,7 @@ class ShellTest(testtools.TestCase):
         stdout, stderr = self.shell('datastore-version-list XXX')
         self.assertEqual(expected, (stdout + stderr))
 
-    @mock.patch('keystoneclient._discover.get_version_data',
+    @mock.patch('keystoneauth1.discover.get_version_data',
                 return_value=[{u'status': u'stable', u'id': version_id,
                                u'links': links}])
     @mock.patch('troveclient.v1.datastores.Datastores.list')
@@ -282,11 +282,9 @@ class ShellTestKeystoneV3(ShellTest):
 
     def test_no_project_id(self):
         required = (
-            u'You must provide a tenant_name, tenant_id, '
+            u'You must provide a '
             u'project_id or project_name (with '
             u'project_domain_name or project_domain_id) via '
-            u'  --os-tenant-name (env[OS_TENANT_NAME]),'
-            u'  --os-tenant-id (env[OS_TENANT_ID]),'
             u'  --os-project-id (env[OS_PROJECT_ID])'
             u'  --os-project-name (env[OS_PROJECT_NAME]),'
             u'  --os-project-domain-id '
@@ -302,7 +300,7 @@ class ShellTestKeystoneV3(ShellTest):
         else:
             self.fail('CommandError not raised')
 
-    @mock.patch('keystoneclient._discover.get_version_data',
+    @mock.patch('keystoneauth1.discover.get_version_data',
                 return_value=[{u'status': u'stable', u'id': version_id,
                                u'links': links}])
     @mock.patch('troveclient.v1.datastores.DatastoreVersions.list')
@@ -324,7 +322,7 @@ class ShellTestKeystoneV3(ShellTest):
         stdout, stderr = self.shell('datastore-version-list XXX')
         self.assertEqual(expected, (stdout + stderr))
 
-    @mock.patch('keystoneclient._discover.get_version_data',
+    @mock.patch('keystoneauth1.discover.get_version_data',
                 return_value=[{u'status': u'stable', u'id': version_id,
                                u'links': links}])
     @mock.patch('troveclient.v1.datastores.Datastores.list')
@@ -346,7 +344,7 @@ class ShellTestKeystoneV3(ShellTest):
         stdout, stderr = self.shell('datastore-list')
         self.assertEqual(expected, (stdout + stderr))
 
-    @mock.patch('keystoneclient._discover.get_version_data',
+    @mock.patch('keystoneauth1.discover.get_version_data',
                 return_value=[{u'status': u'stable', u'id': version_id,
                                u'links': links}])
     @requests_mock.Mocker()

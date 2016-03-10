@@ -33,10 +33,9 @@ import sys
 import pkg_resources
 import six
 
-from keystoneclient.auth.identity.generic import password
-from keystoneclient.auth.identity.generic import token
-from keystoneclient.auth.identity import v3 as identity
-from keystoneclient import session as ks_session
+from keystoneauth1.identity.generic import password
+from keystoneauth1.identity.generic import token
+from keystoneauth1 import loading
 
 from oslo_utils import encodeutils
 from oslo_utils import importutils
@@ -91,7 +90,7 @@ class TroveClientArgumentParser(argparse.ArgumentParser):
 
 class OpenStackTroveShell(object):
 
-    def get_base_parser(self):
+    def get_base_parser(self, argv):
         parser = TroveClientArgumentParser(
             prog='trove',
             description=__doc__.strip(),
@@ -120,7 +119,8 @@ class OpenStackTroveShell(object):
         parser.add_argument('--os-auth-system',
                             metavar='<auth-system>',
                             default=utils.env('OS_AUTH_SYSTEM'),
-                            help='Defaults to env[OS_AUTH_SYSTEM].')
+                            help=argparse.SUPPRESS)
+
         parser.add_argument('--os_auth_system',
                             help=argparse.SUPPRESS)
 
@@ -207,42 +207,43 @@ class OpenStackTroveShell(object):
                                 'on the server side. '
                                 'Defaults to env[OS_PROFILE_HMACKEY].')
 
-        self._append_global_identity_args(parser)
+        self._append_global_identity_args(parser, argv)
 
         # The auth-system-plugins might require some extra options
         troveclient.auth_plugin.load_auth_system_opts(parser)
 
         return parser
 
-    def _append_global_identity_args(self, parser):
+    def _append_global_identity_args(self, parser, argv):
         # Register CLI identity related arguments
 
-        # Use Keystoneclient API to register common V3 CLI arguments
-        ks_session.Session.register_cli_options(parser)
-        identity.Password.register_argparse_arguments(parser)
+        # Use keystoneauth to register common  CLI arguments
+        loading.register_session_argparse_arguments(parser)
+        default_auth_plugin = 'password'
+        if 'os-token' in argv:
+            default_auth_plugin = 'token'
+        loading.register_auth_argparse_arguments(parser, argv,
+                                                 default=default_auth_plugin)
 
         parser.set_defaults(insecure=utils.env('TROVECLIENT_INSECURE',
                             default=False))
 
-        parser.add_argument('--os-tenant-name',
-                            metavar='<auth-tenant-name>',
-                            default=utils.env('OS_TENANT_NAME'),
-                            help='Tenant to request authorization on. '
-                                 'Defaults to env[OS_TENANT_NAME].')
+        parser.set_defaults(os_auth_url=utils.env('OS_AUTH_URL'))
+
+        parser.set_defaults(os_project_name=utils.env(
+            'OS_PROJECT_NAME', 'OS_TENANT_NAME'))
+        parser.set_defaults(os_project_id=utils.env(
+            'OS_PROJECT_ID', 'OS_TENANT_ID'))
+
         parser.add_argument('--os_tenant_name',
                             help=argparse.SUPPRESS)
 
-        parser.add_argument('--os-tenant-id',
-                            metavar='<tenant-id>',
-                            default=utils.env('OS_TENANT_ID'),
-                            help='Tenant to request authorization on. '
-                                 'Defaults to env[OS_TENANT_ID].')
         parser.add_argument('--os_tenant_id',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--os-auth-token',
                             default=utils.env('OS_AUTH_TOKEN'),
-                            help='Defaults to env[OS_AUTH_TOKEN]')
+                            help=argparse.SUPPRESS)
 
         parser.add_argument('--os-region-name',
                             metavar='<region-name>',
@@ -252,8 +253,8 @@ class OpenStackTroveShell(object):
         parser.add_argument('--os_region_name',
                             help=argparse.SUPPRESS)
 
-    def get_subcommand_parser(self, version):
-        parser = self.get_base_parser()
+    def get_subcommand_parser(self, version, argv):
+        parser = self.get_base_parser(argv)
 
         self.subcommands = {}
         subparsers = parser.add_subparsers(metavar='<subcommand>')
@@ -367,7 +368,7 @@ class OpenStackTroveShell(object):
 
     def main(self, argv):
         # Parse args once to find version and debug settings
-        parser = self.get_base_parser()
+        parser = self.get_base_parser(argv)
         (options, args) = parser.parse_known_args(argv)
         self.setup_debugging(options.debug)
         self.options = options
@@ -381,7 +382,7 @@ class OpenStackTroveShell(object):
         self._run_extension_hooks('__pre_parse_args__')
 
         subcommand_parser = self.get_subcommand_parser(
-            options.os_database_api_version)
+            options.os_database_api_version, argv)
         self.parser = subcommand_parser
 
         if options.help or not argv:
@@ -401,11 +402,22 @@ class OpenStackTroveShell(object):
 
         os_username = args.os_username
         os_password = args.os_password
-        os_tenant_name = args.os_tenant_name
+        os_project_name = getattr(args, 'os_project_name',
+                                  getattr(args, 'os_tenant_name', None))
         os_auth_url = args.os_auth_url
         os_region_name = args.os_region_name
-        os_tenant_id = args.os_tenant_id
+        os_project_id = getattr(
+            args, 'os_project_id',
+            getattr(args, 'os_tenant_id', None))
         os_auth_system = args.os_auth_system
+
+        if "v2.0" not in os_auth_url:
+            if (not args.os_project_domain_id and
+                    not args.os_project_domain_name):
+                setattr(args, "os_project_domain_id", "default")
+            if not args.os_user_domain_id and not args.os_user_domain_name:
+                setattr(args, "os_user_domain_id", "default")
+
         endpoint_type = args.endpoint_type
         insecure = args.insecure
         service_type = args.service_type
@@ -448,20 +460,14 @@ class OpenStackTroveShell(object):
                     os_auth_url = auth_plugin.get_auth_url()
 
         # V3 stuff
-        project_info_provided = (self.options.os_tenant_name or
-                                 self.options.os_tenant_id or
-                                 (self.options.os_project_name and
-                                  (self.options.os_project_domain_name or
-                                   self.options.os_project_domain_id)) or
+        project_info_provided = (self.options.os_project_name or
                                  self.options.os_project_id)
 
         if (not project_info_provided):
             raise exc.CommandError(
-                _("You must provide a tenant_name, tenant_id, "
+                _("You must provide a "
                   "project_id or project_name (with "
                   "project_domain_name or project_domain_id) via "
-                  "  --os-tenant-name (env[OS_TENANT_NAME]),"
-                  "  --os-tenant-id (env[OS_TENANT_ID]),"
                   "  --os-project-id (env[OS_PROJECT_ID])"
                   "  --os-project-name (env[OS_PROJECT_NAME]),"
                   "  --os-project-domain-id "
@@ -481,36 +487,35 @@ class OpenStackTroveShell(object):
         if auth_plugin or bypass_url:
             use_session = False
 
-        keystone_session = None
+        ks_session = None
         keystone_auth = None
         if use_session:
-                project_id = args.os_project_id or args.os_tenant_id
-                project_name = args.os_project_name or args.os_tenant_name
+            project_id = args.os_project_id or args.os_tenant_id
+            project_name = args.os_project_name or args.os_tenant_name
 
-                keystone_session = (ks_session.Session.
-                                    load_from_cli_options(args))
-                keystone_auth = self._get_keystone_auth(
-                    keystone_session,
-                    args.os_auth_url,
-                    username=args.os_username,
-                    user_id=args.os_user_id,
-                    user_domain_id=args.os_user_domain_id,
-                    user_domain_name=args.os_user_domain_name,
-                    password=args.os_password,
-                    auth_token=args.os_auth_token,
-                    project_id=project_id,
-                    project_name=project_name,
-                    project_domain_id=args.os_project_domain_id,
-                    project_domain_name=args.os_project_domain_name)
+            ks_session = loading.load_session_from_argparse_arguments(args)
+            keystone_auth = self._get_keystone_auth(
+                ks_session,
+                args.os_auth_url,
+                username=args.os_username,
+                user_id=args.os_user_id,
+                user_domain_id=args.os_user_domain_id,
+                user_domain_name=args.os_user_domain_name,
+                password=args.os_password,
+                auth_token=args.os_auth_token,
+                project_id=project_id,
+                project_name=project_name,
+                project_domain_id=args.os_project_domain_id,
+                project_domain_name=args.os_project_domain_name)
 
         profile = osprofiler_profiler and options.profile
         if profile:
             osprofiler_profiler.init(options.profile)
 
         self.cs = client.Client(options.os_database_api_version, os_username,
-                                os_password, os_tenant_name, os_auth_url,
+                                os_password, os_project_name, os_auth_url,
                                 insecure, region_name=os_region_name,
-                                tenant_id=os_tenant_id,
+                                tenant_id=os_project_id,
                                 endpoint_type=endpoint_type,
                                 extensions=self.extensions,
                                 service_type=service_type,
@@ -522,7 +527,7 @@ class OpenStackTroveShell(object):
                                 bypass_url=bypass_url,
                                 auth_system=os_auth_system,
                                 auth_plugin=auth_plugin,
-                                session=keystone_session,
+                                session=ks_session,
                                 auth=keystone_auth)
 
         try:

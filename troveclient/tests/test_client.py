@@ -16,7 +16,7 @@
 #    under the License.
 
 import fixtures
-from keystoneclient import adapter
+from keystoneauth1 import adapter
 import logging
 import mock
 import requests
