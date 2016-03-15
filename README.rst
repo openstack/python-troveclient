@@ -117,6 +117,8 @@ You'll find complete documentation on the shell by running
     cluster-grow                  Adds more instances to a cluster.
     cluster-instances             Lists all instances of a cluster.
     cluster-list                  Lists all the clusters.
+    cluster-modules               Lists all modules for each instance of a
+                                  cluster.
     cluster-show                  Shows details of a cluster.
     cluster-shrink                Drops instances from a cluster.
     configuration-attach          Attaches a configuration group to an
@@ -174,6 +176,20 @@ You'll find complete documentation on the shell by running
     metadata-show                 Shows metadata entry for key <key> and
                                   instance <id>.
     metadata-update               Updates metadata, this is destructive.
+    module-apply                  Apply modules to an instance.
+    module-create                 Create a module.
+    module-delete                 Delete a module.
+    module-instances              Lists the instances that have a particular
+                                  module applied.
+    module-list                   Lists the modules available.
+    module-list-instance          Lists the modules that have been applied to
+                                  an instance.
+    module-query                  Query the status of the modules on an
+                                  instance.
+    module-remove                 Remove a module from an instance.
+    module-retrieve               Retrieve module contents from an instance.
+    module-show                   Shows details of a module.
+    module-update                 Update a module.
     promote-to-replica-source     Promotes a replica to be the new replica
                                   source of its set.
     resize-instance               Resizes an instance with a new flavor.
@@ -217,7 +233,7 @@ You'll find complete documentation on the shell by running
                                   env[TROVE_DATABASE_SERVICE_NAME].
     --endpoint-type <endpoint-type>
                                   Defaults to env[TROVE_ENDPOINT_TYPE] or
-                                  publicURL.
+                                  env[OS_ENDPOINT_TYPE] or publicURL.
     --os-database-api-version <database-api-ver>
                                   Accepts 1, defaults to
                                   env[OS_DATABASE_API_VERSION].
