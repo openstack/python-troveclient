@@ -20,8 +20,8 @@ import logging
 import pkg_resources
 import six
 
+from troveclient._i18n import _
 from troveclient import exceptions
-from troveclient.openstack.common.gettextutils import _  # noqa
 
 
 logger = logging.getLogger(__name__)

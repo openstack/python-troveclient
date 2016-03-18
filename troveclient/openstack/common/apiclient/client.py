@@ -35,8 +35,8 @@ except ImportError:
 
 import requests
 
+from oslo_utils import importutils
 from troveclient.openstack.common.apiclient import exceptions
-from troveclient.openstack.common import importutils
 
 
 _logger = logging.getLogger(__name__)

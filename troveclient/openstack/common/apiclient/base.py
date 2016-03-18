@@ -27,11 +27,11 @@ import abc
 import copy
 
 from oslo_utils import reflection
+from oslo_utils import strutils
 import six
 from six.moves.urllib import parse
 
 from troveclient.openstack.common.apiclient import exceptions
-from troveclient.openstack.common import strutils
 
 
 def getid(obj):
