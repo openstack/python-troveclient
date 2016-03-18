@@ -263,6 +263,30 @@ class FakeHTTPClient(base_client.HTTPClient):
         r = {'flavor': self.get_flavors()[2]['flavors'][5]}
         return (200, {}, r)
 
+    def get_volume_types(self, **kw):
+        return (200, {}, {"volume_types": [
+            {
+                "id": "1",
+                "name": "vt_1",
+                "description": "Volume type #1",
+                "is_public": False},
+            {
+                "id": "10",
+                "name": "volume_type_2",
+                "description": "Volume type #2",
+                "is_public": True}]})
+
+    def get_datastores_mysql_versions_some_version_id_volume_types(self, **kw):
+        return self.get_volume_types()
+
+    def get_volume_types_1(self, **kw):
+        r = {'volume_type': self.get_volume_types()[2]['volume_types'][0]}
+        return (200, {}, r)
+
+    def get_volume_types_2(self, **kw):
+        r = {'volume_type': self.get_volume_types()[2]['volume_types'][2]}
+        return (200, {}, r)
+
     def get_clusters(self, **kw):
         return (200, {}, {"clusters": [
             {
