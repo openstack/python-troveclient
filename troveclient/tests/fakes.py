@@ -595,6 +595,9 @@ class FakeHTTPClient(base_client.HTTPClient):
     def get_instances_1234_root(self, **kw):
         return (200, {}, {"rootEnabled": 'True'})
 
+    def get_instances_master_1(self, **kw):
+        return (200, {}, {"instance": {"id": 'myid'}})
+
     def get_clusters_cls_1234_root(self, **kw):
         return (200, {}, {"rootEnabled": 'True'})
 
