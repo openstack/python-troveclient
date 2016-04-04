@@ -600,11 +600,12 @@ class ShellTest(utils.TestCase):
     def test_module_retrieve(self):
         with mock.patch.object(troveclient.v1.modules.Module, '__getattr__',
                                mock.Mock(return_value='4321')):
-            self.run_command('module-retrieve 1234')
-            self.assert_called(
-                'GET',
-                '/instances/1234/modules?'
-                'include_contents=True&from_guest=True')
+            with mock.patch.object(builtins, 'open'):
+                self.run_command('module-retrieve 1234')
+                self.assert_called(
+                    'GET',
+                    '/instances/1234/modules?'
+                    'include_contents=True&from_guest=True')
 
     def test_limit_list(self):
         self.run_command('limit-list')
