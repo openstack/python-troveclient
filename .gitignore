@@ -11,3 +11,6 @@ rdserver.txt
 python-troveclient.iml
 AUTHORS
 ChangeLog
+
+# Files created by releasenotes build
+releasenotes/build
