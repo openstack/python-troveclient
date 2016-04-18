@@ -298,6 +298,30 @@ class ShellTest(utils.TestCase):
             'Invalid NIC argument: nic=\'net-id=some-id,port-id=some-id\'',
             self.run_command, cmd)
 
+    def test_boot_restore_by_id(self):
+        self.run_command('create test-restore-1 1 --size 1 --backup bk_1234')
+        self.assert_called_anytime(
+            'POST', '/instances',
+            {'instance': {
+                'volume': {'size': 1, 'type': None},
+                'flavorRef': 1,
+                'name': 'test-restore-1',
+                'restorePoint': {'backupRef': 'bk-1234'},
+                'replica_count': 1
+            }})
+
+    def test_boot_restore_by_name(self):
+        self.run_command('create test-restore-1 1 --size 1 --backup bkp_1')
+        self.assert_called_anytime(
+            'POST', '/instances',
+            {'instance': {
+                'volume': {'size': 1, 'type': None},
+                'flavorRef': 1,
+                'name': 'test-restore-1',
+                'restorePoint': {'backupRef': 'bk-1234'},
+                'replica_count': 1
+            }})
+
     def test_cluster_create(self):
         cmd = ('cluster-create test-clstr vertica 7.1 '
                '--instance flavor=2,volume=2 '

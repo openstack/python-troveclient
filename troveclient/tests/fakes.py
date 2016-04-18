@@ -509,6 +509,10 @@ class FakeHTTPClient(base_client.HTTPClient):
         r = {'backup': self.get_backups()[2]['backups'][0]}
         return (200, {}, r)
 
+    def get_backups_bkp_1(self, **kw):
+        r = {'backup': self.get_backups()[2]['backups'][0]}
+        return (200, {}, r)
+
     def get_instances_1234_backups(self, **kw):
         r = {'backups': [self.get_backups()[2]['backups'][0]]}
         return (200, {}, r)
