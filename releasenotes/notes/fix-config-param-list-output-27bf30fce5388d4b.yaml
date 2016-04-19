@@ -1,0 +1,5 @@
+---
+fixes:
+    - The CLI output from configuration-parameter-list
+      was fixed to properly display the 'Min Size' and
+      'Max Size' values. Bug 1572272
