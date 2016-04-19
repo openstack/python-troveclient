@@ -66,6 +66,12 @@ class TroveClientArgumentParser(argparse.ArgumentParser):
     def __init__(self, *args, **kwargs):
         super(TroveClientArgumentParser, self).__init__(*args, **kwargs)
 
+    def add_argument(self, *args, **kwargs):
+        if kwargs.get('help') is None:
+            raise Exception(_("An argument '%s' was specified without help.")
+                            % args[0])
+        super(TroveClientArgumentParser, self).add_argument(*args, **kwargs)
+
     def error(self, message):
         """error(message: string)
 
