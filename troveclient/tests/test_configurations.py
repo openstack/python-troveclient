@@ -91,7 +91,7 @@ class ConfigurationsTest(testtools.TestCase):
         self.configurations.api.client.delete = self._get_mock_method()
         self._resp.status_code = 200
         self.configurations.delete(27)
-        self.assertEqual('/configurations/27', self._url)
+        self.assertEqual('/configurations/configuration1', self._url)
         self._resp.status_code = 500
         self.assertRaises(Exception, self.configurations.delete, 34)
 
@@ -122,7 +122,7 @@ class ConfigurationsTest(testtools.TestCase):
         self._resp.status_code = 200
         config = '{"test":12}'
         self.configurations.update(27, config)
-        self.assertEqual('/configurations/27', self._url)
+        self.assertEqual('/configurations/configuration1', self._url)
         self._resp.status_code = 500
         self.assertRaises(Exception, self.configurations.update, 34)
 
@@ -131,7 +131,7 @@ class ConfigurationsTest(testtools.TestCase):
         self._resp.status_code = 200
         config = '{"test":12}'
         self.configurations.edit(27, config)
-        self.assertEqual('/configurations/27', self._url)
+        self.assertEqual('/configurations/configuration1', self._url)
         self._resp.status_code = 500
         self.assertRaises(Exception, self.configurations.edit, 34)
 

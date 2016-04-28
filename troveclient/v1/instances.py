@@ -116,7 +116,7 @@ class Instances(base.ManagerWithFind):
         if nics:
             body["instance"]["nics"] = nics
         if configuration:
-            body["instance"]["configuration"] = configuration
+            body["instance"]["configuration"] = base.getid(configuration)
         if replica_of or slave_of:
             if slave_of:
                 warnings.warn(_LW("The 'slave_of' argument is deprecated in "
@@ -138,7 +138,7 @@ class Instances(base.ManagerWithFind):
             }
         }
         if configuration is not None:
-            body["instance"]["configuration"] = configuration
+            body["instance"]["configuration"] = base.getid(configuration)
         url = "/instances/%s" % base.getid(instance)
         resp, body = self.api.client.put(url, body=body)
         common.check_for_exceptions(resp, body, url)
@@ -155,7 +155,7 @@ class Instances(base.ManagerWithFind):
         if remove_configuration:
             body["instance"]["configuration"] = None
         if configuration is not None:
-            body["instance"]["configuration"] = configuration
+            body["instance"]["configuration"] = base.getid(configuration)
         if name is not None:
             body["instance"]["name"] = name
         if detach_replica_source:

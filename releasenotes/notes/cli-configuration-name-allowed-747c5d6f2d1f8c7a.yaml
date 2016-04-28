@@ -1,0 +1,6 @@
+---
+fixes:
+  - configuration-* cli commands now allow name of configuration group
+    entered instead of just the configuration id. This will allow a user
+    to specify the configuration group name or the id to use for all
+    the cli commands related to configuration groups. Bug 1505529
