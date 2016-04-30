@@ -92,6 +92,23 @@ def _print_instance(instance):
     utils.print_dict(info)
 
 
+def _print_cluster(cluster, include_all=False):
+
+    info = cluster._info.copy()
+    info['datastore'] = cluster.datastore['type']
+    info['datastore_version'] = cluster.datastore['version']
+    info['task_name'] = cluster.task['name']
+    info['task_description'] = cluster.task['description']
+    info.pop('task', None)
+    if include_all and hasattr(cluster, 'ip'):
+        info['ip'] = ', '.join(cluster.ip)
+    instances = info.pop('instances', None)
+    if instances:
+        info['instance_count'] = len(instances)
+    info.pop('links', None)
+    utils.print_dict(info)
+
+
 def _print_object(obj):
     # Get rid of those ugly links
     if obj._info.get('links'):
@@ -272,17 +289,7 @@ def do_show(cs, args):
 def do_cluster_show(cs, args):
     """Shows details of a cluster."""
     cluster = _find_cluster(cs, args.cluster)
-    info = cluster._info.copy()
-    info['datastore'] = cluster.datastore['type']
-    info['datastore_version'] = cluster.datastore['version']
-    info['task_name'] = cluster.task['name']
-    info['task_description'] = cluster.task['description']
-    del info['task']
-    if hasattr(cluster, 'ip'):
-        info['ip'] = ', '.join(cluster.ip)
-    del info['instances']
-    cluster._info = info
-    _print_object(cluster)
+    _print_cluster(cluster, include_all=True)
 
 
 @utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
@@ -703,13 +710,7 @@ def do_cluster_create(cs, args):
                                  args.datastore,
                                  args.datastore_version,
                                  instances=instances)
-    cluster._info['task_name'] = cluster.task['name']
-    cluster._info['task_description'] = cluster.task['description']
-    del cluster._info['task']
-    cluster._info['datastore'] = cluster.datastore['type']
-    cluster._info['datastore_version'] = cluster.datastore['version']
-    del cluster._info['instances']
-    _print_object(cluster)
+    _print_cluster(cluster)
 
 
 @utils.arg('instance',

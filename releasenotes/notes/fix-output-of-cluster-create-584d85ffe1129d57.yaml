@@ -1,0 +1,5 @@
+---
+fixes:
+  - Fixed CLI output of cluster-create to only print
+    pertinent information so it is consistent with
+    cluster-show. Bug 1563504
