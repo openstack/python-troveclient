@@ -20,9 +20,19 @@ import argparse
 import sys
 import time
 
+INSTANCE_ARG_NAME = 'instance'
 INSTANCE_METAVAR = '"opt=<value>[,opt=<value> ...] "'
 INSTANCE_ERROR = ("Instance argument(s) must be of the form --instance "
                   + INSTANCE_METAVAR + " - see help for details.")
+INSTANCE_HELP = ("Add an instance to the cluster.  Specify multiple "
+                 "times to create multiple instances.  "
+                 "Valid options are: flavor=<flavor_name_or_id>, "
+                 "volume=<disk_size_in_GB>, volume_type=<type>, "
+                 "nic='<net-id=<net-uuid>, v4-fixed-ip=<ip-addr>, "
+                 "port-id=<port-uuid>>' "
+                 "(where net-id=network_id, v4-fixed-ip=IPv4r_fixed_address, "
+                 "port-id=port_id), availability_zone=<AZ_hint_for_Nova>, "
+                 "module=<module_name_or_id>.")
 NIC_ERROR = ("Invalid NIC argument: %s. Must specify either net-id or port-id "
              "but not both. Please refer to help.")
 NO_LOG_FOUND_ERROR = "ERROR: No published '%s' log was found for %s."
@@ -314,38 +324,15 @@ def do_cluster_instances(cs, args):
         obj_is_dict=True)
 
 
-@utils.arg('--instance', metavar=INSTANCE_METAVAR,
+@utils.arg('--' + INSTANCE_ARG_NAME, metavar=INSTANCE_METAVAR,
            action='append', dest='instances', default=[],
-           help="Add an instance to the cluster. Specify multiple "
-                "times to create multiple instances.  Valid options are: "
-                "name=<name>, flavor=<flavor_name_or_id>, volume=<volume>, "
-                "module=<module_name_or_id>.")
+           help=INSTANCE_HELP)
 @utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
 @utils.service_type('database')
 def do_cluster_grow(cs, args):
     """Adds more instances to a cluster."""
     cluster = _find_cluster(cs, args.cluster)
-    instances = []
-    for instance_opts in args.instances:
-        instance_info = {}
-        for z in instance_opts.split(","):
-            for (k, v) in [z.split("=", 1)[:2]]:
-                if k == "name":
-                    instance_info[k] = v
-                elif k == "flavor":
-                    flavor_id = _find_flavor(cs, v).id
-                    instance_info["flavorRef"] = str(flavor_id)
-                elif k == "volume":
-                    instance_info["volume"] = {"size": v}
-                else:
-                    instance_info[k] = v
-        if not instance_info.get('flavorRef'):
-            raise exceptions.CommandError(
-                'flavor is required. '
-                'Instance arguments must be of the form '
-                '--instance <flavor=flavor_name_or_id,volume=volume,data=data>'
-            )
-        instances.append(instance_info)
+    instances = _parse_instance_options(cs, args.instances, for_grow=True)
     cs.clusters.grow(cluster, instances=instances)
 
 
@@ -673,38 +660,9 @@ def _strip_option(opts_str, opt_name, is_required=True,
     return opt_value, opts_str.strip().strip(",")
 
 
-@utils.arg('name',
-           metavar='<name>',
-           type=str,
-           help='Name of the cluster.')
-@utils.arg('datastore',
-           metavar='<datastore>',
-           help='A datastore name or ID.')
-@utils.arg('datastore_version',
-           metavar='<datastore_version>',
-           help='A datastore version name or ID.')
-@utils.arg('--instance', metavar=INSTANCE_METAVAR,
-           action='append', dest='instances', default=[],
-           help="Create an instance for the cluster.  Specify multiple "
-                "times to create multiple instances.  "
-                "Valid options are: flavor=<flavor_name_or_id>, "
-                "volume=<disk_size_in_GB>, volume_type=<type>, "
-                "nic='<net-id=<net-uuid>, v4-fixed-ip=<ip-addr>, "
-                "port-id=<port-uuid>>' "
-                "(where net-id=network_id, v4-fixed-ip=IPv4r_fixed_address, "
-                "port-id=port_id), availability_zone=<AZ_hint_for_Nova>, "
-                "module=<module_name_or_id>.")
-@utils.arg('--locality',
-           metavar='<policy>',
-           default=None,
-           choices=LOCALITY_DOMAIN,
-           help='Locality policy to use when creating cluster. Choose '
-                'one of %(choices)s.')
-@utils.service_type('database')
-def do_cluster_create(cs, args):
-    """Creates a new cluster."""
+def _parse_instance_options(cs, instance_options, for_grow=False):
     instances = []
-    for instance_opts in args.instances:
+    for instance_opts in instance_options:
         instance_info = {}
 
         flavor, instance_opts = _get_flavor(cs, instance_opts)
@@ -725,16 +683,56 @@ def do_cluster_create(cs, args):
         if modules:
             instance_info["modules"] = modules
 
+        if for_grow:
+            instance_type, instance_opts = _strip_option(
+                instance_opts, 'type', is_required=False)
+            if instance_type:
+                instance_info["type"] = instance_type
+
+            related_to, instance_opts = _strip_option(
+                instance_opts, 'related_to', is_required=False)
+            if instance_type:
+                instance_info["related_to"] = related_to
+
+            name, instance_opts = _strip_option(
+                instance_opts, 'name', is_required=False)
+            if name:
+                instance_info["name"] = name
+
         if instance_opts:
             raise exceptions.ValidationError(
                 "Unknown option(s) '%s' specified for instance" %
                 instance_opts)
 
         instances.append(instance_info)
-
     if len(instances) == 0:
-        raise exceptions.MissingArgs(['instance'])
+        raise exceptions.MissingArgs([INSTANCE_ARG_NAME])
+    return instances
 
+
+@utils.arg('name',
+           metavar='<name>',
+           type=str,
+           help='Name of the cluster.')
+@utils.arg('datastore',
+           metavar='<datastore>',
+           help='A datastore name or ID.')
+@utils.arg('datastore_version',
+           metavar='<datastore_version>',
+           help='A datastore version name or ID.')
+@utils.arg('--' + INSTANCE_ARG_NAME, metavar=INSTANCE_METAVAR,
+           action='append', dest='instances', default=[],
+           help=INSTANCE_HELP)
+@utils.arg('--locality',
+           metavar='<policy>',
+           default=None,
+           choices=LOCALITY_DOMAIN,
+           help='Locality policy to use when creating cluster. Choose '
+                'one of %(choices)s.')
+@utils.service_type('database')
+def do_cluster_create(cs, args):
+    """Creates a new cluster."""
+    instances = _parse_instance_options(cs, args.instances)
     cluster = cs.clusters.create(args.name,
                                  args.datastore,
                                  args.datastore_version,
