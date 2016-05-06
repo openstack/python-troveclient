@@ -1,0 +1,4 @@
+---
+features:
+  - Support added for error messages when running the
+    Trove show command.

@@ -88,6 +88,12 @@ def _print_instance(instance):
     if hasattr(instance, 'replicas'):
         replicas = [replica['id'] for replica in instance.replicas]
         info['replicas'] = ', '.join(replicas)
+    if hasattr(instance, 'fault'):
+        info.pop('fault', None)
+        info['fault'] = instance.fault['message']
+        info['fault_date'] = instance.fault['created']
+        if 'details' in instance.fault and instance.fault['details']:
+            info['fault_details'] = instance.fault['details']
     info.pop('links', None)
     utils.print_dict(info)
 
