@@ -1369,8 +1369,12 @@ def do_configuration_parameter_list(cs, args):
         raise exceptions.NoUniqueMatch('The datastore name or id is required'
                                        ' to retrieve the parameters for the'
                                        ' configuration group by name.')
-    utils.print_list(params, ['name', 'type', 'min_size', 'max_size',
-                              'restart_required'])
+    for param in params:
+        setattr(param, 'min', getattr(param, 'min', '-'))
+        setattr(param, 'max', getattr(param, 'max', '-'))
+    utils.print_list(
+        params, ['name', 'type', 'min', 'max', 'restart_required'],
+        labels={'min': 'Min Size', 'max': 'Max Size'})
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
