@@ -51,7 +51,6 @@ class AuthenticatorTest(testtools.TestCase):
 
     def test_get_authenticator_cls(self):
         class_list = (auth.KeyStoneV2Authenticator,
-                      auth.RaxAuthenticator,
                       auth.Auth1_1,
                       auth.FakeAuth)
 
@@ -59,7 +58,6 @@ class AuthenticatorTest(testtools.TestCase):
             self.assertEqual(c, auth.get_authenticator_cls(c))
 
         class_names = {"keystone": auth.KeyStoneV2Authenticator,
-                       "rax": auth.RaxAuthenticator,
                        "auth1.1": auth.Auth1_1,
                        "fake": auth.FakeAuth}
 
@@ -198,55 +196,6 @@ class Auth1_1Test(testtools.TestCase):
         self.assertEqual(password, body['credentials']['key'])
         self.assertEqual(auth_url, url)
         self.assertEqual('auth', root_key)
-
-
-class RaxAuthenticatorTest(testtools.TestCase):
-
-    def test_authenticate(self):
-        # url is None
-        check_url_none(self, auth.RaxAuthenticator)
-
-        # url is not None, so it must not throw exception
-        url = "test_url"
-        authObj = auth.RaxAuthenticator(url=url,
-                                        type=auth.RaxAuthenticator,
-                                        client=None, username=None,
-                                        password=None, tenant=None)
-
-        def side_effect_func(url):
-            return url
-
-        mock_obj = mock.Mock()
-        mock_obj.side_effect = side_effect_func
-        authObj._rax_auth = mock_obj
-        r = authObj.authenticate()
-        self.assertEqual(url, r)
-
-    def test__rax_auth(self):
-        username = "trove_user"
-        password = "trove_password"
-        tenant = "tenant"
-        authObj = auth.RaxAuthenticator(url=None,
-                                        type=auth.RaxAuthenticator,
-                                        client=None, username=username,
-                                        password=password, tenant=tenant)
-
-        def side_effect_func(url, body):
-            return body
-
-        mock_obj = mock.Mock()
-        mock_obj.side_effect = side_effect_func
-        authObj._authenticate = mock_obj
-        body = authObj._rax_auth(mock.Mock())
-
-        v = body['auth']['RAX-KSKEY:apiKeyCredentials']['username']
-        self.assertEqual(username, v)
-
-        v = body['auth']['RAX-KSKEY:apiKeyCredentials']['apiKey']
-        self.assertEqual(password, v)
-
-        v = body['auth']['RAX-KSKEY:apiKeyCredentials']['tenantName']
-        self.assertEqual(tenant, v)
 
 
 class FakeAuthTest(testtools.TestCase):
