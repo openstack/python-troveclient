@@ -1,111 +1,33 @@
 Using the Client Programmatically
 =================================
 
-
-.. testsetup::
-
-    # Creates some vars we don't show in the docs.
-    AUTH_URL="http://localhost:8779/v1.0/auth"
-
-    from troveclient import Dbaas
-    from troveclient import auth
-    class FakeAuth(auth.Authenticator):
-
-        def authenticate(self):
-            class FakeCatalog(object):
-                def __init__(self, auth):
-                    self.auth = auth
-
-                def get_public_url(self):
-                    return "%s/%s" % ('http://localhost:8779/v1.0',
-                                      self.auth.tenant)
-
-                def get_token(self):
-                    return self.auth.tenant
-
-            return FakeCatalog(self)
-
-    from troveclient import Dbaas
-    OLD_INIT = Dbaas.__init__
-    def new_init(*args, **kwargs):
-        kwargs['auth_strategy'] = FakeAuth
-        OLD_INIT(*args, **kwargs)
-
-    # Monkey patch init so it'll work with fake auth.
-    Dbaas.__init__ = new_init
-
-
-    client = Dbaas("jsmith", "abcdef", tenant="12345",
-                  auth_url=AUTH_URL)
-    client.authenticate()
-
-    # Delete all instances.
-    instances = [1]
-    while len(instances) > 0:
-        instances = client.instances.list()
-        for instance in instances:
-            try:
-                instance.delete()
-            except:
-                pass
-
-    flavor_id = "1"
-    for i in range(30):
-        name = "Instance #%d" % i
-        client.instances.create(name, flavor_id, None)
-
-
-
 Authentication
 --------------
 
-Authenticating is necessary to use every feature of the client (except to
-discover available versions).
+Authenticating is necessary to use every feature of the client.
 
-To create the client, create an instance of the Dbaas (Database as a Service)
-class. The auth url, auth user, key, and tenant ID must be specified in the
+To create the client, create an instance of the Client class. 
+The auth url, username, password, and project name must be specified in the
 call to the constructor.
 
 .. testcode::
 
-    from troveclient import Dbaas
-    global AUTH_URL
-
-    client = Dbaas("jsmith", "abcdef", tenant="12345",
-                  auth_url=AUTH_URL)
-    client.authenticate()
+    from troveclient.v1 import client
+    tc = client.Client(username="testuser",
+            password="PASSWORD",
+            project_id="test_project",
+            region_name="EAST",
+            auth_url="http://api-server:5000/v2.0")
 
 The default authentication strategy assumes a Keystone compliant auth system.
 
-
-Versions
---------
-
-You can discover the available versions by querying the versions property as
-follows:
-
-
+Once you have an authenticated client object you can make calls with it,
+for example:
+  
 .. testcode::
 
-    versions = client.versions.index("http://localhost:8779")
-
-
-The "index" method returns a list of Version objects which have the ID as well
-as a list of links, each with a URL to use to reach that particular version.
-
-.. testcode::
-
-    for version in versions:
-        print(version.id)
-        for link in version.links:
-            if link['rel'] == 'self':
-                print("    %s" % link['href'])
-
-.. testoutput::
-
-    v1.0
-        http://localhost:8779/v1.0/
-
+    flavors = tc.flavors.list()
+    datastores = tc.datastores.list()
 
 Instances
 ---------
@@ -114,17 +36,26 @@ The following example creates a 512 MB instance with a 1 GB volume:
 
 .. testcode::
 
-    client.authenticate()
-    flavor_id = "1"
+    from troveclient.v1 import client
+    tc = client.Client(username="testuser",
+            password="PASSWORD",
+            project_id="test_project",
+            region_name="EAST",
+            auth_url="http://api-server:5000/v2.0")
+
+    flavor_id = '1'
     volume = {'size':1}
     databases = [{"name": "my_db",
                   "character_set": "latin2",           # These two fields
                   "collate": "latin2_general_ci"}]     # are optional.
+    datastore = 'mysql'
+    datastore_version = '5.6-104'
     users = [{"name": "jsmith", "password": "12345",
               "databases": [{"name": "my_db"}]
              }]
     instance = client.instances.create("My Instance", flavor_id, volume,
-                                       databases, users)
+                                       databases, users, datastore=datastore,
+                                       datastore_version=datastore_version)
 
 To retrieve the instance, use the "get" method of "instances":
 
@@ -167,15 +98,8 @@ or by using the delete method on "instances."
     Ready in an ACTIVE state.
 
 
-Listing instances and Pagination
+Listing Items and Pagination
 --------------------------------
-
-To list all instances, use the list method of "instances":
-
-.. testcode::
-
-    instances = client.instances.list()
-
 
 Lists paginate after twenty items, meaning you'll only get twenty items back
 even if there are more. To see the next set of items, send a marker. The marker
@@ -186,6 +110,9 @@ The lists returned by the client always include a "next" property. This
 can be used as the "marker" argument to get the next section of the list
 back from the server. If no more items are available, then the next property
 is None.
+
+Pagination applies to all listed objects, like instances, datastores, etc.
+The example below is for instances.
 
 .. testcode::
 
