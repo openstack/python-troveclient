@@ -50,9 +50,16 @@ class Backups(base.ManagerWithFind):
         return self._paginated("/backups", "backups", limit, marker,
                                query_strings)
 
-    def create(self, name, instance=None, description=None, parent_id=None,
+    def create(self, name, instance, description=None, parent_id=None,
                backup=None,):
-        """Create a new backup from the given instance."""
+        """Create a new backup from the given instance.
+
+        :param name: name for backup.
+        :param instance: instance to backup.
+        :param description: (optional).
+        :param parent_id: base for incremental backup (optional).
+        :returns: :class:`Backups`
+        """
         body = {
             "backup": {
                 "name": name

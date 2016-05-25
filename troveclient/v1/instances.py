@@ -33,8 +33,6 @@ REBOOT_HARD = 'HARD'
 
 class Instance(base.Resource):
     """An Instance is an opaque instance used to store Database instances."""
-    def __repr__(self):
-        return "<Instance: %s>" % self.name
 
     def list_databases(self):
         return self.manager.databases.list(self)
@@ -186,6 +184,9 @@ class Instances(base.ManagerWithFind):
     def backups(self, instance, limit=None, marker=None):
         """Get the list of backups for a specific instance.
 
+        :param instance: instance for which to list backups
+        :param limit: max items to return
+        :param marker: marker start point
         :rtype: list of :class:`Backups`.
         """
         url = "/instances/%s/backups" % base.getid(instance)
