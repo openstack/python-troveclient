@@ -1208,10 +1208,19 @@ def do_datastore_list(cs, args):
 def do_datastore_show(cs, args):
     """Shows details of a datastore."""
     datastore = cs.datastores.get(args.datastore)
+
+    info = datastore._info.copy()
+    versions = info.get('versions', [])
+    versions_str = "\n".join(
+        [ver['name'] + " (" + ver['id'] + ")" for ver in versions])
+    info['versions (id)'] = versions_str
+    info.pop('versions', None)
+    info.pop('links', None)
     if hasattr(datastore, 'default_version'):
-        datastore._info['default_version'] = getattr(datastore,
-                                                     'default_version')
-    _print_object(datastore)
+        def_ver_id = getattr(datastore, 'default_version')
+        info['default_version'] = [
+            ver['name'] for ver in versions if ver['id'] == def_ver_id][0]
+    utils.print_dict(info)
 
 
 @utils.arg('datastore', metavar='<datastore>',
