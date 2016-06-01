@@ -87,7 +87,8 @@ class BackupManagerTest(testtools.TestCase):
     def test_copy(self):
         create_mock = mock.Mock()
         self.backups._create = create_mock
-        args = {'name': 'test_backup', 'backup': '1'}
+        args = {'name': 'test_backup', 'instance': 'foo',
+                'backup': '1'}
         body = {'backup': args}
         self.backups.create(**args)
         create_mock.assert_called_with('/backups', body, 'backup')

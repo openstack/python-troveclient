@@ -39,10 +39,6 @@ class InstanceTest(testtools.TestCase):
         super(InstanceTest, self).tearDown()
         instances.Instance.__init__ = self.orig__init
 
-    def test___repr__(self):
-        self.instance.name = "instance-1"
-        self.assertEqual('<Instance: instance-1>', self.instance.__repr__())
-
     def test_list_databases(self):
         db_list = ['database1', 'database2']
         self.instance.manager.databases = mock.Mock()

@@ -810,12 +810,12 @@ def do_backup_show(cs, args):
 def do_backup_list_instance(cs, args):
     """Lists available backups for an instance."""
     instance = _find_instance(cs, args.instance)
-    wrapper = cs.instances.backups(instance, limit=args.limit,
-                                   marker=args.marker)
-    backups = wrapper.items
-    while wrapper.next and not args.limit:
-        wrapper = cs.instances.backups(instance, marker=wrapper.next)
-        backups += wrapper.items
+    items = cs.instances.backups(instance, limit=args.limit,
+                                 marker=args.marker)
+    backups = items
+    while items.next and not args.limit:
+        items = cs.instances.backups(instance, marker=items.next)
+        backups += items
     utils.print_list(backups, ['id', 'name', 'status',
                                'parent_id', 'updated'],
                      order_by='updated')
@@ -834,12 +834,12 @@ def do_backup_list_instance(cs, args):
 @utils.service_type('database')
 def do_backup_list(cs, args):
     """Lists available backups."""
-    wrapper = cs.backups.list(limit=args.limit, datastore=args.datastore,
-                              marker=args.marker)
-    backups = wrapper.items
-    while wrapper.next and not args.limit:
-        wrapper = cs.backups.list(marker=wrapper.next)
-        backups += wrapper.items
+    items = cs.backups.list(limit=args.limit, datastore=args.datastore,
+                            marker=args.marker)
+    backups = items
+    while items.next and not args.limit:
+        items = cs.backups.list(marker=items.next)
+        backups += items
     utils.print_list(backups, ['id', 'instance_id', 'name',
                                'status', 'parent_id', 'updated'],
                      order_by='updated')
@@ -925,11 +925,11 @@ def do_database_create(cs, args):
 def do_database_list(cs, args):
     """Lists available databases on an instance."""
     instance = _find_instance(cs, args.instance)
-    wrapper = cs.databases.list(instance)
-    databases = wrapper.items
-    while (wrapper.next):
-        wrapper = cs.databases.list(instance, marker=wrapper.next)
-        databases += wrapper.items
+    items = cs.databases.list(instance)
+    databases = items
+    while (items.next):
+        items = cs.databases.list(instance, marker=items.next)
+        databases += items
 
     utils.print_list(databases, ['name'])
 
@@ -973,11 +973,11 @@ def do_user_create(cs, args):
 def do_user_list(cs, args):
     """Lists the users for an instance."""
     instance = _find_instance(cs, args.instance)
-    wrapper = cs.users.list(instance)
-    users = wrapper.items
-    while (wrapper.next):
-        wrapper = cs.users.list(instance, marker=wrapper.next)
-        users += wrapper.items
+    items = cs.users.list(instance)
+    users = items
+    while (items.next):
+        items = cs.users.list(instance, marker=items.next)
+        users += items
     for user in users:
         db_names = [db['name'] for db in user.databases]
         user.databases = ', '.join(db_names)
@@ -1142,11 +1142,11 @@ def do_root_show(cs, args):
 @utils.service_type('database')
 def do_secgroup_list(cs, args):
     """Lists all security groups."""
-    wrapper = cs.security_groups.list()
-    sec_grps = wrapper.items
-    while (wrapper.next):
-        wrapper = cs.security_groups.list()
-        sec_grps += wrapper.items
+    items = cs.security_groups.list()
+    sec_grps = items
+    while (items.next):
+        items = cs.security_groups.list()
+        sec_grps += items
 
     utils.print_list(sec_grps, ['id', 'name', 'instance_id'])
 
@@ -1682,13 +1682,13 @@ def do_module_list_instance(cs, args):
 def do_module_instances(cs, args):
     """Lists the instances that have a particular module applied."""
     module = _find_module(cs, args.module)
-    wrapper = cs.modules.instances(
+    items = cs.modules.instances(
         module, limit=args.limit, marker=args.marker,
         include_clustered=args.include_clustered)
-    instance_list = wrapper.items
-    while not args.limit and wrapper.next:
-        wrapper = cs.modules.instances(module, marker=wrapper.next)
-        instance_list += wrapper.items
+    instance_list = items
+    while not args.limit and items.next:
+        items = cs.modules.instances(module, marker=items.next)
+        instance_list += items
     _print_instances(instance_list)
 
 

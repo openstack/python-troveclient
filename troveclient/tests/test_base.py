@@ -289,8 +289,8 @@ class MangerPaginationTests(ManagerTest):
     def test_pagination(self):
         resp = self.manager._paginated(self.url, self.response_key)
         self.manager.api.client.get.assert_called_with(self.url)
-        self.assertEqual('p1', resp.items[0].foo)
-        self.assertEqual('p2', resp.items[1].foo)
+        self.assertEqual('p1', resp[0].foo)
+        self.assertEqual('p2', resp[1].foo)
         self.assertEqual(self.marker, resp.next)
         self.assertEqual(self.links, resp.links)
         self.assertIsInstance(resp, common.Paginated)
@@ -299,8 +299,8 @@ class MangerPaginationTests(ManagerTest):
         resp = self.manager._paginated(self.url, self.response_key,
                                        limit=self.limit, marker=self.marker)
         self.manager.api.client.get.assert_called_with(self.next_url)
-        self.assertEqual('p3', resp.items[0].foo)
-        self.assertEqual('p4', resp.items[1].foo)
+        self.assertEqual('p3', resp[0].foo)
+        self.assertEqual('p4', resp[1].foo)
         self.assertIsNone(resp.next)
         self.assertEqual([], resp.links)
         self.assertIsInstance(resp, common.Paginated)
