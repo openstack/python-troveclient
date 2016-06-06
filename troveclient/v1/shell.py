@@ -763,6 +763,20 @@ def do_resize_instance(cs, args):
            metavar='<instance>',
            type=str,
            help='ID or name of the instance.')
+@utils.arg('datastore_version',
+           metavar='<datastore_version>',
+           help='A datastore version name or ID.')
+@utils.service_type('database')
+def do_upgrade(cs, args):
+    """Upgrades an instance to a new datastore version."""
+    instance = _find_instance(cs, args.instance)
+    cs.instances.upgrade(instance, args.datastore_version)
+
+
+@utils.arg('instance',
+           metavar='<instance>',
+           type=str,
+           help='ID or name of the instance.')
 @utils.arg('size',
            metavar='<size>',
            type=int,

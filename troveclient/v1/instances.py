@@ -167,6 +167,18 @@ class Instances(base.ManagerWithFind):
         resp, body = self.api.client.patch(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
+    def upgrade(self, instance, datastore_version):
+        """Upgrades an instance with a new datastore version."""
+        body = {
+            "instance": {
+                "datastore_version": datastore_version
+            }
+        }
+
+        url = "/instances/%s" % base.getid(instance)
+        resp, body = self.api.client.patch(url, body=body)
+        common.check_for_exceptions(resp, body, url)
+
     def list(self, limit=None, marker=None, include_clustered=False):
         """Get a list of all instances.
 

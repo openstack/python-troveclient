@@ -238,6 +238,16 @@ class InstancesTest(testtools.TestCase):
         resp.status_code = 500
         self.assertRaises(Exception, self.instances.edit, 'instance1')
 
+    def test_upgrade(self):
+        resp = mock.Mock()
+        resp.status_code = 200
+        body = None
+        self.instances.api.client.patch = mock.Mock(return_value=(resp, body))
+        self.instances.upgrade(self.instance_with_id, "5.6")
+        resp.status_code = 500
+        self.assertRaises(Exception, self.instances.upgrade,
+                          'instance1')
+
     def test_configuration(self):
         def side_effect_func(path, inst):
             return path, inst

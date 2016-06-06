@@ -608,6 +608,10 @@ class ShellTest(utils.TestCase):
         self.run_command('configuration-detach 1234')
         self.assert_called('PUT', '/instances/1234')
 
+    def test_upgrade(self):
+        self.run_command('upgrade 1234 c-123')
+        self.assert_called('PATCH', '/instances/1234')
+
     def test_metadata_edit(self):
         self.run_command('metadata-edit 1234 key-123 value-123')
         self.assert_called('PATCH', '/instances/1234/metadata/key-123')
