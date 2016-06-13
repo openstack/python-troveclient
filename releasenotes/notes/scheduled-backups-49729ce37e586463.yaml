@@ -1,0 +1,3 @@
+features:
+  - Implements trove schedule-* and execution-* commands to support
+    scheduled backups.
