@@ -1,0 +1,4 @@
+features:
+  - Adds quota-show and quota-update commands to show the limits for all
+    resources and to change the limit for a single resource.  These commands
+    require admin privileges.

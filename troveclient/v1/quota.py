@@ -34,7 +34,7 @@ class Quotas(base.ManagerWithFind):
             raise Exception("Call to " + url + " did not return a body.")
         if 'quotas' not in body:
             raise Exception("Missing key value 'quotas' in response body.")
-        return body['quotas']
+        return [self.resource_class(self, quota) for quota in body['quotas']]
 
     def update(self, id, quotas):
         """Set limits for quotas."""

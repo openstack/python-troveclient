@@ -2137,3 +2137,24 @@ def do_log_save(cs, args):
 #         args.datastore_version,
 #         args.name,
 #     )
+
+@utils.arg('tenant_id', metavar='<tenant_id>',
+           help='Id of tenant for which to show quotas.')
+@utils.service_type('database')
+def do_quota_show(cs, args):
+    """Show quotas for a tenant."""
+    utils.print_list(cs.quota.show(args.tenant_id),
+                     ['resource', 'in_use', 'reserved', 'limit'])
+
+
+@utils.arg('tenant_id', metavar='<tenant_id>',
+           help='Id of tenant for which to update quotas.')
+@utils.arg('resource', metavar='<resource>',
+           help='Id of resource to change.')
+@utils.arg('limit', metavar='<limit>', type=int,
+           help='New limit to set for the named resource.')
+@utils.service_type('database')
+def do_quota_update(cs, args):
+    """Update quotas for a tenant."""
+    utils.print_dict(cs.quota.update(args.tenant_id,
+                                     {args.resource: args.limit}))

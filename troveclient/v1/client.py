@@ -26,6 +26,7 @@ from troveclient.v1 import limits
 # from troveclient.v1 import management
 from troveclient.v1 import metadata
 from troveclient.v1 import modules
+from troveclient.v1 import quota
 from troveclient.v1 import root
 from troveclient.v1 import security_groups
 from troveclient.v1 import users
@@ -81,7 +82,7 @@ class Client(object):
         self.modules = modules.Modules(self)
 
         # self.hosts = Hosts(self)
-        # self.quota = Quotas(self)
+        self.quota = quota.Quotas(self)
         # self.storage = StorageInfo(self)
         # self.management = Management(self)
         # self.management = MgmtClusters(self)
