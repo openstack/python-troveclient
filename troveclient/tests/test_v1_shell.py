@@ -439,6 +439,27 @@ class ShellTest(utils.TestCase):
         self.run_command(cmd)
         self.assert_called('POST', '/clusters/cls-1234')
 
+    def test_cluster_create_with_locality(self):
+        cmd = ('cluster-create test-clstr2 redis 3.0 --locality=affinity '
+               '--instance flavor=2,volume=1 '
+               '--instance flavor=2,volume=1 '
+               '--instance flavor=2,volume=1 ')
+        self.run_command(cmd)
+        self.assert_called_anytime(
+            'POST', '/clusters',
+            {'cluster': {
+                'instances': [
+                    {'flavorRef': '2',
+                     'volume': {'size': '1'}},
+                    {'flavorRef': '2',
+                     'volume': {'size': '1'}},
+                    {'flavorRef': '2',
+                     'volume': {'size': '1'}},
+                ],
+                'datastore': {'version': '3.0', 'type': 'redis'},
+                'name': 'test-clstr2',
+                'locality': 'affinity'}})
+
     def test_cluster_create_with_nic_az(self):
         cmd = ('cluster-create test-clstr1 vertica 7.1 '
                '--instance flavor=2,volume=2,nic=\'net-id=some-id\','

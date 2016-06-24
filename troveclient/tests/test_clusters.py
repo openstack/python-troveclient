@@ -70,17 +70,19 @@ class ClustersTest(testtools.TestCase):
 
         clusters_test = self.get_clusters()
         clusters_test._create = mock.Mock(side_effect=side_effect_func)
-        instance = [{'flavor-id': 11, 'volume': 2}]
+        instances = [{'flavor-id': 11, 'volume': 2}]
+        locality = 'affinity'
         path, body, resp_key = clusters_test.create("test-name", "datastore",
                                                     "datastore-version",
-                                                    instance)
+                                                    instances, locality)
         self.assertEqual("/clusters", path)
         self.assertEqual("cluster", resp_key)
         self.assertEqual("test-name", body["cluster"]["name"])
         self.assertEqual("datastore", body["cluster"]["datastore"]["type"])
         self.assertEqual("datastore-version",
                          body["cluster"]["datastore"]["version"])
-        self.assertEqual(instance, body["cluster"]["instances"])
+        self.assertEqual(instances, body["cluster"]["instances"])
+        self.assertEqual(locality, body["cluster"]["locality"])
 
     def test_list(self):
         page_mock = mock.Mock()

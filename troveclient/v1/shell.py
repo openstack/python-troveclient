@@ -694,6 +694,12 @@ def _strip_option(opts_str, opt_name, is_required=True,
                 "(where net-id=network_id, v4-fixed-ip=IPv4r_fixed_address, "
                 "port-id=port_id), availability_zone=<AZ_hint_for_Nova>, "
                 "module=<module_name_or_id>.")
+@utils.arg('--locality',
+           metavar='<policy>',
+           default=None,
+           choices=LOCALITY_DOMAIN,
+           help='Locality policy to use when creating cluster. Choose '
+                'one of %(choices)s.')
 @utils.service_type('database')
 def do_cluster_create(cs, args):
     """Creates a new cluster."""
@@ -732,7 +738,8 @@ def do_cluster_create(cs, args):
     cluster = cs.clusters.create(args.name,
                                  args.datastore,
                                  args.datastore_version,
-                                 instances=instances)
+                                 instances=instances,
+                                 locality=args.locality)
     _print_cluster(cluster)
 
 
