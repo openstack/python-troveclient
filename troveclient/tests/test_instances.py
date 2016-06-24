@@ -96,7 +96,9 @@ class InstancesTest(testtools.TestCase):
                                         datastore="datastore",
                                         datastore_version="datastore-version",
                                         nics=nics, slave_of='test',
-                                        modules=['mod_id'])
+                                        replica_count=4,
+                                        modules=['mod_id'],
+                                        locality='affinity')
         self.assertEqual("/instances", p)
         self.assertEqual("instance", i)
         self.assertEqual(['db1', 'db2'], b["instance"]["databases"])
@@ -114,6 +116,8 @@ class InstancesTest(testtools.TestCase):
         self.assertNotIn('slave_of', b['instance'])
         self.assertTrue(mock_warn.called)
         self.assertEqual([{'id': 'mod_id'}], b["instance"]["modules"])
+        self.assertEqual(4, b["instance"]["replica_count"])
+        self.assertEqual('affinity', b["instance"]["locality"])
 
     def test_list(self):
         page_mock = mock.Mock()

@@ -26,6 +26,7 @@ INSTANCE_ERROR = ("Instance argument(s) must be of the form --instance "
 NIC_ERROR = ("Invalid NIC argument: %s. Must specify either net-id or port-id "
              "but not both. Please refer to help.")
 NO_LOG_FOUND_ERROR = "ERROR: No published '%s' log was found for %s."
+LOCALITY_DOMAIN = ['affinity', 'anti-affinity']
 
 try:
     import simplejson as json
@@ -476,26 +477,42 @@ def do_update(cs, args):
 @utils.arg('--replica_count',
            metavar='<count>',
            type=int,
-           default=1,
-           help='Number of replicas to create (defaults to %(default)s).')
+           default=None,
+           help='Number of replicas to create (defaults to 1 if replica_of '
+                'specified).')
 @utils.arg('--module', metavar='<module>',
            type=str, dest='modules', action='append', default=[],
            help='ID or name of the module to apply.  Specify multiple '
                 'times to apply multiple modules.')
+@utils.arg('--locality',
+           metavar='<policy>',
+           default=None,
+           choices=LOCALITY_DOMAIN,
+           help='Locality policy to use when creating replicas. Choose '
+                'one of %(choices)s.')
 @utils.service_type('database')
 def do_create(cs, args):
     """Creates a new instance."""
-    volume = None
-    replica_of_instance = None
     flavor_id = _find_flavor(cs, args.flavor).id
+    volume = None
     if args.size:
         volume = {"size": args.size,
                   "type": args.volume_type}
     restore_point = None
     if args.backup:
         restore_point = {"backupRef": _find_backup(cs, args.backup).id}
+    replica_of = None
+    replica_count = args.replica_count
     if args.replica_of:
-        replica_of_instance = _find_instance(cs, args.replica_of)
+        replica_of = _find_instance(cs, args.replica_of)
+        replica_count = replica_count or 1
+    locality = None
+    if args.locality:
+        locality = args.locality
+        if replica_of:
+            raise exceptions.ValidationError(
+                'Cannot specify locality when adding replicas to existing '
+                'master.')
     databases = [{'name': value} for value in args.databases]
     users = [{'name': n, 'password': p, 'databases': databases} for (n, p) in
              [z.split(':')[:2] for z in args.users]]
@@ -520,9 +537,9 @@ def do_create(cs, args):
                                    datastore_version=args.datastore_version,
                                    nics=nics,
                                    configuration=args.configuration,
-                                   replica_of=replica_of_instance,
-                                   replica_count=args.replica_count,
-                                   modules=modules)
+                                   replica_of=replica_of,
+                                   replica_count=replica_count,
+                                   modules=modules, locality=locality)
     _print_instance(instance)
 
 
