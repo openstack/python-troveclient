@@ -1,0 +1,11 @@
+---
+features:
+    - Support was added for modules in cluster-grow and.
+      the CLI consolidated to look more like cluster-create.
+      This means that not including --instance on
+      cluster-grow now raises a MissingArgs exception.
+      Not including a required option in the --instance
+      argument also raises MissingArgs now (instead of the
+      previously raised CommandError).
+      Bug 15778917
+
