@@ -43,7 +43,9 @@ class Modules(base.ManagerWithFind):
     def create(self, name, module_type, contents, description=None,
                all_tenants=None, datastore=None,
                datastore_version=None, auto_apply=None,
-               visible=None, live_update=None):
+               visible=None, live_update=None,
+               priority_apply=None, apply_order=None,
+               full_access=None):
         """Create a new module."""
 
         contents = utils.encode_data(contents)
@@ -69,6 +71,12 @@ class Modules(base.ManagerWithFind):
             body["module"]["visible"] = int(visible)
         if live_update is not None:
             body["module"]["live_update"] = int(live_update)
+        if priority_apply is not None:
+            body["module"]["priority_apply"] = int(priority_apply)
+        if apply_order is not None:
+            body["module"]["apply_order"] = apply_order
+        if full_access is not None:
+            body["module"]["full_access"] = int(full_access)
 
         return self._create("/modules", body, "module")
 
@@ -77,7 +85,9 @@ class Modules(base.ManagerWithFind):
                all_tenants=None, datastore=None,
                datastore_version=None, auto_apply=None,
                visible=None, live_update=None,
-               all_datastores=None, all_datastore_versions=None):
+               all_datastores=None, all_datastore_versions=None,
+               priority_apply=None, apply_order=None,
+               full_access=None):
         """Update an existing module. Passing in
         datastore=None or datastore_version=None has the effect of
         making it available for all datastores/versions.
@@ -115,6 +125,12 @@ class Modules(base.ManagerWithFind):
             body["module"]["visible"] = int(visible)
         if live_update is not None:
             body["module"]["live_update"] = int(live_update)
+        if priority_apply is not None:
+            body["module"]["priority_apply"] = int(priority_apply)
+        if apply_order is not None:
+            body["module"]["apply_order"] = apply_order
+        if full_access is not None:
+            body["module"]["full_access"] = int(full_access)
 
         url = "/modules/%s" % base.getid(module)
         resp, body = self.api.client.put(url, body=body)

@@ -66,7 +66,10 @@ class TestModules(testtools.TestCase):
                 datastore_version="ds-version",
                 auto_apply=True,
                 visible=True,
-                live_update=False)
+                live_update=False,
+                priority_apply=False,
+                apply_order=5,
+                full_access=True)
             self.assertEqual("/modules", path)
             self.assertEqual("module", mod)
             self.assertEqual(self.module_name, body["module"]["name"])
@@ -77,6 +80,9 @@ class TestModules(testtools.TestCase):
             self.assertTrue(body["module"]["auto_apply"])
             self.assertTrue(body["module"]["visible"])
             self.assertFalse(body["module"]["live_update"])
+            self.assertFalse(body["module"]["priority_apply"])
+            self.assertEqual(5, body["module"]["apply_order"])
+            self.assertTrue(body["module"]["full_access"])
 
     def test_update(self):
         resp = mock.Mock()

@@ -679,7 +679,8 @@ class ShellTest(utils.TestCase):
                                 'all_tenants': 0,
                                 'module_type': 'type', 'visible': 1,
                                 'auto_apply': 0, 'live_update': 0,
-                                'name': 'mod1'}})
+                                'name': 'mod1', 'priority_apply': 0,
+                                'apply_order': 5}})
 
     def test_module_update(self):
         with mock.patch.object(troveclient.v1.modules.Module, '__repr__',

@@ -1,0 +1,7 @@
+---
+features:
+  - Modules can now be applied in a consistent order,
+    based on the new 'priority_apply' and 'apply_order'
+    attributes available to module-create and
+    module-update.
+    Blueprint module-management-ordering

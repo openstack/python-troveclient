@@ -1599,7 +1599,9 @@ def do_module_list(cs, args):
             datastore = _find_datastore(cs, args.datastore)
     module_list = cs.modules.list(datastore=datastore)
     field_list = ['id', 'name', 'type', 'datastore',
-                  'datastore_version', 'auto_apply', 'tenant', 'visible']
+                  'datastore_version', 'auto_apply',
+                  'priority_apply', 'apply_order', 'is_admin',
+                  'tenant', 'visible']
     is_admin = False
     try:
         try:
@@ -1616,7 +1618,10 @@ def do_module_list(cs, args):
         field_list = field_list[:-2]
     utils.print_list(
         module_list, field_list,
-        labels={'datastore_version': 'Version'})
+        labels={'datastore_version': 'Version',
+                'priority_apply': 'Priority',
+                'apply_order': 'Order',
+                'is_admin': 'Admin'})
 
 
 @utils.arg('module', metavar='<module>',
@@ -1646,16 +1651,29 @@ def do_module_show(cs, args):
                 'to. If not specified, module can be applied to all versions.')
 @utils.arg('--auto_apply', action='store_true', default=False,
            help='Automatically apply this module when creating an instance '
-                'or cluster.')
+                'or cluster. Admin only.')
 @utils.arg('--all_tenants', action='store_true', default=False,
-           help='Module is valid for all tenants (Admin only).')
-# This option is to suppress the module from module-list for non-admin
+           help='Module is valid for all tenants. Admin only.')
 @utils.arg('--hidden', action='store_true', default=False,
-           help=argparse.SUPPRESS)
+           help='Hide this module from non-Admin. Useful in creating '
+                'auto-apply modules without cluttering up module lists. '
+                'Admin only.')
 @utils.arg('--live_update', action='store_true', default=False,
            help='Allow module to be updated even if it is already applied '
                 'to a current instance or cluster. Automatically attempt to '
                 'reapply this module if the contents change.')
+@utils.arg('--priority_apply', action='store_true', default=False,
+           help='Sets a priority for applying the module. All priority '
+                'modules will be applied before non-priority ones. '
+                'Admin only.')
+@utils.arg('--apply_order', type=int, default=5, choices=range(0, 10),
+           help='Sets an order for applying the module. Modules with a lower '
+                'value will be applied before modules with a higher '
+                'value. Modules having the same value may be '
+                'applied in any order (default %(default)s).')
+@utils.arg('--full_access', action='store_true', default=None,
+           help="Marks a module as 'non-admin', unless an admin-only "
+                "option was specified. Admin only.")
 @utils.service_type('database')
 def do_module_create(cs, args):
     """Create a module."""
@@ -1670,7 +1688,8 @@ def do_module_create(cs, args):
         all_tenants=args.all_tenants, datastore=args.datastore,
         datastore_version=args.datastore_version,
         auto_apply=args.auto_apply, visible=not args.hidden,
-        live_update=args.live_update)
+        live_update=args.live_update, priority_apply=args.priority_apply,
+        apply_order=args.apply_order, full_access=args.full_access)
     _print_object(module)
 
 
@@ -1680,7 +1699,7 @@ def do_module_create(cs, args):
            help='Name of the module.')
 @utils.arg('--type', metavar='<type>', type=str, default=None,
            help='Type of the module. The type must be supported by a '
-                'corresponding module plugin on the datastore it is '
+                'corresponding module driver plugin on the datastore it is '
                 'applied to.')
 @utils.arg('--file', metavar='<filename>', type=argparse.FileType('rb', 0),
            default=None,
@@ -1702,22 +1721,22 @@ def do_module_create(cs, args):
            help='Module is valid for all datastore versions.')
 @utils.arg('--auto_apply', action='store_true', default=None,
            help='Automatically apply this module when creating an instance '
-                'or cluster.')
+                'or cluster. Admin only.')
 @utils.arg('--no_auto_apply', dest='auto_apply', action='store_false',
            default=None,
            help='Do not automatically apply this module when creating an '
-                'instance or cluster.')
+                'instance or cluster. Admin only.')
 @utils.arg('--all_tenants', action='store_true', default=None,
-           help='Module is valid for all tenants (Admin only).')
+           help='Module is valid for all tenants. Admin only.')
 @utils.arg('--no_all_tenants', dest='all_tenants', action='store_false',
            default=None,
-           help='Module is valid for current tenant only (Admin only).')
-# This option is to suppress the module from module-list for non-admin
+           help='Module is valid for current tenant only. Admin only.')
 @utils.arg('--hidden', action='store_true', default=None,
-           help=argparse.SUPPRESS)
-# This option is to allow the module to be seen from module-list for non-admin
+           help='Hide this module from non-admin users. Useful in creating '
+                'auto-apply modules without cluttering up module lists. '
+                'Admin only.')
 @utils.arg('--no_hidden', dest='hidden', action='store_false', default=None,
-           help=argparse.SUPPRESS)
+           help='Allow all users to see this module. Admin only.')
 @utils.arg('--live_update', action='store_true', default=None,
            help='Allow module to be updated or deleted even if it is already '
                 'applied to a current instance or cluster. Automatically '
@@ -1726,6 +1745,24 @@ def do_module_create(cs, args):
            default=None,
            help='Restricts a module from being updated or deleted if it is '
                 'already applied to a current instance or cluster.')
+@utils.arg('--priority_apply', action='store_true', default=None,
+           help='Sets a priority for applying the module. All priority '
+                'modules will be applied before non-priority ones. '
+                'Admin only.')
+@utils.arg('--no_priority_apply', dest='priority_apply', action='store_false',
+           default=None,
+           help='Removes apply priority from the module. Admin only.')
+@utils.arg('--apply_order', type=int, default=None, choices=range(0, 10),
+           help='Sets an order for applying the module. Modules with a lower '
+                'value will be applied before modules with a higher '
+                'value. Modules having the same value may be '
+                'applied in any order (default %(default)s).')
+@utils.arg('--full_access', action='store_true', default=None,
+           help="Marks a module as 'non-admin', unless an admin-only "
+                "option was specified. Admin only.")
+@utils.arg('--no_full_access', dest='full_access', action='store_false',
+           default=None,
+           help='Restricts modification access for non-admin. Admin only.')
 @utils.service_type('database')
 def do_module_update(cs, args):
     """Update a module."""
@@ -1739,7 +1776,10 @@ def do_module_update(cs, args):
         description=args.description, all_tenants=args.all_tenants,
         auto_apply=args.auto_apply, visible=visible,
         live_update=args.live_update, all_datastores=args.all_datastores,
-        all_datastore_versions=args.all_datastore_versions, **datastore_args)
+        all_datastore_versions=args.all_datastore_versions,
+        priority_apply=args.priority_apply,
+        apply_order=args.apply_order, full_access=args.full_access,
+        **datastore_args)
     _print_object(updated_module)
 
 
