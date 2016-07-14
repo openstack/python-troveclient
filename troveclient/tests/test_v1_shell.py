@@ -230,6 +230,10 @@ class ShellTest(utils.TestCase):
         self.run_command('flavor-show 1')
         self.assert_called('GET', '/flavors/1')
 
+    def test_flavor_show_leading_zero(self):
+        self.run_command('flavor-show 02')
+        self.assert_called('GET', '/flavors/02')
+
     def test_flavor_show_by_name(self):
         self.run_command('flavor-show m1.tiny')  # defined in fakes.py
         self.assert_called('GET', '/flavors/m1.tiny')
@@ -285,6 +289,17 @@ class ShellTest(utils.TestCase):
                 'volume': {'size': 1, 'type': 'lvm'},
                 'flavorRef': 1,
                 'name': 'test-member-1'
+            }})
+
+    def test_boot_by_flavor_leading_zero(self):
+        self.run_command(
+            'create test-member-zero 02 --size 1 --volume_type lvm')
+        self.assert_called_anytime(
+            'POST', '/instances',
+            {'instance': {
+                'volume': {'size': 1, 'type': 'lvm'},
+                'flavorRef': '02',
+                'name': 'test-member-zero'
             }})
 
     def test_boot_repl_set(self):
@@ -377,7 +392,7 @@ class ShellTest(utils.TestCase):
 
     def test_cluster_create(self):
         cmd = ('cluster-create test-clstr vertica 7.1 '
-               '--instance flavor=2,volume=2 '
+               '--instance flavor=02,volume=2 '
                '--instance flavor=2,volume=1 '
                '--instance flavor=2,volume=1,volume_type=my-type-1')
         self.run_command(cmd)
@@ -387,7 +402,7 @@ class ShellTest(utils.TestCase):
                 'instances': [
                     {
                         'volume': {'size': '2'},
-                        'flavorRef': '2'
+                        'flavorRef': '02'
                     },
                     {
                         'volume': {'size': '1'},
@@ -403,7 +418,7 @@ class ShellTest(utils.TestCase):
     def test_cluster_create_by_flavor_name(self):
         cmd = ('cluster-create test-clstr vertica 7.1 '
                '--instance flavor=m1.small,volume=2 '
-               '--instance flavor=m1.small,volume=1')
+               '--instance flavor=m1.leading-zero,volume=1')
         self.run_command(cmd)
         self.assert_called_anytime(
             'POST', '/clusters',
@@ -415,7 +430,7 @@ class ShellTest(utils.TestCase):
                     },
                     {
                         'volume': {'size': '1'},
-                        'flavorRef': '2'
+                        'flavorRef': '02'
                     }],
                 'datastore': {'version': '7.1', 'type': 'vertica'},
                 'name': 'test-clstr'}})
@@ -430,7 +445,7 @@ class ShellTest(utils.TestCase):
     def test_cluster_grow(self):
         cmd = ('cluster-grow cls-1234 '
                '--instance flavor=2,volume=2 '
-               '--instance flavor=2,volume=1')
+               '--instance flavor=02,volume=1')
         self.run_command(cmd)
         self.assert_called('POST', '/clusters/cls-1234')
 
@@ -442,7 +457,7 @@ class ShellTest(utils.TestCase):
     def test_cluster_create_with_locality(self):
         cmd = ('cluster-create test-clstr2 redis 3.0 --locality=affinity '
                '--instance flavor=2,volume=1 '
-               '--instance flavor=2,volume=1 '
+               '--instance flavor=02,volume=1 '
                '--instance flavor=2,volume=1 ')
         self.run_command(cmd)
         self.assert_called_anytime(
@@ -451,7 +466,7 @@ class ShellTest(utils.TestCase):
                 'instances': [
                     {'flavorRef': '2',
                      'volume': {'size': '1'}},
-                    {'flavorRef': '2',
+                    {'flavorRef': '02',
                      'volume': {'size': '1'}},
                     {'flavorRef': '2',
                      'volume': {'size': '1'}},
