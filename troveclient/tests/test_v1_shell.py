@@ -175,8 +175,16 @@ class ShellTest(utils.TestCase):
         self.run_command('show 1234')
         self.assert_called('GET', '/instances/1234')
 
+    def test_reset_status(self):
+        self.run_command('reset-status 1234')
+        self.assert_called('POST', '/instances/1234/action')
+
     def test_instance_delete(self):
         self.run_command('delete 1234')
+        self.assert_called('DELETE', '/instances/1234')
+
+    def test_instance_force_delete(self):
+        self.run_command('force-delete 1234')
         self.assert_called('DELETE', '/instances/1234')
 
     def test_instance_update(self):
@@ -250,8 +258,16 @@ class ShellTest(utils.TestCase):
         self.run_command('cluster-instances cls-1234')
         self.assert_called('GET', '/clusters/cls-1234')
 
+    def test_cluster_reset_status(self):
+        self.run_command('cluster-reset-status cls-1234')
+        self.assert_called('POST', '/clusters/cls-1234')
+
     def test_cluster_delete(self):
         self.run_command('cluster-delete cls-1234')
+        self.assert_called('DELETE', '/clusters/cls-1234')
+
+    def test_cluster_force_delete(self):
+        self.run_command('cluster-force-delete cls-1234')
         self.assert_called('DELETE', '/clusters/cls-1234')
 
     def test_boot(self):

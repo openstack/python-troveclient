@@ -358,12 +358,48 @@ def do_delete(cs, args):
     cs.instances.delete(instance)
 
 
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
+@utils.service_type('database')
+def do_force_delete(cs, args):
+    """Force delete an instance."""
+    instance = _find_instance(cs, args.instance)
+    cs.instances.reset_status(instance)
+    cs.instances.delete(instance)
+
+
+@utils.arg('instance', metavar='<instance>',
+           help='ID or name of the instance.')
+@utils.service_type('database')
+def do_reset_status(cs, args):
+    """Set the status to NONE."""
+    instance = _find_instance(cs, args.instance)
+    cs.instances.reset_status(instance=instance)
+
+
 @utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
 @utils.service_type('database')
 def do_cluster_delete(cs, args):
     """Deletes a cluster."""
     cluster = _find_cluster(cs, args.cluster)
     cs.clusters.delete(cluster)
+
+
+@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.service_type('database')
+def do_cluster_force_delete(cs, args):
+    """Force delete a cluster"""
+    cluster = _find_cluster(cs, args.cluster)
+    cs.clusters.reset_status(cluster)
+    cs.clusters.delete(cluster)
+
+
+@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.service_type('database')
+def do_cluster_reset_status(cs, args):
+    """Set the cluster task to NONE."""
+    cluster = _find_cluster(cs, args.cluster)
+    cs.clusters.reset_status(cluster)
 
 
 @utils.arg('instance',
