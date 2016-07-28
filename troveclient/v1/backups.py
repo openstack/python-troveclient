@@ -51,18 +51,21 @@ class Backups(base.ManagerWithFind):
                                query_strings)
 
     def create(self, name, instance, description=None, parent_id=None,
-               backup=None,):
+               backup=None, incremental=False):
         """Create a new backup from the given instance.
 
         :param name: name for backup.
         :param instance: instance to backup.
         :param description: (optional).
         :param parent_id: base for incremental backup (optional).
+        :param incremental: flag to indicate incremental backup based on
+        last backup
         :returns: :class:`Backups`
         """
         body = {
             "backup": {
-                "name": name
+                "name": name,
+                "incremental": int(incremental)
             }
         }
 

@@ -55,7 +55,7 @@ class BackupManagerTest(testtools.TestCase):
     def test_create(self):
         create_mock = mock.Mock()
         self.backups._create = create_mock
-        args = {'name': 'test_backup', 'instance': '1'}
+        args = {'name': 'test_backup', 'instance': '1', 'incremental': False}
         body = {'backup': args}
         self.backups.create(**args)
         create_mock.assert_called_with('/backups', body, 'backup')
@@ -63,7 +63,8 @@ class BackupManagerTest(testtools.TestCase):
     def test_create_description(self):
         create_mock = mock.Mock()
         self.backups._create = create_mock
-        args = {'name': 'test_backup', 'instance': '1', 'description': 'foo'}
+        args = {'name': 'test_backup', 'instance': '1', 'description': 'foo',
+                'incremental': False}
         body = {'backup': args}
         self.backups.create(**args)
         create_mock.assert_called_with('/backups', body, 'backup')
@@ -71,7 +72,8 @@ class BackupManagerTest(testtools.TestCase):
     def test_create_with_instance_obj(self):
         create_mock = mock.Mock()
         self.backups._create = create_mock
-        args = {'name': 'test_backup', 'instance': self.instance_with_id.id}
+        args = {'name': 'test_backup', 'instance': self.instance_with_id.id,
+                'incremental': False}
         body = {'backup': args}
         self.backups.create('test_backup', self.instance_with_id)
         create_mock.assert_called_with('/backups', body, 'backup')
@@ -79,7 +81,16 @@ class BackupManagerTest(testtools.TestCase):
     def test_create_incremental(self):
         create_mock = mock.Mock()
         self.backups._create = create_mock
-        args = {'name': 'test_backup', 'instance': '1', 'parent_id': 'foo'}
+        args = {'name': 'test_backup', 'instance': '1', 'parent_id': 'foo',
+                'incremental': False}
+        body = {'backup': args}
+        self.backups.create(**args)
+        create_mock.assert_called_with('/backups', body, 'backup')
+
+    def test_create_incremental_2(self):
+        create_mock = mock.Mock()
+        self.backups._create = create_mock
+        args = {'name': 'test_backup', 'instance': '1', 'incremental': True}
         body = {'backup': args}
         self.backups.create(**args)
         create_mock.assert_called_with('/backups', body, 'backup')
@@ -88,7 +99,7 @@ class BackupManagerTest(testtools.TestCase):
         create_mock = mock.Mock()
         self.backups._create = create_mock
         args = {'name': 'test_backup', 'instance': 'foo',
-                'backup': '1'}
+                'backup': '1', 'incremental': False}
         body = {'backup': args}
         self.backups.create(**args)
         create_mock.assert_called_with('/backups', body, 'backup')
