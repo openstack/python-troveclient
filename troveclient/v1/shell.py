@@ -1736,19 +1736,7 @@ def do_module_list(cs, args):
                   'datastore_version', 'auto_apply',
                   'priority_apply', 'apply_order', 'is_admin',
                   'tenant', 'visible']
-    is_admin = False
-    try:
-        try:
-            roles = cs.client.auth.auth_ref['user']['roles']
-        except TypeError:
-            roles = cs.client.auth.auth_ref._data['access']['user']['roles']
-        role_names = [role['name'] for role in roles]
-        is_admin = 'admin' in role_names
-    except TypeError:
-        pass
-    except AttributeError:
-        pass
-    if not is_admin:
+    if not utils.is_admin(cs):
         field_list = field_list[:-2]
     utils.print_list(
         module_list, field_list,
