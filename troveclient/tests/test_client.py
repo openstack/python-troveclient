@@ -376,7 +376,7 @@ class ClientTest(testtools.TestCase):
             called_args, called_kwargs = mock_request.call_args
             self.assertEqual(('POST', 'http://www.blah.com/v2.0/tokens'),
                              called_args)
-            self.assertDictEqual(headers, called_kwargs['headers'])
+            self.assertEqual(headers, called_kwargs['headers'])
 
     def test_client_get(self):
         auth_url = 'http://www.blah.com'

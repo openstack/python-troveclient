@@ -273,7 +273,7 @@ class MgmtDatastoreVersionsTest(testtools.TestCase):
         self._resp.status_code = 202
         self.ds_version.edit('ds-version-1', image="new-image-id")
         self.assertEqual('/mgmt/datastore-versions/ds-version-1', self._url)
-        self.assertDictEqual({"image": "new-image-id"}, self._body)
+        self.assertEqual({"image": "new-image-id"}, self._body)
 
         self._resp.status_code = 400
         self.assertRaises(Exception, self.ds_version.edit, 'ds-version-1',
