@@ -209,7 +209,9 @@ def find_resource(manager, name_or_id):
     """Helper for the _find_* methods."""
     # first try to get entity as integer id
 
-    if isinstance(name_or_id, int) or name_or_id.isdigit():
+    # if the 'id' starts with '0' don't treat it as an int
+    if isinstance(name_or_id, int) or (
+            name_or_id.isdigit() and not name_or_id.startswith('0')):
         name_or_id = int(name_or_id)
     elif sys.version_info <= (3, 0):
         name_or_id = encodeutils.safe_decode(name_or_id)

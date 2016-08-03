@@ -163,7 +163,7 @@ class FakeHTTPClient(base_client.HTTPClient):
                 "status": "ACTIVE",
                 "ip": ["10.0.0.13"],
                 "volume": {"size": 2},
-                "flavor": {"id": "2"},
+                "flavor": {"id": "02"},
                 "datastore": {"version": "5.6", "type": "mysql"}},
             {
                 "id": "5678",
@@ -213,7 +213,12 @@ class FakeHTTPClient(base_client.HTTPClient):
                 "str_id": "7d0d16e5-875f-4198-b6da-90ab2d3e899e",
                 "ram": 8192,
                 "id": None,
-                "name": "m1.uuid"}]})
+                "name": "m1.uuid"},
+            {
+                "str_id": "02",
+                "ram": 1024,
+                "id": None,
+                "name": "m1.leading-zero"}]})
 
     def get_datastores_mysql_versions_some_version_id_flavors(self, **kw):
         return self.get_flavors()
@@ -238,6 +243,14 @@ class FakeHTTPClient(base_client.HTTPClient):
         r = {'flavor': self.get_flavors()[2]['flavors'][4]}
         return (200, {}, r)
 
+    def get_flavors_02(self, **kw):
+        r = {'flavor': self.get_flavors()[2]['flavors'][5]}
+        return (200, {}, r)
+
+    def get_flavors_m1_leading_zero(self, **kw):
+        r = {'flavor': self.get_flavors()[2]['flavors'][5]}
+        return (200, {}, r)
+
     def get_clusters(self, **kw):
         return (200, {}, {"clusters": [
             {
@@ -246,7 +259,7 @@ class FakeHTTPClient(base_client.HTTPClient):
                         "type": "member",
                         "id": "member-1",
                         "ip": ["10.0.0.3"],
-                        "flavor": {"id": "2"},
+                        "flavor": {"id": "02"},
                         "name": "test-clstr-member-1"
                     },
                     {
