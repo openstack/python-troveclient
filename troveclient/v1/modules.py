@@ -21,7 +21,6 @@ from troveclient import utils
 
 class Module(base.Resource):
 
-    NO_CHANGE_TO_ARG = 'no_change_to_argument'
     ALL_KEYWORD = 'all'
 
     def __repr__(self):
@@ -75,9 +74,10 @@ class Modules(base.ManagerWithFind):
 
     def update(self, module, name=None, module_type=None,
                contents=None, description=None,
-               all_tenants=None, datastore=Module.NO_CHANGE_TO_ARG,
-               datastore_version=Module.NO_CHANGE_TO_ARG, auto_apply=None,
-               visible=None, live_update=None):
+               all_tenants=None, datastore=None,
+               datastore_version=None, auto_apply=None,
+               visible=None, live_update=None,
+               all_datastores=None, all_datastore_versions=None):
         """Update an existing module. Passing in
         datastore=None or datastore_version=None has the effect of
         making it available for all datastores/versions.
@@ -96,13 +96,17 @@ class Modules(base.ManagerWithFind):
         if description is not None:
             body["module"]["description"] = description
         datastore_obj = {}
-        if datastore is None or datastore != Module.NO_CHANGE_TO_ARG:
+        if datastore:
             datastore_obj["type"] = datastore
-        if (datastore_version is None or
-                datastore_version != Module.NO_CHANGE_TO_ARG):
+        if datastore_version:
             datastore_obj["version"] = datastore_version
         if datastore_obj:
             body["module"]["datastore"] = datastore_obj
+        if all_datastores:
+            body["module"]["all_datastores"] = int(all_datastores)
+        if all_datastore_versions:
+            body["module"]["all_datastore_versions"] = int(
+                all_datastore_versions)
         if all_tenants is not None:
             body["module"]["all_tenants"] = int(all_tenants)
         if auto_apply is not None:

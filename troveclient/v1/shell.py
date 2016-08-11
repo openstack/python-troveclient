@@ -1631,17 +1631,18 @@ def do_module_create(cs, args):
 @utils.arg('--description', metavar='<description>', type=str, default=None,
            help='Description of the module.')
 @utils.arg('--datastore', metavar='<datastore>',
+           default=None,
            help='Name or ID of datastore this module can be applied to. '
                 'If not specified, module can be applied to all datastores.')
-@utils.arg('--all_datastores', dest='datastore', action='store_const',
-           const=None,
+@utils.arg('--all_datastores', default=None, action='store_const', const=True,
            help='Module is valid for all datastores.')
 @utils.arg('--datastore_version', metavar='<version>',
+           default=None,
            help='Name or ID of datastore version this module can be applied '
                 'to. If not specified, module can be applied to all versions.')
-@utils.arg('--all_datastore_versions', dest='datastore_version',
-           action='store_const', const=None,
-           help='Module is valid for all datastore version.')
+@utils.arg('--all_datastore_versions', default=None,
+           action='store_const', const=True,
+           help='Module is valid for all datastore versions.')
 @utils.arg('--auto_apply', action='store_true', default=None,
            help='Automatically apply this module when creating an instance '
                 'or cluster.')
@@ -1674,16 +1675,14 @@ def do_module_update(cs, args):
     module = _find_module(cs, args.module)
     contents = args.file.read() if args.file else None
     visible = not args.hidden if args.hidden is not None else None
-    datastore_args = {}
-    if args.datastore:
-        datastore_args['datastore'] = args.datastore
-    if args.datastore_version:
-        datastore_args['datastore_version'] = args.datastore_version
+    datastore_args = {'datastore': args.datastore,
+                      'datastore_version': args.datastore_version}
     updated_module = cs.modules.update(
         module, name=args.name, module_type=args.type, contents=contents,
         description=args.description, all_tenants=args.all_tenants,
         auto_apply=args.auto_apply, visible=visible,
-        live_update=args.live_update, **datastore_args)
+        live_update=args.live_update, all_datastores=args.all_datastores,
+        all_datastore_versions=args.all_datastore_versions, **datastore_args)
     _print_object(updated_module)
 
 
