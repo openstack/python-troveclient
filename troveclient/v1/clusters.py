@@ -26,6 +26,11 @@ class Cluster(base.Resource):
         """Delete the cluster."""
         self.manager.delete(self)
 
+    def force_delete(self):
+        """Force delete the cluster"""
+        self.manager.reset_status(self)
+        self.manager.delete(self)
+
 
 class Clusters(base.ManagerWithFind):
     """Manage :class:`Cluster` resources."""
@@ -72,6 +77,14 @@ class Clusters(base.ManagerWithFind):
         url = "/clusters/%s" % base.getid(cluster)
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
+
+    def reset_status(self, cluster):
+        """Reset the status of a cluster
+
+        :param cluster: The cluster to reset
+        """
+        body = {'reset-status': {}}
+        self._action(cluster, body)
 
     def _action(self, cluster, body):
         """Perform a cluster "action" -- grow/shrink/etc."""
