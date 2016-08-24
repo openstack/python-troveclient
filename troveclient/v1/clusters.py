@@ -126,6 +126,15 @@ class Clusters(base.ManagerWithFind):
         body = {"shrink": instances}
         return self._action(cluster, body)
 
+    def upgrade(self, cluster, datastore_version):
+        """Upgrades a cluster to a new datastore version.
+
+        :param cluster:             The cluster to upgrade
+        :param datastore_version:   Datastore version to which to upgrade
+        """
+        body = {"upgrade": {'datastore_version': datastore_version}}
+        return self._action(cluster, body)
+
 
 class ClusterStatus(object):
 

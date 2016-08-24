@@ -1,0 +1,3 @@
+features:
+  - Added cluster-upgrade command to upgrade all instances
+    in a cluster to a new datastore version.

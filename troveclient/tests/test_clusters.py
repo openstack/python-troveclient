@@ -102,6 +102,16 @@ class ClustersTest(testtools.TestCase):
         self.assertEqual(('/clusters/cluster1', 'cluster'),
                          clusters_test.get(1))
 
+    def test_upgrade(self):
+        resp = mock.Mock()
+        resp.status_code = 200
+        body = None
+        clusters_test = self.get_clusters()
+        clusters_test.api.client.post = mock.Mock(return_value=(resp, body))
+        clusters_test.upgrade('cluster1', '5.6')
+        resp.status_code = 500
+        self.assertRaises(Exception, clusters_test.upgrade, 'cluster1', '5.6')
+
     def test_delete(self):
         resp = mock.Mock()
         resp.status_code = 200
