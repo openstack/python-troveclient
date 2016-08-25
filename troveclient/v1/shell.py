@@ -943,13 +943,18 @@ def do_backup_delete(cs, args):
 @utils.arg('--parent', metavar='<parent>', default=None,
            help='Optional ID of the parent backup to perform an'
            ' incremental backup from.')
+@utils.arg('--incremental', action='store_true', default=False,
+           help='Create an incremental backup based on the last'
+                ' full or incremental backup. It will create a'
+                ' full backup if no existing backup found.')
 @utils.service_type('database')
 def do_backup_create(cs, args):
     """Creates a backup of an instance."""
     instance = _find_instance(cs, args.instance)
     backup = cs.backups.create(args.name, instance,
                                description=args.description,
-                               parent_id=args.parent)
+                               parent_id=args.parent,
+                               incremental=args.incremental)
     _print_object(backup)
 
 
