@@ -7,9 +7,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   mitaka
    unreleased
-
+   newton
+   mitaka
 
 Indices and tables
 ==================
