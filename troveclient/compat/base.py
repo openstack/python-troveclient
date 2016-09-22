@@ -22,7 +22,10 @@ Base utilities to build API operation managers and objects on top of.
 import contextlib
 import hashlib
 import os
+
 from oslo_utils import reflection
+from oslo_utils import strutils
+
 from troveclient.compat import exceptions
 from troveclient.compat import utils
 
@@ -239,7 +242,7 @@ class Resource(object):
     def human_id(self):
         """Provides a pretty ID which can be used for bash completion."""
         if 'name' in self.__dict__ and self.HUMAN_ID:
-            return utils.slugify(self.name)
+            return strutils.to_slug(self.name)
         return None
 
     def _add_details(self, info):

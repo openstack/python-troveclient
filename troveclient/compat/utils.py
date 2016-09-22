@@ -14,8 +14,6 @@
 
 import os
 
-from oslo_utils import strutils
-
 
 class HookableMixin(object):
     """Mixin so classes can register and run hooks."""
@@ -46,18 +44,3 @@ def env(*vars, **kwargs):
         if value:
             return value
     return kwargs.get('default', '')
-
-
-# http://code.activestate.com/recipes/
-#   577257-slugify-make-a-string-usable-in-a-url-or-filename/
-def slugify(value):
-    """Converts a string usable in a url or filename.
-
-    Normalizes string, converts to lowercase, removes non-alpha characters,
-    and converts spaces to hyphens.
-
-    From Django's "django/template/defaultfilters.py".
-
-    Make use of strutils.to_slug from openstack common
-    """
-    return strutils.to_slug(value, incoming=None, errors="strict")
