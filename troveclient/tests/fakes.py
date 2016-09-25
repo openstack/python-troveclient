@@ -24,7 +24,9 @@ def get_version_map():
     }
 
 
-def assert_has_keys(dict, required=[], optional=[]):
+def assert_has_keys(dict, required=None, optional=None):
+    required = required or []
+    optional = optional or []
     keys = dict.keys()
     for k in required:
         try:
