@@ -274,6 +274,10 @@ class ShellTest(utils.TestCase):
         self.run_command('cluster-force-delete cls-1234')
         self.assert_called('DELETE', '/clusters/cls-1234')
 
+    def test_boot_fail_with_size_0(self):
+        self.assertRaises(exceptions.ValidationError, self.run_command,
+                          'create test-member-1 1 --size 0 --volume_type lvm')
+
     def test_boot(self):
         self.run_command('create test-member-1 1 --size 1 --volume_type lvm')
         self.assert_called_anytime(
