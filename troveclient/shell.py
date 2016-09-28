@@ -94,8 +94,8 @@ class OpenStackTroveShell(object):
         parser = TroveClientArgumentParser(
             prog='trove',
             description=__doc__.strip(),
-            epilog='See "trove help COMMAND" '
-                   'for help on a specific command.',
+            epilog=_('See "trove help COMMAND" '
+                     'for help on a specific command.'),
             add_help=False,
             formatter_class=OpenStackHelpFormatter,
         )
@@ -108,13 +108,13 @@ class OpenStackTroveShell(object):
         parser.add_argument('--version',
                             action='version',
                             version=troveclient.__version__,
-                            help="Show program's version number and exit.")
+                            help=_("Show program's version number and exit."))
 
         parser.add_argument('--debug',
                             action='store_true',
                             default=utils.env('TROVECLIENT_DEBUG',
                                               default=False),
-                            help="Print debugging output.")
+                            help=_("Print debugging output."))
 
         parser.add_argument('--os-auth-system',
                             metavar='<auth-system>',
@@ -128,29 +128,29 @@ class OpenStackTroveShell(object):
                             metavar='<service-type>',
                             default=utils.env('OS_SERVICE_TYPE',
                                               'TROVE_SERVICE_TYPE'),
-                            help='Defaults to database for most actions.')
+                            help=_('Defaults to database for most actions.'))
         parser.add_argument('--service_type',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--service-name',
                             metavar='<service-name>',
                             default=utils.env('TROVE_SERVICE_NAME'),
-                            help='Defaults to env[TROVE_SERVICE_NAME].')
+                            help=_('Defaults to env[TROVE_SERVICE_NAME].'))
         parser.add_argument('--service_name',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--bypass-url',
                             metavar='<bypass-url>',
                             default=utils.env('TROVE_BYPASS_URL'),
-                            help='Defaults to env[TROVE_BYPASS_URL].')
+                            help=_('Defaults to env[TROVE_BYPASS_URL].'))
         parser.add_argument('--bypass_url',
                             help=argparse.SUPPRESS)
 
         parser.add_argument('--database-service-name',
                             metavar='<database-service-name>',
                             default=utils.env('TROVE_DATABASE_SERVICE_NAME'),
-                            help='Defaults to env'
-                            '[TROVE_DATABASE_SERVICE_NAME].')
+                            help=_('Defaults to env'
+                                   '[TROVE_DATABASE_SERVICE_NAME].'))
         parser.add_argument('--database_service_name',
                             help=argparse.SUPPRESS)
 
@@ -162,9 +162,12 @@ class OpenStackTroveShell(object):
                             default=utils.env(
                                 'TROVE_ENDPOINT_TYPE',
                                 default=default_trove_endpoint_type),
-                            help='Defaults to env[TROVE_ENDPOINT_TYPE] or '
-                            + 'env[OS_ENDPOINT_TYPE] or '
-                            + DEFAULT_TROVE_ENDPOINT_TYPE + '.')
+                            help=(_('Defaults to env[TROVE_ENDPOINT_TYPE] or '
+                                    'env[OS_ENDPOINT_TYPE] or '
+                                    '%(DEFAULT_TROVE_ENDPOINT_TYPE)s.') %
+                                  {'DEFAULT_TROVE_ENDPOINT_TYPE':
+                                   DEFAULT_TROVE_ENDPOINT_TYPE}))
+
         parser.add_argument('--endpoint_type',
                             help=argparse.SUPPRESS)
 
@@ -173,8 +176,8 @@ class OpenStackTroveShell(object):
                             default=utils.env(
                                 'OS_DATABASE_API_VERSION',
                                 default=DEFAULT_OS_DATABASE_API_VERSION),
-                            help='Accepts 1, defaults '
-                                 'to env[OS_DATABASE_API_VERSION].')
+                            help=_('Accepts 1, defaults '
+                                   'to env[OS_DATABASE_API_VERSION].'))
         parser.add_argument('--os_database_api_version',
                             help=argparse.SUPPRESS)
 
@@ -182,30 +185,32 @@ class OpenStackTroveShell(object):
                             metavar='<retries>',
                             type=int,
                             default=0,
-                            help='Number of retries.')
+                            help=_('Number of retries.'))
 
         parser.add_argument('--json', '--os-json-output',
                             dest='json',
                             action='store_true',
                             default=utils.env('OS_JSON_OUTPUT',
                                               default=False),
-                            help='Output JSON instead of prettyprint. '
-                                 'Defaults to env[OS_JSON_OUTPUT].')
+                            help=_('Output JSON instead of prettyprint. '
+                                   'Defaults to env[OS_JSON_OUTPUT].'))
 
         if osprofiler_profiler:
             parser.add_argument('--profile',
                                 metavar='HMAC_KEY',
                                 default=utils.env('OS_PROFILE_HMACKEY',
                                                   default=None),
-                                help='HMAC key used to encrypt context '
-                                'data when profiling the performance of an '
-                                'operation.  This key should be set to one of '
-                                'the HMAC keys configured in Trove (they are '
-                                'found in api-paste.ini, typically in '
-                                '/etc/trove).  Without the key, profiling '
-                                'will not be triggered even if it is enabled '
-                                'on the server side. '
-                                'Defaults to env[OS_PROFILE_HMACKEY].')
+                                help=_('HMAC key used to encrypt context '
+                                       'data when profiling the performance '
+                                       'of an operation.  This key should be '
+                                       'set to one of the HMAC keys '
+                                       'configured in Trove (they are found '
+                                       'in api-paste.ini, typically in '
+                                       '/etc/trove).  Without the key, '
+                                       'profiling will not be triggered even '
+                                       'if it is enabled on the server side. '
+                                       'Defaults to env[OS_PROFILE_HMACKEY].'
+                                       ))
 
         self._append_global_identity_args(parser, argv)
 
@@ -248,8 +253,8 @@ class OpenStackTroveShell(object):
         parser.add_argument('--os-region-name',
                             metavar='<region-name>',
                             default=utils.env('OS_REGION_NAME'),
-                            help='Specify the region to use. '
-                                 'Defaults to env[OS_REGION_NAME].')
+                            help=_('Specify the region to use. '
+                                   'Defaults to env[OS_REGION_NAME].'))
         parser.add_argument('--os_region_name',
                             help=argparse.SUPPRESS)
 
@@ -448,9 +453,9 @@ class OpenStackTroveShell(object):
 
             if not auth_plugin or not auth_plugin.opts:
                 if not os_username:
-                    raise exc.CommandError(
+                    raise exc.CommandError(_(
                         "You must provide a username "
-                        "via either --os-username or env[OS_USERNAME]")
+                        "via either --os-username or env[OS_USERNAME]"))
 
             if not os_password:
                 os_password = getpass.getpass()
@@ -476,12 +481,12 @@ class OpenStackTroveShell(object):
                   "(env[OS_PROJECT_DOMAIN_NAME])"))
 
         if not os_auth_url:
-            raise exc.CommandError("You must provide an auth url "
-                                   "via either --os-auth-url or "
-                                   "env[OS_AUTH_URL] or specify an "
-                                   "auth_system which defines a default "
-                                   "url with --os-auth-system or "
-                                   "env[OS_AUTH_SYSTEM]")
+            raise exc.CommandError(_("You must provide an auth url "
+                                     "via either --os-auth-url or "
+                                     "env[OS_AUTH_URL] or specify an "
+                                     "auth_system which defines a default "
+                                     "url with --os-auth-system or "
+                                     "env[OS_AUTH_SYSTEM]"))
 
         use_session = True
         if auth_plugin or bypass_url:
@@ -537,18 +542,19 @@ class OpenStackTroveShell(object):
                 if not use_session:
                     self.cs.authenticate()
         except exc.Unauthorized:
-            raise exc.CommandError("Invalid OpenStack Trove credentials.")
+            raise exc.CommandError(_("Invalid OpenStack Trove credentials."))
         except exc.AuthorizationFailure:
-            raise exc.CommandError("Unable to authorize user")
+            raise exc.CommandError(_("Unable to authorize user"))
 
         endpoint_api_version = self.cs.get_database_api_version_from_endpoint()
 
         if endpoint_api_version != options.os_database_api_version:
-            msg = (("Database API version is set to %s "
-                    "but you are accessing a %s endpoint. "
-                    "Change its value via either --os-database-api-version "
-                    "or env[OS_DATABASE_API_VERSION]")
-                   % (options.os_database_api_version, endpoint_api_version))
+            msg = (_("Database API version is set to %(db_ver)s "
+                     "but you are accessing a %(ep_ver)s endpoint. "
+                     "Change its value via either --os-database-api-version "
+                     "or env[OS_DATABASE_API_VERSION]") %
+                   {'db_ver': options.os_database_api_version,
+                    'ep_ver': endpoint_api_version})
             # raise exc.InvalidAPIVersion(msg)
             raise exc.UnsupportedVersion(msg)
 
@@ -563,9 +569,10 @@ class OpenStackTroveShell(object):
         finally:
             if profile:
                 trace_id = osprofiler_profiler.get().get_base_id()
-                print("Trace ID: %s" % trace_id)
-                print("To display the trace, use the following command:\n"
-                      "osprofiler trace show --html %s" % trace_id)
+                print(_("Trace ID: %(trace_id)s") % {'trace_id': trace_id})
+                print(_("To display the trace, use the following command:\n"
+                        "osprofiler trace show --html %(trace_id)s")
+                      % {'trace_id': trace_id})
 
     def _run_extension_hooks(self, hook_type, *args, **kwargs):
         """Run hooks for all registered extensions."""
@@ -590,14 +597,14 @@ class OpenStackTroveShell(object):
         print(' '.join(commands | options))
 
     @utils.arg('command', metavar='<subcommand>', nargs='?',
-               help='Display help for <subcommand>.')
+               help=_('Display help for <subcommand>.'))
     def do_help(self, args):
         """Displays help about this program or one of its subcommands."""
         if args.command:
             if args.command in self.subcommands:
                 self.subcommands[args.command].print_help()
             else:
-                raise exc.CommandError("'%s' is not a valid subcommand" %
+                raise exc.CommandError(_("'%s' is not a valid subcommand") %
                                        args.command)
         else:
             self.parser.print_help()
@@ -746,14 +753,15 @@ def main():
             OpenStackTroveShell().main(map(encodeutils.safe_decode,
                                            sys.argv[1:]))
     except KeyboardInterrupt:
-        print("... terminating trove client", file=sys.stderr)
+        print(_("... terminating trove client"), file=sys.stderr)
         sys.exit(130)
     except Exception as e:
         logger.debug(e, exc_info=1)
         message = six.text_type(e)
         if not isinstance(message, six.string_types):
             message = str(message)
-        print("ERROR: %s" % encodeutils.safe_encode(message), file=sys.stderr)
+        print(_("ERROR: %s") % encodeutils.safe_encode(message),
+              file=sys.stderr)
         sys.exit(1)
 
 
