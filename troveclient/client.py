@@ -205,7 +205,7 @@ class HTTPClient(TroveClientMixin):
                 resp, body = self.request(self.management_url + url, method,
                                           **kwargs)
                 return resp, body
-            except exceptions.BadRequest as e:
+            except exceptions.BadRequest:
                 if attempts > self.retries:
                     raise
             except exceptions.Unauthorized:
