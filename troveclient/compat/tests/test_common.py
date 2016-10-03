@@ -106,7 +106,7 @@ class CliOptionsTest(testtools.TestCase):
 
     def check_option(self, oparser, option_name):
         option = oparser.get_option("--%s" % option_name)
-        self.assertNotEqual(None, option)
+        self.assertIsNotNone(option)
         if option_name in common.CliOptions.DEFAULT_VALUES:
             self.assertEqual(common.CliOptions.DEFAULT_VALUES[option_name],
                              option.default)
@@ -171,7 +171,7 @@ class CommandsBaseTest(testtools.TestCase):
         sys.argv = self.orig_sys_argv
 
     def test___init__(self):
-        self.assertNotEqual(None, self.cmd_base)
+        self.assertIsNotNone(self.cmd_base)
 
     def test__safe_exec(self):
         func = mock.Mock(return_value="test")
@@ -192,9 +192,9 @@ class CommandsBaseTest(testtools.TestCase):
         common.CommandsBase.params = ["test_1", "test_2"]
         self.cmd_base._prepare_parser(parser)
         option = parser.get_option("--%s" % "test_1")
-        self.assertNotEqual(None, option)
+        self.assertIsNotNone(option)
         option = parser.get_option("--%s" % "test_2")
-        self.assertNotEqual(None, option)
+        self.assertIsNotNone(option)
 
     def test__parse_options(self):
         parser = optparse.OptionParser()
