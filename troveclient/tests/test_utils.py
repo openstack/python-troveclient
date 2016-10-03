@@ -32,8 +32,8 @@ class UtilsTest(testtools.TestCase):
         hook_type = "hook_type"
         mixin = utils.HookableMixin()
         mixin.add_hook(hook_type, self.func)
-        self.assertTrue(hook_type in mixin._hooks_map)
-        self.assertTrue(self.func in mixin._hooks_map[hook_type])
+        self.assertIn(hook_type, mixin._hooks_map)
+        self.assertIn(self.func, mixin._hooks_map[hook_type])
 
     def test_run_hookable_mixin(self):
         hook_type = "hook_type"
