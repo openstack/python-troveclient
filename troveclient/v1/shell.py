@@ -521,7 +521,11 @@ def do_create(cs, args):
     """Creates a new instance."""
     flavor_id = _find_flavor(cs, args.flavor).id
     volume = None
-    if args.size:
+    if args.size is not None and args.size <= 0:
+        raise exceptions.ValidationError(
+            "Volume size '%s' must be an integer and greater than 0."
+            % args.size)
+    elif args.size:
         volume = {"size": args.size,
                   "type": args.volume_type}
     restore_point = None
