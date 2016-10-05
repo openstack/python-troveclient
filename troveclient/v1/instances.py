@@ -92,7 +92,7 @@ class Instances(base.ManagerWithFind):
                restorePoint=None, availability_zone=None, datastore=None,
                datastore_version=None, nics=None, configuration=None,
                replica_of=None, slave_of=None, replica_count=None,
-               modules=None, locality=None):
+               modules=None, locality=None, region_name=None):
         """Create (boot) a new instance."""
 
         body = {"instance": {
@@ -134,6 +134,8 @@ class Instances(base.ManagerWithFind):
             body["instance"]["modules"] = self._get_module_list(modules)
         if locality:
             body["instance"]["locality"] = locality
+        if region_name:
+            body["instance"]["region_name"] = region_name
 
         return self._create("/instances", body, "instance")
 
