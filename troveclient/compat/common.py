@@ -399,10 +399,10 @@ class Paginated(object):
        next property you can use to get the next page of data.
     """
 
-    def __init__(self, items=[], next_marker=None, links=[]):
-        self.items = items
+    def __init__(self, items=None, next_marker=None, links=None):
+        self.items = items or []
         self.next = next_marker
-        self.links = links
+        self.links = links or []
 
     def __len__(self):
         return len(self.items)
