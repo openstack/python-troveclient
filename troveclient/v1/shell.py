@@ -20,22 +20,25 @@ import argparse
 import sys
 import time
 
-INSTANCE_ARG_NAME = 'instance'
-INSTANCE_METAVAR = '"opt=<value>[,opt=<value> ...] "'
-INSTANCE_ERROR = ("Instance argument(s) must be of the form --instance "
-                  + INSTANCE_METAVAR + " - see help for details.")
-INSTANCE_HELP = ("Add an instance to the cluster.  Specify multiple "
-                 "times to create multiple instances.  "
-                 "Valid options are: flavor=<flavor_name_or_id>, "
-                 "volume=<disk_size_in_GB>, volume_type=<type>, "
-                 "nic='<net-id=<net-uuid>, v4-fixed-ip=<ip-addr>, "
-                 "port-id=<port-uuid>>' "
-                 "(where net-id=network_id, v4-fixed-ip=IPv4r_fixed_address, "
-                 "port-id=port_id), availability_zone=<AZ_hint_for_Nova>, "
-                 "module=<module_name_or_id>.")
-NIC_ERROR = ("Invalid NIC argument: %s. Must specify either net-id or port-id "
-             "but not both. Please refer to help.")
-NO_LOG_FOUND_ERROR = "ERROR: No published '%s' log was found for %s."
+from troveclient.i18n import _
+
+INSTANCE_ARG_NAME = _('instance')
+INSTANCE_METAVAR = _('"opt=<value>[,opt=<value> ...] "')
+INSTANCE_ERROR = _("Instance argument(s) must be of the form --instance "
+                   "%s - see help for details.") % INSTANCE_METAVAR
+INSTANCE_HELP = _("Add an instance to the cluster.  Specify multiple "
+                  "times to create multiple instances.  "
+                  "Valid options are: flavor=<flavor_name_or_id>, "
+                  "volume=<disk_size_in_GB>, volume_type=<type>, "
+                  "nic='<net-id=<net-uuid>, v4-fixed-ip=<ip-addr>, "
+                  "port-id=<port-uuid>>' "
+                  "(where net-id=network_id, v4-fixed-ip=IPv4r_fixed_address, "
+                  "port-id=port_id), availability_zone=<AZ_hint_for_Nova>, "
+                  "module=<module_name_or_id>.")
+NIC_ERROR = _("Invalid NIC argument: %s. Must specify either net-id or port-id"
+              " but not both. Please refer to help.")
+NO_LOG_FOUND_ERROR = _("ERROR: No published '%(log_name)s' log was found for "
+                       "%(instance)s.")
 LOCALITY_DOMAIN = ['affinity', 'anti-affinity']
 
 try:
@@ -55,10 +58,10 @@ def _poll_for_status(poll_fn, obj_id, action, final_ok_states,
     """
     def print_progress(progress):
         if show_progress:
-            msg = ('\rInstance %(action)s... %(progress)s%% complete'
+            msg = (_('\rInstance %(action)s... %(progress)s%% complete')
                    % dict(action=action, progress=progress))
         else:
-            msg = '\rInstance %(action)s...' % dict(action=action)
+            msg = _('\rInstance %(action)s...') % dict(action=action)
 
         sys.stdout.write(msg)
         sys.stdout.flush()
@@ -70,10 +73,10 @@ def _poll_for_status(poll_fn, obj_id, action, final_ok_states,
         progress = getattr(obj, 'progress', None) or 0
         if status in final_ok_states:
             print_progress(100)
-            print("\nFinished")
+            print(_("\nFinished"))
             break
         elif status == "error":
-            print("\nError %(action)s instance" % {'action': action})
+            print(_("\nError %(action)s instance") % {'action': action})
             break
         else:
             print_progress(progress)
@@ -151,7 +154,7 @@ def _find_instance_or_cluster(cs, instance_or_cluster):
             return _find_cluster(cs, instance_or_cluster), 'cluster'
         except Exception:
             raise exceptions.CommandError(
-                "No instance or cluster with a name or ID of '%s' exists."
+                _("No instance or cluster with a name or ID of '%s' exists.")
                 % instance_or_cluster)
 
 
@@ -198,9 +201,9 @@ def _find_configuration(cs, configuration):
 # Flavor related calls
 @utils.arg('--datastore_type', metavar='<datastore_type>',
            default=None,
-           help='Type of the datastore. For eg: mysql.')
+           help=_('Type of the datastore. For eg: mysql.'))
 @utils.arg("--datastore_version_id", metavar="<datastore_version_id>",
-           default=None, help="ID of the datastore version.")
+           default=None, help=_("ID of the datastore version."))
 @utils.service_type('database')
 def do_flavor_list(cs, args):
     """Lists available flavors."""
@@ -226,7 +229,7 @@ def do_flavor_list(cs, args):
 
 
 @utils.arg('flavor', metavar='<flavor>', type=str,
-           help='ID or name of the flavor.')
+           help=_('ID or name of the flavor.'))
 @utils.service_type('database')
 def do_flavor_show(cs, args):
     """Shows details of a flavor."""
@@ -237,18 +240,18 @@ def do_flavor_show(cs, args):
 # Instance related calls
 
 @utils.arg('--limit', metavar='<limit>', type=int, default=None,
-           help='Limit the number of results displayed.')
+           help=_('Limit the number of results displayed.'))
 @utils.arg('--marker', metavar='<ID>', type=str, default=None,
-           help='Begin displaying the results for IDs greater than the '
-                'specified marker. When used with --limit, set this to '
-                'the last ID displayed in the previous run.')
+           help=_('Begin displaying the results for IDs greater than the '
+                  'specified marker. When used with --limit, set this to '
+                  'the last ID displayed in the previous run.'))
 @utils.arg('--include_clustered', '--include-clustered',
            dest='include_clustered',
            action="store_true", default=False,
-           help="Include instances that are part of a cluster "
-                "(default %(default)s).  --include-clustered may be "
-                "deprecated in the future, retaining just "
-                "--include_clustered.")
+           help=_("Include instances that are part of a cluster "
+                  "(default %(default)s).  --include-clustered may be "
+                  "deprecated in the future, retaining just "
+                  "--include_clustered."))
 @utils.service_type('database')
 def do_list(cs, args):
     """Lists all the instances."""
@@ -275,11 +278,11 @@ def _print_instances(instances):
 
 
 @utils.arg('--limit', metavar='<limit>', type=int, default=None,
-           help='Limit the number of results displayed.')
+           help=_('Limit the number of results displayed.'))
 @utils.arg('--marker', metavar='<ID>', type=str, default=None,
-           help='Begin displaying the results for IDs greater than the '
-                'specified marker. When used with --limit, set this to '
-                'the last ID displayed in the previous run.')
+           help=_('Begin displaying the results for IDs greater than the '
+                  'specified marker. When used with --limit, set this to '
+                  'the last ID displayed in the previous run.'))
 @utils.service_type('database')
 def do_cluster_list(cs, args):
     """Lists all the clusters."""
@@ -295,7 +298,7 @@ def do_cluster_list(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_show(cs, args):
     """Shows details of an instance."""
@@ -303,7 +306,8 @@ def do_show(cs, args):
     _print_instance(instance)
 
 
-@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.arg('cluster', metavar='<cluster>',
+           help=_('ID or name of the cluster.'))
 @utils.service_type('database')
 def do_cluster_show(cs, args):
     """Shows details of a cluster."""
@@ -311,7 +315,8 @@ def do_cluster_show(cs, args):
     _print_cluster(cluster, include_all=True)
 
 
-@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.arg('cluster', metavar='<cluster>',
+           help=_('ID or name of the cluster.'))
 @utils.service_type('database')
 def do_cluster_instances(cs, args):
     """Lists all instances of a cluster."""
@@ -329,7 +334,8 @@ def do_cluster_instances(cs, args):
 @utils.arg('--' + INSTANCE_ARG_NAME, metavar=INSTANCE_METAVAR,
            action='append', dest='instances', default=[],
            help=INSTANCE_HELP)
-@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.arg('cluster', metavar='<cluster>',
+           help=_('ID or name of the cluster.'))
 @utils.service_type('database')
 def do_cluster_grow(cs, args):
     """Adds more instances to a cluster."""
@@ -338,10 +344,11 @@ def do_cluster_grow(cs, args):
     cs.clusters.grow(cluster, instances=instances)
 
 
-@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.arg('cluster', metavar='<cluster>',
+           help=_('ID or name of the cluster.'))
 @utils.arg('instances', metavar='<instance>', nargs='+', default=[],
-           help="Drop instance(s) from the cluster. Specify "
-                "multiple ids to drop multiple instances.")
+           help=_("Drop instance(s) from the cluster. Specify "
+                  "multiple ids to drop multiple instances."))
 @utils.service_type('database')
 def do_cluster_shrink(cs, args):
     """Drops instances from a cluster."""
@@ -352,7 +359,7 @@ def do_cluster_shrink(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_delete(cs, args):
     """Deletes an instance."""
@@ -361,7 +368,7 @@ def do_delete(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_force_delete(cs, args):
     """Force delete an instance."""
@@ -371,7 +378,7 @@ def do_force_delete(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_reset_status(cs, args):
     """Set the status to NONE."""
@@ -379,7 +386,8 @@ def do_reset_status(cs, args):
     cs.instances.reset_status(instance=instance)
 
 
-@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.arg('cluster', metavar='<cluster>',
+           help=_('ID or name of the cluster.'))
 @utils.service_type('database')
 def do_cluster_delete(cs, args):
     """Deletes a cluster."""
@@ -387,7 +395,8 @@ def do_cluster_delete(cs, args):
     cs.clusters.delete(cluster)
 
 
-@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.arg('cluster', metavar='<cluster>',
+           help=_('ID or name of the cluster.'))
 @utils.service_type('database')
 def do_cluster_force_delete(cs, args):
     """Force delete a cluster"""
@@ -396,7 +405,8 @@ def do_cluster_force_delete(cs, args):
     cs.clusters.delete(cluster)
 
 
-@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.arg('cluster', metavar='<cluster>',
+           help=_('ID or name of the cluster.'))
 @utils.service_type('database')
 def do_cluster_reset_status(cs, args):
     """Set the cluster task to NONE."""
@@ -407,29 +417,29 @@ def do_cluster_reset_status(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.arg('--name',
            metavar='<name>',
            type=str,
            default=None,
-           help='Name of the instance.')
+           help=_('Name of the instance.'))
 @utils.arg('--configuration',
            metavar='<configuration>',
            type=str,
            default=None,
-           help='ID of the configuration reference to attach.')
+           help=_('ID of the configuration reference to attach.'))
 @utils.arg('--detach_replica_source', '--detach-replica-source',
            dest='detach_replica_source',
            action="store_true",
            default=False,
-           help='Detach the replica instance from its replication source. '
-                '--detach-replica-source may be deprecated in the future '
-                'in favor of just --detach_replica_source')
+           help=_('Detach the replica instance from its replication source. '
+                  '--detach-replica-source may be deprecated in the future '
+                  'in favor of just --detach_replica_source'))
 @utils.arg('--remove_configuration',
            dest='remove_configuration',
            action="store_true",
            default=False,
-           help='Drops the current configuration reference.')
+           help=_('Drops the current configuration reference.'))
 @utils.service_type('database')
 def do_update(cs, args):
     """Updates an instance: Edits name, configuration, or replica source."""
@@ -441,81 +451,81 @@ def do_update(cs, args):
 @utils.arg('name',
            metavar='<name>',
            type=str,
-           help='Name of the instance.')
+           help=_('Name of the instance.'))
 @utils.arg('--size',
            metavar='<size>',
            type=int,
            default=None,
-           help="Size of the instance disk volume in GB. "
-                "Required when volume support is enabled.")
+           help=_("Size of the instance disk volume in GB. "
+                  "Required when volume support is enabled."))
 @utils.arg('--volume_type',
            metavar='<volume_type>',
            type=str,
            default=None,
-           help="Volume type. Optional when volume support is enabled.")
+           help=_("Volume type. Optional when volume support is enabled."))
 @utils.arg('flavor',
            metavar='<flavor>',
            type=str,
-           help='A flavor name or ID.')
+           help=_('A flavor name or ID.'))
 @utils.arg('--databases', metavar='<database>',
-           help='Optional list of databases.',
+           help=_('Optional list of databases.'),
            nargs="+", default=[])
 @utils.arg('--users', metavar='<user:password>',
-           help='Optional list of users.',
+           help=_('Optional list of users.'),
            nargs="+", default=[])
 @utils.arg('--backup',
            metavar='<backup>',
            default=None,
-           help='A backup name or ID.')
+           help=_('A backup name or ID.'))
 @utils.arg('--availability_zone',
            metavar='<availability_zone>',
            default=None,
-           help='The Zone hint to give to Nova.')
+           help=_('The Zone hint to give to Nova.'))
 @utils.arg('--datastore',
            metavar='<datastore>',
            default=None,
-           help='A datastore name or ID.')
+           help=_('A datastore name or ID.'))
 @utils.arg('--datastore_version',
            metavar='<datastore_version>',
            default=None,
-           help='A datastore version name or ID.')
+           help=_('A datastore version name or ID.'))
 @utils.arg('--nic',
            metavar="<net-id=<net-uuid>,v4-fixed-ip=<ip-addr>,"
                    "port-id=<port-uuid>>",
            action='append',
            dest='nics',
            default=[],
-           help="Create a NIC on the instance. "
-                "Specify option multiple times to create multiple NICs. "
-                "net-id: attach NIC to network with this ID "
-                "(either port-id or net-id must be specified), "
-                "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
-                "port-id: attach NIC to port with this ID "
-                "(either port-id or net-id must be specified).")
+           help=_("Create a NIC on the instance. "
+                  "Specify option multiple times to create multiple NICs. "
+                  "net-id: attach NIC to network with this ID "
+                  "(either port-id or net-id must be specified), "
+                  "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
+                  "port-id: attach NIC to port with this ID "
+                  "(either port-id or net-id must be specified)."))
 @utils.arg('--configuration',
            metavar='<configuration>',
            default=None,
-           help='ID of the configuration group to attach to the instance.')
+           help=_('ID of the configuration group to attach to the instance.'))
 @utils.arg('--replica_of',
            metavar='<source_instance>',
            default=None,
-           help='ID or name of an existing instance to replicate from.')
+           help=_('ID or name of an existing instance to replicate from.'))
 @utils.arg('--replica_count',
            metavar='<count>',
            type=int,
            default=None,
-           help='Number of replicas to create (defaults to 1 if replica_of '
-                'specified).')
+           help=_('Number of replicas to create (defaults to 1 if replica_of '
+                  'specified).'))
 @utils.arg('--module', metavar='<module>',
            type=str, dest='modules', action='append', default=[],
-           help='ID or name of the module to apply.  Specify multiple '
-                'times to apply multiple modules.')
+           help=_('ID or name of the module to apply.  Specify multiple '
+                  'times to apply multiple modules.'))
 @utils.arg('--locality',
            metavar='<policy>',
            default=None,
            choices=LOCALITY_DOMAIN,
-           help='Locality policy to use when creating replicas. Choose '
-                'one of %(choices)s.')
+           help=_('Locality policy to use when creating replicas. Choose '
+                  'one of %(choices)s.'))
 @utils.service_type('database')
 def do_create(cs, args):
     """Creates a new instance."""
@@ -523,7 +533,7 @@ def do_create(cs, args):
     volume = None
     if args.size is not None and args.size <= 0:
         raise exceptions.ValidationError(
-            "Volume size '%s' must be an integer and greater than 0."
+            _("Volume size '%s' must be an integer and greater than 0.")
             % args.size)
     elif args.size:
         volume = {"size": args.size,
@@ -541,8 +551,8 @@ def do_create(cs, args):
         locality = args.locality
         if replica_of:
             raise exceptions.ValidationError(
-                'Cannot specify locality when adding replicas to existing '
-                'master.')
+                _('Cannot specify locality when adding replicas to existing '
+                  'master.'))
     databases = [{'name': value} for value in args.databases]
     users = [{'name': n, 'password': p, 'databases': databases} for (n, p) in
              [z.split(':')[:2] for z in args.users]]
@@ -576,7 +586,7 @@ def do_create(cs, args):
 def _validate_nic_info(nic_info, nic_str):
     # need one or the other, not both, not none (!= ~ XOR)
     if not (bool(nic_info.get('net-id')) != bool(nic_info.get('port-id'))):
-        raise exceptions.ValidationError(NIC_ERROR % ("nic='%s'" % nic_str))
+        raise exceptions.ValidationError(NIC_ERROR % (_("nic='%s'") % nic_str))
 
 
 def _get_flavor(cs, opts_str):
@@ -598,7 +608,7 @@ def _get_networks(opts_str):
         fixed_ipv4, nic_args = _strip_option(nic_args, 'v4-fixed-ip', False)
         if nic_args:
             raise exceptions.ValidationError(
-                "Unknown args '%s' in 'nic' option" % nic_args)
+                _("Unknown args '%s' in 'nic' option") % nic_args)
         if net_id:
             nic_info.update({'net-id': net_id})
         if port_id:
@@ -667,8 +677,8 @@ def _strip_option(opts_str, opt_name, is_required=True,
                     opt_value.extend(value)
                 else:
                     raise exceptions.ValidationError((
-                        "Option '%s' found more than once in argument "
-                        "--instance " % opt_name) + INSTANCE_METAVAR)
+                        _("Option '%s' found more than once in argument "
+                          "--instance ") % opt_name) + INSTANCE_METAVAR)
 
             # Handle complex (quoted) properties. Strip the quotes.
             quote = after[0]
@@ -677,9 +687,9 @@ def _strip_option(opts_str, opt_name, is_required=True,
             else:
                 if quotes_required:
                     raise exceptions.ValidationError(
-                        "Invalid '%s' option. The value must be quoted. "
-                        "(Or perhaps you're missing quotes around the entire "
-                        "argument string)"
+                        _("Invalid '%s' option. The value must be quoted. "
+                          "(Or perhaps you're missing quotes around the "
+                          "entire argument string)")
                         % opt_name)
                 quote = ''
 
@@ -693,12 +703,16 @@ def _strip_option(opts_str, opt_name, is_required=True,
                 opt_value = value
             opts_str = before + split_str.join(parts[1:])
         except IndexError:
-            raise exceptions.ValidationError("Invalid '%s' parameter. %s."
-                                             % (opt_name, INSTANCE_ERROR))
+            raise exceptions.ValidationError(
+                _("Invalid '%(name)s' parameter. %(error)s.")
+                % {'name': opt_name,
+                   'error': INSTANCE_ERROR})
 
     if is_required and not opt_value:
-        msg = "Missing option '%s' for argument --instance " + INSTANCE_METAVAR
-        raise exceptions.MissingArgs([opt_name], message=msg)
+        raise exceptions.MissingArgs([opt_name],
+                                     message=(_("Missing option '%s' for "
+                                                "argument --instance ")
+                                              + INSTANCE_METAVAR))
 
     return opt_value, opts_str.strip().strip(",")
 
@@ -744,8 +758,8 @@ def _parse_instance_options(cs, instance_options, for_grow=False):
 
         if instance_opts:
             raise exceptions.ValidationError(
-                "Unknown option(s) '%s' specified for instance" %
-                instance_opts)
+                _("Unknown option(s) '%s' specified for instance")
+                % instance_opts)
 
         instances.append(instance_info)
     if len(instances) == 0:
@@ -756,13 +770,13 @@ def _parse_instance_options(cs, instance_options, for_grow=False):
 @utils.arg('name',
            metavar='<name>',
            type=str,
-           help='Name of the cluster.')
+           help=_('Name of the cluster.'))
 @utils.arg('datastore',
            metavar='<datastore>',
-           help='A datastore name or ID.')
+           help=_('A datastore name or ID.'))
 @utils.arg('datastore_version',
            metavar='<datastore_version>',
-           help='A datastore version name or ID.')
+           help=_('A datastore version name or ID.'))
 @utils.arg('--' + INSTANCE_ARG_NAME, metavar=INSTANCE_METAVAR,
            action='append', dest='instances', default=[],
            help=INSTANCE_HELP)
@@ -770,8 +784,8 @@ def _parse_instance_options(cs, instance_options, for_grow=False):
            metavar='<policy>',
            default=None,
            choices=LOCALITY_DOMAIN,
-           help='Locality policy to use when creating cluster. Choose '
-                'one of %(choices)s.')
+           help=_('Locality policy to use when creating cluster. Choose '
+                  'one of %(choices)s.'))
 @utils.service_type('database')
 def do_cluster_create(cs, args):
     """Creates a new cluster."""
@@ -787,11 +801,11 @@ def do_cluster_create(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.arg('flavor',
            metavar='<flavor>',
            type=str,
-           help='New flavor of the instance.')
+           help=_('New flavor of the instance.'))
 @utils.service_type('database')
 def do_resize_instance(cs, args):
     """Resizes an instance with a new flavor."""
@@ -803,10 +817,10 @@ def do_resize_instance(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.arg('datastore_version',
            metavar='<datastore_version>',
-           help='A datastore version name or ID.')
+           help=_('A datastore version name or ID.'))
 @utils.service_type('database')
 def do_upgrade(cs, args):
     """Upgrades an instance to a new datastore version."""
@@ -817,12 +831,12 @@ def do_upgrade(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.arg('size',
            metavar='<size>',
            type=int,
            default=None,
-           help='New size of the instance disk volume in GB.')
+           help=_('New size of the instance disk volume in GB.'))
 @utils.service_type('database')
 def do_resize_volume(cs, args):
     """Resizes the volume size of an instance."""
@@ -833,7 +847,7 @@ def do_resize_volume(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_restart(cs, args):
     """Restarts an instance."""
@@ -846,7 +860,7 @@ def do_restart(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 def do_detach_replica(cs, args):
     """Detaches a replica instance from its replication source."""
     instance = _find_instance(cs, args.instance)
@@ -856,7 +870,7 @@ def do_detach_replica(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 def do_promote_to_replica_source(cs, args):
     """Promotes a replica to be the new replica source of its set."""
     instance = _find_instance(cs, args.instance)
@@ -866,7 +880,7 @@ def do_promote_to_replica_source(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 def do_eject_replica_source(cs, args):
     """Ejects a replica source from its set."""
     instance = _find_instance(cs, args.instance)
@@ -875,7 +889,7 @@ def do_eject_replica_source(cs, args):
 # Backup related commands
 
 
-@utils.arg('backup', metavar='<backup>', help='ID or name of the backup.')
+@utils.arg('backup', metavar='<backup>', help=_('ID or name of the backup.'))
 @utils.service_type('database')
 def do_backup_show(cs, args):
     """Shows details of a backup."""
@@ -884,14 +898,14 @@ def do_backup_show(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.arg('--limit', metavar='<limit>',
            default=None,
-           help='Return up to N number of the most recent backups.')
+           help=_('Return up to N number of the most recent backups.'))
 @utils.arg('--marker', metavar='<ID>', type=str, default=None,
-           help='Begin displaying the results for IDs greater than the '
-                'specified marker. When used with --limit, set this to '
-                'the last ID displayed in the previous run.')
+           help=_('Begin displaying the results for IDs greater than the '
+                  'specified marker. When used with --limit, set this to '
+                  'the last ID displayed in the previous run.'))
 @utils.service_type('database')
 def do_backup_list_instance(cs, args):
     """Lists available backups for an instance."""
@@ -909,14 +923,14 @@ def do_backup_list_instance(cs, args):
 
 @utils.arg('--limit', metavar='<limit>',
            default=None,
-           help='Return up to N number of the most recent backups.')
+           help=_('Return up to N number of the most recent backups.'))
 @utils.arg('--marker', metavar='<ID>', type=str, default=None,
-           help='Begin displaying the results for IDs greater than the '
-                'specified marker. When used with --limit, set this to '
-                'the last ID displayed in the previous run.')
+           help=_('Begin displaying the results for IDs greater than the '
+                  'specified marker. When used with --limit, set this to '
+                  'the last ID displayed in the previous run.'))
 @utils.arg('--datastore', metavar='<datastore>',
            default=None,
-           help='ID or name of the datastore (to filter backups by).')
+           help=_('ID or name of the datastore (to filter backups by).'))
 @utils.service_type('database')
 def do_backup_list(cs, args):
     """Lists available backups."""
@@ -931,7 +945,7 @@ def do_backup_list(cs, args):
                      order_by='updated')
 
 
-@utils.arg('backup', metavar='<backup>', help='ID or name of the backup.')
+@utils.arg('backup', metavar='<backup>', help=_('ID or name of the backup.'))
 @utils.service_type('database')
 def do_backup_delete(cs, args):
     """Deletes a backup."""
@@ -940,18 +954,18 @@ def do_backup_delete(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of the backup.')
+           help=_('ID or name of the instance.'))
+@utils.arg('name', metavar='<name>', help=_('Name of the backup.'))
 @utils.arg('--description', metavar='<description>',
            default=None,
-           help='An optional description for the backup.')
+           help=_('An optional description for the backup.'))
 @utils.arg('--parent', metavar='<parent>', default=None,
-           help='Optional ID of the parent backup to perform an'
-           ' incremental backup from.')
+           help=_('Optional ID of the parent backup to perform an'
+                  ' incremental backup from.'))
 @utils.arg('--incremental', action='store_true', default=False,
-           help='Create an incremental backup based on the last'
-                ' full or incremental backup. It will create a'
-                ' full backup if no existing backup found.')
+           help=_('Create an incremental backup based on the last'
+                  ' full or incremental backup. It will create a'
+                  ' full backup if no existing backup found.'))
 @utils.service_type('database')
 def do_backup_create(cs, args):
     """Creates a backup of an instance."""
@@ -963,16 +977,16 @@ def do_backup_create(cs, args):
     _print_object(backup)
 
 
-@utils.arg('name', metavar='<name>', help='Name of the backup.')
+@utils.arg('name', metavar='<name>', help=_('Name of the backup.'))
 @utils.arg('backup', metavar='<backup>',
-           help='Backup ID of the source backup.',
+           help=_('Backup ID of the source backup.'),
            default=None)
-@utils.arg('--region', metavar='<region>', help='Region where the source '
-                                                'backup resides.',
+@utils.arg('--region', metavar='<region>', help=_('Region where the source '
+                                                  'backup resides.'),
            default=None)
 @utils.arg('--description', metavar='<description>',
            default=None,
-           help='An optional description for the backup.')
+           help=_('An optional description for the backup.'))
 @utils.service_type('database')
 def do_backup_copy(cs, args):
     """Creates a backup from another backup."""
@@ -988,16 +1002,16 @@ def do_backup_copy(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.arg('pattern', metavar='<pattern>',
-           help='Cron style pattern describing schedule occurrence.')
-@utils.arg('name', metavar='<name>', help='Name of the backup.')
+           help=_('Cron style pattern describing schedule occurrence.'))
+@utils.arg('name', metavar='<name>', help=_('Name of the backup.'))
 @utils.arg('--description', metavar='<description>',
            default=None,
-           help='An optional description for the backup.')
+           help=_('An optional description for the backup.'))
 @utils.arg('--incremental', action="store_true", default=False,
-           help='Flag to select incremental backup based on most recent'
-           ' backup.')
+           help=_('Flag to select incremental backup based on most recent'
+                  ' backup.'))
 @utils.service_type('database')
 def do_schedule_create(cs, args):
     """Schedules backups for an instance."""
@@ -1009,7 +1023,7 @@ def do_schedule_create(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_schedule_list(cs, args):
     """Lists scheduled backups for an instance."""
@@ -1020,28 +1034,28 @@ def do_schedule_list(cs, args):
                      order_by='next_execution_time')
 
 
-@utils.arg('id', metavar='<schedule id>', help='Id of the schedule.')
+@utils.arg('id', metavar='<schedule id>', help=_('Id of the schedule.'))
 @utils.service_type('database')
 def do_schedule_show(cs, args):
     """Shows details of a schedule."""
     _print_object(cs.backups.schedule_show(args.id))
 
 
-@utils.arg('id', metavar='<schedule id>', help='Id of the schedule.')
+@utils.arg('id', metavar='<schedule id>', help=_('Id of the schedule.'))
 @utils.service_type('database')
 def do_schedule_delete(cs, args):
     """Deletes a schedule."""
     cs.backups.schedule_delete(args.id)
 
 
-@utils.arg('id', metavar='<schedule id>', help='Id of the schedule.')
+@utils.arg('id', metavar='<schedule id>', help=_('Id of the schedule.'))
 @utils.arg('--limit', metavar='<limit>',
            default=None, type=int,
-           help='Return up to N number of the most recent executions.')
+           help=_('Return up to N number of the most recent executions.'))
 @utils.arg('--marker', metavar='<ID>', type=str, default=None,
-           help='Begin displaying the results for IDs greater than the '
-                'specified marker. When used with --limit, set this to '
-                'the last ID displayed in the previous run.')
+           help=_('Begin displaying the results for IDs greater than the '
+                  'specified marker. When used with --limit, set this to '
+                  'the last ID displayed in the previous run.'))
 @utils.service_type('database')
 def do_execution_list(cs, args):
     """Lists executions of a scheduled backup of an instance."""
@@ -1054,7 +1068,7 @@ def do_execution_list(cs, args):
 
 
 @utils.arg('execution', metavar='<execution>',
-           help='Id of the execution to delete.')
+           help=_('Id of the execution to delete.'))
 @utils.service_type('database')
 def do_execution_delete(cs, args):
     """Deletes an execution."""
@@ -1064,13 +1078,13 @@ def do_execution_delete(cs, args):
 # Database related actions
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of the database.')
+           help=_('ID or name of the instance.'))
+@utils.arg('name', metavar='<name>', help=_('Name of the database.'))
 @utils.arg('--character_set', metavar='<character_set>',
            default=None,
-           help='Optional character set for database.')
+           help=_('Optional character set for database.'))
 @utils.arg('--collate', metavar='<collate>', default=None,
-           help='Optional collation type for database.')
+           help=_('Optional collation type for database.'))
 @utils.service_type('database')
 def do_database_create(cs, args):
     """Creates a database on an instance."""
@@ -1085,7 +1099,7 @@ def do_database_create(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_database_list(cs, args):
     """Lists available databases on an instance."""
@@ -1100,8 +1114,8 @@ def do_database_list(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
-@utils.arg('database', metavar='<database>', help='Name of the database.')
+           help=_('ID or name of the instance.'))
+@utils.arg('database', metavar='<database>', help=_('Name of the database.'))
 @utils.service_type('database')
 def do_database_delete(cs, args):
     """Deletes a database from an instance."""
@@ -1112,13 +1126,13 @@ def do_database_delete(cs, args):
 # User related actions
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user.')
-@utils.arg('password', metavar='<password>', help='Password of user.')
+           help=_('ID or name of the instance.'))
+@utils.arg('name', metavar='<name>', help=_('Name of user.'))
+@utils.arg('password', metavar='<password>', help=_('Password of user.'))
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user.')
+           help=_('Optional host of user.'))
 @utils.arg('--databases', metavar='<databases>',
-           help='Optional list of databases.',
+           help=_('Optional list of databases.'),
            nargs="+", default=[])
 @utils.service_type('database')
 def do_user_create(cs, args):
@@ -1133,7 +1147,7 @@ def do_user_create(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_user_list(cs, args):
     """Lists the users for an instance."""
@@ -1150,10 +1164,10 @@ def do_user_list(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user.')
+           help=_('ID or name of the instance.'))
+@utils.arg('name', metavar='<name>', help=_('Name of user.'))
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user.')
+           help=_('Optional host of user.'))
 @utils.service_type('database')
 def do_user_delete(cs, args):
     """Deletes a user from an instance."""
@@ -1162,10 +1176,10 @@ def do_user_delete(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user.')
+           help=_('ID or name of the instance.'))
+@utils.arg('name', metavar='<name>', help=_('Name of user.'))
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user.')
+           help=_('Optional host of user.'))
 @utils.service_type('database')
 def do_user_show(cs, args):
     """Shows details of a user of an instance."""
@@ -1175,10 +1189,10 @@ def do_user_show(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user.')
+           help=_('ID or name of the instance.'))
+@utils.arg('name', metavar='<name>', help=_('Name of user.'))
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user.')
+           help=_('Optional host of user.'))
 @utils.service_type('database')
 def do_user_show_access(cs, args):
     """Shows access details of a user of an instance."""
@@ -1188,16 +1202,16 @@ def do_user_show_access(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user.')
+           help=_('ID or name of the instance.'))
+@utils.arg('name', metavar='<name>', help=_('Name of user.'))
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user.')
+           help=_('Optional host of user.'))
 @utils.arg('--new_name', metavar='<new_name>', default=None,
-           help='Optional new name of user.')
+           help=_('Optional new name of user.'))
 @utils.arg('--new_password', metavar='<new_password>', default=None,
-           help='Optional new password of user.')
+           help=_('Optional new password of user.'))
 @utils.arg('--new_host', metavar='<new_host>', default=None,
-           help='Optional new host of user.')
+           help=_('Optional new host of user.'))
 @utils.service_type('database')
 def do_user_update_attributes(cs, args):
     """Updates a user's attributes on an instance.
@@ -1216,12 +1230,12 @@ def do_user_update_attributes(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user.')
+           help=_('ID or name of the instance.'))
+@utils.arg('name', metavar='<name>', help=_('Name of user.'))
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user.')
+           help=_('Optional host of user.'))
 @utils.arg('databases', metavar='<databases>',
-           help='List of databases.',
+           help=_('List of databases.'),
            nargs="+", default=[])
 @utils.service_type('database')
 def do_user_grant_access(cs, args):
@@ -1232,11 +1246,11 @@ def do_user_grant_access(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
-@utils.arg('name', metavar='<name>', help='Name of user.')
-@utils.arg('database', metavar='<database>', help='A single database.')
+           help=_('ID or name of the instance.'))
+@utils.arg('name', metavar='<name>', help=_('Name of user.'))
+@utils.arg('database', metavar='<database>', help=_('A single database.'))
 @utils.arg('--host', metavar='<host>', default=None,
-           help='Optional host of user.')
+           help=_('Optional host of user.'))
 @utils.service_type('database')
 def do_user_revoke_access(cs, args):
     """Revokes access to a database for a user."""
@@ -1260,11 +1274,11 @@ def do_limit_list(cs, args):
 # Root related commands
 
 @utils.arg('instance_or_cluster', metavar='<instance_or_cluster>',
-           help='ID or name of the instance or cluster.')
+           help=_('ID or name of the instance or cluster.'))
 @utils.arg('--root_password',
            metavar='<root_password>',
            default=None,
-           help='Root password to set.')
+           help=_('Root password to set.'))
 @utils.service_type('database')
 def do_root_enable(cs, args):
     """Enables root for an instance and resets if already exists."""
@@ -1280,7 +1294,7 @@ def do_root_enable(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_root_disable(cs, args):
     """Disables root for an instance."""
@@ -1289,7 +1303,7 @@ def do_root_disable(cs, args):
 
 
 @utils.arg('instance_or_cluster', metavar='<instance_or_cluster>',
-           help='ID or name of the instance or cluster.')
+           help=_('ID or name of the instance or cluster.'))
 @utils.service_type('database')
 def do_root_show(cs, args):
     """Gets status if root was ever enabled for an instance or cluster."""
@@ -1317,7 +1331,7 @@ def do_secgroup_list(cs, args):
 
 
 @utils.arg('security_group', metavar='<security_group>',
-           help='Security group ID.')
+           help=_('Security group ID.'))
 @utils.service_type('database')
 def do_secgroup_show(cs, args):
     """Shows details of a security group."""
@@ -1327,8 +1341,8 @@ def do_secgroup_show(cs, args):
 
 
 @utils.arg('security_group', metavar='<security_group>',
-           help='Security group ID.')
-@utils.arg('cidr', metavar='<cidr>', help='CIDR address.')
+           help=_('Security group ID.'))
+@utils.arg('cidr', metavar='<cidr>', help=_('CIDR address.'))
 @utils.service_type('database')
 def do_secgroup_add_rule(cs, args):
     """Creates a security group rule."""
@@ -1341,7 +1355,7 @@ def do_secgroup_add_rule(cs, args):
 
 
 @utils.arg('security_group', metavar='<security_group>',
-           help='Security group ID.')
+           help=_('Security group ID.'))
 @utils.service_type('database')
 def do_secgroup_list_rules(cs, args):
     """Lists all rules for a security group."""
@@ -1353,7 +1367,7 @@ def do_secgroup_list_rules(cs, args):
 
 
 @utils.arg('security_group_rule', metavar='<security_group_rule>',
-           help='Name of security group rule.')
+           help=_('Name of security group rule.'))
 @utils.service_type('database')
 def do_secgroup_delete_rule(cs, args):
     """Deletes a security group rule."""
@@ -1368,7 +1382,7 @@ def do_datastore_list(cs, args):
 
 
 @utils.arg('datastore', metavar='<datastore>',
-           help='ID of the datastore.')
+           help=_('ID of the datastore.'))
 @utils.service_type('database')
 def do_datastore_show(cs, args):
     """Shows details of a datastore."""
@@ -1389,7 +1403,7 @@ def do_datastore_show(cs, args):
 
 
 @utils.arg('datastore', metavar='<datastore>',
-           help='ID or name of the datastore.')
+           help=_('ID or name of the datastore.'))
 @utils.service_type('database')
 def do_datastore_version_list(cs, args):
     """Lists available versions for a datastore."""
@@ -1399,10 +1413,10 @@ def do_datastore_version_list(cs, args):
 
 @utils.arg('--datastore', metavar='<datastore>',
            default=None,
-           help='ID or name of the datastore. Optional if the ID of the'
-                ' datastore_version is provided.')
+           help=_('ID or name of the datastore. Optional if the ID of the'
+                  ' datastore_version is provided.'))
 @utils.arg('datastore_version', metavar='<datastore_version>',
-           help='ID or name of the datastore version.')
+           help=_('ID or name of the datastore version.'))
 @utils.service_type('database')
 def do_datastore_version_show(cs, args):
     """Shows details of a datastore version."""
@@ -1413,9 +1427,9 @@ def do_datastore_version_show(cs, args):
         datastore_version = cs.datastore_versions.get_by_uuid(
             args.datastore_version)
     else:
-        raise exceptions.NoUniqueMatch('The datastore name or id is required'
-                                       ' to retrieve a datastore version'
-                                       ' by name.')
+        raise exceptions.NoUniqueMatch(_('The datastore name or id is required'
+                                         ' to retrieve a datastore version'
+                                         ' by name.'))
     _print_object(datastore_version)
 
 
@@ -1424,12 +1438,12 @@ def do_datastore_version_show(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.arg('configuration',
            metavar='<configuration>',
            type=str,
-           help='ID or name of the configuration group to attach to the'
-                ' instance.')
+           help=_('ID or name of the configuration group to attach to the'
+                  ' instance.'))
 @utils.service_type('database')
 def do_configuration_attach(cs, args):
     """Attaches a configuration group to an instance."""
@@ -1438,17 +1452,18 @@ def do_configuration_attach(cs, args):
     cs.instances.modify(instance, configuration)
 
 
-@utils.arg('name', metavar='<name>', help='Name of the configuration group.')
+@utils.arg('name', metavar='<name>',
+           help=_('Name of the configuration group.'))
 @utils.arg('values', metavar='<values>',
-           help='Dictionary of the values to set.')
+           help=_('Dictionary of the values to set.'))
 @utils.arg('--datastore', metavar='<datastore>',
-           help='Datastore assigned to the configuration group. Required if '
-                'default datastore is not configured.')
+           help=_('Datastore assigned to the configuration group. Required if '
+                  'default datastore is not configured.'))
 @utils.arg('--datastore_version', metavar='<datastore_version>',
-           help='Datastore version ID assigned to the configuration group.')
+           help=_('Datastore version ID assigned to the configuration group.'))
 @utils.arg('--description', metavar='<description>',
            default=None,
-           help='An optional description for the configuration group.')
+           help=_('An optional description for the configuration group.'))
 @utils.service_type('database')
 def do_configuration_create(cs, args):
     """Creates a configuration group."""
@@ -1465,7 +1480,7 @@ def do_configuration_create(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_configuration_default(cs, args):
     """Shows the default configuration of an instance."""
@@ -1475,7 +1490,7 @@ def do_configuration_default(cs, args):
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
-           help='ID or name of the configuration group.')
+           help=_('ID or name of the configuration group.'))
 @utils.service_type('database')
 def do_configuration_delete(cs, args):
     """Deletes a configuration group."""
@@ -1486,7 +1501,7 @@ def do_configuration_delete(cs, args):
 @utils.arg('instance',
            metavar='<instance>',
            type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_configuration_detach(cs, args):
     """Detaches a configuration group from an instance."""
@@ -1496,15 +1511,15 @@ def do_configuration_detach(cs, args):
 
 @utils.arg('--datastore', metavar='<datastore>',
            default=None,
-           help='ID or name of the datastore to list configuration '
-                'parameters for. Optional if the ID of the'
-                ' datastore_version is provided.')
+           help=_('ID or name of the datastore to list configuration '
+                  'parameters for. Optional if the ID of the'
+                  ' datastore_version is provided.'))
 @utils.arg('datastore_version',
            metavar='<datastore_version>',
-           help='Datastore version name or ID assigned to the '
-                'configuration group.')
+           help=_('Datastore version name or ID assigned to the '
+                  'configuration group.'))
 @utils.arg('parameter', metavar='<parameter>',
-           help='Name of the configuration parameter.')
+           help=_('Name of the configuration parameter.'))
 @utils.service_type('database')
 def do_configuration_parameter_show(cs, args):
     """Shows details of a configuration parameter."""
@@ -1522,13 +1537,13 @@ def do_configuration_parameter_show(cs, args):
 
 @utils.arg('--datastore', metavar='<datastore>',
            default=None,
-           help='ID or name of the datastore to list configuration '
-                'parameters for. Optional if the ID of the'
-                ' datastore_version is provided.')
+           help=_('ID or name of the datastore to list configuration '
+                  'parameters for. Optional if the ID of the'
+                  ' datastore_version is provided.'))
 @utils.arg('datastore_version',
            metavar='<datastore_version>',
-           help='Datastore version name or ID assigned to the '
-                'configuration group.')
+           help=_('Datastore version name or ID assigned to the '
+                  'configuration group.'))
 @utils.service_type('database')
 def do_configuration_parameter_list(cs, args):
     """Lists available parameters for a configuration group."""
@@ -1540,9 +1555,9 @@ def do_configuration_parameter_list(cs, args):
         params = cs.configuration_parameters.parameters_by_version(
             args.datastore_version)
     else:
-        raise exceptions.NoUniqueMatch('The datastore name or id is required'
-                                       ' to retrieve the parameters for the'
-                                       ' configuration group by name.')
+        raise exceptions.NoUniqueMatch(_('The datastore name or id is required'
+                                         ' to retrieve the parameters for the'
+                                         ' configuration group by name.'))
     for param in params:
         setattr(param, 'min', getattr(param, 'min', '-'))
         setattr(param, 'max', getattr(param, 'max', '-'))
@@ -1552,9 +1567,9 @@ def do_configuration_parameter_list(cs, args):
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
-           help='ID or name of the configuration group.')
+           help=_('ID or name of the configuration group.'))
 @utils.arg('values', metavar='<values>',
-           help='Dictionary of the values to set.')
+           help=_('Dictionary of the values to set.'))
 @utils.service_type('database')
 def do_configuration_patch(cs, args):
     """Patches a configuration group."""
@@ -1563,7 +1578,7 @@ def do_configuration_patch(cs, args):
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
-           help='ID or name of the configuration group.')
+           help=_('ID or name of the configuration group.'))
 @utils.service_type('database')
 def do_configuration_instances(cs, args):
     """Lists all instances associated with a configuration group."""
@@ -1582,7 +1597,7 @@ def do_configuration_list(cs, args):
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
-           help='ID or name of the configuration group.')
+           help=_('ID or name of the configuration group.'))
 @utils.service_type('database')
 def do_configuration_show(cs, args):
     """Shows details of a configuration group."""
@@ -1595,14 +1610,14 @@ def do_configuration_show(cs, args):
 
 
 @utils.arg('configuration_group', metavar='<configuration_group>',
-           help='ID or name of the configuration group.')
+           help=_('ID or name of the configuration group.'))
 @utils.arg('values', metavar='<values>',
-           help='Dictionary of the values to set.')
+           help=_('Dictionary of the values to set.'))
 @utils.arg('--name', metavar='<name>', default=None,
-           help='Name of the configuration group.')
+           help=_('Name of the configuration group.'))
 @utils.arg('--description', metavar='<description>',
            default=None,
-           help='An optional description for the configuration group.')
+           help=_('An optional description for the configuration group.'))
 @utils.service_type('database')
 def do_configuration_update(cs, args):
     """Updates a configuration group."""
@@ -1613,7 +1628,8 @@ def do_configuration_update(cs, args):
                              args.description)
 
 
-@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance.')
+@utils.arg('instance_id', metavar='<instance_id>',
+           help=_('UUID for instance.'))
 @utils.service_type('database')
 def do_metadata_list(cs, args):
     """Shows all metadata for instance <id>."""
@@ -1621,8 +1637,9 @@ def do_metadata_list(cs, args):
     _print_object(result)
 
 
-@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance.')
-@utils.arg('key', metavar='<key>', help='Key to display.')
+@utils.arg('instance_id', metavar='<instance_id>',
+           help=_('UUID for instance.'))
+@utils.arg('key', metavar='<key>', help=_('Key to display.'))
 @utils.service_type('database')
 def do_metadata_show(cs, args):
     """Shows metadata entry for key <key> and instance <id>."""
@@ -1630,29 +1647,32 @@ def do_metadata_show(cs, args):
     _print_object(result)
 
 
-@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance.')
-@utils.arg('key', metavar='<key>', help='Key to replace.')
+@utils.arg('instance_id', metavar='<instance_id>',
+           help=_('UUID for instance.'))
+@utils.arg('key', metavar='<key>', help=_('Key to replace.'))
 @utils.arg('value', metavar='<value>',
-           help='New value to assign to <key>.')
+           help=_('New value to assign to <key>.'))
 @utils.service_type('database')
 def do_metadata_edit(cs, args):
     """Replaces metadata value with a new one, this is non-destructive."""
     cs.metadata.edit(args.instance_id, args.key, args.value)
 
 
-@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance.')
-@utils.arg('key', metavar='<key>', help='Key to update.')
-@utils.arg('newkey', metavar='<newkey>', help='New key.')
-@utils.arg('value', metavar='<value>', help='Value to assign to <newkey>.')
+@utils.arg('instance_id', metavar='<instance_id>',
+           help=_('UUID for instance.'))
+@utils.arg('key', metavar='<key>', help=_('Key to update.'))
+@utils.arg('newkey', metavar='<newkey>', help=_('New key.'))
+@utils.arg('value', metavar='<value>', help=_('Value to assign to <newkey>.'))
 @utils.service_type('database')
 def do_metadata_update(cs, args):
     """Updates metadata, this is destructive."""
     cs.metadata.update(args.instance_id, args.key, args.newkey, args.value)
 
 
-@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance.')
-@utils.arg('key', metavar='<key>', help='Key for assignment.')
-@utils.arg('value', metavar='<value>', help='Value to assign to <key>.')
+@utils.arg('instance_id', metavar='<instance_id>',
+           help=_('UUID for instance.'))
+@utils.arg('key', metavar='<key>', help=_('Key for assignment.'))
+@utils.arg('value', metavar='<value>', help=_('Value to assign to <key>.'))
 @utils.service_type('database')
 def do_metadata_create(cs, args):
     """Creates metadata in the database for instance <id>."""
@@ -1660,8 +1680,9 @@ def do_metadata_create(cs, args):
     _print_object(result)
 
 
-@utils.arg('instance_id', metavar='<instance_id>', help='UUID for instance.')
-@utils.arg('key', metavar='<key>', help='Metadata key to delete.')
+@utils.arg('instance_id', metavar='<instance_id>',
+           help=_('UUID for instance.'))
+@utils.arg('key', metavar='<key>', help=_('Metadata key to delete.'))
 @utils.service_type('database')
 def do_metadata_delete(cs, args):
     """Deletes metadata for instance <id>."""
@@ -1669,9 +1690,9 @@ def do_metadata_delete(cs, args):
 
 
 @utils.arg('--datastore', metavar='<datastore>',
-           help="Name or ID of datastore to list modules for. Use '%s' "
-                "to list modules that apply to all datastores." %
-                Module.ALL_KEYWORD)
+           help=_("Name or ID of datastore to list modules for. Use '%s' "
+                  "to list modules that apply to all datastores.")
+           % Module.ALL_KEYWORD)
 @utils.service_type('database')
 def do_module_list(cs, args):
     """Lists the modules available."""
@@ -1709,7 +1730,7 @@ def do_module_list(cs, args):
 
 
 @utils.arg('module', metavar='<module>',
-           help='ID or name of the module.')
+           help=_('ID or name of the module.'))
 @utils.service_type('database')
 def do_module_show(cs, args):
     """Shows details of a module."""
@@ -1717,47 +1738,49 @@ def do_module_show(cs, args):
     _print_object(module)
 
 
-@utils.arg('name', metavar='<name>', type=str, help='Name of the module.')
+@utils.arg('name', metavar='<name>', type=str, help=_('Name of the module.'))
 @utils.arg('type', metavar='<type>', type=str,
-           help='Type of the module. The type must be supported by a '
-                'corresponding module plugin on the datastore it is '
-                'applied to.')
+           help=_('Type of the module. The type must be supported by a '
+                  'corresponding module plugin on the datastore it is '
+                  'applied to.'))
 @utils.arg('file', metavar='<filename>',
            type=argparse.FileType(mode='rb', bufsize=0),
-           help='File containing data contents for the module.')
+           help=_('File containing data contents for the module.'))
 @utils.arg('--description', metavar='<description>', type=str,
-           help='Description of the module.')
+           help=_('Description of the module.'))
 @utils.arg('--datastore', metavar='<datastore>',
-           help='Name or ID of datastore this module can be applied to. '
-                'If not specified, module can be applied to all datastores.')
+           help=_('Name or ID of datastore this module can be applied to. '
+                  'If not specified, module can be applied to all '
+                  'datastores.'))
 @utils.arg('--datastore_version', metavar='<version>',
-           help='Name or ID of datastore version this module can be applied '
-                'to. If not specified, module can be applied to all versions.')
+           help=_('Name or ID of datastore version this module can be applied '
+                  'to. If not specified, module can be applied to all '
+                  'versions.'))
 @utils.arg('--auto_apply', action='store_true', default=False,
-           help='Automatically apply this module when creating an instance '
-                'or cluster. Admin only.')
+           help=_('Automatically apply this module when creating an instance '
+                  'or cluster. Admin only.'))
 @utils.arg('--all_tenants', action='store_true', default=False,
-           help='Module is valid for all tenants. Admin only.')
+           help=_('Module is valid for all tenants. Admin only.'))
 @utils.arg('--hidden', action='store_true', default=False,
-           help='Hide this module from non-Admin. Useful in creating '
-                'auto-apply modules without cluttering up module lists. '
-                'Admin only.')
+           help=_('Hide this module from non-Admin. Useful in creating '
+                  'auto-apply modules without cluttering up module lists. '
+                  'Admin only.'))
 @utils.arg('--live_update', action='store_true', default=False,
-           help='Allow module to be updated even if it is already applied '
-                'to a current instance or cluster. Automatically attempt to '
-                'reapply this module if the contents change.')
+           help=_('Allow module to be updated even if it is already applied '
+                  'to a current instance or cluster. Automatically attempt to '
+                  'reapply this module if the contents change.'))
 @utils.arg('--priority_apply', action='store_true', default=False,
-           help='Sets a priority for applying the module. All priority '
-                'modules will be applied before non-priority ones. '
-                'Admin only.')
+           help=_('Sets a priority for applying the module. All priority '
+                  'modules will be applied before non-priority ones. '
+                  'Admin only.'))
 @utils.arg('--apply_order', type=int, default=5, choices=range(0, 10),
-           help='Sets an order for applying the module. Modules with a lower '
-                'value will be applied before modules with a higher '
-                'value. Modules having the same value may be '
-                'applied in any order (default %(default)s).')
+           help=_('Sets an order for applying the module. Modules with a '
+                  'lower value will be applied before modules with a higher '
+                  'value. Modules having the same value may be '
+                  'applied in any order (default %(default)s).'))
 @utils.arg('--full_access', action='store_true', default=None,
-           help="Marks a module as 'non-admin', unless an admin-only "
-                "option was specified. Admin only.")
+           help=_("Marks a module as 'non-admin', unless an admin-only "
+                  "option was specified. Admin only."))
 @utils.service_type('database')
 def do_module_create(cs, args):
     """Create a module."""
@@ -1765,7 +1788,7 @@ def do_module_create(cs, args):
     contents = args.file.read()
     if not contents:
         raise exceptions.ValidationError(
-            "The file '%s' must contain some data" % args.file)
+            _("The file '%s' must contain some data") % args.file)
 
     module = cs.modules.create(
         args.name, args.type, contents, description=args.description,
@@ -1778,75 +1801,78 @@ def do_module_create(cs, args):
 
 
 @utils.arg('module', metavar='<module>', type=str,
-           help='Name or ID of the module.')
+           help=_('Name or ID of the module.'))
 @utils.arg('--name', metavar='<name>', type=str, default=None,
-           help='Name of the module.')
+           help=_('Name of the module.'))
 @utils.arg('--type', metavar='<type>', type=str, default=None,
-           help='Type of the module. The type must be supported by a '
-                'corresponding module driver plugin on the datastore it is '
-                'applied to.')
+           help=_('Type of the module. The type must be supported by a '
+                  'corresponding module driver plugin on the datastore it is '
+                  'applied to.'))
 @utils.arg('--file', metavar='<filename>', type=argparse.FileType('rb', 0),
            default=None,
-           help='File containing data contents for the module.')
+           help=_('File containing data contents for the module.'))
 @utils.arg('--description', metavar='<description>', type=str, default=None,
-           help='Description of the module.')
+           help=_('Description of the module.'))
 @utils.arg('--datastore', metavar='<datastore>',
            default=None,
-           help='Name or ID of datastore this module can be applied to. '
-                'If not specified, module can be applied to all datastores.')
+           help=_('Name or ID of datastore this module can be applied to. '
+                  'If not specified, module can be applied to all '
+                  'datastores.'))
 @utils.arg('--all_datastores', default=None, action='store_const', const=True,
-           help='Module is valid for all datastores.')
+           help=_('Module is valid for all datastores.'))
 @utils.arg('--datastore_version', metavar='<version>',
            default=None,
-           help='Name or ID of datastore version this module can be applied '
-                'to. If not specified, module can be applied to all versions.')
+           help=_('Name or ID of datastore version this module can be applied '
+                  'to. If not specified, module can be applied to all '
+                  'versions.'))
 @utils.arg('--all_datastore_versions', default=None,
            action='store_const', const=True,
-           help='Module is valid for all datastore versions.')
+           help=_('Module is valid for all datastore versions.'))
 @utils.arg('--auto_apply', action='store_true', default=None,
-           help='Automatically apply this module when creating an instance '
-                'or cluster. Admin only.')
+           help=_('Automatically apply this module when creating an instance '
+                  'or cluster. Admin only.'))
 @utils.arg('--no_auto_apply', dest='auto_apply', action='store_false',
            default=None,
-           help='Do not automatically apply this module when creating an '
-                'instance or cluster. Admin only.')
+           help=_('Do not automatically apply this module when creating an '
+                  'instance or cluster. Admin only.'))
 @utils.arg('--all_tenants', action='store_true', default=None,
-           help='Module is valid for all tenants. Admin only.')
+           help=_('Module is valid for all tenants. Admin only.'))
 @utils.arg('--no_all_tenants', dest='all_tenants', action='store_false',
            default=None,
-           help='Module is valid for current tenant only. Admin only.')
+           help=_('Module is valid for current tenant only. Admin only.'))
 @utils.arg('--hidden', action='store_true', default=None,
-           help='Hide this module from non-admin users. Useful in creating '
-                'auto-apply modules without cluttering up module lists. '
-                'Admin only.')
+           help=_('Hide this module from non-admin users. Useful in creating '
+                  'auto-apply modules without cluttering up module lists. '
+                  'Admin only.'))
 @utils.arg('--no_hidden', dest='hidden', action='store_false', default=None,
-           help='Allow all users to see this module. Admin only.')
+           help=_('Allow all users to see this module. Admin only.'))
 @utils.arg('--live_update', action='store_true', default=None,
-           help='Allow module to be updated or deleted even if it is already '
-                'applied to a current instance or cluster. Automatically '
-                'attempt to reapply this module if the contents change.')
+           help=_('Allow module to be updated or deleted even if it is '
+                  'already applied to a current instance or cluster. '
+                  'Automatically attempt to reapply this module if the '
+                  'contents change.'))
 @utils.arg('--no_live_update', dest='live_update', action='store_false',
            default=None,
-           help='Restricts a module from being updated or deleted if it is '
-                'already applied to a current instance or cluster.')
+           help=_('Restricts a module from being updated or deleted if it is '
+                  'already applied to a current instance or cluster.'))
 @utils.arg('--priority_apply', action='store_true', default=None,
-           help='Sets a priority for applying the module. All priority '
-                'modules will be applied before non-priority ones. '
-                'Admin only.')
+           help=_('Sets a priority for applying the module. All priority '
+                  'modules will be applied before non-priority ones. '
+                  'Admin only.'))
 @utils.arg('--no_priority_apply', dest='priority_apply', action='store_false',
            default=None,
-           help='Removes apply priority from the module. Admin only.')
+           help=_('Removes apply priority from the module. Admin only.'))
 @utils.arg('--apply_order', type=int, default=None, choices=range(0, 10),
-           help='Sets an order for applying the module. Modules with a lower '
-                'value will be applied before modules with a higher '
-                'value. Modules having the same value may be '
-                'applied in any order (default %(default)s).')
+           help=_('Sets an order for applying the module. Modules with a '
+                  'lower value will be applied before modules with a higher '
+                  'value. Modules having the same value may be '
+                  'applied in any order (default %(default)s).'))
 @utils.arg('--full_access', action='store_true', default=None,
-           help="Marks a module as 'non-admin', unless an admin-only "
-                "option was specified. Admin only.")
+           help=_("Marks a module as 'non-admin', unless an admin-only "
+                  "option was specified. Admin only."))
 @utils.arg('--no_full_access', dest='full_access', action='store_false',
            default=None,
-           help='Restricts modification access for non-admin. Admin only.')
+           help=_('Restricts modification access for non-admin. Admin only.'))
 @utils.service_type('database')
 def do_module_update(cs, args):
     """Update a module."""
@@ -1868,7 +1894,7 @@ def do_module_update(cs, args):
 
 
 @utils.arg('module', metavar='<module>',
-           help='ID or name of the module.')
+           help=_('ID or name of the module.'))
 @utils.service_type('database')
 def do_module_delete(cs, args):
     """Delete a module."""
@@ -1877,7 +1903,7 @@ def do_module_delete(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>', type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_module_list_instance(cs, args):
     """Lists the modules that have been applied to an instance."""
@@ -1888,16 +1914,16 @@ def do_module_list_instance(cs, args):
 
 
 @utils.arg('module', metavar='<module>', type=str,
-           help='ID or name of the module.')
+           help=_('ID or name of the module.'))
 @utils.arg('--include_clustered', action="store_true", default=False,
-           help="Include instances that are part of a cluster "
-                "(default %(default)s).")
+           help=_("Include instances that are part of a cluster "
+                  "(default %(default)s)."))
 @utils.arg('--limit', metavar='<limit>', default=None,
-           help='Return up to N number of the most recent results.')
+           help=_('Return up to N number of the most recent results.'))
 @utils.arg('--marker', metavar='<ID>', type=str, default=None,
-           help='Begin displaying the results for IDs greater than the '
-                'specified marker. When used with --limit, set this to '
-                'the last ID displayed in the previous run.')
+           help=_('Begin displaying the results for IDs greater than the '
+                  'specified marker. When used with --limit, set this to '
+                  'the last ID displayed in the previous run.'))
 @utils.service_type('database')
 def do_module_instances(cs, args):
     """Lists the instances that have a particular module applied."""
@@ -1912,7 +1938,8 @@ def do_module_instances(cs, args):
     _print_instances(instance_list)
 
 
-@utils.arg('cluster', metavar='<cluster>', help='ID or name of the cluster.')
+@utils.arg('cluster', metavar='<cluster>',
+           help=_('ID or name of the cluster.'))
 @utils.service_type('database')
 def do_cluster_modules(cs, args):
     """Lists all modules for each instance of a cluster."""
@@ -1932,9 +1959,9 @@ def do_cluster_modules(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>', type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.arg('modules', metavar='<module>', type=str, nargs='+', default=[],
-           help='ID or name of the module.')
+           help=_('ID or name of the module.'))
 @utils.service_type('database')
 def do_module_apply(cs, args):
     """Apply modules to an instance."""
@@ -1952,9 +1979,9 @@ def do_module_apply(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>', type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.arg('module', metavar='<module>', type=str,
-           help='ID or name of the module.')
+           help=_('ID or name of the module.'))
 @utils.service_type('database')
 def do_module_remove(cs, args):
     """Remove a module from an instance."""
@@ -1964,7 +1991,7 @@ def do_module_remove(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>', type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_module_query(cs, args):
     """Query the status of the modules on an instance."""
@@ -1978,13 +2005,13 @@ def do_module_query(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>', type=str,
-           help='ID or name of the instance.')
+           help=_('ID or name of the instance.'))
 @utils.arg('--directory', metavar='<directory>', type=str,
-           help='Directory to write module content files in. It will '
-                'be created if it does not exist. Defaults to the '
-                'current directory.')
+           help=_('Directory to write module content files in. It will '
+                  'be created if it does not exist. Defaults to the '
+                  'current directory.'))
 @utils.arg('--prefix', metavar='<filename_prefix>', type=str,
-           help='Prefix to prepend to generated filename for each module.')
+           help=_('Prefix to prepend to generated filename for each module.'))
 @utils.service_type('database')
 def do_module_retrieve(cs, args):
     """Retrieve module contents from an instance."""
@@ -1992,12 +2019,13 @@ def do_module_retrieve(cs, args):
     saved_modules = cs.instances.module_retrieve(
         instance, args.directory, args.prefix)
     for module_name, filename in saved_modules.items():
-        print("Module contents for '%s' written to '%s'" %
-              (module_name, filename))
+        print(_("Module contents for '%(module)s' written to '%(file)s'") %
+              {'module': module_name,
+               'file': filename})
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='Id or Name of the instance.')
+           help=_('Id or Name of the instance.'))
 @utils.service_type('database')
 def do_log_list(cs, args):
     """Lists the log files available for instance."""
@@ -2009,8 +2037,8 @@ def do_log_list(cs, args):
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='Id or Name of the instance.')
-@utils.arg('log_name', metavar='<log_name>', help='Name of log to show.')
+           help=_('Id or Name of the instance.'))
+@utils.arg('log_name', metavar='<log_name>', help=_('Name of log to show.'))
 @utils.service_type('database')
 def do_log_show(cs, args):
     """Instructs Trove guest to show details of log."""
@@ -2019,15 +2047,17 @@ def do_log_show(cs, args):
         log_info = cs.instances.log_show(instance, args.log_name)
         _print_object(log_info)
     except exceptions.GuestLogNotFoundError:
-        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+        print(NO_LOG_FOUND_ERROR % {'log_name': args.log_name,
+                                    'instance': instance})
     except Exception as ex:
         error_msg = ex.message.split('\n')
         print(error_msg[0])
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='Id or Name of the instance.')
-@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+           help=_('Id or Name of the instance.'))
+@utils.arg('log_name', metavar='<log_name>',
+           help=_('Name of log to publish.'))
 @utils.service_type('database')
 def do_log_enable(cs, args):
     """Instructs Trove guest to start collecting log details."""
@@ -2036,17 +2066,18 @@ def do_log_enable(cs, args):
         log_info = cs.instances.log_enable(instance, args.log_name)
         _print_object(log_info)
     except exceptions.GuestLogNotFoundError:
-        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+        print(NO_LOG_FOUND_ERROR % {'log_name': args.log_name,
+                                    'instance': instance})
     except Exception as ex:
         error_msg = ex.message.split('\n')
         print(error_msg[0])
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='Id or Name of the instance.')
-@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+           help=_('Id or Name of the instance.'))
+@utils.arg('log_name', metavar='<log_name>', help=_('Name of log to publish.'))
 @utils.arg('--discard', action='store_true', default=False,
-           help='Discard published contents of specified log.')
+           help=_('Discard published contents of specified log.'))
 @utils.service_type('database')
 def do_log_disable(cs, args):
     """Instructs Trove guest to stop collecting log details."""
@@ -2056,19 +2087,20 @@ def do_log_disable(cs, args):
                                             discard=args.discard)
         _print_object(log_info)
     except exceptions.GuestLogNotFoundError:
-        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+        print(NO_LOG_FOUND_ERROR % {'log_name': args.log_name,
+                                    'instance': instance})
     except Exception as ex:
         error_msg = ex.message.split('\n')
         print(error_msg[0])
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='Id or Name of the instance.')
-@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+           help=_('Id or Name of the instance.'))
+@utils.arg('log_name', metavar='<log_name>', help=_('Name of log to publish.'))
 @utils.arg('--disable', action='store_true', default=False,
-           help='Stop collection of specified log.')
+           help=_('Stop collection of specified log.'))
 @utils.arg('--discard', action='store_true', default=False,
-           help='Discard published contents of specified log.')
+           help=_('Discard published contents of specified log.'))
 @utils.service_type('database')
 def do_log_publish(cs, args):
     """Instructs Trove guest to publish latest log entries on instance."""
@@ -2079,15 +2111,16 @@ def do_log_publish(cs, args):
             discard=args.discard)
         _print_object(log_info)
     except exceptions.GuestLogNotFoundError:
-        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+        print(NO_LOG_FOUND_ERROR % {'log_name': args.log_name,
+                                    'instance': instance})
     except Exception as ex:
         error_msg = ex.message.split('\n')
         print(error_msg[0])
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='Id or Name of the instance.')
-@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+           help=_('Id or Name of the instance.'))
+@utils.arg('log_name', metavar='<log_name>', help=_('Name of log to publish.'))
 @utils.service_type('database')
 def do_log_discard(cs, args):
     """Instructs Trove guest to discard the container of the published log."""
@@ -2096,19 +2129,20 @@ def do_log_discard(cs, args):
         log_info = cs.instances.log_discard(instance, args.log_name)
         _print_object(log_info)
     except exceptions.GuestLogNotFoundError:
-        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+        print(NO_LOG_FOUND_ERROR % {'log_name': args.log_name,
+                                    'instance': instance})
     except Exception as ex:
         error_msg = ex.message.split('\n')
         print(error_msg[0])
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='Id or Name of the instance.')
-@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+           help=_('Id or Name of the instance.'))
+@utils.arg('log_name', metavar='<log_name>', help=_('Name of log to publish.'))
 @utils.arg('--publish', action='store_true', default=False,
-           help='Publish latest entries from guest before display.')
+           help=_('Publish latest entries from guest before display.'))
 @utils.arg('--lines', metavar='<lines>', default=50, type=int,
-           help='Publish latest entries from guest before display.')
+           help=_('Publish latest entries from guest before display.'))
 @utils.service_type('database')
 def do_log_tail(cs, args):
     """Display log entries for instance."""
@@ -2119,19 +2153,20 @@ def do_log_tail(cs, args):
         for log_part in log_gen():
             print(log_part, end="")
     except exceptions.GuestLogNotFoundError:
-        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+        print(NO_LOG_FOUND_ERROR % {'log_name': args.log_name,
+                                    'instance': instance})
     except Exception as ex:
         error_msg = ex.message.split('\n')
         print(error_msg[0])
 
 
 @utils.arg('instance', metavar='<instance>',
-           help='Id or Name of the instance.')
-@utils.arg('log_name', metavar='<log_name>', help='Name of log to publish.')
+           help=_('Id or Name of the instance.'))
+@utils.arg('log_name', metavar='<log_name>', help=_('Name of log to publish.'))
 @utils.arg('--publish', action='store_true', default=False,
-           help='Publish latest entries from guest before display.')
+           help=_('Publish latest entries from guest before display.'))
 @utils.arg('--file', metavar='<file>', default=None,
-           help='Path of file to save log to for instance.')
+           help=_('Path of file to save log to for instance.'))
 @utils.service_type('database')
 def do_log_save(cs, args):
     """Save log file for instance."""
@@ -2139,9 +2174,12 @@ def do_log_save(cs, args):
         instance = _find_instance(cs, args.instance)
         filename = cs.instances.log_save(instance, args.log_name,
                                          args.publish, args.file)
-        print('Log "%s" written to %s' % (args.log_name, filename))
+        print(_('Log "%(log_name)s" written to %(file_name)s')
+              % {'log_name': args.log_name,
+                 'file_name': filename})
     except exceptions.GuestLogNotFoundError:
-        print(NO_LOG_FOUND_ERROR % (args.log_name, instance))
+        print(NO_LOG_FOUND_ERROR % {'log_name': args.log_name,
+                                    'instance': instance})
     except Exception as ex:
         error_msg = ex.message.split('\n')
         print(error_msg[0])
@@ -2218,7 +2256,7 @@ def do_log_save(cs, args):
 #     )
 
 @utils.arg('tenant_id', metavar='<tenant_id>',
-           help='Id of tenant for which to show quotas.')
+           help=_('Id of tenant for which to show quotas.'))
 @utils.service_type('database')
 def do_quota_show(cs, args):
     """Show quotas for a tenant."""
@@ -2227,11 +2265,11 @@ def do_quota_show(cs, args):
 
 
 @utils.arg('tenant_id', metavar='<tenant_id>',
-           help='Id of tenant for which to update quotas.')
+           help=_('Id of tenant for which to update quotas.'))
 @utils.arg('resource', metavar='<resource>',
-           help='Id of resource to change.')
+           help=_('Id of resource to change.'))
 @utils.arg('limit', metavar='<limit>', type=int,
-           help='New limit to set for the named resource.')
+           help=_('New limit to set for the named resource.'))
 @utils.service_type('database')
 def do_quota_update(cs, args):
     """Update quotas for a tenant."""
