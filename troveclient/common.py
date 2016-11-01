@@ -42,7 +42,9 @@ def quote_user_host(user, host):
 
 class Paginated(list):
 
-    def __init__(self, items=[], next_marker=None, links=[]):
+    def __init__(self, items=None, next_marker=None, links=None):
+        items = items or []
+        links = links or []
         super(Paginated, self).__init__(items)
         self.next = next_marker
         self.links = links

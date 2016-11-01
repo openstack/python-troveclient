@@ -272,7 +272,8 @@ class MgmtDatastoreVersions(base.ManagerWithFind):
                          "version")
 
     def create(self, name, datastore_name, datastore_manager, image,
-               packages=[], active='true', default='false'):
+               packages=None, active='true', default='false'):
+        packages = packages or []
         """Create a new datastore version."""
         body = {"version": {
             "name": name,
@@ -287,7 +288,8 @@ class MgmtDatastoreVersions(base.ManagerWithFind):
         return self._create("/mgmt/datastore-versions", body, None, True)
 
     def edit(self, datastore_version_id, datastore_manager=None, image=None,
-             packages=[], active=None, default=None):
+             packages=None, active=None, default=None):
+        packages = packages or []
         """Update a datastore-version."""
         body = {}
         if datastore_manager is not None:
