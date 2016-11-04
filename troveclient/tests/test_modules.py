@@ -123,3 +123,25 @@ class TestModules(testtools.TestCase):
         self.modules.delete(self.module)
         resp.status_code = 500
         self.assertRaises(Exception, self.modules.delete, self.module_name)
+
+    def _test_instances(self, expected_query=None):
+        page_mock = mock.Mock()
+        self.modules._paginated = page_mock
+        limit = "test-limit"
+        marker = "test-marker"
+        if not expected_query:
+            expected_query = {}
+        self.modules.instances(self.module_name, limit, marker,
+                               **expected_query)
+        page_mock.assert_called_with("/modules/mod_1/instances",
+                                     "instances", limit, marker,
+                                     query_strings=expected_query)
+
+    def test_instance_count(self):
+        expected_query = {'include_clustered': True,
+                          'count_only': True}
+        self._test_instances(expected_query)
+
+    def test_instances(self):
+        expected_query = {'include_clustered': True}
+        self._test_instances(expected_query)

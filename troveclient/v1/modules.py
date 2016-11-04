@@ -157,11 +157,13 @@ class Modules(base.ManagerWithFind):
         common.check_for_exceptions(resp, body, url)
 
     def instances(self, module, limit=None, marker=None,
-                  include_clustered=False):
+                  include_clustered=False, count_only=False):
         """Get a list of all instances this module has been applied to."""
         url = "/modules/%s/instances" % base.getid(module)
         query_strings = {}
         if include_clustered:
             query_strings['include_clustered'] = include_clustered
+        if count_only:
+            query_strings['count_only'] = count_only
         return self._paginated(url, "instances", limit, marker,
                                query_strings=query_strings)

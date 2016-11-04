@@ -233,6 +233,56 @@ class InstancesTest(testtools.TestCase):
         resp.status_code = 500
         self.assertRaises(Exception, self.instances.edit, 'instance1')
 
+    def test_module_apply(self):
+        resp = mock.Mock()
+        resp.status_code = 200
+        body = {'modules': []}
+        self.instances.api.client.post = mock.Mock(return_value=(resp, body))
+        self.instances.module_apply(self.instance_with_id, "mod_id")
+        resp.status_code = 500
+        self.assertRaises(Exception, self.instances.module_apply,
+                          'instance1', 'mod1')
+
+    def test_module_remove(self):
+        resp = mock.Mock()
+        resp.status_code = 200
+        body = {'modules': []}
+        self.instances.api.client.delete = mock.Mock(return_value=(resp, body))
+        self.instances.module_remove(self.instance_with_id, "mod_id")
+        resp.status_code = 500
+        self.assertRaises(Exception, self.instances.module_remove,
+                          'instance1', 'mod1')
+
+    def test_module_query(self):
+        resp = mock.Mock()
+        resp.status_code = 200
+        body = {'modules': []}
+        self.instances.api.client.get = mock.Mock(return_value=(resp, body))
+        self.instances.module_query(self.instance_with_id)
+        resp.status_code = 500
+        self.assertRaises(Exception, self.instances.module_query,
+                          'instance1')
+
+    def test_module_retrieve(self):
+        resp = mock.Mock()
+        resp.status_code = 200
+        body = {'modules': []}
+        self.instances.api.client.get = mock.Mock(return_value=(resp, body))
+        self.instances.module_retrieve(self.instance_with_id)
+        resp.status_code = 500
+        self.assertRaises(Exception, self.instances.module_retrieve,
+                          'instance1')
+
+    def test_module_list_instance(self):
+        resp = mock.Mock()
+        resp.status_code = 200
+        body = {'modules': []}
+        self.instances.api.client.get = mock.Mock(return_value=(resp, body))
+        self.instances.modules(self.instance_with_id)
+        resp.status_code = 500
+        self.assertRaises(Exception, self.instances.modules,
+                          'instance1')
+
     def test_upgrade(self):
         resp = mock.Mock()
         resp.status_code = 200

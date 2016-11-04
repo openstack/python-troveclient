@@ -1,0 +1,6 @@
+---
+fixes:
+    - Add module-instance-count support to list
+      a count of all instances having a specific
+      module applied.  Bug 1554900
+

@@ -722,6 +722,21 @@ class ShellTest(utils.TestCase):
             self.assert_called_anytime(
                 'GET', '/modules/4321/instances?include_clustered=True')
 
+    def test_module_instance_count(self):
+        with mock.patch.object(troveclient.v1.modules.Module, '__repr__',
+                               mock.Mock(return_value='4321')):
+            self.run_command('module-instance-count 4321')
+            self.assert_called(
+                'GET', '/modules/4321/instances?count_only=True')
+
+    def test_module_instance_count_clustered(self):
+        with mock.patch.object(troveclient.v1.modules.Module, '__repr__',
+                               mock.Mock(return_value='4321')):
+            self.run_command('module-instance-count 4321 --include_clustered')
+            self.assert_called(
+                'GET', '/modules/4321/instances?count_only=True&'
+                       'include_clustered=True')
+
     def test_cluster_modules(self):
         self.run_command('cluster-modules cls-1234')
         self.assert_called_anytime('GET', '/clusters/cls-1234')
