@@ -145,3 +145,13 @@ class TestModules(testtools.TestCase):
     def test_instances(self):
         expected_query = {'include_clustered': True}
         self._test_instances(expected_query)
+
+    def test_reapply(self):
+        resp = mock.Mock()
+        resp.status_code = 200
+        body = None
+        self.modules.api.client.put = mock.Mock(return_value=(resp, body))
+        self.modules.reapply(self.module_name)
+        self.modules.reapply(self.module)
+        resp.status_code = 500
+        self.assertRaises(Exception, self.modules.reapply, self.module_name)
