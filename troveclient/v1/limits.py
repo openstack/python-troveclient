@@ -15,8 +15,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from troveclient.apiclient import exceptions
 from troveclient import base
-from troveclient.openstack.common.apiclient import exceptions
 
 
 class Limit(base.Resource):

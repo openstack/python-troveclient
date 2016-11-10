@@ -21,9 +21,9 @@ import os
 import mock
 import testtools
 
+from troveclient.apiclient import exceptions
 from troveclient import base
 from troveclient import common
-from troveclient.openstack.common.apiclient import exceptions
 from troveclient import utils
 
 """

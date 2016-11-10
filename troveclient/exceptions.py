@@ -20,7 +20,7 @@ Exception definitions
 """
 
 # alias exceptions from apiclient for users of this module
-from troveclient.openstack.common.apiclient.exceptions import *  # noqa
+from troveclient.apiclient.exceptions import *  # noqa
 
 
 class NoTokenLookupException(Exception):

@@ -22,15 +22,15 @@ OpenStack Client interface. Handles the REST calls and responses.
 from __future__ import print_function
 
 import logging
-import requests
 
 from keystoneauth1 import adapter
 from oslo_utils import importutils
-from troveclient import exceptions
-from troveclient.openstack.common.apiclient import client
-from troveclient import service_catalog
-
+import requests
 import six.moves.urllib.parse as urlparse
+
+from troveclient.apiclient import client
+from troveclient import exceptions
+from troveclient import service_catalog
 
 try:
     import eventlet as sleep_lib

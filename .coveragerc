@@ -3,7 +3,7 @@
 branch = True
 
 source=troveclient
-omit=troveclient/tests*,troveclient/compat/tests*,troveclient/openstack*
+omit=troveclient/tests*,troveclient/compat/tests*
 
 [report]
 # Regexes for lines to exclude from consideration

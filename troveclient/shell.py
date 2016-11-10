@@ -30,24 +30,19 @@ import os
 import pkgutil
 import sys
 
-import pkg_resources
-import six
-
 from keystoneauth1.identity.generic import password
 from keystoneauth1.identity.generic import token
 from keystoneauth1 import loading
-
 from oslo_utils import encodeutils
 from oslo_utils import importutils
+import pkg_resources
+import six
 
-import troveclient
+from troveclient.apiclient import exceptions as exc
 import troveclient.auth_plugin
-
 from troveclient import client
 import troveclient.extension
 from troveclient.i18n import _  # noqa
-from troveclient.openstack.common.apiclient import exceptions as exc
-
 from troveclient import utils
 from troveclient.v1 import shell as shell_v1
 

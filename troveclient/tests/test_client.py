@@ -22,9 +22,9 @@ import mock
 import requests
 import testtools
 
+from troveclient.apiclient import client
 from troveclient import client as other_client
 from troveclient import exceptions
-from troveclient.openstack.common.apiclient import client
 from troveclient import service_catalog
 import troveclient.v1.client
 

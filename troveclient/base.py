@@ -26,9 +26,9 @@ import os
 import six
 from six.moves.urllib import parse
 
+from troveclient.apiclient import base
+from troveclient.apiclient import exceptions
 from troveclient import common
-from troveclient.openstack.common.apiclient import base
-from troveclient.openstack.common.apiclient import exceptions
 from troveclient import utils
 
 # Python 2.4 compat

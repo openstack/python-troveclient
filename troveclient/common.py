@@ -13,9 +13,10 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 from six.moves.urllib import parse
 
-from troveclient.openstack.common.apiclient import exceptions
+from troveclient.apiclient import exceptions
 
 
 def check_for_exceptions(resp, body, url):

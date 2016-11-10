@@ -36,7 +36,7 @@ except ImportError:
 import requests
 
 from oslo_utils import importutils
-from troveclient.openstack.common.apiclient import exceptions
+from troveclient.apiclient import exceptions
 
 
 _logger = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ class HTTPClient(object):
       into terminal and send the same request with curl.
     """
 
-    user_agent = "troveclient.openstack.common.apiclient"
+    user_agent = "troveclient.apiclient"
 
     def __init__(self,
                  auth_plugin,

@@ -22,12 +22,11 @@ import simplejson as json
 import sys
 import uuid
 
+from oslo_utils import encodeutils
 import prettytable
 import six
 
-from oslo_utils import encodeutils
-
-from troveclient.openstack.common.apiclient import exceptions
+from troveclient.apiclient import exceptions
 
 
 def arg(*args, **kwargs):
