@@ -1,0 +1,4 @@
+features:
+  - Adds --region option to create and cluster-create APIs.  For now, these
+    options are excluded from CLI help strings.  This is the first step in
+    multiregion support.
