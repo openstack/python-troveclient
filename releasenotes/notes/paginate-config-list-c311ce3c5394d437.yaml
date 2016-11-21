@@ -1,0 +1,3 @@
+features:
+  - Added pagination support (limit and marker) to the CLI for
+    configuration-list and configuration-instances.
