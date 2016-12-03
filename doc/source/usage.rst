@@ -6,7 +6,7 @@ Authentication
 
 Authenticating is necessary to use every feature of the client.
 
-To create the client, create an instance of the Client class. 
+To create the client, create an instance of the Client class.
 The auth url, username, password, and project name must be specified in the
 call to the constructor.
 
@@ -19,11 +19,11 @@ call to the constructor.
             region_name="EAST",
             auth_url="http://api-server:5000/v2.0")
 
-The default authentication strategy assumes a Keystone compliant auth system.
+The default authentication strategy assumes a keystone compliant auth system.
 
 Once you have an authenticated client object you can make calls with it,
 for example:
-  
+
 .. testcode::
 
     flavors = tc.flavors.list()
