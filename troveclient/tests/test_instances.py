@@ -84,8 +84,7 @@ class InstancesTest(testtools.TestCase):
         super(InstancesTest, self).tearDown()
         instances.Instances.__init__ = self.orig__init
 
-    @mock.patch('warnings.warn')
-    def test_create(self, mock_warn):
+    def test_create(self):
         def side_effect_func(path, body, inst):
             return path, body, inst
 
@@ -95,7 +94,7 @@ class InstancesTest(testtools.TestCase):
                                         ['db1', 'db2'], ['u1', 'u2'],
                                         datastore="datastore",
                                         datastore_version="datastore-version",
-                                        nics=nics, slave_of='test',
+                                        nics=nics, replica_of='test',
                                         replica_count=4,
                                         modules=['mod_id'],
                                         locality='affinity')
@@ -110,11 +109,7 @@ class InstancesTest(testtools.TestCase):
                          b["instance"]["datastore"]["version"])
         self.assertEqual(nics, b["instance"]["nics"])
         self.assertEqual(103, b["instance"]["flavorRef"])
-        # Assert that slave_of is not used and if specified, there is a warning
-        # and it's value is used for replica_of.
         self.assertEqual('test', b['instance']['replica_of'])
-        self.assertNotIn('slave_of', b['instance'])
-        self.assertTrue(mock_warn.called)
         self.assertEqual([{'id': 'mod_id'}], b["instance"]["modules"])
         self.assertEqual(4, b["instance"]["replica_count"])
         self.assertEqual('affinity', b["instance"]["locality"])
