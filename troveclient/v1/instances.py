@@ -72,11 +72,14 @@ class Instances(base.ManagerWithFind):
             user = self.api.client.auth._username
             key = self.api.client.auth._password
             tenant_name = self.api.client.auth._project_name
+            auth_version = "3.0"
         else:
             auth_url = self.api.client.auth_url
             user = self.api.client.username
             key = self.api.client.password
             tenant_name = self.api.client.tenant
+            auth_version = "2.0"
+
         # remove '/tokens' from the end of auth_url so it works for swift
         token_str = "/tokens"
         if auth_url.endswith(token_str):
@@ -85,7 +88,8 @@ class Instances(base.ManagerWithFind):
         os_options = {'tenant_name': tenant_name, 'region_name': region_name}
 
         return swift_client.Connection(
-            auth_url, user, key, auth_version="2.0", os_options=os_options)
+            auth_url, user, key, auth_version=auth_version,
+            os_options=os_options)
 
     # TODO(mriedem): Remove slave_of after liberty-eol for Trove.
     def create(self, name, flavor_id, volume=None, databases=None, users=None,
