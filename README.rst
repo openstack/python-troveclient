@@ -1,6 +1,9 @@
 Python bindings to the OpenStack Trove API
 ==========================================
 
+.. image:: http://governance.openstack.org/badges/python-troveclient.svg
+    :target: http://governance.openstack.org/reference/tags/index.html
+
 .. image:: https://img.shields.io/pypi/v/python-troveclient.svg
     :target: https://pypi.python.org/pypi/python-troveclient/
     :alt: Latest Version
