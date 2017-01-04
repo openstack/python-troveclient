@@ -246,6 +246,17 @@ def find_resource(manager, name_or_id):
         raise exceptions.CommandError(msg)
 
 
+def is_admin(cs):
+    is_admin = False
+    try:
+        is_admin = 'admin' in cs.client.auth.auth_ref.role_names
+    except Exception:
+        print("Warning: Could not determine current role. Assuming non-admin")
+        pass
+
+    return is_admin
+
+
 class HookableMixin(object):
     """Mixin so classes can register and run hooks."""
     _hooks_map = {}

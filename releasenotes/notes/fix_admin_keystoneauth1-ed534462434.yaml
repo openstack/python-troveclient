@@ -1,0 +1,5 @@
+---
+fixes:
+    - Having the CLI command display non-redundant information
+      for module-list when invoked with admin privileges now
+      works with both keystone V2 and V3. Bug 1622019
