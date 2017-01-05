@@ -34,7 +34,7 @@ INSTANCE_HELP = _("Add an instance to the cluster.  Specify multiple "
                   "port-id=<port-uuid>>' "
                   "(where net-id=network_id, v4-fixed-ip=IPv4r_fixed_address, "
                   "port-id=port_id), availability_zone=<AZ_hint_for_Nova>, "
-                  "module=<module_name_or_id>.")
+                  "module=<module_name_or_id>, type=<type_of_cluster_node>.")
 NIC_ERROR = _("Invalid NIC argument: %s. Must specify either net-id or port-id"
               " but not both. Please refer to help.")
 NO_LOG_FOUND_ERROR = _("ERROR: No published '%(log_name)s' log was found for "
@@ -766,12 +766,12 @@ def _parse_instance_options(cs, instance_options, for_grow=False):
         if modules:
             instance_info["modules"] = modules
 
-        if for_grow:
-            instance_type, instance_opts = _strip_option(
-                instance_opts, 'type', is_required=False)
-            if instance_type:
-                instance_info["type"] = instance_type
+        instance_type, instance_opts = _strip_option(
+            instance_opts, 'type', is_required=False, allow_multiple=True)
+        if instance_type:
+            instance_info["type"] = instance_type
 
+        if for_grow:
             related_to, instance_opts = _strip_option(
                 instance_opts, 'related_to', is_required=False)
             if instance_type:
