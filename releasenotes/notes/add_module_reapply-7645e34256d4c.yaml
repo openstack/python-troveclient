@@ -1,0 +1,6 @@
+---
+fixes:
+    - Add module-reapply command to facilitate
+      applying a module again to all instances
+      where it was previously applied.  Bug 1554903
+

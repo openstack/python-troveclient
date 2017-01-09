@@ -494,6 +494,9 @@ class FakeHTTPClient(base_client.HTTPClient):
             return self.get_instance_counts()
         return self.get_instances()
 
+    def put_modules_4321_instances(self, **kw):
+        return (202, {}, None)
+
     def get_instances_modules(self, **kw):
         return (200, {}, None)
 
