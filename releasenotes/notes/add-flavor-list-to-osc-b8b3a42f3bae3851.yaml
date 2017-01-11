@@ -1,0 +1,5 @@
+---
+features:
+    - The command ``trove flavor-list`` is now available to use in
+      the python-openstackclient CLI as ``openstack database flavor
+      list``
