@@ -18,6 +18,7 @@ from troveclient.tests.osc import utils
 from troveclient.v1 import backups
 from troveclient.v1 import clusters
 from troveclient.v1 import flavors
+from troveclient.v1 import limits
 
 
 class TestDatabasev1(utils.TestCommand):
@@ -53,3 +54,17 @@ class FakeConfigurations(object):
 
     def get_configurations_c_123(self):
         return flavors.Flavor(None, self.fake_config[0])
+
+
+class FakeLimits(object):
+    fake_limits = fakes.FakeHTTPClient().get_limits()[2]['limits']
+
+    def get_absolute_limits(self):
+        return limits.Limit(None, self.fake_limits[0])
+
+    def get_non_absolute_limits(self):
+        return limits.Limit(None,
+                            {'value': 200,
+                             'verb': 'DELETE',
+                             'remaining': 200,
+                             'unit': 'MINUTE'})
