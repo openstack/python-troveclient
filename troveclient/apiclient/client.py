@@ -39,7 +39,7 @@ from oslo_utils import importutils
 from troveclient.apiclient import exceptions
 
 
-_logger = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 class HTTPClient(object):
@@ -111,19 +111,19 @@ class HTTPClient(object):
             header = "-H '%s: %s'" % (element, kwargs['headers'][element])
             string_parts.append(header)
 
-        _logger.debug("REQ: %s" % " ".join(string_parts))
+        LOG.debug("REQ: %s", " ".join(string_parts))
         if 'data' in kwargs:
-            _logger.debug("REQ BODY: %s\n" % (kwargs['data']))
+            LOG.debug("REQ BODY: %s\n", kwargs['data'])
 
     def _http_log_resp(self, resp):
         if not self.debug:
             return
-        _logger.debug(
+        LOG.debug(
             "RESP: [%s] %s\n",
             resp.status_code,
             resp.headers)
         if resp._content_consumed:
-            _logger.debug(
+            LOG.debug(
                 "RESP BODY: %s\n",
                 resp.text)
 
@@ -176,7 +176,7 @@ class HTTPClient(object):
         self._http_log_resp(resp)
 
         if resp.status_code >= 400:
-            _logger.debug(
+            LOG.debug(
                 "Request returned failure status: %s",
                 resp.status_code)
             raise exceptions.from_response(resp, method, url)

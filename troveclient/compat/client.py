@@ -29,7 +29,7 @@ from troveclient.compat import auth
 from troveclient.compat import exceptions
 
 
-_logger = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 RDC_PP = os.environ.get("RDC_PP", "False") == "True"
 
 
@@ -39,8 +39,8 @@ expected_errors = (400, 401, 403, 404, 408, 409, 413, 422, 500, 501)
 def log_to_streamhandler(stream=None):
     stream = stream or sys.stderr
     ch = logging.StreamHandler(stream)
-    _logger.setLevel(logging.DEBUG)
-    _logger.addHandler(ch)
+    LOG.setLevel(logging.DEBUG)
+    LOG.addHandler(ch)
 
 
 if 'REDDWARFCLIENT_DEBUG' in os.environ and os.environ['REDDWARFCLIENT_DEBUG']:
@@ -105,7 +105,7 @@ class TroveHTTPClient(httplib2.Http):
             self.pretty_log(args, kwargs, resp, body)
 
     def simple_log(self, args, kwargs, resp, body):
-        if not _logger.isEnabledFor(logging.DEBUG):
+        if not LOG.isEnabledFor(logging.DEBUG):
             return
 
         string_parts = ['curl -i']
@@ -119,13 +119,13 @@ class TroveHTTPClient(httplib2.Http):
             header = ' -H "%s: %s"' % (element, kwargs['headers'][element])
             string_parts.append(header)
 
-        _logger.debug("REQ: %s\n" % "".join(string_parts))
+        LOG.debug("REQ: %s\n", "".join(string_parts))
         if 'body' in kwargs:
-            _logger.debug("REQ BODY: %s\n" % (kwargs['body']))
-        _logger.debug("RESP:%s %s\n", resp, body)
+            LOG.debug("REQ BODY: %s\n", kwargs['body'])
+        LOG.debug("RESP:%s %s\n", resp, body)
 
     def pretty_log(self, args, kwargs, resp, body):
-        if not _logger.isEnabledFor(logging.DEBUG):
+        if not LOG.isEnabledFor(logging.DEBUG):
             return
 
         string_parts = ['curl -i']
@@ -140,24 +140,24 @@ class TroveHTTPClient(httplib2.Http):
             string_parts.append(header)
 
         curl_cmd = "".join(string_parts)
-        _logger.debug("REQUEST:")
+        LOG.debug("REQUEST:")
         if 'body' in kwargs:
-            _logger.debug("%s -d '%s'" % (curl_cmd, kwargs['body']))
+            LOG.debug("%s -d '%s'", curl_cmd, kwargs['body'])
             try:
                 req_body = json.dumps(json.loads(kwargs['body']),
                                       sort_keys=True, indent=4)
             except Exception:
                 req_body = kwargs['body']
-            _logger.debug("BODY: %s\n" % (req_body))
+            LOG.debug("BODY: %s\n", req_body)
         else:
-            _logger.debug(curl_cmd)
+            LOG.debug(curl_cmd)
 
         try:
             resp_body = json.dumps(json.loads(body), sort_keys=True, indent=4)
         except Exception:
             resp_body = body
-        _logger.debug("RESPONSE HEADERS: %s" % resp)
-        _logger.debug("RESPONSE BODY   : %s" % resp_body)
+        LOG.debug("RESPONSE HEADERS: %s", resp)
+        LOG.debug("RESPONSE BODY   : %s", resp_body)
 
     def request(self, *args, **kwargs):
         kwargs.setdefault('headers', kwargs.get('headers', {}))
