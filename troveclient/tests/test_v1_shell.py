@@ -250,6 +250,29 @@ class ShellTest(utils.TestCase):
         self.run_command('flavor-show m1.uuid')
         self.assert_called('GET', '/flavors/m1.uuid')
 
+    def test_volume_type_list(self):
+        self.run_command('volume-type-list')
+        self.assert_called('GET', '/volume-types')
+
+    def test_volume_type_list_with_datastore(self):
+        cmd = ('volume-type-list --datastore_type mysql '
+               '--datastore_version_id some-version-id')
+        self.run_command(cmd)
+        self.assert_called(
+            'GET', '/datastores/mysql/versions/some-version-id/volume-types')
+
+    def test_volume_type_list_error(self):
+        cmd = 'volume-type-list --datastore_type mysql'
+        exepcted_error_msg = ('Missing argument\(s\): '
+                              'datastore_type, datastore_version_id')
+        self.assertRaisesRegexp(
+            exceptions.MissingArgs, exepcted_error_msg, self.run_command,
+            cmd)
+
+    def test_volume_type_show(self):
+        self.run_command('volume-type-show 1')
+        self.assert_called('GET', '/volume-types/1')
+
     def test_cluster_list(self):
         self.run_command('cluster-list')
         self.assert_called('GET', '/clusters')
