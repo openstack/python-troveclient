@@ -34,7 +34,8 @@ INSTANCE_HELP = _("Add an instance to the cluster.  Specify multiple "
                   "port-id=<port-uuid>>' "
                   "(where net-id=network_id, v4-fixed-ip=IPv4r_fixed_address, "
                   "port-id=port_id), availability_zone=<AZ_hint_for_Nova>, "
-                  "module=<module_name_or_id>, type=<type_of_cluster_node>.")
+                  "module=<module_name_or_id>, type=<type_of_cluster_node>, "
+                  "related_to=<related_attribute>.")
 NIC_ERROR = _("Invalid NIC argument: %s. Must specify either net-id or port-id"
               " but not both. Please refer to help.")
 NO_LOG_FOUND_ERROR = _("ERROR: No published '%(log_name)s' log was found for "
