@@ -51,7 +51,7 @@ DEFAULT_OS_DATABASE_API_VERSION = "1.0"
 DEFAULT_TROVE_ENDPOINT_TYPE = 'publicURL'
 DEFAULT_TROVE_SERVICE_TYPE = 'database'
 
-logger = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 osprofiler_profiler = importutils.try_import("osprofiler.profiler")
 
 
@@ -751,7 +751,7 @@ def main():
         print(_("... terminating trove client"), file=sys.stderr)
         sys.exit(130)
     except Exception as e:
-        logger.debug(e, exc_info=1)
+        LOG.debug(e, exc_info=1)
         message = six.text_type(e)
         if not isinstance(message, six.string_types):
             message = str(message)

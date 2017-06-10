@@ -119,11 +119,11 @@ class HTTPClient(TroveClientMixin):
         self.auth_system = auth_system
         self.auth_plugin = auth_plugin
 
-        self._logger = logging.getLogger(__name__)
-        if self.http_log_debug and not self._logger.handlers:
+        self.LOG = logging.getLogger(__name__)
+        if self.http_log_debug and not self.LOG.handlers:
             ch = logging.StreamHandler()
-            self._logger.setLevel(logging.DEBUG)
-            self._logger.addHandler(ch)
+            self.LOG.setLevel(logging.DEBUG)
+            self.LOG.addHandler(ch)
             if hasattr(requests, 'logging'):
                 requests.logging.getLogger(requests.__name__).addHandler(ch)
 
@@ -144,12 +144,12 @@ class HTTPClient(TroveClientMixin):
 
         if 'data' in kwargs:
             string_parts.append(" -d '%s'" % (kwargs['data']))
-        self._logger.debug("\nREQ: %s\n" % "".join(string_parts))
+        self.LOG.debug("\nREQ: %s\n", "".join(string_parts))
 
     def http_log_resp(self, resp):
         if not self.http_log_debug:
             return
-        self._logger.debug(
+        self.LOG.debug(
             "RESP: [%s] %s\nRESP BODY: %s\n",
             resp.status_code,
             resp.headers,
@@ -211,7 +211,7 @@ class HTTPClient(TroveClientMixin):
             except exceptions.Unauthorized:
                 if auth_attempts > 0:
                     raise
-                self._logger.debug("Unauthorized, reauthenticating.")
+                self.LOG.debug("Unauthorized, reauthenticating.")
                 self.management_url = self.auth_token = None
                 # First reauth. Discount this attempt.
                 attempts -= 1
@@ -226,12 +226,12 @@ class HTTPClient(TroveClientMixin):
                     raise
             except requests.exceptions.ConnectionError as e:
                 # Catch a connection refused from requests.request
-                self._logger.debug("Connection refused: %s" % e)
+                self.LOG.debug("Connection refused: %s", e)
                 msg = 'Unable to establish connection: %s' % e
                 raise exceptions.ConnectionRefused(msg)
-            self._logger.debug(
-                "Failed attempt(%s of %s), retrying in %s seconds" %
-                (attempts, self.retries, backoff))
+            self.LOG.debug(
+                "Failed attempt(%s of %s), retrying in %s seconds",
+                attempts, self.retries, backoff)
             sleep_lib.sleep(backoff)
             backoff *= 2
 
@@ -303,7 +303,7 @@ class HTTPClient(TroveClientMixin):
         # GET ...:5001/v2.0/tokens/#####/endpoints
         url = '/'.join([url, 'tokens', '%s?belongsTo=%s'
                         % (self.proxy_token, self.proxy_tenant_id)])
-        self._logger.debug("Using Endpoint URL: %s" % url)
+        self.LOG.debug("Using Endpoint URL: %s", url)
         resp, body = self.request(url, "GET",
                                   headers={'X-Auth-Token': self.auth_token})
         return self._extract_service_catalog(url, resp, body,
