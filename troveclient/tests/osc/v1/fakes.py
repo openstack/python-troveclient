@@ -19,6 +19,7 @@ from troveclient.v1 import backups
 from troveclient.v1 import clusters
 from troveclient.v1 import flavors
 from troveclient.v1 import limits
+from troveclient.v1 import users
 
 
 class TestDatabasev1(utils.TestCommand):
@@ -68,3 +69,10 @@ class FakeLimits(object):
                              'verb': 'DELETE',
                              'remaining': 200,
                              'unit': 'MINUTE'})
+
+
+class FakeUsers(object):
+    fake_users = fakes.FakeHTTPClient().get_instances_1234_users()[2]['users']
+
+    def get_instances_1234_users_harry(self):
+        return users.User(None, self.fake_users[2])
