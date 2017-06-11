@@ -16,6 +16,7 @@ import mock
 from troveclient.tests import fakes
 from troveclient.tests.osc import utils
 from troveclient.v1 import backups
+from troveclient.v1 import clusters
 from troveclient.v1 import flavors
 
 
@@ -37,3 +38,10 @@ class FakeBackups(object):
 
     def get_backup_bk_1234(self):
         return backups.Backup(None, self.fake_backups[0])
+
+
+class FakeClusters(object):
+    fake_clusters = fakes.FakeHTTPClient().get_clusters()[2]['clusters']
+
+    def get_clusters_cls_1234(self):
+        return clusters.Cluster(None, self.fake_clusters[0])
