@@ -45,3 +45,11 @@ class FakeClusters(object):
 
     def get_clusters_cls_1234(self):
         return clusters.Cluster(None, self.fake_clusters[0])
+
+
+class FakeConfigurations(object):
+    fake_config = (fakes.FakeHTTPClient().get_configurations()
+                   [2]['configurations'])
+
+    def get_configurations_c_123(self):
+        return flavors.Flavor(None, self.fake_config[0])
