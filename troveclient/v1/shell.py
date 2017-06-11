@@ -421,7 +421,10 @@ def do_force_delete(cs, args):
            help=_('ID or name of the instance.'))
 @utils.service_type('database')
 def do_reset_status(cs, args):
-    """Set the status to NONE."""
+    """Set the task status of an instance to NONE if the instance is in BUILD
+    or ERROR state. Resetting task status of an instance in BUILD state will
+    allow the instance to be deleted.
+    """
     instance = _find_instance(cs, args.instance)
     cs.instances.reset_status(instance=instance)
 
