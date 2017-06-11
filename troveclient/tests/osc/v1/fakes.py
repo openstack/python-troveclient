@@ -18,6 +18,7 @@ from troveclient.tests.osc import utils
 from troveclient.v1 import backups
 from troveclient.v1 import clusters
 from troveclient.v1 import databases
+from troveclient.v1 import datastores
 from troveclient.v1 import flavors
 from troveclient.v1 import instances
 from troveclient.v1 import limits
@@ -92,3 +93,10 @@ class FakeDatabases(object):
 
     def get_databases_1(self):
         return databases.Database(None, self.fake_databases[0])
+
+
+class FakeDatastores(object):
+    fake_datastores = fakes.FakeHTTPClient().get_datastores()[2]['datastores']
+
+    def get_datastores_d_123(self):
+        return datastores.Datastore(None, self.fake_datastores[0])
