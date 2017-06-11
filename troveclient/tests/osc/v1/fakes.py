@@ -18,6 +18,7 @@ from troveclient.tests.osc import utils
 from troveclient.v1 import backups
 from troveclient.v1 import clusters
 from troveclient.v1 import flavors
+from troveclient.v1 import instances
 from troveclient.v1 import limits
 from troveclient.v1 import users
 
@@ -76,3 +77,10 @@ class FakeUsers(object):
 
     def get_instances_1234_users_harry(self):
         return users.User(None, self.fake_users[2])
+
+
+class FakeInstances(object):
+    fake_instances = (fakes.FakeHTTPClient().get_instances()[2]['instances'])
+
+    def get_instances_1234(self):
+        return instances.Instance(None, self.fake_instances[0])
