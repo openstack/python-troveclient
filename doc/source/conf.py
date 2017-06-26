@@ -31,8 +31,15 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.coverage',
-    'oslosphinx'
+    'openstackdocstheme',
 ]
+
+# openstackdocstheme options
+repository_name = 'openstack/python-troveclient'
+bug_project = 'python-troveclient'
+bug_tag = ''
+html_last_updated_fmt = '%Y-%m-%d %H:%M'
+html_theme = 'openstackdocs'
 
 templates_path = ['_templates']
 
@@ -47,7 +54,6 @@ exclude_trees = []
 
 pygments_style = 'sphinx'
 
-html_theme = 'default'
 htmlhelp_basename = 'python-troveclientdoc'
 latex_documents = [
     ('index', 'python-troveclient.tex', u'python-troveclient Documentation',
