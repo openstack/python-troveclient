@@ -254,7 +254,7 @@ class Instances(base.ManagerWithFind):
         """Restart the database instance.
 
         :param instance: The :class:`Instance` (or its ID) of the database
-        instance to restart.
+                         instance to restart.
         """
         body = {'restart': {}}
         self._action(instance, body)
@@ -271,7 +271,7 @@ class Instances(base.ManagerWithFind):
         """Promote a replica to be the new replica_source of its set
 
         :param instance: The :class:`Instance` (or its ID) of the database
-        instance to promote.
+                         instance to promote.
         """
         body = {'promote_to_replica_source': {}}
         self._action(instance, body)
@@ -280,7 +280,7 @@ class Instances(base.ManagerWithFind):
         """Eject a replica source from its set
 
         :param instance: The :class:`Instance` (or its ID) of the database
-        instance to eject.
+                         instance to eject.
         """
         body = {'eject_replica_source': {}}
         self._action(instance, body)
@@ -368,7 +368,7 @@ class Instances(base.ManagerWithFind):
         """Get a list of all guest logs.
 
         :param instance: The :class:`Instance` (or its ID) of the database
-        instance to get the log for.
+                         instance to get the log for.
         :rtype: list of :class:`DatastoreLog`.
         """
         url = '/instances/%s/log' % base.getid(instance)
@@ -398,7 +398,7 @@ class Instances(base.ManagerWithFind):
         """Perform action on guest log.
 
         :param instance: The :class:`Instance` (or its ID) of the database
-        instance to get the log for.
+                         instance to get the log for.
         :param log_name: The name of <log> to publish
         :param enable: Turn on <log>
         :param disable: Turn off <log>
@@ -437,7 +437,7 @@ class Instances(base.ManagerWithFind):
         """Return generator to yield the last <lines> lines of guest log.
 
         :param instance: The :class:`Instance` (or its ID) of the database
-        instance to get the log for.
+                         instance to get the log for.
         :param log_name: The name of <log> to publish
         :param publish: Publish updates before displaying log
         :param lines: Display last <lines> lines of log (0 for all lines)
@@ -492,7 +492,7 @@ class Instances(base.ManagerWithFind):
         """Saves a guest log to a file.
 
         :param instance: The :class:`Instance` (or its ID) of the database
-        instance to get the log for.
+                         instance to get the log for.
         :param log_name: The name of <log> to publish
         :param publish: Publish updates before displaying log
         :rtype: Filename to which log was saved

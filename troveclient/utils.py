@@ -67,10 +67,12 @@ def add_arg(f, *args, **kwargs):
 def unauthenticated(f):
     """Adds 'unauthenticated' attribute to decorated function.
 
-    Usage:
+    Usage::
+
         @unauthenticated
         def mymethod(f):
             ...
+
     """
     f.unauthenticated = True
     return f
@@ -89,10 +91,12 @@ def isunauthenticated(f):
 def service_type(stype):
     """Adds 'service_type' attribute to decorated function.
 
-    Usage:
+    Usage::
+
         @service_type('database')
         def mymethod(f):
             ...
+
     """
     def inner(f):
         f.service_type = stype
