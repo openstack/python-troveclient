@@ -55,7 +55,7 @@ class TroveClientMixin(object):
     def get_database_api_version_from_endpoint(self):
         magic_tuple = urlparse.urlsplit(self.management_url)
         scheme, netloc, path, query, frag = magic_tuple
-        v = path.split("/")[1]
+        v = path.split("/")[2]
         valid_versions = ['v1.0']
         if v not in valid_versions:
             msg = "Invalid client version '%s'. must be one of: %s" % (
