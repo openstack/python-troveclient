@@ -16,11 +16,11 @@ This is a client for the OpenStack Trove API. There's a Python API (the
 ``troveclient`` module), and a command-line script (``trove``). Each
 implements 100% of the OpenStack Trove API.
 
-See the `OpenStack CLI Guide`_ for information on how to use the ``trove``
+See the `Trove CLI Guide`_ for information on how to use the ``trove``
 command-line tool. You may also want to look at the
 `OpenStack API documentation`_.
 
-.. _OpenStack CLI Guide: http://docs.openstack.org/user-guide/cli.html
+.. _Trove CLI Guide: http://docs.openstack.org/trove/latest/cli
 .. _OpenStack API documentation: http://docs.openstack.org/api/quick-start/content/
 
 python-troveclient is licensed under the Apache License like the rest of OpenStack.

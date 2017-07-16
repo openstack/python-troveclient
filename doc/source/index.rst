@@ -11,14 +11,19 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-.. include:: ../../README.rst
-   :start-line: 0
-   :end-line: 22
+============================================
+ Python bindings to the OpenStack Trove API
+============================================
+
+This is a client for the OpenStack Trove API. There's a Python API (the
+``troveclient`` module), and a command-line script (``trove``). Each
+implements 100% of the OpenStack Trove API.
 
 .. toctree::
    :maxdepth: 2
 
    user/index
+   cli/index
    reference/index
 
 Indices and tables
