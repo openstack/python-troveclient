@@ -14,3 +14,5 @@ ChangeLog
 
 # Files created by releasenotes build
 releasenotes/build
+/doc/build/
+/doc/source/reference/api/

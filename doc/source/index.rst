@@ -18,8 +18,8 @@
 .. toctree::
    :maxdepth: 2
 
-   usage
-   ref/v1/index
+   user/index
+   reference/index
 
 Indices and tables
 ==================
