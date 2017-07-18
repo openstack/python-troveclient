@@ -183,7 +183,7 @@ class BaseAuthPlugin(object):
         a request to authentication server.
 
         :param http_client: client object that needs authentication
-        :type http_client: HTTPClient
+        :type http_client: troveclient.client.HTTPClient
         :raises: AuthorizationFailure
         """
         self.sufficient_options()
@@ -213,8 +213,8 @@ class BaseAuthPlugin(object):
         :type service_type: string
         :param endpoint_type: Type of endpoint.
                               Possible values: public or publicURL,
-                                  internal or internalURL,
-                                  admin or adminURL
+                              internal or internalURL,
+                              admin or adminURL
         :type endpoint_type: string
         :returns: tuple of token and endpoint strings
         :raises: EndpointException
