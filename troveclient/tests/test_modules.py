@@ -14,8 +14,8 @@
 #    under the License.
 #
 
-import Crypto.Random
 import mock
+import os
 import testtools
 
 from troveclient.v1 import modules
@@ -55,7 +55,7 @@ class TestModules(testtools.TestCase):
             return path, body, mod
 
         text_contents = "my_contents"
-        binary_contents = Crypto.Random.new().read(20)
+        binary_contents = os.urandom(20)
         for contents in [text_contents, binary_contents]:
             self.modules._create = mock.Mock(side_effect=side_effect_func)
             path, body, mod = self.modules.create(
