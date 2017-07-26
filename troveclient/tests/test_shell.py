@@ -74,7 +74,7 @@ class ShellTest(testtools.TestCase):
     v2_auth_response = json.dumps({
         "access": {
             "token": {
-                "expires_at": "2020-01-01T00:00:10.000123Z",
+                "expires": "2020-01-01T00:00:10.000123Z",
                 "id": 'fakeToken',
                 "tenant": {
                     "id": uuid.uuid4().hex
