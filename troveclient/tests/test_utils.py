@@ -15,7 +15,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import Crypto.Random
 import os
 import tempfile
 import testtools
@@ -55,8 +54,8 @@ class UtilsTest(testtools.TestCase):
             text_data_bytes = bytes('This is a byte stream', 'utf-8')
         except TypeError:
             text_data_bytes = bytes('This is a byte stream')
-        random_data_str = Crypto.Random.new().read(12)
-        random_data_bytes = bytearray(Crypto.Random.new().read(12))
+        random_data_str = os.urandom(12)
+        random_data_bytes = bytearray(os.urandom(12))
         special_char_str = '\x00\xFF\x00\xFF\xFF\x00'
         special_char_bytes = bytearray(
             [ord(item) for item in special_char_str])
