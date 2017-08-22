@@ -1048,30 +1048,6 @@ def do_backup_create(cs, args):
     _print_object(backup)
 
 
-@utils.arg('name', metavar='<name>', help=_('Name of the backup.'))
-@utils.arg('backup', metavar='<backup>',
-           help=_('Backup ID of the source backup.'),
-           default=None)
-@utils.arg('--region', metavar='<region>', default=None,
-           # help=_('Region where the source backup resides.'))
-           help=argparse.SUPPRESS)
-@utils.arg('--description', metavar='<description>',
-           default=None,
-           help=_('An optional description for the backup.'))
-@utils.service_type('database')
-def do_backup_copy(cs, args):
-    """Creates a backup from another backup."""
-    if args.backup:
-        backup_ref = {"id": args.backup,
-                      "region": args.region}
-    else:
-        backup_ref = None
-    backup = cs.backups.create(args.name, instance=None,
-                               description=args.description,
-                               parent_id=None, backup=backup_ref,)
-    _print_object(backup)
-
-
 @utils.arg('instance', metavar='<instance>',
            help=_('ID or name of the instance.'))
 @utils.arg('pattern', metavar='<pattern>',

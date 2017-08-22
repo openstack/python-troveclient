@@ -824,16 +824,6 @@ class ShellTest(utils.TestCase):
                 'incremental': False
             }})
 
-    def test_backup_copy(self):
-        self.run_command('backup-copy new_bkp bk-1234')
-        self.assert_called_anytime(
-            'POST', '/backups',
-            {'backup': {
-                'name': 'new_bkp',
-                'incremental': False,
-                'backup': {'region': None, 'id': 'bk-1234'}
-            }})
-
     def test_database_list(self):
         self.run_command('database-list 1234')
         self.assert_called('GET', '/instances/1234/databases')
