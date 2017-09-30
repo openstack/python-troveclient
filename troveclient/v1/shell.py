@@ -231,7 +231,8 @@ def do_flavor_list(cs, args):
 
     utils.print_list(_flavors, ['id', 'name', 'ram', 'vcpus', 'disk',
                                 'ephemeral'],
-                     labels={'ram': 'RAM', 'vcpus': 'vCPUs', 'disk': 'Disk'})
+                     labels={'ram': 'RAM', 'vcpus': 'vCPUs', 'disk': 'Disk'},
+                     order_by='ram')
 
 
 @utils.arg('flavor', metavar='<flavor>', type=str,
