@@ -57,7 +57,7 @@ class AuthenticatorTest(testtools.TestCase):
         for c in class_list:
             self.assertEqual(c, auth.get_authenticator_cls(c))
 
-        class_names = {"keystone": auth.KeyStoneV2Authenticator,
+        class_names = {"keystone": auth.KeyStoneV3Authenticator,
                        "auth1.1": auth.Auth1_1,
                        "fake": auth.FakeAuth}
 

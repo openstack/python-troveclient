@@ -94,6 +94,8 @@ class TroveHTTPClient(httplib2.Http):
                                       service_type=service_type,
                                       service_name=service_name,
                                       service_url=service_url)
+        if hasattr(self.authenticator, 'auth'):
+            self.auth = self.authenticator.auth
 
     def get_timings(self):
         return self.times
