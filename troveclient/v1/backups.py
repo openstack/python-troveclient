@@ -119,9 +119,9 @@ class Backups(base.ManagerWithFind):
             tenant_name = self.api.client.auth._project_name
         else:
             auth_url = self.api.client.auth_url
-            user = self.api.client.username
+            user = self.api.client.user
             key = self.api.client.password
-            tenant_name = self.api.client.tenant
+            tenant_name = self.api.client.projectid
 
         return mistral_client(auth_url=auth_url, username=user, api_key=key,
                               project_name=tenant_name)
