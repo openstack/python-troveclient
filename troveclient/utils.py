@@ -324,3 +324,10 @@ def decode_data(data):
 
     # py27 & py34 seem to understand bytearray the same
     return bytearray([item for item in base64.b64decode(data)])
+
+
+def do_action_with_msg(action, success_msg):
+    """Helper to run an action with return message."""
+
+    action
+    print(success_msg)

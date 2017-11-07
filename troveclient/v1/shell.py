@@ -407,7 +407,9 @@ def do_cluster_shrink(cs, args):
 def do_delete(cs, args):
     """Deletes an instance."""
     instance = _find_instance(cs, args.instance)
-    cs.instances.delete(instance)
+    msg = _("Request to delete instance %s "
+            "has been accepted.") % instance.id
+    utils.do_action_with_msg(cs.instances.delete(instance), msg)
 
 
 @utils.arg('instance', metavar='<instance>',
@@ -416,8 +418,10 @@ def do_delete(cs, args):
 def do_force_delete(cs, args):
     """Force delete an instance."""
     instance = _find_instance(cs, args.instance)
+    msg = _("Request to force delete instance %s "
+            "has been accepted.") % instance.id
     cs.instances.reset_status(instance)
-    cs.instances.delete(instance)
+    utils.do_action_with_msg(cs.instances.delete(instance), msg)
 
 
 @utils.arg('instance', metavar='<instance>',
@@ -438,7 +442,9 @@ def do_reset_status(cs, args):
 def do_cluster_delete(cs, args):
     """Deletes a cluster."""
     cluster = _find_cluster(cs, args.cluster)
-    cs.clusters.delete(cluster)
+    msg = _("Request to delete cluster %s "
+            "has been accepted.") % cluster.id
+    utils.do_action_with_msg(cs.clusters.delete(cluster), msg)
 
 
 @utils.arg('cluster', metavar='<cluster>',
@@ -447,8 +453,10 @@ def do_cluster_delete(cs, args):
 def do_cluster_force_delete(cs, args):
     """Force delete a cluster"""
     cluster = _find_cluster(cs, args.cluster)
+    msg = _("Request to force delete cluster %s "
+            "has been accepted.") % cluster.id
     cs.clusters.reset_status(cluster)
-    cs.clusters.delete(cluster)
+    utils.do_action_with_msg(cs.clusters.delete(cluster), msg)
 
 
 @utils.arg('cluster', metavar='<cluster>',
