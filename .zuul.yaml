@@ -1,7 +1,7 @@
 - project:
     name: openstack/python-troveclient
     templates:
-      - osc-plugin-jobs
+      - openstackclient-plugin-jobs
     check:
       jobs:
         - tempest-neutron-src-python-troveclient
