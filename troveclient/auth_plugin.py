@@ -20,7 +20,6 @@ import logging
 import pkg_resources
 import six
 
-from troveclient._i18n import _
 from troveclient import exceptions
 
 
@@ -40,7 +39,7 @@ def discover_auth_systems():
         try:
             auth_plugin = ep.load()
         except (ImportError, pkg_resources.UnknownExtra, AttributeError) as e:
-            LOG.debug(_("ERROR: Cannot load auth plugin %s"), ep.name)
+            LOG.debug("ERROR: Cannot load auth plugin %s", ep.name)
             LOG.debug(e, exc_info=1)
         else:
             _discovered_plugins[ep.name] = auth_plugin
