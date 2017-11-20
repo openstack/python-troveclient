@@ -1,0 +1,6 @@
+---
+features:
+    - This change defines do_action_on_many function as a helper to run an
+      action on many resources (like trove delete). Use command like
+      ``trove delete instance1 instance2 ...`` to delete many instances and the
+      same as cluster-delete.
