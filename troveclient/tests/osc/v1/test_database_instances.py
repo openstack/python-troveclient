@@ -32,13 +32,14 @@ class TestInstanceList(TestInstances):
     }
 
     columns = database_instances.ListDatabaseInstances.columns
-    values = ('1234', 'test-member-1', 'mysql', '5.6', 'ACTIVE', '02', 2,
-              'regionOne')
+    values = [('1234', 'test-member-1', 'mysql', '5.6', 'ACTIVE', '02', 2,
+              'regionOne'), ('5678', 'test-member-2', 'mysql', '5.6',
+              'ACTIVE', '2', 2, 'regionOne')]
 
     def setUp(self):
         super(TestInstanceList, self).setUp()
         self.cmd = database_instances.ListDatabaseInstances(self.app, None)
-        self.data = [self.fake_instances.get_instances_1234()]
+        self.data = self.fake_instances.get_instances()
         self.instance_client.list.return_value = common.Paginated(self.data)
 
     def test_instance_list_defaults(self):
@@ -46,7 +47,7 @@ class TestInstanceList(TestInstances):
         columns, data = self.cmd.take_action(parsed_args)
         self.instance_client.list.assert_called_once_with(**self.defaults)
         self.assertEqual(self.columns, columns)
-        self.assertEqual([self.values], data)
+        self.assertEqual(self.values, data)
 
 
 class TestInstanceShow(TestInstances):
