@@ -1,8 +1,8 @@
 Python bindings to the OpenStack Trove API
 ==========================================
 
-.. image:: http://governance.openstack.org/badges/python-troveclient.svg
-    :target: http://governance.openstack.org/reference/tags/index.html
+.. image:: https://governance.openstack.org/tc/badges/python-troveclient.svg
+    :target: https://governance.openstack.org/tc/reference/tags/index.html
 
 .. image:: https://img.shields.io/pypi/v/python-troveclient.svg
     :target: https://pypi.python.org/pypi/python-troveclient/
@@ -21,12 +21,12 @@ command-line tool. You may also want to look at the
 `OpenStack API documentation`_.
 
 .. _Trove CLI Guide: http://docs.openstack.org/trove/latest/cli
-.. _OpenStack API documentation: http://docs.openstack.org/api/quick-start/content/
+.. _OpenStack API documentation: https://developer.openstack.org/api-guide/quick-start/
 
 python-troveclient is licensed under the Apache License like the rest of OpenStack.
 
 * License: Apache License, Version 2.0
-* Documentation: http://docs.openstack.org/developer/python-troveclient/
+* Documentation: https://docs.openstack.org/python-troveclient/latest
 * Bugs: https://bugs.launchpad.net/python-troveclient
 * `PyPi`_- package installation
 * `Blueprints`_ - feature specifications
