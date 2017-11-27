@@ -103,6 +103,9 @@ def _print_instance(instance):
     if hasattr(instance, 'replicas'):
         replicas = [replica['id'] for replica in instance.replicas]
         info['replicas'] = ', '.join(replicas)
+    if hasattr(instance, 'networks'):
+        info['networks'] = instance.networks['name']
+        info['networks_id'] = instance.networks['id']
     if hasattr(instance, 'fault'):
         info.pop('fault', None)
         info['fault'] = instance.fault['message']
