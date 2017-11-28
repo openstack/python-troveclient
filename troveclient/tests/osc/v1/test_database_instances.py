@@ -47,3 +47,33 @@ class TestInstanceList(TestInstances):
         self.instance_client.list.assert_called_once_with(**self.defaults)
         self.assertEqual(self.columns, columns)
         self.assertEqual([self.values], data)
+
+
+class TestInstanceShow(TestInstances):
+
+    values = ('mysql', '5.6', '02', '1234', '10.0.0.13',
+              'test-member-1', 'regionOne', 'ACTIVE', 2)
+
+    def setUp(self):
+        super(TestInstanceShow, self).setUp()
+        self.cmd = database_instances.ShowDatabaseInstance(self.app, None)
+        self.data = self.fake_instances.get_instances_1234()
+        self.instance_client.get.return_value = self.data
+        self.columns = (
+            'datastore',
+            'datastore_version',
+            'flavor',
+            'id',
+            'ip',
+            'name',
+            'region',
+            'status',
+            'volume',
+        )
+
+    def test_show(self):
+        args = ['1234']
+        parsed_args = self.check_parser(self.cmd, args, [])
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.values, data)

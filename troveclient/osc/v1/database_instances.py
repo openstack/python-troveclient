@@ -14,6 +14,7 @@
 
 from osc_lib.command import command
 from osc_lib import utils as osc_utils
+import six
 
 from troveclient.i18n import _
 
@@ -31,6 +32,38 @@ def set_attributes_for_print(instances):
                         instance.datastore['version'])
             setattr(instance, 'datastore', instance.datastore['type'])
         return instances
+
+
+def set_attributes_for_print_detail(instance):
+    info = instance._info.copy()
+    info['flavor'] = instance.flavor['id']
+    if hasattr(instance, 'volume'):
+        info['volume'] = instance.volume['size']
+        if 'used' in instance.volume:
+            info['volume_used'] = instance.volume['used']
+    if hasattr(instance, 'ip'):
+        info['ip'] = ', '.join(instance.ip)
+    if hasattr(instance, 'datastore'):
+        info['datastore'] = instance.datastore['type']
+        info['datastore_version'] = instance.datastore['version']
+    if hasattr(instance, 'configuration'):
+        info['configuration'] = instance.configuration['id']
+    if hasattr(instance, 'replica_of'):
+        info['replica_of'] = instance.replica_of['id']
+    if hasattr(instance, 'replicas'):
+        replicas = [replica['id'] for replica in instance.replicas]
+        info['replicas'] = ', '.join(replicas)
+    if hasattr(instance, 'networks'):
+        info['networks'] = instance.networks['name']
+        info['networks_id'] = instance.networks['id']
+    if hasattr(instance, 'fault'):
+        info.pop('fault', None)
+        info['fault'] = instance.fault['message']
+        info['fault_date'] = instance.fault['created']
+        if 'details' in instance.fault and instance.fault['details']:
+            info['fault_details'] = instance.fault['details']
+    info.pop('links', None)
+    return info
 
 
 class ListDatabaseInstances(command.Lister):
@@ -81,3 +114,22 @@ class ListDatabaseInstances(command.Lister):
             instances = [osc_utils.get_item_properties(i, self.columns)
                          for i in instances]
         return self.columns, instances
+
+
+class ShowDatabaseInstance(command.ShowOne):
+    _description = _("Show instance details")
+
+    def get_parser(self, prog_name):
+        parser = super(ShowDatabaseInstance, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            help=_('Instance (name or ID)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_instances = self.app.client_manager.database.instances
+        instance = osc_utils.find_resource(db_instances, parsed_args.instance)
+        instance = set_attributes_for_print_detail(instance)
+        return zip(*sorted(six.iteritems(instance)))
