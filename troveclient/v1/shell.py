@@ -309,13 +309,13 @@ def _print_instances(instances, is_admin=False):
             setattr(instance, 'size', instance.volume['size'])
         else:
             setattr(instance, 'size', '-')
+        if not hasattr(instance, 'region'):
+            setattr(instance, 'region', '')
         if hasattr(instance, 'datastore'):
             if instance.datastore.get('version'):
                 setattr(instance, 'datastore_version',
                         instance.datastore['version'])
             setattr(instance, 'datastore', instance.datastore['type'])
-        if not hasattr(instance, 'region'):
-            setattr(instance, 'region', '')
     fields = ['id', 'name', 'datastore',
               'datastore_version', 'status',
               'flavor_id', 'size', 'region']
