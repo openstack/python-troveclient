@@ -13,8 +13,8 @@
 - job:
     name: tempest-neutron-src-python-troveclient
     parent: legacy-dsvm-base
-    run: playbooks/legacy/tempest-dsvm-neutron-src-python-troveclient/run
-    post-run: playbooks/legacy/tempest-dsvm-neutron-src-python-troveclient/post
+    run: playbooks/legacy/tempest-dsvm-neutron-src-python-troveclient/run.yaml
+    post-run: playbooks/legacy/tempest-dsvm-neutron-src-python-troveclient/post.yaml
     timeout: 7800
     required-projects:
       - openstack-dev/devstack
