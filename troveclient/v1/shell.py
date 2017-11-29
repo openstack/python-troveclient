@@ -143,6 +143,12 @@ def _print_object(obj):
         obj._info['id'] = obj.id
         del(obj._info['str_id'])
 
+    # Get datastore type and version, where necessary
+    if hasattr(obj, 'datastore'):
+        if 'type' in obj.datastore:
+            obj._info['datastore'] = obj.datastore['type']
+            obj._info['datastore_version'] = obj.datastore['version']
+
     utils.print_dict(obj._info)
 
 
