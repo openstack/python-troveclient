@@ -46,3 +46,34 @@ class TestClusterList(TestClusters):
         self.cluster_client.list.assert_called_once_with(**self.defaults)
         self.assertEqual(self.columns, columns)
         self.assertEqual([self.values], data)
+
+
+class TestClusterShow(TestClusters):
+
+    values = ('2015-05-02T10:37:04', 'vertica', '7.1', 'cls-1234', 2,
+              'test-clstr', 'No tasks for the cluster.', 'NONE',
+              '2015-05-02T11:06:19')
+
+    def setUp(self):
+        super(TestClusterShow, self).setUp()
+        self.cmd = database_clusters.ShowDatabaseCluster(self.app, None)
+        self.data = self.fake_clusters.get_clusters_cls_1234()
+        self.cluster_client.get.return_value = self.data
+        self.columns = (
+            'created',
+            'datastore',
+            'datastore_version',
+            'id',
+            'instance_count',
+            'name',
+            'task_description',
+            'task_name',
+            'updated',
+        )
+
+    def test_show(self):
+        args = ['cls-1234']
+        parsed_args = self.check_parser(self.cmd, args, [])
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.values, data)
