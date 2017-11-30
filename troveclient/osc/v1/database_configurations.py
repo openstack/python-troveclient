@@ -12,10 +12,19 @@
 
 """Database v1 Configurations action implementations"""
 
+import json
 from osc_lib.command import command
 from osc_lib import utils as osc_utils
+import six
 
 from troveclient.i18n import _
+
+
+def set_attributes_for_print_detail(configuration):
+    info = configuration._info.copy()
+    info['values'] = json.dumps(configuration.values)
+    del info['datastore_version_id']
+    return info
 
 
 class ListDatabaseConfigurations(command.Lister):
@@ -51,3 +60,23 @@ class ListDatabaseConfigurations(command.Lister):
         config = [osc_utils.get_item_properties(c, self.columns)
                   for c in config]
         return self.columns, config
+
+
+class ShowDatabaseConfiguration(command.ShowOne):
+    _description = _("Shows details of a database configuration group.")
+
+    def get_parser(self, prog_name):
+        parser = super(ShowDatabaseConfiguration, self).get_parser(prog_name)
+        parser.add_argument(
+            'configuration_group',
+            metavar='<configuration_group>',
+            help=_('ID or name of the configuration group'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_configurations = self.app.client_manager.database.configurations
+        configuration = osc_utils.find_resource(
+            db_configurations, parsed_args.configuration_group)
+        configuration = set_attributes_for_print_detail(configuration)
+        return zip(*sorted(six.iteritems(configuration)))
