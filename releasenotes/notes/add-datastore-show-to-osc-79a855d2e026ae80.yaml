@@ -1,0 +1,4 @@
+---
+features:
+  - The command ``trove datastore-show`` is now available to use in
+    the python-openstackclient CLI as ``openstack datastore show``
