@@ -14,9 +14,23 @@
 
 from osc_lib.command import command
 from osc_lib import utils
+import six
 
 from troveclient import exceptions
 from troveclient.i18n import _
+
+
+def set_attributes_for_print_detail(flavor):
+    info = flavor._info.copy()
+    # Get rid of those ugly links
+    if info.get('links'):
+        del(info['links'])
+
+    # Fallback to str_id for flavors, where necessary
+    if hasattr(flavor, 'str_id'):
+        info['id'] = flavor.id
+        del(info['str_id'])
+    return info
 
 
 class ListDatabaseFlavors(command.Lister):
@@ -61,3 +75,23 @@ class ListDatabaseFlavors(command.Lister):
             _flavors.append(utils.get_item_properties(f, self.columns))
 
         return self.columns, _flavors
+
+
+class ShowDatabaseFlavor(command.ShowOne):
+    _description = _("Shows details of a database flavor")
+
+    def get_parser(self, prog_name):
+        parser = super(ShowDatabaseFlavor, self).get_parser(prog_name)
+        parser.add_argument(
+            'flavor',
+            metavar='<flavor>',
+            help=_('ID or name of the flavor'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_flavors = self.app.client_manager.database.flavors
+        flavor = utils.find_resource(db_flavors,
+                                     parsed_args.flavor)
+        flavor = set_attributes_for_print_detail(flavor)
+        return zip(*sorted(six.iteritems(flavor)))
