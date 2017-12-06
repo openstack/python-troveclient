@@ -47,3 +47,33 @@ class TestConfigurationList(TestConfigurations):
         self.configuration_client.list.assert_called_once_with(**self.defaults)
         self.assertEqual(self.columns, columns)
         self.assertEqual([tuple(self.values)], data)
+
+
+class TestConfigurationShow(TestConfigurations):
+
+    values = ('2015-05-16T10:24:28', 'mysql', '5.6', '', 'c-123',
+              'test_config', '2015-05-16T10:24:29', '{"max_connections": 5}')
+
+    def setUp(self):
+        super(TestConfigurationShow, self).setUp()
+        self.cmd = database_configurations.ShowDatabaseConfiguration(self.app,
+                                                                     None)
+        self.data = self.fake_configurations.get_configurations_c_123()
+        self.configuration_client.get.return_value = self.data
+        self.columns = (
+            'created',
+            'datastore_name',
+            'datastore_version_name',
+            'description',
+            'id',
+            'name',
+            'updated',
+            'values',
+        )
+
+    def test_show(self):
+        args = ['c-123']
+        parsed_args = self.check_parser(self.cmd, args, [])
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.values, data)
