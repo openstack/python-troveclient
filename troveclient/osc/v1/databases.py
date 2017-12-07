@@ -13,10 +13,10 @@
 """Database v1 Databases action implementations"""
 
 from osc_lib.command import command
-from osc_lib import utils as osc_utils
+from osc_lib import exceptions
+from osc_lib import utils
 
 from troveclient.i18n import _
-from troveclient import utils
 
 
 class ListDatabases(command.Lister):
@@ -42,5 +42,36 @@ class ListDatabases(command.Lister):
         while items.next:
             items = databases.list(instance, marker=items.next)
             dbs += items
-        dbs = [osc_utils.get_item_properties(db, self.columns) for db in dbs]
+        dbs = [utils.get_item_properties(db, self.columns) for db in dbs]
         return self.columns, dbs
+
+
+class DeleteDatabase(command.Command):
+
+    _description = _("Deletes a database from an instance.")
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteDatabase, self).get_parser(prog_name)
+        parser.add_argument(
+            dest='instance',
+            metavar='<instance>',
+            help=_('ID or name of the instance.')
+        )
+        parser.add_argument(
+            dest='database',
+            metavar='<database>',
+            help=_('Name of the database.')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        manager = self.app.client_manager.database
+        databases = manager.databases
+        try:
+            instance = utils.find_resource(manager.instances,
+                                           parsed_args.instance)
+            databases.delete(instance, parsed_args.database)
+        except Exception as e:
+            msg = (_("Failed to delete database %(database)s: %(e)s")
+                   % {'database': parsed_args.database, 'e': e})
+            raise exceptions.CommandError(msg)
