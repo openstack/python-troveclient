@@ -1,0 +1,4 @@
+---
+features:
+  - The command ``trove datastore-version-list`` is now available to use in
+    the python-openstackclient CLI as ``openstack datastore version list``

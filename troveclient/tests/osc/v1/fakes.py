@@ -97,6 +97,10 @@ class FakeDatabases(object):
 
 class FakeDatastores(object):
     fake_datastores = fakes.FakeHTTPClient().get_datastores()[2]['datastores']
+    fake_datastore_versions = fake_datastores[0]['versions']
 
     def get_datastores_d_123(self):
         return datastores.Datastore(None, self.fake_datastores[0])
+
+    def get_datastores_d_123_versions(self):
+        return datastores.Datastore(None, self.fake_datastore_versions[0])
