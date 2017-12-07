@@ -40,3 +40,25 @@ class TestUserList(TestUsers):
         self.user_client.list.assert_called_once_with(*args)
         self.assertEqual(self.columns, columns)
         self.assertEqual([self.values], data)
+
+
+class TestUserShow(TestUsers):
+    values = ([{'name': 'db1'}], '%', 'harry')
+
+    def setUp(self):
+        super(TestUserShow, self).setUp()
+        self.cmd = database_users.ShowDatabaseUser(self.app, None)
+        self.data = self.fake_users.get_instances_1234_users_harry()
+        self.user_client.get.return_value = self.data
+        self.columns = (
+            'databases',
+            'host',
+            'name',
+        )
+
+    def test_user_show_defaults(self):
+        args = ['my_instance', 'harry']
+        parsed_args = self.check_parser(self.cmd, args, [])
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.values, data)

@@ -14,6 +14,7 @@
 
 from osc_lib.command import command
 from osc_lib import utils
+import six
 
 from troveclient.i18n import _
 
@@ -44,3 +45,33 @@ class ListDatabaseUsers(command.Lister):
             user.databases = ', '.join(db_names)
         users = [utils.get_item_properties(u, self.columns) for u in users]
         return self.columns, users
+
+
+class ShowDatabaseUser(command.ShowOne):
+
+    _description = _("Shows details of a database user of an instance.")
+
+    def get_parser(self, prog_name):
+        parser = super(ShowDatabaseUser, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            help=_('ID of the instance.'),
+        )
+        parser.add_argument(
+            'name',
+            metavar='<name>',
+            help=_('Name of user.'),
+        )
+        parser.add_argument(
+            "--host",
+            metavar="<host>",
+            help=_("Optional host of user."),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_users = self.app.client_manager.database.users
+        user = db_users.get(parsed_args.instance, parsed_args.name,
+                            hostname=parsed_args.host)
+        return zip(*sorted(six.iteritems(user._info)))
