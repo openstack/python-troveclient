@@ -14,8 +14,27 @@
 
 from osc_lib.command import command
 from osc_lib import utils
+import six
 
 from troveclient.i18n import _
+
+
+def set_attributes_for_print_detail(cluster):
+    info = cluster._info.copy()
+    if hasattr(cluster, 'datastore'):
+        info['datastore'] = cluster.datastore['type']
+        info['datastore_version'] = cluster.datastore['version']
+    if hasattr(cluster, 'task'):
+        info['task_description'] = cluster.task['description']
+        info['task_name'] = cluster.task['name']
+    info.pop('task', None)
+    if hasattr(cluster, 'ip'):
+        info['ip'] = ', '.join(cluster.ip)
+    instances = info.pop('instances', None)
+    if instances:
+        info['instance_count'] = len(instances)
+    info.pop('links', None)
+    return info
 
 
 class ListDatabaseClusters(command.Lister):
@@ -59,3 +78,22 @@ class ListDatabaseClusters(command.Lister):
         clusters = [utils.get_item_properties(c, self.columns)
                     for c in clusters]
         return self.columns, clusters
+
+
+class ShowDatabaseCluster(command.ShowOne):
+    _description = _("Shows details of a database cluster")
+
+    def get_parser(self, prog_name):
+        parser = super(ShowDatabaseCluster, self).get_parser(prog_name)
+        parser.add_argument(
+            'cluster',
+            metavar='<cluster>',
+            help=_('ID or name of the cluster'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        database_clusters = self.app.client_manager.database.clusters
+        cluster = utils.find_resource(database_clusters, parsed_args.cluster)
+        cluster = set_attributes_for_print_detail(cluster)
+        return zip(*sorted(six.iteritems(cluster)))
