@@ -10,6 +10,11 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import mock
+
+from osc_lib import exceptions
+from osc_lib import utils
+
 from troveclient import common
 from troveclient.osc.v1 import database_instances
 from troveclient.tests.osc.v1 import fakes
@@ -77,3 +82,29 @@ class TestInstanceShow(TestInstances):
         columns, data = self.cmd.take_action(parsed_args)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.values, data)
+
+
+class TestDatabaseInstanceDelete(TestInstances):
+
+    def setUp(self):
+        super(TestDatabaseInstanceDelete, self).setUp()
+        self.cmd = database_instances.DeleteDatabaseInstance(self.app, None)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_instance_delete(self, mock_find):
+        args = ['instance1']
+        mock_find.return_value = args[0]
+        parsed_args = self.check_parser(self.cmd, args, [])
+        result = self.cmd.take_action(parsed_args)
+        self.instance_client.delete.assert_called_with('instance1')
+        self.assertIsNone(result)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_instance_delete_with_exception(self, mock_find):
+        args = ['fakeinstance']
+        parsed_args = self.check_parser(self.cmd, args, [])
+
+        mock_find.side_effect = exceptions.CommandError
+        self.assertRaises(exceptions.CommandError,
+                          self.cmd.take_action,
+                          parsed_args)
