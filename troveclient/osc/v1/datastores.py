@@ -64,3 +64,25 @@ class ShowDatastore(command.ShowOne):
                                         parsed_args.datastore)
         datastore = set_attributes_for_print_detail(datastore)
         return zip(*sorted(six.iteritems(datastore)))
+
+
+class ListDatastoreVersions(command.Lister):
+
+    _description = _("Lists available versions for a datastore")
+    columns = ['ID', 'Name']
+
+    def get_parser(self, prog_name):
+        parser = super(ListDatastoreVersions, self).get_parser(prog_name)
+        parser.add_argument(
+            'datastore',
+            metavar='<datastore>',
+            help=_('ID or name of the datastore'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        datastore_version_client =\
+            self.app.client_manager.database.datastore_versions
+        versions = datastore_version_client.list(parsed_args.datastore)
+        ds = [utils.get_item_properties(d, self.columns) for d in versions]
+        return self.columns, ds
