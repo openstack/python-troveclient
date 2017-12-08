@@ -31,7 +31,7 @@ def set_attributes_for_print(instances):
                 setattr(instance, 'datastore_version',
                         instance.datastore['version'])
             setattr(instance, 'datastore', instance.datastore['type'])
-        return instances
+    return instances
 
 
 def set_attributes_for_print_detail(instance):

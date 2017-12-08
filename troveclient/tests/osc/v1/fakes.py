@@ -87,6 +87,10 @@ class FakeInstances(object):
     def get_instances_1234(self):
         return instances.Instance(None, self.fake_instances[0])
 
+    def get_instances(self):
+        return [instances.Instance(None, fake_instance)
+                for fake_instance in self.fake_instances]
+
 
 class FakeDatabases(object):
     fake_databases = [{'name': 'fakedb1'}]
