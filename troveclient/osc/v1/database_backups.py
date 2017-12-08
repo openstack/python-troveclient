@@ -13,6 +13,7 @@
 """Database v1 Backups action implementations"""
 
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils as osc_utils
 import six
 
@@ -94,3 +95,28 @@ class ShowDatabaseBackup(command.ShowOne):
         backup = osc_utils.find_resource(database_backups, parsed_args.backup)
         backup = set_attributes_for_print_detail(backup)
         return zip(*sorted(six.iteritems(backup)))
+
+
+class DeleteDatabaseBackup(command.Command):
+
+    _description = _("Deletes a backup.")
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteDatabaseBackup, self).get_parser(prog_name)
+        parser.add_argument(
+            'backup',
+            metavar='<backup>',
+            help=_('ID or name of the backup.')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        database_backups = self.app.client_manager.database.backups
+        try:
+            backup = osc_utils.find_resource(database_backups,
+                                             parsed_args.backup)
+            database_backups.delete(backup)
+        except Exception as e:
+            msg = (_("Failed to delete backup %(backup)s: %(e)s")
+                   % {'backup': parsed_args.backup, 'e': e})
+            raise exceptions.CommandError(msg)
