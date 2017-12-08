@@ -17,6 +17,7 @@ from troveclient.tests import fakes
 from troveclient.tests.osc import utils
 from troveclient.v1 import backups
 from troveclient.v1 import clusters
+from troveclient.v1 import configurations
 from troveclient.v1 import databases
 from troveclient.v1 import datastores
 from troveclient.v1 import flavors
@@ -57,7 +58,17 @@ class FakeConfigurations(object):
                    [2]['configurations'])
 
     def get_configurations_c_123(self):
-        return flavors.Flavor(None, self.fake_config[0])
+        return configurations.Configuration(None, self.fake_config[0])
+
+
+class FakeConfigurationParameters(object):
+    fake_config_param = (fakes.FakeHTTPClient().
+                         get_datastores_d_123_versions_v_156_parameters()
+                         [2]['configuration-parameters'])
+
+    def get_params_connect_timeout(self):
+        return configurations.\
+            ConfigurationParameter(None, self.fake_config_param[1])
 
 
 class FakeLimits(object):
