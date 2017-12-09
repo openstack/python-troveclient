@@ -130,3 +130,51 @@ class ListDatabaseConfigurationParameters(command.Lister):
         params = [osc_utils.get_item_properties(p, self.columns)
                   for p in params]
         return self.columns, params
+
+
+class ShowDatabaseConfigurationParameter(command.ShowOne):
+    _description = _("Shows details of a database configuration parameter.")
+
+    def get_parser(self, prog_name):
+        parser = super(ShowDatabaseConfigurationParameter, self).\
+            get_parser(prog_name)
+        parser.add_argument(
+            'datastore_version',
+            metavar='<datastore_version>',
+            help=_('Datastore version name or ID assigned to the'
+                   ' configuration group.'),
+        )
+        parser.add_argument(
+            'parameter',
+            metavar='<parameter>',
+            help=_('Name of the configuration parameter.'),
+        )
+        parser.add_argument(
+            '--datastore',
+            metavar='<datastore>',
+            default=None,
+            help=_('ID or name of the datastore to list configuration'
+                   ' parameters for. Optional if the ID of the'
+                   ' datastore_version is provided.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_configuration_parameters = self.app.client_manager.database.\
+            configuration_parameters
+        if parsed_args.datastore:
+            param = db_configuration_parameters.get_parameter(
+                parsed_args.datastore,
+                parsed_args.datastore_version,
+                parsed_args.parameter)
+        elif utils.is_uuid_like(parsed_args.datastore_version):
+            param = db_configuration_parameters.get_parameter_by_version(
+                parsed_args.datastore_version,
+                parsed_args.parameter)
+        else:
+            raise exceptions.NoUniqueMatch(_('The datastore name or id is'
+                                             ' required to retrieve the'
+                                             ' parameter for the'
+                                             ' configuration group'
+                                             ' by name.'))
+        return zip(*sorted(six.iteritems(param._info)))
