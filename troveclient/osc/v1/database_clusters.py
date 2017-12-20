@@ -13,6 +13,7 @@
 """Database v1 Clusters action implementations"""
 
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 import six
 
@@ -97,3 +98,28 @@ class ShowDatabaseCluster(command.ShowOne):
         cluster = utils.find_resource(database_clusters, parsed_args.cluster)
         cluster = set_attributes_for_print_detail(cluster)
         return zip(*sorted(six.iteritems(cluster)))
+
+
+class DeleteDatabaseCluster(command.Command):
+
+    _description = _("Deletes a cluster.")
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteDatabaseCluster, self).get_parser(prog_name)
+        parser.add_argument(
+            'cluster',
+            metavar='<cluster>',
+            help=_('ID or name of the cluster.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        database_clusters = self.app.client_manager.database.clusters
+        try:
+            cluster = utils.find_resource(database_clusters,
+                                          parsed_args.cluster)
+            database_clusters.delete(cluster)
+        except Exception as e:
+            msg = (_("Failed to delete cluster %(cluster)s: %(e)s")
+                   % {'cluster': parsed_args.cluster, 'e': e})
+            raise exceptions.CommandError(msg)
