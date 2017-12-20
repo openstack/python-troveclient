@@ -13,6 +13,7 @@
 """Database v1 Instances action implementations"""
 
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils as osc_utils
 import six
 
@@ -133,3 +134,28 @@ class ShowDatabaseInstance(command.ShowOne):
         instance = osc_utils.find_resource(db_instances, parsed_args.instance)
         instance = set_attributes_for_print_detail(instance)
         return zip(*sorted(six.iteritems(instance)))
+
+
+class DeleteDatabaseInstance(command.Command):
+
+    _description = _("Deletes an instance.")
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteDatabaseInstance, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            help=_('ID or name of the Instance'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_instances = self.app.client_manager.database.instances
+        try:
+            instance = osc_utils.find_resource(db_instances,
+                                               parsed_args.instance)
+            db_instances.delete(instance)
+        except Exception as e:
+            msg = (_("Failed to delete instance %(instance)s: %(e)s")
+                   % {'instance': parsed_args.instance, 'e': e})
+            raise exceptions.CommandError(msg)
