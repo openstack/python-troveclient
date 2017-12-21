@@ -1434,7 +1434,7 @@ def do_secgroup_list_rules(cs, args):
 
 
 @utils.arg('security_group_rule', metavar='<security_group_rule>',
-           help=_('Name of security group rule.'))
+           help=_('ID of security group rule.'))
 @utils.service_type('database')
 def do_secgroup_delete_rule(cs, args):
     """Deletes a security group rule."""
