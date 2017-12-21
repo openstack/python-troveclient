@@ -94,6 +94,7 @@ class FakeUsers(object):
 
 class FakeInstances(object):
     fake_instances = (fakes.FakeHTTPClient().get_instances()[2]['instances'])
+    fake_instance = fakes.FakeHTTPClient().get_instance_create()[2]
 
     def get_instances_1234(self):
         return instances.Instance(None, self.fake_instances[0])
@@ -101,6 +102,9 @@ class FakeInstances(object):
     def get_instances(self):
         return [instances.Instance(None, fake_instance)
                 for fake_instance in self.fake_instances]
+
+    def get_instance_create(self):
+        return instances.Instance(None, self.fake_instance['instance'])
 
 
 class FakeDatabases(object):

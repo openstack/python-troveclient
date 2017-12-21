@@ -12,6 +12,7 @@
 
 """Database v1 Instances action implementations"""
 
+import argparse
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils as osc_utils
@@ -159,3 +160,207 @@ class DeleteDatabaseInstance(command.Command):
             msg = (_("Failed to delete instance %(instance)s: %(e)s")
                    % {'instance': parsed_args.instance, 'e': e})
             raise exceptions.CommandError(msg)
+
+
+class CreateDatabaseInstance(command.ShowOne):
+
+    _description = _("Creates a new database instance.")
+
+    def get_parser(self, prog_name):
+        parser = super(CreateDatabaseInstance, self).get_parser(prog_name)
+        parser.add_argument(
+            'name',
+            metavar='<name>',
+            help=_("Name of the instance."),
+        )
+        parser.add_argument(
+            'flavor',
+            metavar='<flavor>',
+            type=str,
+            help=_("A flavor name or ID."),
+        )
+        parser.add_argument(
+            '--size',
+            metavar='<size>',
+            type=int,
+            default=None,
+            help=_("Size of the instance disk volume in GB. "
+                   "Required when volume support is enabled."),
+        )
+        parser.add_argument(
+            '--volume_type',
+            metavar='<volume_type>',
+            type=str,
+            default=None,
+            help=_("Volume type. Optional when volume support is enabled."),
+        )
+        parser.add_argument(
+            '--databases',
+            metavar='<database>',
+            nargs="+",
+            default=[],
+            help=_("Optional list of databases."),
+        )
+        parser.add_argument(
+            '--users',
+            metavar='<user:password>',
+            nargs="+",
+            default=[],
+            help=_("Optional list of users."),
+        )
+        parser.add_argument(
+            '--backup',
+            metavar='<backup>',
+            default=None,
+            help=_("A backup name or ID."),
+        )
+        parser.add_argument(
+            '--availability_zone',
+            metavar='<availability_zone>',
+            default=None,
+            help=_("The Zone hint to give to Nova."),
+        )
+        parser.add_argument(
+            '--datastore',
+            metavar='<datastore>',
+            default=None,
+            help=_("A datastore name or ID."),
+        )
+        parser.add_argument(
+            '--datastore_version',
+            metavar='<datastore_version>',
+            default=None,
+            help=_("A datastore version name or ID."),
+        )
+        parser.add_argument(
+            '--nic',
+            metavar='<net-id=<net-uuid>,v4-fixed-ip=<ip-addr>,'
+                    'port-id=<port-uuid>>',
+            action='append',
+            dest='nics',
+            default=[],
+            help=_("Create a NIC on the instance. Specify option multiple "
+                   "times to create multiple NICs. net-id: attach NIC to "
+                   "network with this ID (either port-id or net-id must be "
+                   "specified), v4-fixed-ip: IPv4 fixed address for NIC "
+                   "(optional), port-id: attach NIC to port with this ID "
+                   "(either port-id or net-id must be specified)."),
+        )
+        parser.add_argument(
+            '--configuration',
+            metavar='<configuration>',
+            default=None,
+            help=_("ID of the configuration group to attach to the instance."),
+        )
+        parser.add_argument(
+            '--replica_of',
+            metavar='<source_instance>',
+            default=None,
+            help=_("ID or name of an existing instance to replicate from."),
+        )
+        parser.add_argument(
+            '--replica_count',
+            metavar='<count>',
+            type=int,
+            default=None,
+            help=_("Number of replicas to create (defaults to 1 if "
+                   "replica_of specified)."),
+        )
+        parser.add_argument(
+            '--module',
+            metavar='<module>',
+            type=str,
+            dest='modules',
+            action='append',
+            default=[],
+            help=_("ID or name of the module to apply.  Specify multiple "
+                   "times to apply multiple modules."),
+        )
+        parser.add_argument(
+            '--locality',
+            metavar='<policy>',
+            default=None,
+            choices=['affinity', 'anti-affinity'],
+            help=_("Locality policy to use when creating replicas. Choose "
+                   "one of %(choices)s."),
+        )
+        parser.add_argument(
+            '--region',
+            metavar='<region>',
+            type=str,
+            default=None,
+            help=argparse.SUPPRESS,
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        database = self.app.client_manager.database
+        db_instances = database.instances
+        flavor_id = osc_utils.find_resource(database.flavors,
+                                            parsed_args.flavor).id
+        volume = None
+        if parsed_args.size is not None and parsed_args.size <= 0:
+            raise exceptions.ValidationError(
+                _("Volume size '%s' must be an integer and greater than 0.")
+                % parsed_args.size)
+        elif parsed_args.size:
+            volume = {"size": parsed_args.size,
+                      "type": parsed_args.volume_type}
+        restore_point = None
+        if parsed_args.backup:
+            restore_point = {"backupRef": osc_utils.find_resource(
+                database.backups, parsed_args.backup).id}
+        replica_of = None
+        replica_count = parsed_args.replica_count
+        if parsed_args.replica_of:
+            replica_of = osc_utils.find_resource(
+                db_instances, parsed_args.replica_of)
+            replica_count = replica_count or 1
+        locality = None
+        if parsed_args.locality:
+            locality = parsed_args.locality
+            if replica_of:
+                raise exceptions.ValidationError(
+                    _('Cannot specify locality when adding replicas '
+                      'to existing master.'))
+        databases = [{'name': value} for value in parsed_args.databases]
+        users = [{'name': n, 'password': p, 'databases': databases} for (n, p)
+                 in
+                 [z.split(':')[:2] for z in parsed_args.users]]
+        nics = []
+        for nic_str in parsed_args.nics:
+            nic_info = dict([(k, v) for (k, v) in [z.split("=", 1)[:2] for z in
+                                                   nic_str.split(",")]])
+            # need one or the other, not both, not none (!= ~ XOR)
+            if not (bool(nic_info.get('net-id')) != bool(
+                    nic_info.get('port-id'))):
+                raise exceptions.\
+                    ValidationError(_("Invalid NIC argument: %s. Must specify "
+                                      "either net-id or port-id but not both. "
+                                      "Please refer to help.")
+                                    % (_("nic='%s'") % nic_str))
+            nics.append(nic_info)
+        modules = []
+        for module in parsed_args.modules:
+            modules.append(osc_utils.find_resource(database.modules,
+                                                   module).id)
+        instance = db_instances.create(parsed_args.name,
+                                       flavor_id,
+                                       volume=volume,
+                                       databases=databases,
+                                       users=users,
+                                       restorePoint=restore_point,
+                                       availability_zone=(parsed_args.
+                                                          availability_zone),
+                                       datastore=parsed_args.datastore,
+                                       datastore_version=(parsed_args.
+                                                          datastore_version),
+                                       nics=nics,
+                                       configuration=parsed_args.configuration,
+                                       replica_of=replica_of,
+                                       replica_count=replica_count,
+                                       modules=modules,
+                                       locality=locality,
+                                       region_name=parsed_args.region)
+        instance = set_attributes_for_print_detail(instance)
+        return zip(*sorted(six.iteritems(instance)))
