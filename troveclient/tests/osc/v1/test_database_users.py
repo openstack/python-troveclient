@@ -27,6 +27,37 @@ class TestUsers(fakes.TestDatabasev1):
         self.user_client = self.app.client_manager.database.users
 
 
+class TestDatabaseUserCreate(TestUsers):
+
+    def setUp(self):
+        super(TestDatabaseUserCreate, self).setUp()
+        self.cmd = database_users.CreateDatabaseUser(self.app, None)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_user_create(self, mock_find):
+        args = ['instance1', 'user1', 'password1']
+        mock_find.return_value = args[0]
+        parsed_args = self.check_parser(self.cmd, args, [])
+        result = self.cmd.take_action(parsed_args)
+        user = {'name': 'user1', 'password': 'password1', 'databases': []}
+        self.user_client.create.assert_called_with('instance1', [user])
+        self.assertIsNone(result)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_user_create_with_optional_args(self, mock_find):
+        args = ['instance2', 'user2', 'password2',
+                '--host', '1.1.1.1',
+                '--databases', 'db1', 'db2']
+        mock_find.return_value = args[0]
+        parsed_args = self.check_parser(self.cmd, args, [])
+        result = self.cmd.take_action(parsed_args)
+        user = {'name': 'user2', 'password': 'password2',
+                'host': '1.1.1.1',
+                'databases': [{'name': 'db1'}, {'name': 'db2'}]}
+        self.user_client.create.assert_called_with('instance2', [user])
+        self.assertIsNone(result)
+
+
 class TestUserList(TestUsers):
     columns = database_users.ListDatabaseUsers.columns
     values = ('harry', '%', 'db1')
