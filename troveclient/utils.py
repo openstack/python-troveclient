@@ -334,3 +334,19 @@ def do_action_with_msg(action, success_msg):
 
     action
     print(success_msg)
+
+
+def do_action_on_many(action, resources, success_msg, error_msg):
+    """Helper to run an action on many resources."""
+    failure_flag = False
+
+    for resource in resources:
+        try:
+            action(resource)
+            print(success_msg % resource)
+        except Exception as e:
+            failure_flag = True
+            print(encodeutils.safe_encode(six.text_type(e)))
+
+    if failure_flag:
+        raise exceptions.CommandError(error_msg)

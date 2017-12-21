@@ -411,15 +411,16 @@ def do_cluster_shrink(cs, args):
     cs.clusters.shrink(cluster, instances=instances)
 
 
-@utils.arg('instance', metavar='<instance>',
-           help=_('ID or name of the instance.'))
+@utils.arg('instance', metavar='<instance>', nargs='+',
+           help=_('ID or name of the instance(s).'))
 @utils.service_type('database')
 def do_delete(cs, args):
-    """Deletes an instance."""
-    instance = _find_instance(cs, args.instance)
-    msg = _("Request to delete instance %s "
-            "has been accepted.") % instance.id
-    utils.do_action_with_msg(cs.instances.delete(instance), msg)
+    """Delete specified instance(s)."""
+    utils.do_action_on_many(
+        lambda s: cs.instances.delete(_find_instance(cs, s)),
+        args.instance,
+        _("Request to delete instance %s has been accepted."),
+        _("Unable to delete the specified instance(s)."))
 
 
 @utils.arg('instance', metavar='<instance>',
@@ -446,15 +447,16 @@ def do_reset_status(cs, args):
     cs.instances.reset_status(instance=instance)
 
 
-@utils.arg('cluster', metavar='<cluster>',
-           help=_('ID or name of the cluster.'))
+@utils.arg('cluster', metavar='<cluster>', nargs='+',
+           help=_('ID or name of the cluster(s).'))
 @utils.service_type('database')
 def do_cluster_delete(cs, args):
-    """Deletes a cluster."""
-    cluster = _find_cluster(cs, args.cluster)
-    msg = _("Request to delete cluster %s "
-            "has been accepted.") % cluster.id
-    utils.do_action_with_msg(cs.clusters.delete(cluster), msg)
+    """Delete specified cluster(s)."""
+    utils.do_action_on_many(
+        lambda s: cs.clusters.delete(_find_cluster(cs, s)),
+        args.cluster,
+        _("Request to delete cluster %s has been accepted."),
+        _("Unable to delete the specified cluster(s)."))
 
 
 @utils.arg('cluster', metavar='<cluster>',
