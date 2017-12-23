@@ -193,6 +193,28 @@ class FakeHTTPClient(base_client.HTTPClient):
         r = {'instance': self.get_instances()[2]['instances'][0]}
         return (200, {}, r)
 
+    def get_instance_create(self, **kw):
+        return (200, {}, {"instance": {
+                "status": "BUILD",
+                "updated": "2017-12-22T20:02:32",
+                "name": "test",
+                "created": "2017-12-22T20:02:32",
+                "networks": {
+                    "name": "test-net",
+                    "id": "net-id"
+                },
+                "id": "2468",
+                "volume": {
+                    "size": 1
+                },
+                "flavor": {
+                    "id": "310"
+                },
+                "datastore": {
+                    "version": "5.6",
+                    "type": "mysql"
+                }}})
+
     def post_instances(self, body, **kw):
         assert_has_keys(
             body['instance'],

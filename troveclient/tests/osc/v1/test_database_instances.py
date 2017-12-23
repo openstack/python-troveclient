@@ -109,3 +109,60 @@ class TestDatabaseInstanceDelete(TestInstances):
         self.assertRaises(exceptions.CommandError,
                           self.cmd.take_action,
                           parsed_args)
+
+
+class TestDatabaseInstanceCreate(TestInstances):
+
+    values = ('2017-12-22T20:02:32', 'mysql', '5.6', '310',
+              '2468', 'test', 'test-net', 'net-id', 'BUILD',
+              '2017-12-22T20:02:32', 1)
+    columns = (
+        'created',
+        'datastore',
+        'datastore_version',
+        'flavor',
+        'id',
+        'name',
+        'networks',
+        'networks_id',
+        'status',
+        'updated',
+        'volume',
+    )
+
+    def setUp(self):
+        super(TestDatabaseInstanceCreate, self).setUp()
+        self.cmd = database_instances.CreateDatabaseInstance(self.app, None)
+        self.data = self.fake_instances.get_instance_create()
+        self.instance_client.create.return_value = self.data
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_instance_create(self, mock_find):
+        mock_find.id.side_effect = ['103', 'test', 'mod_id']
+        args = ['test-name', '103',
+                '--size', '1',
+                '--databases', 'db1', 'db2',
+                '--users', 'u1:111', 'u2:111',
+                '--datastore', "datastore",
+                '--datastore_version', "datastore_version",
+                '--nic', 'net-id=net1',
+                '--replica_of', 'test',
+                '--replica_count', '4',
+                '--module', 'mod_id']
+        verifylist = [
+            ('name', 'test-name'),
+            ('flavor', '103'),
+            ('size', 1),
+            ('databases', ['db1', 'db2']),
+            ('users', ['u1:111', 'u2:111']),
+            ('datastore', "datastore"),
+            ('datastore_version', "datastore_version"),
+            ('nics', ['net-id=net1']),
+            ('replica_of', 'test'),
+            ('replica_count', 4),
+            ('modules', ['mod_id']),
+        ]
+        parsed_args = self.check_parser(self.cmd, args, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.values, data)
