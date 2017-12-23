@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The command ``trove backup-list-instance`` is now available
+    to use in the python-openstackclient CLI as ``openstack
+    database backup list instance``
