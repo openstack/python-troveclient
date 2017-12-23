@@ -1,0 +1,7 @@
+---
+features:
+  - The command ``trove user-grant-access`` and  ``trove user-revoke-access``
+    and ``trove user-show-access`` are now available to use in
+    the python-openstackclient CLI as ``openstack database user
+    grant access`` and ``openstack database user revoke access`` and
+    ``openstack database user show access``

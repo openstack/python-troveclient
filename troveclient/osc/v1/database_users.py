@@ -160,3 +160,117 @@ class DeleteDatabaseUser(command.Command):
             msg = (_("Failed to delete user %(user)s: %(e)s")
                    % {'user': parsed_args.name, 'e': e})
             raise exceptions.CommandError(msg)
+
+
+class GrantDatabaseUserAccess(command.Command):
+
+    _description = _("Grants access to a database(s) for a user.")
+
+    def get_parser(self, prog_name):
+        parser = super(GrantDatabaseUserAccess, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            help=_('ID or name of the instance.')
+        )
+        parser.add_argument(
+            'name',
+            metavar='<name>',
+            help=_('Name of user.')
+        )
+        parser.add_argument(
+            '--host',
+            metavar='<host>',
+            default=None,
+            help=_('Optional host of user.')
+        )
+        parser.add_argument(
+            'databases',
+            metavar='<databases>',
+            nargs="+",
+            default=[],
+            help=_('List of databases.')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        manager = self.app.client_manager.database
+        users = manager.users
+        instance = utils.find_resource(manager.instances,
+                                       parsed_args.instance)
+        users.grant(instance, parsed_args.name,
+                    parsed_args.databases, hostname=parsed_args.host)
+
+
+class RevokeDatabaseUserAccess(command.Command):
+
+    _description = _("Revokes access to a database for a user.")
+
+    def get_parser(self, prog_name):
+        parser = super(RevokeDatabaseUserAccess, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            help=_('ID or name of the instance.')
+        )
+        parser.add_argument(
+            'name',
+            metavar='<name>',
+            help=_('Name of user.')
+        )
+        parser.add_argument(
+            '--host',
+            metavar='<host>',
+            default=None,
+            help=_('Optional host of user.')
+        )
+        parser.add_argument(
+            'databases',
+            metavar='<databases>',
+            help=_('A single database.')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        manager = self.app.client_manager.database
+        users = manager.users
+        instance = utils.find_resource(manager.instances,
+                                       parsed_args.instance)
+        users.revoke(instance, parsed_args.name,
+                     parsed_args.databases, hostname=parsed_args.host)
+
+
+class ShowDatabaseUserAccess(command.Lister):
+
+    _description = _("Shows access details of a user of an instance.")
+    columns = ['Name']
+
+    def get_parser(self, prog_name):
+        parser = super(ShowDatabaseUserAccess, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            help=_('ID or name of the instance.')
+        )
+        parser.add_argument(
+            'name',
+            metavar='<name>',
+            help=_('Name of user.')
+        )
+        parser.add_argument(
+            '--host',
+            metavar='<host>',
+            default=None,
+            help=_('Optional host of user.')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        manager = self.app.client_manager.database
+        users = manager.users
+        instance = utils.find_resource(manager.instances,
+                                       parsed_args.instance)
+        names = users.list_access(instance, parsed_args.name,
+                                  hostname=parsed_args.host)
+        access = [utils.get_item_properties(n, self.columns) for n in names]
+        return self.columns, access
