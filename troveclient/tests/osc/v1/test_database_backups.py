@@ -115,3 +115,64 @@ class TestDatabaseBackupDelete(TestBackups):
         self.assertRaises(exceptions.CommandError,
                           self.cmd.take_action,
                           parsed_args)
+
+
+class TestBackupCreate(TestBackups):
+
+    values = ('2015-05-16T14:22:28', 'mysql', '5.6', 'v-56', None, 'bk-1234',
+              '1234',
+              'http://backup_srvr/database_backups/bk-1234.xbstream.gz.enc',
+              'bkp_1', None, 0.11, 'COMPLETED', '2015-05-16T14:23:08')
+
+    def setUp(self):
+        super(TestBackupCreate, self).setUp()
+        self.cmd = database_backups.CreateDatabaseBackup(self.app, None)
+        self.data = self.fake_backups.get_backup_bk_1234()
+        self.backup_client.create.return_value = self.data
+        self.columns = (
+            'created',
+            'datastore',
+            'datastore_version',
+            'datastore_version_id',
+            'description',
+            'id',
+            'instance_id',
+            'locationRef',
+            'name',
+            'parent_id',
+            'size',
+            'status',
+            'updated',
+        )
+
+    def test_backup_create_return_value(self):
+        args = ['1234', 'bk-1234']
+        parsed_args = self.check_parser(self.cmd, args, [])
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.values, data)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_backup_create(self, mock_find):
+        args = ['1234', 'bk-1234-1']
+        mock_find.return_value = args[0]
+        parsed_args = self.check_parser(self.cmd, args, [])
+        self.cmd.take_action(parsed_args)
+        self.backup_client.create.assert_called_with('bk-1234-1',
+                                                     '1234',
+                                                     description=None,
+                                                     parent_id=None,
+                                                     incremental=False)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_incremental_backup_create(self, mock_find):
+        args = ['1234', 'bk-1234-2', '--description', 'backup 1234',
+                '--parent', '1234-1', '--incremental']
+        mock_find.return_value = args[0]
+        parsed_args = self.check_parser(self.cmd, args, [])
+        self.cmd.take_action(parsed_args)
+        self.backup_client.create.assert_called_with('bk-1234-2',
+                                                     '1234',
+                                                     description='backup 1234',
+                                                     parent_id='1234-1',
+                                                     incremental=True)

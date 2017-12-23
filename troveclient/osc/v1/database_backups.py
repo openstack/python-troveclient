@@ -120,3 +120,56 @@ class DeleteDatabaseBackup(command.Command):
             msg = (_("Failed to delete backup %(backup)s: %(e)s")
                    % {'backup': parsed_args.backup, 'e': e})
             raise exceptions.CommandError(msg)
+
+
+class CreateDatabaseBackup(command.ShowOne):
+
+    _description = _("Creates a backup of an instance.")
+
+    def get_parser(self, prog_name):
+        parser = super(CreateDatabaseBackup, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            help=_('ID or name of the instance.')
+        )
+        parser.add_argument(
+            'name',
+            metavar='<name>',
+            help=_('Name of the backup.')
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            default=None,
+            help=_('An optional description for the backup.')
+        )
+        parser.add_argument(
+            '--parent',
+            metavar='<parent>',
+            default=None,
+            help=_('Optional ID of the parent backup to perform an'
+                   ' incremental backup from.')
+        )
+        parser.add_argument(
+            '--incremental',
+            action='store_true',
+            default=False,
+            help=_('Create an incremental backup based on the last'
+                   ' full or incremental backup. It will create a'
+                   ' full backup if no existing backup found.')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        manager = self.app.client_manager.database
+        database_backups = manager.backups
+        instance = osc_utils.find_resource(manager.instances,
+                                           parsed_args.instance)
+        backup = database_backups.create(parsed_args.name,
+                                         instance,
+                                         description=parsed_args.description,
+                                         parent_id=parsed_args.parent,
+                                         incremental=parsed_args.incremental)
+        backup = set_attributes_for_print_detail(backup)
+        return zip(*sorted(six.iteritems(backup)))
