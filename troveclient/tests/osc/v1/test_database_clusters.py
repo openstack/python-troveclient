@@ -18,6 +18,7 @@ from osc_lib import utils
 from troveclient import common
 from troveclient.osc.v1 import database_clusters
 from troveclient.tests.osc.v1 import fakes
+from troveclient.v1 import shell
 
 
 class TestClusters(fakes.TestDatabasev1):
@@ -108,3 +109,44 @@ class TestDatabaseClusterDelete(TestClusters):
         self.assertRaises(exceptions.CommandError,
                           self.cmd.take_action,
                           parsed_args)
+
+
+class TestDatabaseClusterCreate(TestClusters):
+
+    values = ('2015-05-02T10:37:04', 'vertica', '7.1', 'cls-1234',
+              2, 'test-clstr', 'No tasks for the cluster.',
+              'NONE', '2015-05-02T11:06:19')
+    columns = (
+        'created',
+        'datastore',
+        'datastore_version',
+        'id',
+        'instance_count',
+        'name',
+        'task_description',
+        'task_name',
+        'updated',
+    )
+
+    def setUp(self):
+        super(TestDatabaseClusterCreate, self).setUp()
+        self.cmd = database_clusters.CreateDatabaseCluster(self.app, None)
+        self.data = self.fake_clusters.get_clusters_cls_1234()
+        self.cluster_client.create.return_value = self.data
+
+    @mock.patch.object(shell, '_parse_instance_options')
+    def test_cluster_create(self, mock_find):
+        instance = 'flavor=02,volume=2'
+        mock_find.return_value = instance
+        args = ['test-name', 'vertica', '7.1',
+                '--instance', instance]
+        verifylist = [
+            ('name', 'test-name'),
+            ('datastore', 'vertica'),
+            ('datastore_version', '7.1'),
+            ('instances', [instance]),
+        ]
+        parsed_args = self.check_parser(self.cmd, args, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.values, data)

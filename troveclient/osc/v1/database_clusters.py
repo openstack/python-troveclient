@@ -18,6 +18,7 @@ from osc_lib import utils
 import six
 
 from troveclient.i18n import _
+from troveclient.v1.shell import _parse_instance_options
 
 
 def set_attributes_for_print_detail(cluster):
@@ -123,3 +124,64 @@ class DeleteDatabaseCluster(command.Command):
             msg = (_("Failed to delete cluster %(cluster)s: %(e)s")
                    % {'cluster': parsed_args.cluster, 'e': e})
             raise exceptions.CommandError(msg)
+
+
+class CreateDatabaseCluster(command.ShowOne):
+    _description = _("Creates a new database cluster.")
+
+    def get_parser(self, prog_name):
+        parser = super(CreateDatabaseCluster, self).get_parser(prog_name)
+        parser.add_argument(
+            'name',
+            metavar='<name>',
+            type=str,
+            help=_('Name of the cluster.'),
+        )
+        parser.add_argument(
+            'datastore',
+            metavar='<datastore>',
+            help=_('A datastore name or ID.'),
+        )
+        parser.add_argument(
+            'datastore_version',
+            metavar='<datastore_version>',
+            help=_('A datastore version name or ID.'),
+        )
+        parser.add_argument(
+            '--instance',
+            metavar='"opt=<value>[,opt=<value> ...] "',
+            action='append',
+            dest='instances',
+            default=[],
+            help=_("Add an instance to the cluster.  Specify multiple "
+                   "times to create multiple instances.  "
+                   "Valid options are: flavor=<flavor_name_or_id>, "
+                   "volume=<disk_size_in_GB>, volume_type=<type>, "
+                   "nic='<net-id=<net-uuid>, v4-fixed-ip=<ip-addr>, "
+                   "port-id=<port-uuid>>' "
+                   "(where net-id=network_id, "
+                   "v4-fixed-ip=IPv4r_fixed_address, port-id=port_id), "
+                   "availability_zone=<AZ_hint_for_Nova>, "
+                   "module=<module_name_or_id>, type=<type_of_cluster_node>, "
+                   "related_to=<related_attribute>."),
+        )
+        parser.add_argument(
+            '--locality',
+            metavar='<policy>',
+            default=None,
+            choices=['affinity', 'anti-affinity'],
+            help=_('Locality policy to use when creating cluster. '
+                   'Choose one of %(choices)s.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        database = self.app.client_manager.database
+        instances = _parse_instance_options(database, parsed_args.instances)
+        cluster = database.clusters.create(parsed_args.name,
+                                           parsed_args.datastore,
+                                           parsed_args.datastore_version,
+                                           instances=instances,
+                                           locality=parsed_args.locality)
+        cluster = set_attributes_for_print_detail(cluster)
+        return zip(*sorted(six.iteritems(cluster)))
