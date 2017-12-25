@@ -1601,6 +1601,11 @@ def do_configuration_parameter_show(cs, args):
         param = cs.configuration_parameters.get_parameter_by_version(
             args.datastore_version,
             args.parameter)
+    else:
+        raise exceptions.NoUniqueMatch(_('The datastore name or id is'
+                                         ' required to retrieve the'
+                                         ' parameter for the configuration'
+                                         ' group by name.'))
     _print_object(param)
 
 
