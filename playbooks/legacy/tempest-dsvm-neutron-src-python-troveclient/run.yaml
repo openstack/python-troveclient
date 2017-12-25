@@ -31,6 +31,7 @@
           cat << 'EOF' >>"/tmp/dg-local.conf"
           [[local|localrc]]
           enable_plugin trove git://git.openstack.org/openstack/trove
+          TEMPEST_PLUGINS='/opt/stack/new/trove-tempest-plugin'
 
           EOF
         executable: /bin/bash
@@ -51,6 +52,7 @@
               export OVERRIDE_ZUUL_BRANCH=$BRANCH_OVERRIDE
           fi
           export PROJECTS="openstack/trove-dashboard $PROJECTS"
+          export PROJECTS="openstack/trove-tempest-plugin $PROJECTS"
           export DEVSTACK_PROJECT_FROM_GIT=python-troveclient
           cp devstack-gate/devstack-vm-gate-wrap.sh ./safe-devstack-vm-gate-wrap.sh
           ./safe-devstack-vm-gate-wrap.sh

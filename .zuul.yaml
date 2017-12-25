@@ -25,3 +25,4 @@
       - openstack/trove
       - openstack/trove-dashboard
       - openstack/tempest
+      - openstack/trove-tempest-plugin
