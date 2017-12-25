@@ -214,10 +214,12 @@ def find_resource(manager, name_or_id):
     """Helper for the _find_* methods."""
     # first try to get entity as integer id
 
-    # if the 'id' starts with '0' don't treat it as an int
-    if isinstance(name_or_id, int) or (
-            name_or_id.isdigit() and not name_or_id.startswith('0')):
-        name_or_id = int(name_or_id)
+    # When the 'name_or_id' is int, covert it to string.
+    # Reason is that manager cannot find instance when name_or_id
+    # is integer and instance name is digital.
+    # Related to bug/1740015.
+    if isinstance(name_or_id, int):
+        name_or_id = six.text_type(name_or_id)
     elif sys.version_info <= (3, 0):
         name_or_id = encodeutils.safe_decode(name_or_id)
 
