@@ -157,7 +157,7 @@ def print_list(objs, fields, formatters={}, order_by=None, obj_is_dict=False,
     for field in fields:
         if field not in labels:
             # No underscores (use spaces instead) and uppercase any ID's
-            label = field.replace("_", " ").replace("id", "ID")
+            label = field.replace("_", " ").replace(" id", " ID")
             # Uppercase anything else that's less than 3 chars
             if len(label) < 3:
                 label = label.upper()
