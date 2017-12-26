@@ -364,3 +364,26 @@ class CreateDatabaseInstance(command.ShowOne):
                                        region_name=parsed_args.region)
         instance = set_attributes_for_print_detail(instance)
         return zip(*sorted(six.iteritems(instance)))
+
+
+class ResetDatabaseInstanceStatus(command.Command):
+
+    _description = _("Set the task status of an instance to NONE if the "
+                     "instance is in BUILD or ERROR state. Resetting task "
+                     "status of an instance in BUILD state will allow "
+                     "the instance to be deleted.")
+
+    def get_parser(self, prog_name):
+        parser = super(ResetDatabaseInstanceStatus, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            help=_('ID or name of the instance'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_instances = self.app.client_manager.database.instances
+        instance = osc_utils.find_resource(db_instances,
+                                           parsed_args.instance)
+        db_instances.reset_status(instance)
