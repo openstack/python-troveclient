@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    The command ``trove configuration-attach`` is now available
+    to use in the python-openstackclient CLI as ``openstack database
+    configuration attach``
+    The command ``trove configuration-detach`` is now available
+    to use in the python-openstackclient CLI as ``openstack database
+    configuration detach``
