@@ -78,13 +78,16 @@ class ListDatabaseUsers(command.Lister):
         parser.add_argument(
             dest='instance',
             metavar='<instance>',
-            help=_('ID of the instance.')
+            help=_('ID or name of the instance.')
         )
         return parser
 
     def take_action(self, parsed_args):
-        db_users = self.app.client_manager.database.users
-        items = db_users.list(parsed_args.instance)
+        manager = self.app.client_manager.database
+        db_users = manager.users
+        instance = utils.find_resource(manager.instances,
+                                       parsed_args.instance)
+        items = db_users.list(instance)
         users = items
         while (items.next):
             items = db_users.list(parsed_args.instance, marker=items.next)
@@ -105,7 +108,7 @@ class ShowDatabaseUser(command.ShowOne):
         parser.add_argument(
             'instance',
             metavar='<instance>',
-            help=_('ID of the instance.'),
+            help=_('ID or name of the instance.'),
         )
         parser.add_argument(
             'name',
@@ -120,8 +123,11 @@ class ShowDatabaseUser(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        db_users = self.app.client_manager.database.users
-        user = db_users.get(parsed_args.instance, parsed_args.name,
+        manager = self.app.client_manager.database
+        db_users = manager.users
+        instance = utils.find_resource(manager.instances,
+                                       parsed_args.instance)
+        user = db_users.get(instance, parsed_args.name,
                             hostname=parsed_args.host)
         return zip(*sorted(six.iteritems(user._info)))
 
