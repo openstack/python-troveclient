@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    The command ``trove reset-status`` is now available
+    to use in the python-openstackclient CLI as ``openstack database
+    instance reset status``
+    The command ``trove cluster-reset-status`` is now available
+    to use in the python-openstackclient CLI as ``openstack database
+    cluster reset status``
+

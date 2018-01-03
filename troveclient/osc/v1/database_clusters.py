@@ -185,3 +185,23 @@ class CreateDatabaseCluster(command.ShowOne):
                                            locality=parsed_args.locality)
         cluster = set_attributes_for_print_detail(cluster)
         return zip(*sorted(six.iteritems(cluster)))
+
+
+class ResetDatabaseClusterStatus(command.Command):
+
+    _description = _("Set the cluster task to NONE.")
+
+    def get_parser(self, prog_name):
+        parser = super(ResetDatabaseClusterStatus, self).get_parser(prog_name)
+        parser.add_argument(
+            'cluster',
+            metavar='<cluster>',
+            help=_('ID or name of the cluster.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        database_clusters = self.app.client_manager.database.clusters
+        cluster = utils.find_resource(database_clusters,
+                                      parsed_args.cluster)
+        database_clusters.reset_status(cluster)

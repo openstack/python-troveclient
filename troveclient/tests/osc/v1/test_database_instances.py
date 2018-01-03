@@ -166,3 +166,20 @@ class TestDatabaseInstanceCreate(TestInstances):
         columns, data = self.cmd.take_action(parsed_args)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.values, data)
+
+
+class TestDatabaseInstanceResetStatus(TestInstances):
+
+    def setUp(self):
+        super(TestDatabaseInstanceResetStatus, self).setUp()
+        self.cmd = database_instances.ResetDatabaseInstanceStatus(self.app,
+                                                                  None)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_instance_reset_status(self, mock_find):
+        args = ['instance1']
+        mock_find.return_value = args[0]
+        parsed_args = self.check_parser(self.cmd, args, [])
+        result = self.cmd.take_action(parsed_args)
+        self.instance_client.reset_status.assert_called_with('instance1')
+        self.assertIsNone(result)
