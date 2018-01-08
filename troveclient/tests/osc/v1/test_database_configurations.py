@@ -29,6 +29,7 @@ class TestConfigurations(fakes.TestDatabasev1):
         self.mock_client = self.app.client_manager.database
         self.configuration_client = (self.app.client_manager.database.
                                      configurations)
+        self.instance_client = self.app.client_manager.database.instances
         self.configuration_params_client = (self.app.client_manager.
                                             database.configuration_parameters)
 
@@ -258,3 +259,37 @@ class TestConfigurationCreate(TestConfigurations):
             description='cgroup 2',
             datastore='mysql',
             datastore_version='5.6')
+
+
+class TestConfigurationAttach(TestConfigurations):
+
+    def setUp(self):
+        super(TestConfigurationAttach, self).setUp()
+        self.cmd = database_configurations.\
+            AttachDatabaseConfiguration(self.app, None)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_configuration_attach(self, mock_find):
+        args = ['instance1', 'config1']
+        mock_find.side_effect = ['instance1', 'config1']
+        parsed_args = self.check_parser(self.cmd, args, [])
+        result = self.cmd.take_action(parsed_args)
+        self.instance_client.modify.assert_called_with('instance1', 'config1')
+        self.assertIsNone(result)
+
+
+class TestConfigurationDetach(TestConfigurations):
+
+    def setUp(self):
+        super(TestConfigurationDetach, self).setUp()
+        self.cmd = database_configurations.\
+            DetachDatabaseConfiguration(self.app, None)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_configuration_detach(self, mock_find):
+        args = ['instance2']
+        mock_find.return_value = args[0]
+        parsed_args = self.check_parser(self.cmd, args, [])
+        result = self.cmd.take_action(parsed_args)
+        self.instance_client.modify.assert_called_with('instance2')
+        self.assertIsNone(result)

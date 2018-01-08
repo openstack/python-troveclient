@@ -253,3 +253,56 @@ class CreateDatabaseConfiguration(command.ShowOne):
             datastore_version=parsed_args.datastore_version)
         config_grp = set_attributes_for_print_detail(config_grp)
         return zip(*sorted(six.iteritems(config_grp)))
+
+
+class AttachDatabaseConfiguration(command.Command):
+
+    _description = _("Attaches a configuration group to an instance.")
+
+    def get_parser(self, prog_name):
+        parser = super(AttachDatabaseConfiguration, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            type=str,
+            help=_('ID or name of the instance'),
+        )
+        parser.add_argument(
+            'configuration',
+            metavar='<configuration>',
+            type=str,
+            help=_('ID or name of the configuration group to attach to the '
+                   'instance.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        manager = self.app.client_manager.database
+        db_instances = manager.instances
+        db_configurations = manager.configurations
+        instance = osc_utils.find_resource(db_instances,
+                                           parsed_args.instance)
+        configuration = osc_utils.find_resource(
+            db_configurations, parsed_args.configuration)
+        db_instances.modify(instance, configuration)
+
+
+class DetachDatabaseConfiguration(command.Command):
+
+    _description = _("Detaches a configuration group from an instance.")
+
+    def get_parser(self, prog_name):
+        parser = super(DetachDatabaseConfiguration, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            type=str,
+            help=_('ID or name of the instance.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_instances = self.app.client_manager.database.instances
+        instance = osc_utils.find_resource(db_instances,
+                                           parsed_args.instance)
+        db_instances.modify(instance)
