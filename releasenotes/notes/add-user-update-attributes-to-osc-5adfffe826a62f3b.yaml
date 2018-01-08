@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The command ``trove user-update-attributes`` is now available to use in
+    the python-openstackclient CLI as
+    ``openstack database user update attributes``
