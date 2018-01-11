@@ -132,6 +132,19 @@ class FakeDatastores(object):
 
 
 class FakeRoot(object):
+    fake_instance_1234_root = (fakes.FakeHTTPClient()
+                               .get_instances_1234_root()[2])
+    fake_cls_1234_root = (fakes.FakeHTTPClient()
+                          .get_clusters_cls_1234_root()[2])
+
+    def get_instance_1234_root(self):
+        return users.User(None, self.fake_instance_1234_root,
+                          loaded=True)
+
+    def get_cls_1234_root(self):
+        return users.User(None, self.fake_cls_1234_root,
+                          loaded=True)
+
     def post_instance_1234_root(self):
         root = fakes.FakeHTTPClient().post_instances_1234_root()[2]['user']
         return root['name'], root['password']
