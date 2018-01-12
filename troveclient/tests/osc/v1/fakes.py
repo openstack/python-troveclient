@@ -152,3 +152,6 @@ class FakeRoot(object):
     def post_cls_1234_root(self):
         root = fakes.FakeHTTPClient().post_instances_1234_root()[2]['user']
         return root['name'], root['password']
+
+    def delete_instance_1234_root(self):
+        return fakes.FakeHTTPClient().delete_instances_1234_root()[2]
