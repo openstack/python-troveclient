@@ -129,3 +129,13 @@ class FakeDatastores(object):
 
     def get_datastores_d_123_versions(self):
         return datastores.Datastore(None, self.fake_datastore_versions[0])
+
+
+class FakeRoot(object):
+    def post_instance_1234_root(self):
+        root = fakes.FakeHTTPClient().post_instances_1234_root()[2]['user']
+        return root['name'], root['password']
+
+    def post_cls_1234_root(self):
+        root = fakes.FakeHTTPClient().post_instances_1234_root()[2]['user']
+        return root['name'], root['password']
