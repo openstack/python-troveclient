@@ -387,3 +387,35 @@ class ResetDatabaseInstanceStatus(command.Command):
         instance = osc_utils.find_resource(db_instances,
                                            parsed_args.instance)
         db_instances.reset_status(instance)
+
+
+class ResizeDatabaseInstanceFlavor(command.Command):
+
+    _description = _("Resize an instance with a new flavor")
+
+    def get_parser(self, prog_name):
+        parser = super(ResizeDatabaseInstanceFlavor, self).get_parser(
+            prog_name
+        )
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            type=str,
+            help=_('ID or name of the instance')
+        )
+        parser.add_argument(
+            'flavor_id',
+            metavar='<flavor_id>',
+            type=str,
+            help=_('New flavor of the instance')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_instances = self.app.client_manager.database.instances
+        db_flavor = self.app.client_manager.database.flavors
+        instance = osc_utils.find_resource(db_instances,
+                                           parsed_args.instance)
+        flavor = osc_utils.find_resource(db_flavor,
+                                         parsed_args.flavor_id)
+        db_instances.resize_instance(instance, flavor)
