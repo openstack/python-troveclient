@@ -375,6 +375,10 @@ class FindResourceTestCase(testtools.TestCase):
         output = utils.find_resource(self.manager, 'entity_three')
         self.assertEqual(self.manager.get('4242'), output)
 
+    def test_find_by_int_name(self):
+        output = utils.find_resource(self.manager, 9876)
+        self.assertEqual(self.manager.get('5678'), output)
+
 
 class ResourceTest(testtools.TestCase):
     def setUp(self):
