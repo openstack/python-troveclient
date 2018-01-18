@@ -347,8 +347,42 @@ class FakeHTTPClient(base_client.HTTPClient):
                 "id": "cls-1234"}]})
 
     def get_clusters_cls_1234(self, **kw):
-        r = {'cluster': self.get_clusters()[2]['clusters'][0]}
-        return (200, {}, r)
+        # NOTE(zhaochao): getting a cluster will load instances
+        # informations while getting the list of clusters won't,
+        # so we cannot just reuse the reponse of getting clusters
+        # for getting a cluster.
+        # The following response body is almost identical to the
+        # result of get_clusters, except the additional 'status'
+        # and 'volume' items, so all existing unitests accessing
+        # this piece of fake response will continue to work
+        # without any modification.
+        return (200, {}, {'cluster': {
+            "instances": [
+                {
+                    "type": "member",
+                    "id": "member-1",
+                    "ip": ["10.0.0.3"],
+                    "flavor": {"id": "02"},
+                    "name": "test-clstr-member-1",
+                    "status": "ACTIVE",
+                    "volume": {"size": 2}
+                },
+                {
+                    "type": "member",
+                    "id": "member-2",
+                    "ip": ["10.0.0.4"],
+                    "flavor": {"id": "2"},
+                    "name": "test-clstr-member-2",
+                    "status": "ACTIVE",
+                    "volume": {"size": 2}
+                }],
+            "updated": "2015-05-02T11:06:19",
+            "task": {"description": "No tasks for the cluster.", "id": 1,
+                     "name": "NONE"},
+            "name": "test-clstr",
+            "created": "2015-05-02T10:37:04",
+            "datastore": {"version": "7.1", "type": "vertica"},
+            "id": "cls-1234"}})
 
     def delete_instances_1234(self, **kw):
         return (202, {}, None)
