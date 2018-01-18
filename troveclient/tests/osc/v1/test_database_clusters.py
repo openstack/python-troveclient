@@ -166,3 +166,25 @@ class TestDatabaseClusterResetStatus(TestClusters):
         result = self.cmd.take_action(parsed_args)
         self.cluster_client.reset_status.assert_called_with('cluster1')
         self.assertIsNone(result)
+
+
+class TestClusterListInstances(TestClusters):
+
+    columns = (database_clusters
+               .ListDatabaseClusterInstances.columns)
+    values = [('member-1', 'test-clstr-member-1', '02', 2, 'ACTIVE'),
+              ('member-2', 'test-clstr-member-2', '2', 2, 'ACTIVE')]
+
+    def setUp(self):
+        super(TestClusterListInstances, self).setUp()
+        self.cmd = (database_clusters
+                    .ListDatabaseClusterInstances(self.app, None))
+        self.data = self.fake_clusters.get_clusters_cls_1234()
+        self.cluster_client.get.return_value = self.data
+
+    def test_cluster_list_instances(self):
+        args = ['cls-1234']
+        parsed_args = self.check_parser(self.cmd, args, [])
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.values, data)

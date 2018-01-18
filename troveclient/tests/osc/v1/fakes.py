@@ -48,9 +48,11 @@ class FakeBackups(object):
 
 class FakeClusters(object):
     fake_clusters = fakes.FakeHTTPClient().get_clusters()[2]['clusters']
+    fake_cluster = (fakes.FakeHTTPClient()
+                    .get_clusters_cls_1234()[2]['cluster'])
 
     def get_clusters_cls_1234(self):
-        return clusters.Cluster(None, self.fake_clusters[0])
+        return clusters.Cluster(None, self.fake_cluster)
 
 
 class FakeConfigurations(object):
