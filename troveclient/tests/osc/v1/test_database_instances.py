@@ -183,3 +183,21 @@ class TestDatabaseInstanceResetStatus(TestInstances):
         result = self.cmd.take_action(parsed_args)
         self.instance_client.reset_status.assert_called_with('instance1')
         self.assertIsNone(result)
+
+
+class TestDatabaseInstanceResizeFlavor(TestInstances):
+
+    def setUp(self):
+        super(TestDatabaseInstanceResizeFlavor, self).setUp()
+        self.cmd = database_instances.ResizeDatabaseInstanceFlavor(self.app,
+                                                                   None)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_instance_resize_flavor(self, mock_find):
+        args = ['instance1', 'flavor_id']
+        mock_find.side_effect = ['instance1', 'flavor_id']
+        parsed_args = self.check_parser(self.cmd, args, [])
+        result = self.cmd.take_action(parsed_args)
+        self.instance_client.resize_instance.assert_called_with('instance1',
+                                                                'flavor_id')
+        self.assertIsNone(result)
