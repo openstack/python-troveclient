@@ -233,3 +233,28 @@ class ListDatabaseClusterInstances(command.Lister):
         instances = [utils.get_dict_properties(inst, self.columns)
                      for inst in instances]
         return self.columns, instances
+
+
+class UpgradeDatabaseCluster(command.Command):
+
+    _description = _("Upgrades a cluster to a new datastore version.")
+
+    def get_parser(self, prog_name):
+        parser = super(UpgradeDatabaseCluster, self).get_parser(prog_name)
+        parser.add_argument(
+            'cluster',
+            metavar='<cluster>',
+            help=_('ID or name of the cluster.'),
+        )
+        parser.add_argument(
+            'datastore_version',
+            metavar='<datastore_version>',
+            help=_('A datastore version name or ID.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        database_clusters = self.app.client_manager.database.clusters
+        cluster = utils.find_resource(database_clusters,
+                                      parsed_args.cluster)
+        database_clusters.upgrade(cluster, parsed_args.datastore_version)
