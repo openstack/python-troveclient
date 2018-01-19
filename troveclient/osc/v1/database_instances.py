@@ -552,3 +552,59 @@ class RestartDatabaseInstance(command.Command):
         instance = osc_utils.find_resource(db_instances,
                                            parsed_args.instance)
         db_instances.restart(instance)
+
+
+class UpdateDatabaseInstance(command.Command):
+
+    _description = _("Updates an instance: Edits name, "
+                     "configuration, or replica source.")
+
+    def get_parser(self, prog_name):
+        parser = super(UpdateDatabaseInstance, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            type=str,
+            help=_('ID or name of the instance.'),
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            type=str,
+            default=None,
+            help=_('ID or name of the instance.'),
+        )
+        parser.add_argument(
+            '--configuration',
+            metavar='<configuration>',
+            type=str,
+            default=None,
+            help=_('ID of the configuration reference to attach.'),
+        )
+        parser.add_argument(
+            '--detach_replica_source',
+            '--detach-replica-source',
+            dest='detach_replica_source',
+            action="store_true",
+            default=False,
+            help=_('Detach the replica instance from its replication source. '
+                   '--detach-replica-source may be deprecated in the future '
+                   'in favor of just --detach_replica_source'),
+        )
+        parser.add_argument(
+            '--remove_configuration',
+            dest='remove_configuration',
+            action="store_true",
+            default=False,
+            help=_('Drops the current configuration reference.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_instances = self.app.client_manager.database.instances
+        instance = osc_utils.find_resource(db_instances,
+                                           parsed_args.instance)
+        db_instances.edit(instance, parsed_args.configuration,
+                          parsed_args.name,
+                          parsed_args.detach_replica_source,
+                          parsed_args.remove_configuration)

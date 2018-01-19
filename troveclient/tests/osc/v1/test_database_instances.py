@@ -300,3 +300,25 @@ class TestDatabaseInstanceRestart(TestInstances):
         result = self.cmd.take_action(parsed_args)
         self.instance_client.restart.assert_called_with('instance1')
         self.assertIsNone(result)
+
+
+class TestDatabaseInstanceUpdate(TestInstances):
+
+    def setUp(self):
+        super(TestDatabaseInstanceUpdate, self).setUp()
+        self.cmd = database_instances.UpdateDatabaseInstance(self.app, None)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_instance_update(self, mock_find):
+        args = ['instance1',
+                '--name', 'new_instance_name',
+                '--detach_replica_source',
+                '--remove_configuration']
+        mock_find.return_value = args[0]
+        parsed_args = self.check_parser(self.cmd, args, [])
+        result = self.cmd.take_action(parsed_args)
+        self.instance_client.edit.assert_called_with('instance1',
+                                                     None,
+                                                     'new_instance_name',
+                                                     True, True)
+        self.assertIsNone(result)
