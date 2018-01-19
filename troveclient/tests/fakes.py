@@ -759,3 +759,27 @@ class FakeHTTPClient(base_client.HTTPClient):
                 "to_port": 3306,
                 "security_group_id": "2",
                 "cidr": "15.0.0.0/24", "id": 3}]})
+
+    def get_quotas(self, **kw):
+        return (200, {}, {"quotas": [
+            {
+                "reserved": 1,
+                "resource": "instances",
+                "limit": 10,
+                "in_use": 2
+            },
+            {
+                "reserved": 3,
+                "resource": "backups",
+                "limit": 50,
+                "in_use": 4
+            },
+            {
+                "reserved": 5,
+                "resource": "volumes",
+                "limit": 40,
+                "in_use": 6
+            }]})
+
+    def update_instances_quota(self, **kw):
+        return (200, {}, {"quotas": {"instances": 51}})
