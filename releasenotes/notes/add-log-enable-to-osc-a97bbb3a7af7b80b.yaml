@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The command ``trove log-enable`` is now available to use in
+    the python-openstackclient CLI as ``openstack database log enable``.
