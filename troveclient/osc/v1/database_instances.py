@@ -529,3 +529,26 @@ class ForceDeleteDatabaseInstance(command.Command):
             msg = (_("Failed to delete instance %(instance)s: %(e)s")
                    % {'instance': parsed_args.instance, 'e': e})
             raise exceptions.CommandError(msg)
+
+
+class RestartDatabaseInstance(command.Command):
+
+    _description = _("Restarts an instance.")
+
+    def get_parser(self, prog_name):
+        parser = super(RestartDatabaseInstance, self).get_parser(
+            prog_name
+        )
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            type=str,
+            help=_('ID or name of the instance.')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_instances = self.app.client_manager.database.instances
+        instance = osc_utils.find_resource(db_instances,
+                                           parsed_args.instance)
+        db_instances.restart(instance)
