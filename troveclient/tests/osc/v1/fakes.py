@@ -23,6 +23,7 @@ from troveclient.v1 import datastores
 from troveclient.v1 import flavors
 from troveclient.v1 import instances
 from troveclient.v1 import limits
+from troveclient.v1 import quota
 from troveclient.v1 import users
 
 
@@ -157,3 +158,13 @@ class FakeRoot(object):
 
     def delete_instance_1234_root(self):
         return fakes.FakeHTTPClient().delete_instances_1234_root()[2]
+
+
+class FakeQuota(object):
+    fake_quotas = fakes.FakeHTTPClient().get_quotas()[2]['quotas']
+    fake_instances_quota = (fakes.FakeHTTPClient()
+                            .update_instances_quota()[2]['quotas'])
+
+    def get_quotas(self):
+        return [quota.Quotas.resource_class(None, q)
+                for q in self.fake_quotas]

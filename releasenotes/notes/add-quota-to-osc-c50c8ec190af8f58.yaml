@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    The command ``trove quota-show`` is now available to use in the
+    python-openstackclient CLI as ``openstack database quota show``.
+  - |
+    The command ``trove quota-update`` is now available to use in the
+    python-openstackclient CLI as ``openstack database quota update``.
