@@ -26,7 +26,3 @@
       - openstack/tempest
       - openstack/trove-tempest-plugin
 
-# Needed for renaming, will be removed
-- job:
-    name: tempest-neutron-src-python-troveclient
-    parent: python-troveclient-tempest-neutron-src
