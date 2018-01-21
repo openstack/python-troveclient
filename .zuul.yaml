@@ -1,17 +1,16 @@
 - project:
-    name: openstack/python-troveclient
     templates:
       - openstackclient-plugin-jobs
     check:
       jobs:
-        - tempest-neutron-src-python-troveclient
+        - python-troveclient-tempest-neutron-src
     gate:
       queue: trove
       jobs:
-        - tempest-neutron-src-python-troveclient
+        - python-troveclient-tempest-neutron-src
 
 - job:
-    name: tempest-neutron-src-python-troveclient
+    name: python-troveclient-tempest-neutron-src
     parent: legacy-dsvm-base
     run: playbooks/legacy/tempest-dsvm-neutron-src-python-troveclient/run.yaml
     post-run: playbooks/legacy/tempest-dsvm-neutron-src-python-troveclient/post.yaml
@@ -26,3 +25,8 @@
       - openstack/trove-dashboard
       - openstack/tempest
       - openstack/trove-tempest-plugin
+
+# Needed for renaming, will be removed
+- job:
+    name: tempest-neutron-src-python-troveclient
+    parent: python-troveclient-tempest-neutron-src
