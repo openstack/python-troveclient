@@ -279,10 +279,9 @@ class TestDatabaseInstanceEnableLog(TestInstances):
         args = ['instance1', 'log_name']
         mock_find.side_effect = ['instance1']
         parsed_args = self.check_parser(self.cmd, args, [])
-        result = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
         self.instance_client.log_enable.assert_called_with('instance1',
                                                            'log_name')
-        self.assertIsNone(result)
 
 
 class TestDatabaseInstanceRestart(TestInstances):
