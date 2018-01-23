@@ -447,7 +447,7 @@ class UpgradeDatabaseInstance(command.Command):
         db_instances.upgrade(instance, parsed_args.datastore_version)
 
 
-class EnableDatabaseInstanceLog(command.Command):
+class EnableDatabaseInstanceLog(command.ShowOne):
 
     _description = _("Instructs Trove guest to start collecting log details.")
 
@@ -471,7 +471,9 @@ class EnableDatabaseInstanceLog(command.Command):
         db_instances = self.app.client_manager.database.instances
         instance = osc_utils.find_resource(db_instances,
                                            parsed_args.instance)
-        db_instances.log_enable(instance, parsed_args.log_name)
+        log_info = db_instances.log_enable(instance, parsed_args.log_name)
+        result = log_info._info
+        return zip(*sorted(six.iteritems(result)))
 
 
 class ResizeDatabaseInstanceVolume(command.Command):
