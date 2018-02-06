@@ -95,3 +95,7 @@ class TestResponse(requests.Response):
             self._text = data.get('text')
         else:
             self.status_code = data
+
+    @property
+    def text(self):
+        return self._text
