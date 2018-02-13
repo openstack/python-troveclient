@@ -19,6 +19,8 @@ import six
 
 from troveclient.i18n import _
 from troveclient.v1.shell import _parse_instance_options
+from troveclient.v1.shell import INSTANCE_HELP
+from troveclient.v1.shell import INSTANCE_METAVAR
 
 
 def set_attributes_for_print_detail(cluster):
@@ -149,21 +151,11 @@ class CreateDatabaseCluster(command.ShowOne):
         )
         parser.add_argument(
             '--instance',
-            metavar='"opt=<value>[,opt=<value> ...] "',
+            metavar=INSTANCE_METAVAR,
             action='append',
             dest='instances',
             default=[],
-            help=_("Add an instance to the cluster.  Specify multiple "
-                   "times to create multiple instances.  "
-                   "Valid options are: flavor=<flavor_name_or_id>, "
-                   "volume=<disk_size_in_GB>, volume_type=<type>, "
-                   "nic='<net-id=<net-uuid>, v4-fixed-ip=<ip-addr>, "
-                   "port-id=<port-uuid>>' "
-                   "(where net-id=network_id, "
-                   "v4-fixed-ip=IPv4r_fixed_address, port-id=port_id), "
-                   "availability_zone=<AZ_hint_for_Nova>, "
-                   "module=<module_name_or_id>, type=<type_of_cluster_node>, "
-                   "related_to=<related_attribute>."),
+            help=INSTANCE_HELP,
         )
         parser.add_argument(
             '--locality',
@@ -284,3 +276,74 @@ class ForceDeleteDatabaseCluster(command.Command):
             msg = (_("Failed to delete cluster %(cluster)s: %(e)s")
                    % {'cluster': parsed_args.cluster, 'e': e})
             raise exceptions.CommandError(msg)
+
+
+class GrowDatabaseCluster(command.Command):
+
+    _description = _("Adds more instances to a cluster.")
+
+    def get_parser(self, prog_name):
+        parser = super(GrowDatabaseCluster, self).get_parser(prog_name)
+        parser.add_argument(
+            '--instance',
+            metavar=INSTANCE_METAVAR,
+            action='append',
+            dest='instances',
+            default=[],
+            help=INSTANCE_HELP
+        )
+        parser.add_argument(
+            'cluster',
+            metavar='<cluster>',
+            help=_('ID or name of the cluster.')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        database_client_manager = self.app.client_manager.database
+
+        db_clusters = database_client_manager.clusters
+        cluster = utils.find_resource(db_clusters,
+                                      parsed_args.cluster)
+
+        instances = _parse_instance_options(database_client_manager,
+                                            parsed_args.instances,
+                                            for_grow=True)
+        db_clusters.grow(cluster, instances=instances)
+
+
+class ShrinkDatabaseCluster(command.Command):
+
+    _description = _("Drops instances from a cluster.")
+
+    def get_parser(self, prog_name):
+        parser = super(ShrinkDatabaseCluster, self).get_parser(prog_name)
+        parser.add_argument(
+            'cluster',
+            metavar='<cluster>',
+            help=_('ID or name of the cluster.')
+        )
+        parser.add_argument(
+            'instances',
+            metavar='<instance>',
+            nargs='+',
+            default=[],
+            help=_("Drop instance(s) from the cluster. Specify "
+                   "multiple ids to drop multiple instances.")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        database_client_manager = self.app.client_manager.database
+
+        db_clusters = database_client_manager.clusters
+        cluster = utils.find_resource(db_clusters,
+                                      parsed_args.cluster)
+
+        db_instances = database_client_manager.instances
+        instances = [
+            {'id': utils.find_resource(db_instances,
+                                       instance).id}
+            for instance in parsed_args.instances
+        ]
+        db_clusters.shrink(cluster, instances)
