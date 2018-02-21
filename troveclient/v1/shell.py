@@ -49,7 +49,7 @@ except ImportError:
 
 from troveclient import exceptions
 from troveclient import utils
-from troveclient.v1.modules import Module
+from troveclient.v1 import modules
 
 
 def _poll_for_status(poll_fn, obj_id, action, final_ok_states,
@@ -1780,13 +1780,13 @@ def do_metadata_delete(cs, args):
 @utils.arg('--datastore', metavar='<datastore>',
            help=_("Name or ID of datastore to list modules for. Use '%s' "
                   "to list modules that apply to all datastores.")
-           % Module.ALL_KEYWORD)
+           % modules.Module.ALL_KEYWORD)
 @utils.service_type('database')
 def do_module_list(cs, args):
     """Lists the modules available."""
     datastore = None
     if args.datastore:
-        if args.datastore.lower() == Module.ALL_KEYWORD:
+        if args.datastore.lower() == modules.Module.ALL_KEYWORD:
             datastore = args.datastore.lower()
         else:
             datastore = _find_datastore(cs, args.datastore)
