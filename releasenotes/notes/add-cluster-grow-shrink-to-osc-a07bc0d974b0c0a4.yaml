@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    The command ``trove cluster-grow`` is now available
+    to use in the python-openstackclient CLI as ``openstack database
+    cluster grow``
+  - |
+    The command ``trove cluster-shrink`` is now available
+    to use in the python-openstackclient CLI as ``openstack database
+    cluster shrink``
