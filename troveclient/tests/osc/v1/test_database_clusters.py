@@ -18,7 +18,6 @@ from osc_lib import utils
 from troveclient import common
 from troveclient.osc.v1 import database_clusters
 from troveclient.tests.osc.v1 import fakes
-from troveclient.v1 import shell
 
 
 class TestClusters(fakes.TestDatabasev1):
@@ -134,20 +133,29 @@ class TestDatabaseClusterCreate(TestClusters):
         self.data = self.fake_clusters.get_clusters_cls_1234()
         self.cluster_client.create.return_value = self.data
 
-    @mock.patch.object(shell, '_parse_instance_options')
-    def test_cluster_create(self, mock_find):
-        instance = 'flavor=02,volume=2'
-        mock_find.return_value = instance
+    @mock.patch.object(database_clusters, '_parse_instance_options')
+    def test_cluster_create(self, mock_parse_instance_opts):
+        instances = ['flavor="02",volume=2',
+                     'flavor="03",volume=3']
+        parsed_instances = [{'flavor': '02', 'volume': 2},
+                            {'flavor': '03', 'volume': 3}]
+        mock_parse_instance_opts.return_value = parsed_instances
         args = ['test-name', 'vertica', '7.1',
-                '--instance', instance]
+                '--instance', instances[0],
+                '--instance', instances[1]]
         verifylist = [
             ('name', 'test-name'),
             ('datastore', 'vertica'),
             ('datastore_version', '7.1'),
-            ('instances', [instance]),
+            ('instances', instances),
         ]
         parsed_args = self.check_parser(self.cmd, args, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
+        self.cluster_client.create.assert_called_with(
+            parsed_args.name, parsed_args.datastore,
+            parsed_args.datastore_version,
+            instances=parsed_instances,
+            locality=parsed_args.locality)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.values, data)
 
