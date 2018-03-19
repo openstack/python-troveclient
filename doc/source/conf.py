@@ -28,11 +28,21 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, BASE_DIR)
 
 extensions = [
-    'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.coverage',
     'openstackdocstheme',
+    'sphinxcontrib.apidoc',
 ]
+
+# sphinxcontrib.apidoc options
+apidoc_module_dir = '../../troveclient'
+apidoc_output_dir = 'reference/api'
+apidoc_excluded_paths = [
+    'compat/tests/*',
+    'compat/tests',
+    'tests/*',
+    'tests']
+apidoc_separate_modules = True
 
 # openstackdocstheme options
 repository_name = 'openstack/python-troveclient'
