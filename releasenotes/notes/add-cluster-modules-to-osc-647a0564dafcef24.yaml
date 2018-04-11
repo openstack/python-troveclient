@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The command ``trove cluster-modules`` is now available to use in
+    the python-openstackclient CLI as ``openstack database cluster
+    modules``.
