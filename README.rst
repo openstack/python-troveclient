@@ -5,11 +5,11 @@ Python bindings to the OpenStack Trove API
     :target: https://governance.openstack.org/tc/reference/tags/index.html
 
 .. image:: https://img.shields.io/pypi/v/python-troveclient.svg
-    :target: https://pypi.python.org/pypi/python-troveclient/
+    :target: https://pypi.org/project/python-troveclient/
     :alt: Latest Version
 
 .. image:: https://img.shields.io/pypi/dm/python-troveclient.svg
-    :target: https://pypi.python.org/pypi/python-troveclient/
+    :target: https://pypi.org/project/python-troveclient/
     :alt: Downloads
 
 This is a client for the OpenStack Trove API. There's a Python API (the
@@ -35,7 +35,7 @@ python-troveclient is licensed under the Apache License like the rest of OpenSta
 * `Specs`_
 * `How to Contribute`_
 
-.. _PyPi: https://pypi.python.org/pypi/python-troveclient
+.. _PyPi: https://pypi.org/project/python-troveclient
 .. _Blueprints: https://blueprints.launchpad.net/python-troveclient
 .. _Git Source: https://git.openstack.org/cgit/openstack/python-troveclient
 .. _Github: https://github.com/openstack/python-troveclient
