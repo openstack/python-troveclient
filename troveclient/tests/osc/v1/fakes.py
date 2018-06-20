@@ -23,6 +23,7 @@ from troveclient.v1 import datastores
 from troveclient.v1 import flavors
 from troveclient.v1 import instances
 from troveclient.v1 import limits
+from troveclient.v1 import modules
 from troveclient.v1 import quota
 from troveclient.v1 import users
 
@@ -52,12 +53,19 @@ class FakeClusters(object):
     fake_cluster = (fakes.FakeHTTPClient()
                     .get_clusters_cls_1234()[2]['cluster'])
     fake_cluster_member = fake_cluster['instances'][1]
+    fake_cluster_instance_modules = (fakes.FakeHTTPClient().
+                                     get_cluster_instance_modules()[2]
+                                     ['modules'])
 
     def get_clusters_cls_1234(self):
         return clusters.Cluster(None, self.fake_cluster)
 
     def get_clusters_member_2(self):
         return instances.Instance(None, self.fake_cluster_member)
+
+    def cluster_instance_modules(self):
+        return [[modules.Module(None, mod)]
+                for mod in self.fake_cluster_instance_modules]
 
 
 class FakeConfigurations(object):
