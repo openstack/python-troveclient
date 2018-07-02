@@ -37,7 +37,7 @@ class Clusters(base.ManagerWithFind):
     resource_class = Cluster
 
     def create(self, name, datastore, datastore_version, instances=None,
-               locality=None, extended_properties=None):
+               locality=None, extended_properties=None, configuration=None):
         """Create (boot) a new cluster."""
         body = {"cluster": {
             "name": name
@@ -53,6 +53,8 @@ class Clusters(base.ManagerWithFind):
             body["cluster"]["locality"] = locality
         if extended_properties:
             body["cluster"]["extended_properties"] = extended_properties
+        if configuration:
+            body["cluster"]["configuration"] = configuration
 
         return self._create("/clusters", body, "cluster")
 

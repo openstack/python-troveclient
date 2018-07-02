@@ -79,10 +79,12 @@ class ClustersTest(testtools.TestCase):
             'configsvr_volume_type': 'foo_type',
             'mongos_volume_size': 12,
             'mongos_volume_type': 'bar_type'}
+        configuration = 'test-config'
         path, body, resp_key = clusters_test.create("test-name", "datastore",
                                                     "datastore-version",
                                                     instances, locality,
-                                                    extended_properties)
+                                                    extended_properties,
+                                                    configuration)
         self.assertEqual("/clusters", path)
         self.assertEqual("cluster", resp_key)
         self.assertEqual("test-name", body["cluster"]["name"])
@@ -93,6 +95,7 @@ class ClustersTest(testtools.TestCase):
         self.assertEqual(locality, body["cluster"]["locality"])
         self.assertEqual(extended_properties,
                          body["cluster"]["extended_properties"])
+        self.assertEqual(configuration, body["cluster"]["configuration"])
 
     def test_list(self):
         page_mock = mock.Mock()

@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    A --configuration flag was added to the ``trove cluster-create``
+    command, in order to allow a user to attach specific configuration
+    for cluster.

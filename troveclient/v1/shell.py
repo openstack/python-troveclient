@@ -894,6 +894,11 @@ def _parse_instance_options(cs, instance_options, for_grow=False):
            metavar=EXT_PROPS_METAVAR,
            default=None,
            help=EXT_PROPS_HELP)
+@utils.arg('--configuration',
+           metavar='<configuration>',
+           type=str,
+           default=None,
+           help=_('ID of the configuration group to attach to the cluster.'))
 @utils.service_type('database')
 def do_cluster_create(cs, args):
     """Creates a new cluster."""
@@ -908,7 +913,8 @@ def do_cluster_create(cs, args):
                                  args.datastore_version,
                                  instances=instances,
                                  locality=args.locality,
-                                 extended_properties=extended_properties)
+                                 extended_properties=extended_properties,
+                                 configuration=args.configuration)
     _print_cluster(cluster)
 
 
