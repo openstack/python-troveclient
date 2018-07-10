@@ -13,13 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-try:
-    # handle py34
-    import builtins
-except ImportError:
-    # and py27
-    import __builtin__ as builtins
-
 import base64
 import fixtures
 import mock
@@ -699,7 +692,7 @@ class ShellTest(utils.TestCase):
         self.assert_called('GET', '/modules/4321')
 
     def test_module_create(self):
-        with mock.patch.object(builtins, 'open'):
+        with mock.patch('argparse.open'):
             return_value = b'mycontents'
             expected_contents = str(return_value.decode('utf-8'))
             mock_encode = mock.Mock(return_value=return_value)
@@ -787,7 +780,7 @@ class ShellTest(utils.TestCase):
     def test_module_retrieve(self):
         with mock.patch.object(troveclient.v1.modules.Module, '__getattr__',
                                mock.Mock(return_value='4321')):
-            with mock.patch.object(builtins, 'open'):
+            with mock.patch('troveclient.v1.instances.open'):
                 self.run_command('module-retrieve 1234')
                 self.assert_called(
                     'GET',
