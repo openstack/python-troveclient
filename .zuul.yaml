@@ -13,9 +13,7 @@
         - openstack-tox-lower-constraints
 - job:
     name: python-troveclient-tempest-neutron-src
-    parent: legacy-dsvm-base
-    run: playbooks/legacy/tempest-dsvm-neutron-src-python-troveclient/run.yaml
-    post-run: playbooks/legacy/tempest-dsvm-neutron-src-python-troveclient/post.yaml
+    parent: devstack-tempest
     timeout: 7800
     required-projects:
       - openstack-dev/devstack
@@ -27,4 +25,10 @@
       - openstack/trove-dashboard
       - openstack/tempest
       - openstack/trove-tempest-plugin
+    vars:
+      tox_envlist: 'full'
+      devstack_localrc:
+        TEMPEST_PLUGINS: '/opt/stack/trove-tempest-plugin'
+      devstack_plugins:
+        trove: git://git.openstack.org/openstack/trove
 
