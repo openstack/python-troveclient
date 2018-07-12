@@ -71,9 +71,15 @@ class FakeClusters(object):
 class FakeConfigurations(object):
     fake_config = (fakes.FakeHTTPClient().get_configurations()
                    [2]['configurations'])
+    fake_config_instances = (fakes.FakeHTTPClient().
+                             get_configurations_c_123_instances()[2])
 
     def get_configurations_c_123(self):
         return configurations.Configuration(None, self.fake_config[0])
+
+    def get_configuration_instances(self):
+        return [instances.Instance(None, fake_instance)
+                for fake_instance in self.fake_config_instances['instances']]
 
 
 class FakeConfigurationParameters(object):
