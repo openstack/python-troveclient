@@ -556,6 +556,28 @@ class RestartDatabaseInstance(command.Command):
         db_instances.restart(instance)
 
 
+class EjectDatabaseInstanceReplicaSource(command.Command):
+
+    _description = _("Ejects a replica source from its set.")
+
+    def get_parser(self, prog_name):
+        parser = super(EjectDatabaseInstanceReplicaSource, self).get_parser(
+            prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            type=str,
+            help=_('ID or name of the instance.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_instances = self.app.client_manager.database.instances
+        instance = osc_utils.find_resource(db_instances,
+                                           parsed_args.instance)
+        db_instances.eject_replica_source(instance)
+
+
 class UpdateDatabaseInstance(command.Command):
 
     _description = _("Updates an instance: Edits name, "
