@@ -339,3 +339,21 @@ class TestDatabaseInstanceUpdate(TestInstances):
                                                      'new_instance_name',
                                                      True, True)
         self.assertIsNone(result)
+
+
+class TestInstanceReplicaDetach(TestInstances):
+
+    def setUp(self):
+        super(TestInstanceReplicaDetach, self).setUp()
+        self.cmd = database_instances.DetachDatabaseInstanceReplica(
+            self.app, None)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_instance_replica_detach(self, mock_find):
+        args = ['instance']
+        mock_find.return_value = args[0]
+        parsed_args = self.check_parser(self.cmd, args, [])
+        result = self.cmd.take_action(parsed_args)
+        self.instance_client.edit.assert_called_with(
+            'instance', detach_replica_source=True)
+        self.assertIsNone(result)

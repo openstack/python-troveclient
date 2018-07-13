@@ -632,3 +632,26 @@ class UpdateDatabaseInstance(command.Command):
                           parsed_args.name,
                           parsed_args.detach_replica_source,
                           parsed_args.remove_configuration)
+
+
+class DetachDatabaseInstanceReplica(command.Command):
+
+    _description = _("Detaches a replica instance "
+                     "from its replication source.")
+
+    def get_parser(self, prog_name):
+        parser = super(DetachDatabaseInstanceReplica, self).get_parser(
+            prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            type=str,
+            help=_('ID or name of the instance.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_instances = self.app.client_manager.database.instances
+        instance = osc_utils.find_resource(db_instances,
+                                           parsed_args.instance)
+        db_instances.edit(instance, detach_replica_source=True)

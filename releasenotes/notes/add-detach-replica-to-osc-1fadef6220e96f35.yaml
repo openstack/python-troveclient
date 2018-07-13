@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The command ``trove detach-replica`` is now available
+    to use in the python-openstackclient CLI as ``openstack database
+    instance detach replica``
