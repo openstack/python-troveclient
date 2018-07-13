@@ -1,0 +1,5 @@
+---
+features:
+    - The command ``trove promote-to-replica-source`` is now available to
+      use in the python-openstackclient CLI as
+      ``openstack database instance promote to replica source``
