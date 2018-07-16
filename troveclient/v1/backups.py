@@ -243,7 +243,7 @@ class Backups(base.ManagerWithFind):
                         yield the_item
                     m = the_list[-1].id
                 else:
-                    raise StopIteration()
+                    return
 
         def execution_list_generator():
             yielded = 0
@@ -254,7 +254,7 @@ class Backups(base.ManagerWithFind):
                                             loaded=True)
                     yielded += 1
                 if limit and yielded == limit:
-                    raise StopIteration()
+                    return
 
         return list(execution_list_generator())
 
