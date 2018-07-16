@@ -206,3 +206,18 @@ class TestBackupCreate(TestBackups):
                                                      description='backup 1234',
                                                      parent_id='1234-1',
                                                      incremental=True)
+
+
+class TestDatabaseBackupExecutionDelete(TestBackups):
+
+    def setUp(self):
+        super(TestDatabaseBackupExecutionDelete, self).setUp()
+        self.cmd = database_backups.DeleteDatabaseBackupExecution(
+            self.app, None)
+
+    def test_execution_delete(self):
+        args = ['execution']
+        parsed_args = self.check_parser(self.cmd, args, [])
+        result = self.cmd.take_action(parsed_args)
+        self.backup_client.execution_delete.assert_called_with('execution')
+        self.assertIsNone(result)
