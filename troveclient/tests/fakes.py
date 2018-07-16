@@ -822,3 +822,25 @@ class FakeHTTPClient(base_client.HTTPClient):
 
     def update_instances_quota(self, **kw):
         return (200, {}, {"quotas": {"instances": 51}})
+
+    def get_logs(self, **kw):
+        return (200, {}, {"logs": [
+            {
+                "name": "general",
+                "type": "USER",
+                "status": "Partial",
+                "published": "128",
+                "pending": "4096",
+                "container": "data_logs",
+                "prefix": "mysql-general",
+                "metafile": "mysql-general_metafile"
+            },
+            {
+                "name": "slow_query",
+                "type": "USER",
+                "status": "Ready",
+                "published": "0",
+                "pending": "128",
+                "container": "None",
+                "prefix": "None",
+                "metafile": "mysql-slow_query_metafile"}]})
