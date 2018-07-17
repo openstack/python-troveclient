@@ -527,7 +527,13 @@ class FakeHTTPClient(base_client.HTTPClient):
         return (200, {}, r)
 
     def get_configurations_c_123_instances(self, **kw):
-        return (200, {}, {"instances": []})
+        return (200, {}, {"instances": [
+            {
+                "id": "1",
+                "name": "instance-1"},
+            {
+                "id": "2",
+                "name": "instance-2"}]})
 
     def delete_configurations_c_123(self, **kw):
         return (202, {}, None)
