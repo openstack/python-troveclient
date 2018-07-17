@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The command ``trove eject-replica-source`` is now available to use in
+    the python-openstackclient CLI as ``
+    openstack database instance eject replica source``
