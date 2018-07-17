@@ -73,6 +73,9 @@ class FakeConfigurations(object):
                    [2]['configurations'])
     fake_config_instances = (fakes.FakeHTTPClient().
                              get_configurations_c_123_instances()[2])
+    fake_default_config = (
+        fakes.FakeHTTPClient().get_instances_1234_configuration()
+        [2]['instance'])
 
     def get_configurations_c_123(self):
         return configurations.Configuration(None, self.fake_config[0])
@@ -80,6 +83,9 @@ class FakeConfigurations(object):
     def get_configuration_instances(self):
         return [instances.Instance(None, fake_instance)
                 for fake_instance in self.fake_config_instances['instances']]
+
+    def get_default_configuration(self):
+        return instances.Instance(None, self.fake_default_config)
 
 
 class FakeConfigurationParameters(object):

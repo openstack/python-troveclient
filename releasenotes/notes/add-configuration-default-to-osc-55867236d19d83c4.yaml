@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The command ``trove configuration-default`` is now available
+    to use in the python-openstackclient CLI as ``openstack
+    database configuration default``
