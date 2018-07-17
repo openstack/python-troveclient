@@ -41,6 +41,17 @@ NIC_ERROR = _("Invalid NIC argument: %s. Must specify either net-id or port-id"
 NO_LOG_FOUND_ERROR = _("ERROR: No published '%(log_name)s' log was found for "
                        "%(instance)s.")
 LOCALITY_DOMAIN = ['affinity', 'anti-affinity']
+EXT_PROPS_METAVAR = INSTANCE_METAVAR
+EXT_PROPS_HELP = _("Add extended properties for cluster create. "
+                   "Currently only support MongoDB options, other databases "
+                   "will be added in the future. "
+                   "MongoDB: "
+                   "  num_configsvr=<number_of_configsvr>, "
+                   "  num_mongos=<number_of_mongos>, "
+                   "  configsvr_volume_size=<disk_size_in_GB>, "
+                   "  configsvr_volume_type=<volume_type>, "
+                   "  mongos_volume_size=<disk_size_in_GB>, "
+                   "  mongos_volume_type=<volume_type>.")
 
 try:
     import simplejson as json
@@ -879,15 +890,25 @@ def _parse_instance_options(cs, instance_options, for_grow=False):
            choices=LOCALITY_DOMAIN,
            help=_('Locality policy to use when creating cluster. Choose '
                   'one of %(choices)s.'))
+@utils.arg('--extended_properties',
+           metavar=EXT_PROPS_METAVAR,
+           default=None,
+           help=EXT_PROPS_HELP)
 @utils.service_type('database')
 def do_cluster_create(cs, args):
     """Creates a new cluster."""
     instances = _parse_instance_options(cs, args.instances)
+    extended_properties = {}
+    if args.extended_properties:
+        extended_properties = dict([(k, v) for (k, v) in
+                                   [kv.strip().split("=") for kv in
+                                   args.extended_properties.split(",")]])
     cluster = cs.clusters.create(args.name,
                                  args.datastore,
                                  args.datastore_version,
                                  instances=instances,
-                                 locality=args.locality)
+                                 locality=args.locality,
+                                 extended_properties=extended_properties)
     _print_cluster(cluster)
 
 
