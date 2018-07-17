@@ -186,3 +186,11 @@ class FakeQuota(object):
     def get_quotas(self):
         return [quota.Quotas.resource_class(None, q)
                 for q in self.fake_quotas]
+
+
+class FakeLogs(object):
+    fake_logs = fakes.FakeHTTPClient().get_logs()[2]['logs']
+
+    def get_logs(self):
+        return [instances.DatastoreLog(None, fake_log)
+                for fake_log in self.fake_logs]
