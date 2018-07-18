@@ -220,3 +220,22 @@ class CreateDatabaseBackup(command.ShowOne):
                                          incremental=parsed_args.incremental)
         backup = set_attributes_for_print_detail(backup)
         return zip(*sorted(six.iteritems(backup)))
+
+
+class DeleteDatabaseBackupExecution(command.Command):
+
+    _description = _("Deletes an execution.")
+
+    def get_parser(self, prog_name):
+        parser = super(DeleteDatabaseBackupExecution, self).get_parser(
+            prog_name)
+        parser.add_argument(
+            'execution',
+            metavar='<execution>',
+            help=_('ID of the execution to delete.')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        database_backups = self.app.client_manager.database.backups
+        database_backups.execution_delete(parsed_args.execution)
