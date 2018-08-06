@@ -72,9 +72,17 @@ class ClustersTest(testtools.TestCase):
         clusters_test._create = mock.Mock(side_effect=side_effect_func)
         instances = [{'flavor-id': 11, 'volume': 2}]
         locality = 'affinity'
+        extended_properties = {
+            'num_configsvr': 5,
+            'num_mongos': 7,
+            'configsvr_volume_size': 11,
+            'configsvr_volume_type': 'foo_type',
+            'mongos_volume_size': 12,
+            'mongos_volume_type': 'bar_type'}
         path, body, resp_key = clusters_test.create("test-name", "datastore",
                                                     "datastore-version",
-                                                    instances, locality)
+                                                    instances, locality,
+                                                    extended_properties)
         self.assertEqual("/clusters", path)
         self.assertEqual("cluster", resp_key)
         self.assertEqual("test-name", body["cluster"]["name"])
@@ -83,6 +91,8 @@ class ClustersTest(testtools.TestCase):
                          body["cluster"]["datastore"]["version"])
         self.assertEqual(instances, body["cluster"]["instances"])
         self.assertEqual(locality, body["cluster"]["locality"])
+        self.assertEqual(extended_properties,
+                         body["cluster"]["extended_properties"])
 
     def test_list(self):
         page_mock = mock.Mock()

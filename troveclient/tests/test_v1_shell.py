@@ -516,6 +516,28 @@ class ShellTest(utils.TestCase):
                 'name': 'test-clstr2',
                 'locality': 'affinity'}})
 
+    def test_cluster_create_with_extended_properties(self):
+        cmd = ('cluster-create test-clstr3 mongodb 4.0 '
+               '--instance flavor=2,volume=1 '
+               '--instance flavor=02,volume=1 '
+               '--instance flavor=2,volume=1 '
+               '--extended_properties num_mongos=3')
+        self.run_command(cmd)
+        self.assert_called_anytime(
+            'POST', '/clusters',
+            {'cluster': {
+                'instances': [
+                    {'flavorRef': '2',
+                     'volume': {'size': '1'}},
+                    {'flavorRef': '02',
+                     'volume': {'size': '1'}},
+                    {'flavorRef': '2',
+                     'volume': {'size': '1'}},
+                ],
+                'datastore': {'version': '4.0', 'type': 'mongodb'},
+                'name': 'test-clstr3',
+                'extended_properties': {'num_mongos': '3'}}})
+
     def test_cluster_create_with_nic_az(self):
         cmd = ('cluster-create test-clstr1 vertica 7.1 '
                '--instance flavor=2,volume=2,nic=\'net-id=some-id\','
