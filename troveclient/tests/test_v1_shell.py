@@ -516,6 +516,28 @@ class ShellTest(utils.TestCase):
                 'name': 'test-clstr2',
                 'locality': 'affinity'}})
 
+    def test_cluster_create_with_configuration(self):
+        cmd = ('cluster-create test-clstr2 redis 3.0 '
+               '--configuration=config01 '
+               '--instance flavor=2,volume=1 '
+               '--instance flavor=02,volume=1 '
+               '--instance flavor=2,volume=1 ')
+        self.run_command(cmd)
+        self.assert_called_anytime(
+            'POST', '/clusters',
+            {'cluster': {
+                'instances': [
+                    {'flavorRef': '2',
+                     'volume': {'size': '1'}},
+                    {'flavorRef': '02',
+                     'volume': {'size': '1'}},
+                    {'flavorRef': '2',
+                     'volume': {'size': '1'}},
+                ],
+                'datastore': {'version': '3.0', 'type': 'redis'},
+                'name': 'test-clstr2',
+                'configuration': 'config01'}})
+
     def test_cluster_create_with_extended_properties(self):
         cmd = ('cluster-create test-clstr3 mongodb 4.0 '
                '--instance flavor=2,volume=1 '
