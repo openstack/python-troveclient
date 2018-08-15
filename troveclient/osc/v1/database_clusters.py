@@ -18,7 +18,10 @@ from osc_lib import utils
 import six
 
 from troveclient.i18n import _
+from troveclient.v1.shell import _parse_extended_properties
 from troveclient.v1.shell import _parse_instance_options
+from troveclient.v1.shell import EXT_PROPS_HELP
+from troveclient.v1.shell import EXT_PROPS_METAVAR
 from troveclient.v1.shell import INSTANCE_HELP
 from troveclient.v1.shell import INSTANCE_METAVAR
 
@@ -165,16 +168,37 @@ class CreateDatabaseCluster(command.ShowOne):
             help=_('Locality policy to use when creating cluster. '
                    'Choose one of %(choices)s.'),
         )
+        parser.add_argument(
+            '--extended-properties',
+            dest='extended_properties',
+            metavar=EXT_PROPS_METAVAR,
+            default=None,
+            help=EXT_PROPS_HELP,
+        )
+        parser.add_argument(
+            '--configuration',
+            metavar='<configuration>',
+            type=str,
+            default=None,
+            help=_('ID of the configuration group to attach to the cluster.'),
+        )
         return parser
 
     def take_action(self, parsed_args):
         database = self.app.client_manager.database
         instances = _parse_instance_options(database, parsed_args.instances)
-        cluster = database.clusters.create(parsed_args.name,
-                                           parsed_args.datastore,
-                                           parsed_args.datastore_version,
-                                           instances=instances,
-                                           locality=parsed_args.locality)
+        extended_properties = {}
+        if parsed_args.extended_properties:
+            extended_properties = _parse_extended_properties(
+                parsed_args.extended_properties)
+        cluster = database.clusters.create(
+            parsed_args.name,
+            parsed_args.datastore,
+            parsed_args.datastore_version,
+            instances=instances,
+            locality=parsed_args.locality,
+            extended_properties=extended_properties,
+            configuration=parsed_args.configuration)
         cluster = set_attributes_for_print_detail(cluster)
         return zip(*sorted(six.iteritems(cluster)))
 

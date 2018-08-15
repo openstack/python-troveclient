@@ -140,15 +140,21 @@ class TestDatabaseClusterCreate(TestClusters):
                      'flavor="03",volume=3']
         parsed_instances = [{'flavor': '02', 'volume': 2},
                             {'flavor': '03', 'volume': 3}]
+        extended_properties = "foo_properties=foo_value"
+        parsed_extended_properties = {'foo_properties': 'foo_value'}
         mock_parse_instance_opts.return_value = parsed_instances
         args = ['test-name', 'vertica', '7.1',
                 '--instance', instances[0],
-                '--instance', instances[1]]
+                '--instance', instances[1],
+                '--extended-properties', extended_properties,
+                '--configuration', 'config01']
         verifylist = [
             ('name', 'test-name'),
             ('datastore', 'vertica'),
             ('datastore_version', '7.1'),
             ('instances', instances),
+            ('extended_properties', extended_properties),
+            ('configuration', 'config01'),
         ]
         parsed_args = self.check_parser(self.cmd, args, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
@@ -156,7 +162,9 @@ class TestDatabaseClusterCreate(TestClusters):
             parsed_args.name, parsed_args.datastore,
             parsed_args.datastore_version,
             instances=parsed_instances,
-            locality=parsed_args.locality)
+            locality=parsed_args.locality,
+            extended_properties=parsed_extended_properties,
+            configuration=parsed_args.configuration)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.values, data)
 

@@ -871,6 +871,11 @@ def _parse_instance_options(cs, instance_options, for_grow=False):
     return instances
 
 
+def _parse_extended_properties(extended_properties):
+    return dict([(k, v) for (k, v) in [kv.strip().split("=")
+                for kv in extended_properties.split(",")]])
+
+
 @utils.arg('name',
            metavar='<name>',
            type=str,
@@ -905,9 +910,8 @@ def do_cluster_create(cs, args):
     instances = _parse_instance_options(cs, args.instances)
     extended_properties = {}
     if args.extended_properties:
-        extended_properties = dict([(k, v) for (k, v) in
-                                   [kv.strip().split("=") for kv in
-                                   args.extended_properties.split(",")]])
+        extended_properties = _parse_extended_properties(
+            args.extended_properties)
     cluster = cs.clusters.create(args.name,
                                  args.datastore,
                                  args.datastore_version,
