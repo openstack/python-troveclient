@@ -458,6 +458,8 @@ class Resource(object):
                 pass
 
     def __getattr__(self, k):
+        if k == "__setstate__":
+            raise AttributeError(k)
         if k not in self.__dict__:
             # NOTE(bcwaldon): disallow lazy-loading if already loaded once
             if not self.is_loaded:

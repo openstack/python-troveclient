@@ -200,9 +200,9 @@ class TroveHTTPClient(httplib2.Http):
         if 'body' in kwargs:
             kwargs['body'] = json.dumps(kwargs['body'])
 
-    def morph_response_body(self, body_string):
+    def morph_response_body(self, raw_body):
         try:
-            return json.loads(body_string)
+            return json.loads(raw_body.decode())
         except ValueError:
             raise exceptions.ResponseFormatError()
 
