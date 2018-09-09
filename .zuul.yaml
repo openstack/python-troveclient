@@ -2,10 +2,10 @@
     templates:
       - openstackclient-plugin-jobs
       - check-requirements
-      - publish-openstack-sphinx-docs
+      - publish-openstack-docs-pti
       - openstack-python-jobs
       - openstack-python35-jobs
-      - release-notes-jobs
+      - release-notes-jobs-python3
     check:
       jobs:
         - python-troveclient-tempest-neutron-src
