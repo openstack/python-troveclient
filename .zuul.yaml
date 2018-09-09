@@ -1,14 +1,21 @@
 - project:
     templates:
       - openstackclient-plugin-jobs
+      - check-requirements
+      - publish-openstack-sphinx-docs
+      - openstack-python-jobs
+      - openstack-python35-jobs
+      - release-notes-jobs
     check:
       jobs:
         - python-troveclient-tempest-neutron-src
+        - trove-functional-mysql
     gate:
       queue: trove
       jobs:
         - python-troveclient-tempest-neutron-src
 
+        - trove-functional-mysql
 - job:
     name: python-troveclient-tempest-neutron-src
     parent: legacy-dsvm-base
