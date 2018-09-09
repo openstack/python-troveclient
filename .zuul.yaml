@@ -1,0 +1,15 @@
+- project:
+    templates:
+      - check-requirements
+      - publish-openstack-sphinx-docs
+      - openstack-python-jobs
+      - openstack-python35-jobs
+      - release-notes-jobs
+      - openstackclient-plugin-jobs
+    check:
+      jobs:
+        - trove-functional-mysql
+    gate:
+      queue: trove
+      jobs:
+        - trove-functional-mysql
