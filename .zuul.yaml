@@ -1,16 +1,23 @@
 - project:
     templates:
       - openstackclient-plugin-jobs
+      - check-requirements
+      - publish-openstack-sphinx-docs
+      - openstack-python-jobs
+      - openstack-python35-jobs
+      - release-notes-jobs
     check:
       jobs:
         - python-troveclient-tempest-neutron-src
         - openstack-tox-lower-constraints
+        - trove-functional-mysql
     gate:
       queue: trove
       jobs:
         - python-troveclient-tempest-neutron-src
 
         - openstack-tox-lower-constraints
+        - trove-functional-mysql
 - job:
     name: python-troveclient-tempest-neutron-src
     parent: devstack-tempest
@@ -26,9 +33,9 @@
       - openstack/tempest
       - openstack/trove-tempest-plugin
     vars:
-      tox_envlist: 'full'
+      tox_envlist: full
       devstack_localrc:
-        TEMPEST_PLUGINS: '/opt/stack/trove-tempest-plugin'
+        TEMPEST_PLUGINS: /opt/stack/trove-tempest-plugin
       devstack_plugins:
         trove: git://git.openstack.org/openstack/trove
 
