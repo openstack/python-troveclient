@@ -44,7 +44,7 @@ class ClientTest(testtools.TestCase):
                           '0', version_map)
 
     def test_client_with_auth_system_without_auth_plugin(self):
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             exceptions.AuthSystemNotFound, "AuthSystemNotFound: 'something'",
             other_client.HTTPClient, user='user', password='password',
             projectid='project', timeout=2, auth_url="http://www.blah.com",
@@ -147,7 +147,7 @@ class ClientTest(testtools.TestCase):
         mock_request.side_effect = requests.exceptions.ConnectionError(
             'connection refused')
         with mock.patch('requests.request', mock_request):
-            self.assertRaisesRegexp(
+            self.assertRaisesRegex(
                 exceptions.ClientException,
                 'Unable to establish connection: connection refused',
                 instance.get, '/instances')

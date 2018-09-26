@@ -223,7 +223,7 @@ class ShellTest(utils.TestCase):
         cmd = 'flavor-list --datastore_type mysql'
         exepcted_error_msg = ('Missing argument\(s\): '
                               'datastore_type, datastore_version_id')
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             exceptions.MissingArgs, exepcted_error_msg, self.run_command,
             cmd)
 
@@ -258,7 +258,7 @@ class ShellTest(utils.TestCase):
         cmd = 'volume-type-list --datastore_type mysql'
         exepcted_error_msg = ('Missing argument\(s\): '
                               'datastore_type, datastore_version_id')
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             exceptions.MissingArgs, exepcted_error_msg, self.run_command,
             cmd)
 
@@ -390,7 +390,7 @@ class ShellTest(utils.TestCase):
     def test_boot_locality_error(self):
         cmd = ('create slave-1 1 --size 1 --locality=affinity '
                '--replica_of=master_1')
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             exceptions.ValidationError,
             'Cannot specify locality when adding replicas to existing '
             'master.',
@@ -399,7 +399,7 @@ class ShellTest(utils.TestCase):
     def test_boot_nic_error(self):
         cmd = ('create test-member-1 1 --size 1 --volume_type lvm '
                '--nic net-id=some-id,port-id=some-id')
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             exceptions.ValidationError,
             'Invalid NIC argument: nic=\'net-id=some-id,port-id=some-id\'',
             self.run_command, cmd)
@@ -474,7 +474,7 @@ class ShellTest(utils.TestCase):
     def test_cluster_create_error(self):
         cmd = ('cluster-create test-clstr vertica 7.1 --instance volume=2 '
                '--instance flavor=2,volume=1')
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             exceptions.MissingArgs, "Missing option 'flavor'",
             self.run_command, cmd)
 
@@ -592,7 +592,7 @@ class ShellTest(utils.TestCase):
                'port-id=some-port-id,availability_zone=2 '
                '--instance flavor=2,volume=1,nic=net-id=some-id,'
                'port-id=some-port-id,availability_zone=2')
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             exceptions.ValidationError, "Invalid 'nic' option. "
             "The value must be quoted.",
             self.run_command, cmd)
@@ -603,7 +603,7 @@ class ShellTest(utils.TestCase):
                'availability_zone=2 '
                '--instance flavor=2,volume=1,nic=\'v4-fixed-ip=10.0.0.1\','
                'availability_zone=2')
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             exceptions.ValidationError, 'Invalid NIC argument',
             self.run_command, cmd)
 
@@ -626,9 +626,9 @@ class ShellTest(utils.TestCase):
     def test_datastore_version_show_error(self):
         expected_error_msg = ('The datastore name or id is required to '
                               'retrieve a datastore version by name.')
-        self.assertRaisesRegexp(exceptions.NoUniqueMatch, expected_error_msg,
-                                self.run_command,
-                                'datastore-version-show v-56')
+        self.assertRaisesRegex(exceptions.NoUniqueMatch, expected_error_msg,
+                               self.run_command,
+                               'datastore-version-show v-56')
 
     def test_configuration_list(self):
         self.run_command('configuration-list')
@@ -660,7 +660,7 @@ class ShellTest(utils.TestCase):
         expected_error_msg = ('The datastore name or id is required to '
                               'retrieve the parameters for the configuration '
                               'group by name')
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             exceptions.NoUniqueMatch, expected_error_msg,
             self.run_command, 'configuration-parameter-list v-156')
 
