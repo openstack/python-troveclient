@@ -58,8 +58,8 @@ class ListDatabaseFlavors(command.Lister):
         db_flavors = self.app.client_manager.database.flavors
         if parsed_args.datastore_type and parsed_args.datastore_version_id:
             flavors = db_flavors.list_datastore_version_associated_flavors(
-                datastore_type=parsed_args.datastore_type,
-                datastore_version_id=parsed_args.datastore_version_id)
+                datastore=parsed_args.datastore_type,
+                version_id=parsed_args.datastore_version_id)
         elif (not parsed_args.datastore_type and not
               parsed_args.datastore_version_id):
             flavors = db_flavors.list()

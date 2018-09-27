@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1794663 <https://bugs.launchpad.net/python-troveclient/+bug/1794663>`_]
+    Fixed wrong keyword arguments to make ``openstack database flavor list``
+    command work properly with ``--datastore-type`` and
+    ``--datastore-version-id`` options.
