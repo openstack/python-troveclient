@@ -124,6 +124,16 @@ class InstancesTest(testtools.TestCase):
         page_mock.assert_called_with("/instances", "instances", limit, marker,
                                      include_clustered)
 
+    def test_detailed_list(self):
+        page_mock = mock.Mock()
+        self.instances._paginated = page_mock
+        limit = "test-limit"
+        marker = "test-marker"
+        include_clustered = {'include_clustered': False}
+        self.instances.list(limit, marker, detailed=True)
+        page_mock.assert_called_with("/instances/detail", "instances", limit,
+                                     marker, include_clustered)
+
     def test_get(self):
         def side_effect_func(path, inst):
             return path, inst

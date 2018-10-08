@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added ``detailed`` option to instances client in ``instances.list``
+    command. Now, detailed instance list can be obtained by setting
+    ``detailed`` parameter to ``True``. Trove will then include more details
+    in the API response.
