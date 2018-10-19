@@ -179,12 +179,15 @@ class Instances(base.ManagerWithFind):
         resp, body = self.api.client.patch(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
-    def list(self, limit=None, marker=None, include_clustered=False):
+    def list(self, limit=None, marker=None, include_clustered=False,
+             detailed=False):
         """Get a list of all instances.
 
         :rtype: list of :class:`Instance`.
         """
-        return self._paginated("/instances", "instances", limit, marker,
+        detail = "/detail" if detailed else ""
+        url = "/instances%s" % detail
+        return self._paginated(url, "instances", limit, marker,
                                {"include_clustered": include_clustered})
 
     def get(self, instance):
