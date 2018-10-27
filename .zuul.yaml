@@ -8,34 +8,34 @@
       - openstackclient-plugin-jobs
       - publish-openstack-docs-pti
       - release-notes-jobs-python3
-    check:
-      jobs:
-        - python-troveclient-tempest-neutron-src
-        - trove-functional-mysql
-    gate:
-      queue: trove
-      jobs:
-        - python-troveclient-tempest-neutron-src
-        - trove-functional-mysql
-
-- job:
-    name: python-troveclient-tempest-neutron-src
-    parent: devstack-tempest
-    timeout: 7800
-    required-projects:
-      - openstack/devstack
-      - openstack/devstack-gate
-      - recordsansible/ara
-      - openstack/neutron
-      - openstack/python-troveclient
-      - openstack/trove
-      - openstack/trove-dashboard
-      - openstack/tempest
-      - openstack/trove-tempest-plugin
-    vars:
-      tox_envlist: full
-      devstack_localrc:
-        TEMPEST_PLUGINS: /opt/stack/trove-tempest-plugin
-      devstack_plugins:
-        trove: https://opendev.org/openstack/trove
+#    check:
+#      jobs:
+#        - python-troveclient-tempest-neutron-src
+#        - trove-functional-mysql
+#    gate:
+#      queue: trove
+#      jobs:
+#        - python-troveclient-tempest-neutron-src
+#        - trove-functional-mysql
+#
+#- job:
+#    name: python-troveclient-tempest-neutron-src
+#    parent: devstack-tempest
+#    timeout: 7800
+#    required-projects:
+#      - openstack/devstack
+#      - openstack/devstack-gate
+#      - recordsansible/ara
+#      - openstack/neutron
+#      - openstack/python-troveclient
+#      - openstack/trove
+#      - openstack/trove-dashboard
+#      - openstack/tempest
+#      - openstack/trove-tempest-plugin
+#    vars:
+#      tox_envlist: full
+#      devstack_localrc:
+#        TEMPEST_PLUGINS: /opt/stack/trove-tempest-plugin
+#      devstack_plugins:
+#        trove: https://opendev.org/openstack/trove
 
