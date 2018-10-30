@@ -12,11 +12,13 @@
       jobs:
         - python-troveclient-tempest-neutron-src
         - trove-functional-mysql
+        - trove-scenario-mysql-single
     gate:
       queue: trove
       jobs:
         - python-troveclient-tempest-neutron-src
         - trove-functional-mysql
+        - trove-scenario-mysql-single
 
 - job:
     name: python-troveclient-tempest-neutron-src
