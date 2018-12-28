@@ -21,6 +21,7 @@ Trove Command line tool
 import os
 import sys
 
+from troveclient.compat import common
 
 # If ../trove/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
@@ -30,8 +31,6 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(possible_topdir, 'troveclient',
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
-
-from troveclient.compat import common
 
 
 class InstanceCommands(common.AuthedCommandsBase):
@@ -454,8 +453,8 @@ def main():
     # Parse arguments
     load_file = True
     for index, arg in enumerate(sys.argv):
-        if (arg == "auth" and len(sys.argv) > (index + 1)
-                and sys.argv[index + 1] == "login"):
+        if (arg == "auth" and len(sys.argv) > (index + 1) and
+                sys.argv[index + 1] == "login"):
             load_file = False
 
     oparser = common.CliOptions.create_optparser(load_file)

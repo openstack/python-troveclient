@@ -22,6 +22,7 @@ import json
 import os
 import sys
 
+from troveclient.compat import common
 
 # If ../trove/__init__.py exists, add ../ to Python search path, so that
 # it will override what happens to be installed in /usr/(local/)lib/python...
@@ -31,8 +32,6 @@ possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
 if os.path.exists(os.path.join(possible_topdir, 'troveclient.compat',
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
-
-from troveclient.compat import common
 
 
 oparser = None

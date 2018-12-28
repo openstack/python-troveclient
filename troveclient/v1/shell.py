@@ -22,6 +22,15 @@ import time
 
 from troveclient.i18n import _
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
+from troveclient import exceptions
+from troveclient import utils
+from troveclient.v1 import modules
+
 INSTANCE_ARG_NAME = _('instance')
 INSTANCE_METAVAR = _('"opt=<value>[,opt=<value> ...] "')
 INSTANCE_ERROR = _("Instance argument(s) must be of the form --instance "
@@ -52,15 +61,6 @@ EXT_PROPS_HELP = _("Add extended properties for cluster create. "
                    "  configsvr_volume_type=<volume_type>, "
                    "  mongos_volume_size=<disk_size_in_GB>, "
                    "  mongos_volume_type=<volume_type>.")
-
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
-from troveclient import exceptions
-from troveclient import utils
-from troveclient.v1 import modules
 
 
 def _poll_for_status(poll_fn, obj_id, action, final_ok_states,
@@ -811,8 +811,8 @@ def _strip_option(opts_str, opt_name, is_required=True,
     if is_required and not opt_value:
         raise exceptions.MissingArgs([opt_name],
                                      message=(_("Missing option '%s' for "
-                                                "argument --instance ")
-                                              + INSTANCE_METAVAR))
+                                                "argument --instance ") +
+                                              INSTANCE_METAVAR))
 
     return opt_value, opts_str.strip().strip(",")
 

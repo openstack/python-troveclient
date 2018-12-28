@@ -62,13 +62,13 @@ class ServiceCatalog(object):
                 if version == 'v2':
                     skip_service_type_check = True
 
-            if (not skip_service_type_check
-                    and service.get("type") != service_type):
+            if (not skip_service_type_check and
+                    service.get("type") != service_type):
                 continue
 
             if (database_service_name and service_type in ('database',
-                                                           'databasev2')
-                    and service.get('name') != database_service_name):
+                                                           'databasev2') and
+                    service.get('name') != database_service_name):
                 continue
 
             endpoints = service['endpoints']

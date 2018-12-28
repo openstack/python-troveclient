@@ -14,9 +14,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-__all__ = ['__version__']
-
 import pbr.version
+
+__all__ = ['__version__']
 
 version_info = pbr.version.VersionInfo('python-troveclient')
 # We have a circular import problem when we first run python setup.py sdist
