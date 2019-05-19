@@ -158,25 +158,37 @@ class FakeHTTPClient(base_client.HTTPClient):
         return r, body
 
     def get_instances(self, **kw):
-        return (200, {}, {"instances": [
+        return (
+            200,
+            {},
             {
-                "id": "1234",
-                "name": "test-member-1",
-                "status": "ACTIVE",
-                "ip": ["10.0.0.13"],
-                "volume": {"size": 2},
-                "flavor": {"id": "02"},
-                "region": "regionOne",
-                "datastore": {"version": "5.6", "type": "mysql"}},
-            {
-                "id": "5678",
-                "name": "test-member-2",
-                "status": "ACTIVE",
-                "ip": ["10.0.0.14"],
-                "volume": {"size": 2},
-                "flavor": {"id": "2"},
-                "region": "regionOne",
-                "datastore": {"version": "5.6", "type": "mysql"}}]})
+                "instances": [
+                    {
+                        "id": "1234",
+                        "name": "test-member-1",
+                        "status": "ACTIVE",
+                        "ip": ["10.0.0.13"],
+                        "volume": {"size": 2},
+                        "flavor": {"id": "02"},
+                        "region": "regionOne",
+                        "datastore": {"version": "5.6", "type": "mysql"},
+                        "tenant_id": "fake_tenant_id",
+                    },
+                    {
+                        "id": "5678",
+                        "name": "test-member-2",
+                        "status": "ACTIVE",
+                        "ip": ["10.0.0.14"],
+                        "volume": {"size": 2},
+                        "flavor": {"id": "2"},
+                        "region": "regionOne",
+                        "datastore": {"version": "5.6", "type": "mysql"},
+                        "tenant_id": "fake_tenant_id",
+                    },
+
+                ]
+            }
+        )
 
     def get_instance_counts(self, **kw):
         return (200, {}, {"instances": [

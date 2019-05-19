@@ -73,18 +73,17 @@ class ManagementTest(testtools.TestCase):
         p, i = self.management.show(1)
         self.assertEqual(('/mgmt/instances/instance1', 'instance'), (p, i))
 
-    def test_index(self):
+    def test_list(self):
         page_mock = mock.Mock()
         self.management._paginated = page_mock
-        self.management.index(deleted=True)
-        page_mock.assert_called_with('/mgmt/instances?deleted=true',
-                                     'instances', None, None)
-        self.management.index(deleted=False)
-        page_mock.assert_called_with('/mgmt/instances?deleted=false',
-                                     'instances', None, None)
-        self.management.index(deleted=True, limit=10, marker="foo")
-        page_mock.assert_called_with('/mgmt/instances?deleted=true',
-                                     'instances', 10, "foo")
+
+        self.management.list(deleted=True)
+        page_mock.assert_called_with('/mgmt/instances', 'instances', None,
+                                     None, query_strings={'deleted': True})
+
+        self.management.list(deleted=False, limit=10, marker="foo")
+        page_mock.assert_called_with('/mgmt/instances', 'instances', 10, "foo",
+                                     query_strings={"deleted": False})
 
     def test_root_enabled_history(self):
         self.management.api.client.get = mock.Mock(return_value=('resp', None))

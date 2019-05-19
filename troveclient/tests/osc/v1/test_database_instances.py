@@ -21,44 +21,71 @@ from troveclient.tests.osc.v1 import fakes
 
 
 class TestInstances(fakes.TestDatabasev1):
-    fake_instances = fakes.FakeInstances()
-
     def setUp(self):
         super(TestInstances, self).setUp()
+
+        self.fake_instances = fakes.FakeInstances()
         self.instance_client = self.app.client_manager.database.instances
+        self.mgmt_client = self.app.client_manager.database.mgmt_instances
 
 
 class TestInstanceList(TestInstances):
-
     defaults = {
         'include_clustered': False,
         'limit': None,
         'marker': None
     }
 
-    columns = database_instances.ListDatabaseInstances.columns
-    values = [('1234', 'test-member-1', 'mysql', '5.6', 'ACTIVE', '02', 2,
-              'regionOne'), ('5678', 'test-member-2', 'mysql', '5.6',
-              'ACTIVE', '2', 2, 'regionOne')]
-
     def setUp(self):
         super(TestInstanceList, self).setUp()
         self.cmd = database_instances.ListDatabaseInstances(self.app, None)
         self.data = self.fake_instances.get_instances()
-        self.instance_client.list.return_value = common.Paginated(self.data)
 
     def test_instance_list_defaults(self):
+        self.instance_client.list.return_value = common.Paginated(self.data)
+
         parsed_args = self.check_parser(self.cmd, [], [])
         columns, data = self.cmd.take_action(parsed_args)
+
         self.instance_client.list.assert_called_once_with(**self.defaults)
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.values, data)
+        self.assertEqual(
+            database_instances.ListDatabaseInstances.columns,
+            columns
+        )
+
+        values = [
+            ('1234', 'test-member-1', 'mysql', '5.6', 'ACTIVE', '02', 2,
+             'regionOne'),
+            ('5678', 'test-member-2', 'mysql', '5.6', 'ACTIVE', '2', 2,
+             'regionOne')
+        ]
+        self.assertEqual(values, data)
+
+    def test_instance_list_all_projects(self):
+        self.mgmt_client.list.return_value = common.Paginated(self.data)
+
+        parsed_args = self.check_parser(self.cmd, ["--all-projects"],
+                                        [("all_projects", True)])
+        columns, instances = self.cmd.take_action(parsed_args)
+
+        self.mgmt_client.list.assert_called_once_with(**self.defaults)
+        self.assertEqual(
+            database_instances.ListDatabaseInstances.admin_columns,
+            columns
+        )
+
+        expected_instances = [
+            ('1234', 'test-member-1', 'fake_tenant_id', 'mysql', '5.6',
+             'ACTIVE', '02', 2),
+            ('5678', 'test-member-2', 'fake_tenant_id', 'mysql', '5.6',
+             'ACTIVE', '2', 2)
+        ]
+        self.assertEqual(expected_instances, instances)
 
 
 class TestInstanceShow(TestInstances):
-
     values = ('mysql', '5.6', '02', '1234', '10.0.0.13',
-              'test-member-1', 'regionOne', 'ACTIVE', 2)
+              'test-member-1', 'regionOne', 'ACTIVE', 'fake_tenant_id', 2)
 
     def setUp(self):
         super(TestInstanceShow, self).setUp()
@@ -74,6 +101,7 @@ class TestInstanceShow(TestInstances):
             'name',
             'region',
             'status',
+            'tenant_id',
             'volume',
         )
 

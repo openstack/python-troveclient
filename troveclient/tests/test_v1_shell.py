@@ -162,7 +162,7 @@ class ShellTest(utils.TestCase):
 
     def test_instance_list(self):
         self.run_command('list')
-        self.assert_called('GET', '/instances')
+        self.assert_called('GET', '/instances?include_clustered=False')
 
     def test_instance_show(self):
         self.run_command('show 1234')

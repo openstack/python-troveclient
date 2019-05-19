@@ -69,10 +69,13 @@ def set_attributes_for_print_detail(instance):
 
 
 class ListDatabaseInstances(command.Lister):
-
     _description = _("List database instances")
     columns = ['ID', 'Name', 'Datastore', 'Datastore Version', 'Status',
                'Flavor ID', 'Size', 'Region']
+    admin_columns = [
+        'ID', 'Name', 'Tenant ID', 'Datastore', 'Datastore Version', 'Status',
+        'Flavor ID', 'Size'
+    ]
 
     def get_parser(self, prog_name):
         parser = super(ListDatabaseInstances, self).get_parser(prog_name)
@@ -103,19 +106,34 @@ class ListDatabaseInstances(command.Lister):
                    "deprecated in the future, retaining just "
                    "--include_clustered.")
         )
+        parser.add_argument(
+            '--all-projects',
+            dest='all_projects',
+            action="store_true",
+            default=False,
+            help=_("Include database instances of all projects (admin only)")
+        )
         return parser
 
     def take_action(self, parsed_args):
-        db_instances = self.app.client_manager.database.instances
-        instances = db_instances.list(limit=parsed_args.limit,
-                                      marker=parsed_args.marker,
-                                      include_clustered=(parsed_args.
-                                                         include_clustered))
+        if parsed_args.all_projects:
+            db_instances = self.app.client_manager.database.mgmt_instances
+            cols = self.admin_columns
+        else:
+            db_instances = self.app.client_manager.database.instances
+            cols = self.columns
+
+        instances = db_instances.list(
+            limit=parsed_args.limit,
+            marker=parsed_args.marker,
+            include_clustered=parsed_args.include_clustered
+        )
         if instances:
             instances = set_attributes_for_print(instances)
-            instances = [osc_utils.get_item_properties(i, self.columns)
+            instances = [osc_utils.get_item_properties(i, cols)
                          for i in instances]
-        return self.columns, instances
+
+        return cols, instances
 
 
 class ShowDatabaseInstance(command.ShowOne):

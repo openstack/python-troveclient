@@ -35,10 +35,6 @@ class Management(base.ManagerWithFind):
     """Manage :class:`Instances` resources."""
     resource_class = instances.Instance
 
-    # Appease the abc gods
-    def list(self):
-        pass
-
     def show(self, instance):
         """Get details of one instance.
 
@@ -48,22 +44,13 @@ class Management(base.ManagerWithFind):
         return self._get("/mgmt/instances/%s" % base.getid(instance),
                          'instance')
 
-    def index(self, deleted=None, limit=None, marker=None):
-        """Show an overview of all local instances.
+    def list(self, limit=None, marker=None, deleted=False, **kwargs):
+        """Get all the database instances."""
+        url = "/mgmt/instances"
+        kwargs["deleted"] = deleted
 
-        Optionally, filter by deleted status.
-
-        :rtype: list of :class:`Instance`.
-        """
-        form = ''
-        if deleted is not None:
-            if deleted:
-                form = "?deleted=true"
-            else:
-                form = "?deleted=false"
-
-        url = "/mgmt/instances%s" % form
-        return self._paginated(url, "instances", limit, marker)
+        return self._paginated(url, "instances", limit, marker,
+                               query_strings=kwargs)
 
     def root_enabled_history(self, instance):
         """Get root access history of one instance."""

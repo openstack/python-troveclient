@@ -23,7 +23,7 @@ from troveclient.v1 import datastores
 from troveclient.v1 import flavors
 from troveclient.v1 import instances
 from troveclient.v1 import limits
-# from troveclient.v1 import management
+from troveclient.v1 import management
 from troveclient.v1 import metadata
 from troveclient.v1 import modules
 from troveclient.v1 import quota
@@ -82,11 +82,11 @@ class Client(object):
         self.configuration_parameters = config_parameters
         self.metadata = metadata.Metadata(self)
         self.modules = modules.Modules(self)
+        self.quota = quota.Quotas(self)
+        self.mgmt_instances = management.Management(self)
 
         # self.hosts = Hosts(self)
-        self.quota = quota.Quotas(self)
         # self.storage = StorageInfo(self)
-        # self.management = Management(self)
         # self.management = MgmtClusters(self)
         # self.mgmt_flavor = MgmtFlavors(self)
         # self.accounts = Accounts(self)
