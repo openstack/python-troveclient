@@ -1,0 +1,3 @@
+features:
+  - Admin user can use ``openstack database instance list --all-projects`` to
+    get database instances of all the projects.
