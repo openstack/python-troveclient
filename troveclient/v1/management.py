@@ -46,7 +46,7 @@ class Management(base.ManagerWithFind):
 
     def index(self, **kwargs):
         """A wrapper for list method."""
-        return self.list(kwargs)
+        return self.list(**kwargs)
 
     def list(self, limit=None, marker=None, deleted=False, **kwargs):
         """Get all the database instances."""

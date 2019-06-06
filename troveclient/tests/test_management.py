@@ -85,6 +85,19 @@ class ManagementTest(testtools.TestCase):
         page_mock.assert_called_with('/mgmt/instances', 'instances', 10, "foo",
                                      query_strings={"deleted": False})
 
+    def test_index(self):
+        """index() is just wrapper for list()"""
+        page_mock = mock.Mock()
+        self.management._paginated = page_mock
+
+        self.management.index(deleted=True)
+        page_mock.assert_called_with('/mgmt/instances', 'instances', None,
+                                     None, query_strings={'deleted': True})
+
+        self.management.index(deleted=False, limit=10, marker="foo")
+        page_mock.assert_called_with('/mgmt/instances', 'instances', 10, "foo",
+                                     query_strings={"deleted": False})
+
     def test_root_enabled_history(self):
         self.management.api.client.get = mock.Mock(return_value=('resp', None))
         self.assertRaises(Exception,
