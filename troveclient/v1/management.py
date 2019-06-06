@@ -44,6 +44,10 @@ class Management(base.ManagerWithFind):
         return self._get("/mgmt/instances/%s" % base.getid(instance),
                          'instance')
 
+    def index(self, **kwargs):
+        """A wrapper for list method."""
+        return self.list(kwargs)
+
     def list(self, limit=None, marker=None, deleted=False, **kwargs):
         """Get all the database instances."""
         url = "/mgmt/instances"
