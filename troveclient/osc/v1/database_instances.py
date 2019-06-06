@@ -13,12 +13,16 @@
 """Database v1 Instances action implementations"""
 
 import argparse
+import six
+
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils as osc_utils
-import six
+from oslo_utils import uuidutils
 
 from troveclient.i18n import _
+from troveclient.osc.v1 import base
+from troveclient import utils as trove_utils
 
 
 def set_attributes_for_print(instances):
@@ -155,29 +159,41 @@ class ShowDatabaseInstance(command.ShowOne):
         return zip(*sorted(six.iteritems(instance)))
 
 
-class DeleteDatabaseInstance(command.Command):
-
+class DeleteDatabaseInstance(base.TroveDeleter):
     _description = _("Deletes an instance.")
 
     def get_parser(self, prog_name):
         parser = super(DeleteDatabaseInstance, self).get_parser(prog_name)
         parser.add_argument(
             'instance',
-            metavar='<instance>',
-            help=_('ID or name of the Instance'),
+            nargs='+',
+            metavar='instance',
+            help='Id or name of instance(s).'
         )
         return parser
 
     def take_action(self, parsed_args):
         db_instances = self.app.client_manager.database.instances
-        try:
-            instance = osc_utils.find_resource(db_instances,
-                                               parsed_args.instance)
-            db_instances.delete(instance)
-        except Exception as e:
-            msg = (_("Failed to delete instance %(instance)s: %(e)s")
-                   % {'instance': parsed_args.instance, 'e': e})
-            raise exceptions.CommandError(msg)
+
+        # Used for batch deletion
+        self.delete_func = db_instances.delete
+        self.resource = 'database instance'
+
+        ids = []
+        for instance_id in parsed_args.instance:
+            if not uuidutils.is_uuid_like(instance_id):
+                try:
+                    instance_id = trove_utils.get_resource_id_by_name(
+                        db_instances, instance_id
+                    )
+                except Exception as e:
+                    msg = ("Failed to get database instance %s, error: %s" %
+                           (instance_id, str(e)))
+                    raise exceptions.CommandError(msg)
+
+            ids.append(instance_id)
+
+        self.delete_resources(ids)
 
 
 class CreateDatabaseInstance(command.ShowOne):

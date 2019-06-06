@@ -210,6 +210,11 @@ def print_dict(d, property="Property"):
     _print(pt, property)
 
 
+def get_resource_id_by_name(manager, name):
+    resource = manager.find(name=name)
+    return resource.id
+
+
 def find_resource(manager, name_or_id):
     """Helper for the _find_* methods."""
     # first try to get entity as integer id
