@@ -3,7 +3,7 @@
       - check-requirements
       - openstack-lower-constraints-jobs
       - openstack-python-jobs
-      - openstack-python36-jobs
+      - openstack-python3-train-jobs
       - openstackclient-plugin-jobs
       - publish-openstack-docs-pti
       - release-notes-jobs-python3
