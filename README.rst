@@ -17,7 +17,7 @@ command-line tool. You may also want to look at the
 `OpenStack API documentation`_.
 
 .. _Trove CLI Guide: https://docs.openstack.org/trove/latest/cli
-.. _OpenStack API documentation: https://developer.openstack.org/api-guide/quick-start/
+.. _OpenStack API documentation: https://docs.openstack.org/api-quick-start/
 
 python-troveclient is licensed under the Apache License like the rest of OpenStack.
 
