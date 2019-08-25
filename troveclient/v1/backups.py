@@ -59,14 +59,16 @@ class Backups(base.ManagerWithFind):
         return self._get("/backups/%s" % base.getid(backup),
                          "backup")
 
-    def list(self, limit=None, marker=None, datastore=None):
-        """Get a list of all backups.
-
-        :rtype: list of :class:`Backups`.
-        """
+    def list(self, limit=None, marker=None, datastore=None, instance_id=None,
+             all_projects=False):
+        """Get a list of all backups."""
         query_strings = {}
         if datastore:
-            query_strings = {'datastore': datastore}
+            query_strings["datastore"] = datastore
+        if instance_id:
+            query_strings["instance_id"] = instance_id
+        if all_projects:
+            query_strings["all_projects"] = True
 
         return self._paginated("/backups", "backups", limit, marker,
                                query_strings)

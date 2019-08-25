@@ -32,12 +32,6 @@ class TestBackups(fakes.TestDatabasev1):
 
 class TestBackupList(TestBackups):
 
-    defaults = {
-        'datastore': None,
-        'limit': None,
-        'marker': None
-    }
-
     columns = database_backups.ListDatabaseBackups.columns
     values = ('bk-1234', '1234', 'bkp_1', 'COMPLETED', None,
               '2015-05-16T14:23:08')
@@ -51,9 +45,47 @@ class TestBackupList(TestBackups):
     def test_backup_list_defaults(self):
         parsed_args = self.check_parser(self.cmd, [], [])
         columns, data = self.cmd.take_action(parsed_args)
-        self.backup_client.list.assert_called_once_with(**self.defaults)
+
+        params = {
+            'datastore': None,
+            'limit': None,
+            'marker': None,
+            'instance_id': None,
+            'all_projects': False
+        }
+
+        self.backup_client.list.assert_called_once_with(**params)
         self.assertEqual(self.columns, columns)
         self.assertEqual([self.values], data)
+
+    def test_backup_list_by_instance_id(self):
+        parsed_args = self.check_parser(self.cmd, ["--instance-id", "fake_id"],
+                                        [])
+        self.cmd.take_action(parsed_args)
+
+        params = {
+            'datastore': None,
+            'limit': None,
+            'marker': None,
+            'instance_id': 'fake_id',
+            'all_projects': False
+        }
+
+        self.backup_client.list.assert_called_once_with(**params)
+
+    def test_backup_list_all_projects(self):
+        parsed_args = self.check_parser(self.cmd, ["--all-projects"], [])
+        self.cmd.take_action(parsed_args)
+
+        params = {
+            'datastore': None,
+            'limit': None,
+            'marker': None,
+            'instance_id': None,
+            'all_projects': True
+        }
+
+        self.backup_client.list.assert_called_once_with(**params)
 
 
 class TestBackupListInstance(TestBackups):

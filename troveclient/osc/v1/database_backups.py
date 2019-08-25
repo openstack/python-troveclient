@@ -61,19 +61,38 @@ class ListDatabaseBackups(command.Lister):
             default=None,
             help=_('ID or name of the datastore (to filter backups by).')
         )
+        parser.add_argument(
+            '--instance-id',
+            default=None,
+            help=_('Filter backups by database instance ID.')
+        )
+        parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            help=_('Get all the backups of all the projects(Admin only).')
+        )
         return parser
 
     def take_action(self, parsed_args):
         database_backups = self.app.client_manager.database.backups
         items = database_backups.list(limit=parsed_args.limit,
                                       datastore=parsed_args.datastore,
-                                      marker=parsed_args.marker)
+                                      marker=parsed_args.marker,
+                                      instance_id=parsed_args.instance_id,
+                                      all_projects=parsed_args.all_projects)
         backups = items
         while items.next and not parsed_args.limit:
-            items = database_backups.list(marker=items.next)
+            items = database_backups.list(
+                marker=items.next,
+                datastore=parsed_args.datastore,
+                instance_id=parsed_args.instance_id,
+                all_projects=parsed_args.all_projects
+            )
             backups += items
+
         backups = [osc_utils.get_item_properties(b, self.columns)
                    for b in backups]
+
         return self.columns, backups
 
 

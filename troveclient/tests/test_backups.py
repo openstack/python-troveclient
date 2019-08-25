@@ -114,6 +114,26 @@ class BackupManagerTest(testtools.TestCase):
         page_mock.assert_called_with("/backups", "backups", limit, marker,
                                      {'datastore': datastore})
 
+    def test_list_by_instance(self):
+        page_mock = mock.Mock()
+        self.backups._paginated = page_mock
+        instance_id = "fake_instance"
+
+        self.backups.list(instance_id=instance_id)
+
+        page_mock.assert_called_with("/backups", "backups", None, None,
+                                     {'instance_id': instance_id})
+
+    def test_list_by_all_projects(self):
+        page_mock = mock.Mock()
+        self.backups._paginated = page_mock
+        all_projects = True
+
+        self.backups.list(all_projects=all_projects)
+
+        page_mock.assert_called_with("/backups", "backups", None, None,
+                                     {'all_projects': all_projects})
+
     def test_get(self):
         get_mock = mock.Mock()
         self.backups._get = get_mock
