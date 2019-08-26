@@ -27,17 +27,15 @@ python-troveclient is licensed under the Apache License like the rest of OpenSta
 * `PyPi`_- package installation
 * `Blueprints`_ - feature specifications
 * `Git Source`_
-* `Github`_
 * `Specs`_
 * `How to Contribute`_
 * `Release Notes`_
 
 .. _Online Documentation: https://docs.openstack.org/python-troveclient/latest
-.. _Bugs: https://bugs.launchpad.net/python-troveclient
+.. _Bugs: https://storyboard.openstack.org/#!/project/openstack/python-troveclient
 .. _PyPi: https://pypi.org/project/python-troveclient
-.. _Blueprints: https://blueprints.launchpad.net/python-troveclient
-.. _Git Source: https://git.openstack.org/cgit/openstack/python-troveclient
-.. _Github: https://github.com/openstack/python-troveclient
+.. _Blueprints: https://storyboard.openstack.org/#!/project/openstack/python-troveclient
+.. _Git Source: https://opendev.org/openstack/python-troveclient/
 .. _Specs: https://specs.openstack.org/openstack/trove-specs/
 .. _How to Contribute: https://docs.openstack.org/infra/manual/developers.html
 .. _Release Notes: https://docs.openstack.org/releasenotes/python-troveclient
