@@ -1,0 +1,3 @@
+---
+features:
+  - Support ``--is-public`` and ``--allowed-cidr`` for creating instance.
