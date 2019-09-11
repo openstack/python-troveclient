@@ -268,17 +268,9 @@ class CreateDatabaseInstance(command.ShowOne):
         )
         parser.add_argument(
             '--nic',
-            metavar='<net-id=<net-uuid>,v4-fixed-ip=<ip-addr>,'
-                    'port-id=<port-uuid>>',
-            action='append',
+            metavar='<net-id=<net-uuid>>',
             dest='nics',
-            default=[],
-            help=_("Create a NIC on the instance. Specify option multiple "
-                   "times to create multiple NICs. net-id: attach NIC to "
-                   "network with this ID (either port-id or net-id must be "
-                   "specified), v4-fixed-ip: IPv4 fixed address for NIC "
-                   "(optional), port-id: attach NIC to port with this ID "
-                   "(either port-id or net-id must be specified)."),
+            help=_("Create instance in the given Neutron network."),
         )
         parser.add_argument(
             '--configuration',
@@ -325,6 +317,18 @@ class CreateDatabaseInstance(command.ShowOne):
             default=None,
             help=argparse.SUPPRESS,
         )
+        parser.add_argument(
+            '--is-public',
+            action='store_true',
+            help="Whether or not to make the instance public.",
+        )
+        parser.add_argument(
+            '--allowed-cidr',
+            action='append',
+            dest='allowed_cidrs',
+            help="The IP CIDRs that are allowed to access the database "
+                 "instance.",
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -361,41 +365,48 @@ class CreateDatabaseInstance(command.ShowOne):
         users = [{'name': n, 'password': p, 'databases': databases} for (n, p)
                  in
                  [z.split(':')[:2] for z in parsed_args.users]]
+
         nics = []
-        for nic_str in parsed_args.nics:
-            nic_info = dict([(k, v) for (k, v) in [z.split("=", 1)[:2] for z in
-                                                   nic_str.split(",")]])
-            # need one or the other, not both, not none (!= ~ XOR)
-            if not (bool(nic_info.get('net-id')) != bool(
-                    nic_info.get('port-id'))):
-                raise exceptions.\
-                    ValidationError(_("Invalid NIC argument: %s. Must specify "
-                                      "either net-id or port-id but not both. "
-                                      "Please refer to help.")
-                                    % (_("nic='%s'") % nic_str))
+        if parsed_args.nics:
+            nic_info = dict(
+                [(k, v) for (k, v) in [parsed_args.nics.split("=", 1)[:2]]]
+            )
+            if not nic_info.get('net-id'):
+                raise exceptions.ValidationError(
+                    "net-id is not set in %s" % parsed_args.nics
+                )
             nics.append(nic_info)
+
         modules = []
         for module in parsed_args.modules:
             modules.append(osc_utils.find_resource(database.modules,
                                                    module).id)
-        instance = db_instances.create(parsed_args.name,
-                                       flavor_id,
-                                       volume=volume,
-                                       databases=databases,
-                                       users=users,
-                                       restorePoint=restore_point,
-                                       availability_zone=(parsed_args.
-                                                          availability_zone),
-                                       datastore=parsed_args.datastore,
-                                       datastore_version=(parsed_args.
-                                                          datastore_version),
-                                       nics=nics,
-                                       configuration=parsed_args.configuration,
-                                       replica_of=replica_of,
-                                       replica_count=replica_count,
-                                       modules=modules,
-                                       locality=locality,
-                                       region_name=parsed_args.region)
+
+        access = {'is_public': False}
+        if parsed_args.is_public:
+            access['is_public'] = True
+        if parsed_args.allowed_cidrs:
+            access['allowed_cidrs'] = parsed_args.allowed_cidrs
+
+        instance = db_instances.create(
+            parsed_args.name,
+            flavor_id,
+            volume=volume,
+            databases=databases,
+            users=users,
+            restorePoint=restore_point,
+            availability_zone=(parsed_args.availability_zone),
+            datastore=parsed_args.datastore,
+            datastore_version=(parsed_args.datastore_version),
+            nics=nics,
+            configuration=parsed_args.configuration,
+            replica_of=replica_of,
+            replica_count=replica_count,
+            modules=modules,
+            locality=locality,
+            region_name=parsed_args.region,
+            access=access
+        )
         instance = set_attributes_for_print_detail(instance)
         return zip(*sorted(six.iteritems(instance)))
 

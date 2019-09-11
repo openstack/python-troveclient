@@ -196,7 +196,10 @@ class TestDatabaseInstanceCreate(TestInstances):
                 '--nic', 'net-id=net1',
                 '--replica_of', 'test',
                 '--replica_count', '4',
-                '--module', 'mod_id']
+                '--module', 'mod_id',
+                '--is-public',
+                '--allowed-cidr', '10.0.0.1/24',
+                '--allowed-cidr', '192.168.0.1/24']
         verifylist = [
             ('name', 'test-name'),
             ('flavor', '103'),
@@ -205,10 +208,12 @@ class TestDatabaseInstanceCreate(TestInstances):
             ('users', ['u1:111', 'u2:111']),
             ('datastore', "datastore"),
             ('datastore_version', "datastore_version"),
-            ('nics', ['net-id=net1']),
+            ('nics', 'net-id=net1'),
             ('replica_of', 'test'),
             ('replica_count', 4),
             ('modules', ['mod_id']),
+            ('is_public', True),
+            ('allowed_cidrs', ['10.0.0.1/24', '192.168.0.1/24'])
         ]
         parsed_args = self.check_parser(self.cmd, args, verifylist)
         columns, data = self.cmd.take_action(parsed_args)

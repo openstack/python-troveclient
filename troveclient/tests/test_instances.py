@@ -97,7 +97,8 @@ class InstancesTest(testtools.TestCase):
                                         nics=nics, replica_of='test',
                                         replica_count=4,
                                         modules=['mod_id'],
-                                        locality='affinity')
+                                        locality='affinity',
+                                        access={'is_public': True})
         self.assertEqual("/instances", p)
         self.assertEqual("instance", i)
         self.assertEqual(['db1', 'db2'], b["instance"]["databases"])
@@ -113,6 +114,7 @@ class InstancesTest(testtools.TestCase):
         self.assertEqual([{'id': 'mod_id'}], b["instance"]["modules"])
         self.assertEqual(4, b["instance"]["replica_count"])
         self.assertEqual('affinity', b["instance"]["locality"])
+        self.assertEqual({'is_public': True}, b["instance"]["access"])
 
     def test_list(self):
         page_mock = mock.Mock()
