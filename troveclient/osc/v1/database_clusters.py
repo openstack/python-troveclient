@@ -67,7 +67,7 @@ class ListDatabaseClusters(command.Lister):
             type=str,
             default=None,
             help=_('Begin displaying the results for IDs greater than the'
-                   ' specified marker. When used with :option:`--limit,` set'
+                   ' specified marker. When used with ``--limit``, set '
                    ' this to the last ID displayed in the previous run.')
         )
         return parser
