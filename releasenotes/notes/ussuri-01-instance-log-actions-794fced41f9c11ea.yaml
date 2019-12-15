@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Support following instance log actions:
+
+    .. code-block:: console
+
+        openstack database log show <instance_id> <log_name>
+        openstack database log set <instance_id> <log_name> [OPTIONS]

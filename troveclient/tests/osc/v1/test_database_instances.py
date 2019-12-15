@@ -320,23 +320,6 @@ class TestDatabaseInstanceForceDelete(TestInstances):
                           parsed_args)
 
 
-class TestDatabaseInstanceEnableLog(TestInstances):
-
-    def setUp(self):
-        super(TestDatabaseInstanceEnableLog, self).setUp()
-        self.cmd = database_instances.EnableDatabaseInstanceLog(self.app,
-                                                                None)
-
-    @mock.patch.object(utils, 'find_resource')
-    def test_instance_enable_log(self, mock_find):
-        args = ['instance1', 'log_name']
-        mock_find.side_effect = ['instance1']
-        parsed_args = self.check_parser(self.cmd, args, [])
-        self.cmd.take_action(parsed_args)
-        self.instance_client.log_enable.assert_called_with('instance1',
-                                                           'log_name')
-
-
 class TestDatabaseInstancePromoteToReplicaSource(TestInstances):
 
     def setUp(self):

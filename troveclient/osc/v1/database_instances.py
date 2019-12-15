@@ -492,35 +492,6 @@ class UpgradeDatabaseInstance(command.Command):
         db_instances.upgrade(instance, parsed_args.datastore_version)
 
 
-class EnableDatabaseInstanceLog(command.ShowOne):
-
-    _description = _("Instructs Trove guest to start collecting log details.")
-
-    def get_parser(self, prog_name):
-        parser = super(EnableDatabaseInstanceLog, self).get_parser(prog_name)
-        parser.add_argument(
-            'instance',
-            metavar='<instance>',
-            type=str,
-            help=_('Id or Name of the instance.')
-        )
-        parser.add_argument(
-            'log_name',
-            metavar='<log_name>',
-            type=str,
-            help=_('Name of log to publish.')
-        )
-        return parser
-
-    def take_action(self, parsed_args):
-        db_instances = self.app.client_manager.database.instances
-        instance = osc_utils.find_resource(db_instances,
-                                           parsed_args.instance)
-        log_info = db_instances.log_enable(instance, parsed_args.log_name)
-        result = log_info._info
-        return zip(*sorted(six.iteritems(result)))
-
-
 class ResizeDatabaseInstanceVolume(command.Command):
 
     _description = _("Resizes the volume size of an instance.")

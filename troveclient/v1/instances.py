@@ -382,24 +382,10 @@ class Instances(base.ManagerWithFind):
         return [DatastoreLog(self, log, loaded=True) for log in body['logs']]
 
     def log_show(self, instance, log_name):
-        return self._log_action(instance, log_name)
+        return self.log_action(instance, log_name)
 
-    def log_enable(self, instance, log_name):
-        return self._log_action(instance, log_name, enable=True)
-
-    def log_disable(self, instance, log_name, discard=None):
-        return self._log_action(instance, log_name,
-                                disable=True, discard=discard)
-
-    def log_publish(self, instance, log_name, disable=None, discard=None):
-        return self._log_action(instance, log_name, disable=disable,
-                                publish=True, discard=discard)
-
-    def log_discard(self, instance, log_name):
-        return self._log_action(instance, log_name, discard=True)
-
-    def _log_action(self, instance, log_name, enable=None, disable=None,
-                    publish=None, discard=None):
+    def log_action(self, instance, log_name, enable=None, disable=None,
+                   publish=None, discard=None):
         """Perform action on guest log.
 
         :param instance: The :class:`Instance` (or its ID) of the database
@@ -420,6 +406,7 @@ class Instances(base.ManagerWithFind):
             body.update({'publish': int(publish)})
         if discard:
             body.update({'discard': int(discard)})
+
         url = "/instances/%s/log" % base.getid(instance)
         resp, body = self.api.client.post(url, body=body)
         common.check_for_exceptions(resp, body, url)
@@ -427,7 +414,7 @@ class Instances(base.ManagerWithFind):
 
     def _get_container_info(self, instance, log_name, publish):
         try:
-            log_info = self._log_action(instance, log_name, publish=publish)
+            log_info = self.log_action(instance, log_name, publish=publish)
             container = log_info.container
             prefix = log_info.prefix
             metadata_file = log_info.metafile

@@ -2214,7 +2214,8 @@ def do_log_enable(cs, args):
     """Instructs Trove guest to start collecting log details."""
     try:
         instance = _find_instance(cs, args.instance)
-        log_info = cs.instances.log_enable(instance, args.log_name)
+        log_info = cs.instances.log_action(instance, args.log_name,
+                                           enable=True)
         _print_object(log_info)
     except exceptions.GuestLogNotFoundError:
         print(NO_LOG_FOUND_ERROR % {'log_name': args.log_name,
@@ -2227,15 +2228,15 @@ def do_log_enable(cs, args):
 @utils.arg('instance', metavar='<instance>',
            help=_('Id or Name of the instance.'))
 @utils.arg('log_name', metavar='<log_name>', help=_('Name of log to publish.'))
-@utils.arg('--discard', action='store_true', default=False,
-           help=_('Discard published contents of specified log.'))
+@utils.arg('--disable', action='store_true', default=False,
+           help=_('Disable the collection of the specified log.'))
 @utils.service_type('database')
 def do_log_disable(cs, args):
     """Instructs Trove guest to stop collecting log details."""
     try:
         instance = _find_instance(cs, args.instance)
-        log_info = cs.instances.log_disable(instance, args.log_name,
-                                            discard=args.discard)
+        log_info = cs.instances.log_action(instance, args.log_name,
+                                           disable=args.discard)
         _print_object(log_info)
     except exceptions.GuestLogNotFoundError:
         print(NO_LOG_FOUND_ERROR % {'log_name': args.log_name,
@@ -2257,8 +2258,8 @@ def do_log_publish(cs, args):
     """Instructs Trove guest to publish latest log entries on instance."""
     try:
         instance = _find_instance(cs, args.instance)
-        log_info = cs.instances.log_publish(
-            instance, args.log_name, disable=args.disable,
+        log_info = cs.instances.log_action(
+            instance, args.log_name, publish=True, disable=args.disable,
             discard=args.discard)
         _print_object(log_info)
     except exceptions.GuestLogNotFoundError:
@@ -2277,7 +2278,8 @@ def do_log_discard(cs, args):
     """Instructs Trove guest to discard the container of the published log."""
     try:
         instance = _find_instance(cs, args.instance)
-        log_info = cs.instances.log_discard(instance, args.log_name)
+        log_info = cs.instances.log_action(instance, args.log_name,
+                                           discard=True)
         _print_object(log_info)
     except exceptions.GuestLogNotFoundError:
         print(NO_LOG_FOUND_ERROR % {'log_name': args.log_name,
