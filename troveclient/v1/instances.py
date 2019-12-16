@@ -412,9 +412,9 @@ class Instances(base.ManagerWithFind):
         common.check_for_exceptions(resp, body, url)
         return DatastoreLog(self, body['log'], loaded=True)
 
-    def _get_container_info(self, instance, log_name, publish):
+    def _get_container_info(self, instance, log_name):
         try:
-            log_info = self.log_action(instance, log_name, publish=publish)
+            log_info = self.log_show(instance, log_name)
             container = log_info.container
             prefix = log_info.prefix
             metadata_file = log_info.metafile
@@ -424,33 +424,33 @@ class Instances(base.ManagerWithFind):
                 raise exceptions.GuestLogNotFoundError()
             raise
 
-    def log_generator(self, instance, log_name, publish=None, lines=50,
-                      swift=None):
+    def log_generator(self, instance, log_name, lines=50, swift=None):
         """Return generator to yield the last <lines> lines of guest log.
 
         :param instance: The :class:`Instance` (or its ID) of the database
                          instance to get the log for.
         :param log_name: The name of <log> to publish
-        :param publish: Publish updates before displaying log
         :param lines: Display last <lines> lines of log (0 for all lines)
         :param swift: Connection to swift
         :rtype: generator function to yield log as chunks.
         """
-
         if not swift:
             swift = self._get_swift_client()
 
-        def _log_generator(instance, log_name, publish, lines, swift):
+        def _log_generator(instance, log_name, lines, swift):
             try:
                 container, prefix, metadata_file = self._get_container_info(
-                    instance, log_name, publish)
+                    instance, log_name)
+
                 head, body = swift.get_container(container, prefix=prefix)
                 log_obj_to_display = []
+
                 if lines:
                     total_lines = lines
                     partial_results = False
                     parts = sorted(body, key=lambda obj: obj['last_modified'],
                                    reverse=True)
+
                     for part in parts:
                         obj_hdrs = swift.head_object(container, part['name'])
                         obj_lines = int(obj_hdrs['x-object-meta-lines'])
@@ -461,13 +461,16 @@ class Instances(base.ManagerWithFind):
                         lines -= obj_lines
                     if not partial_results:
                         lines = total_lines
+
                     part = log_obj_to_display.pop(0)
                     hdrs, log_obj = swift.get_object(container, part['name'])
                     log_by_lines = log_obj.decode().splitlines()
                     yield "\n".join(log_by_lines[-1 * lines:]) + "\n"
                 else:
+                    # Show all the logs
                     log_obj_to_display = sorted(
                         body, key=lambda obj: obj['last_modified'])
+
                 for log_part in log_obj_to_display:
                     headers, log_obj = swift.get_object(container,
                                                         log_part['name'])
@@ -477,20 +480,19 @@ class Instances(base.ManagerWithFind):
                     raise exceptions.GuestLogNotFoundError()
                 raise
 
-        return lambda: _log_generator(instance, log_name, publish,
-                                      lines, swift)
+        return lambda: _log_generator(instance, log_name, lines, swift)
 
-    def log_save(self, instance, log_name, publish=None, filename=None):
+    def log_save(self, instance, log_name, filename=None):
         """Saves a guest log to a file.
 
         :param instance: The :class:`Instance` (or its ID) of the database
                          instance to get the log for.
         :param log_name: The name of <log> to publish
-        :param publish: Publish updates before displaying log
         :rtype: Filename to which log was saved
         """
-        written_file = filename or (instance.name + '-' + log_name + ".log")
-        log_gen = self.log_generator(instance, log_name, publish, 0)
+        written_file = filename or (
+            'trove-' + instance.id + '-' + log_name + ".log")
+        log_gen = self.log_generator(instance, log_name, lines=0)
         with open(written_file, 'w') as f:
             for log_obj in log_gen():
                 f.write(log_obj)

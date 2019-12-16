@@ -2292,8 +2292,6 @@ def do_log_discard(cs, args):
 @utils.arg('instance', metavar='<instance>',
            help=_('Id or Name of the instance.'))
 @utils.arg('log_name', metavar='<log_name>', help=_('Name of log to publish.'))
-@utils.arg('--publish', action='store_true', default=False,
-           help=_('Publish latest entries from guest before display.'))
 @utils.arg('--lines', metavar='<lines>', default=50, type=int,
            help=_('Publish latest entries from guest before display.'))
 @utils.service_type('database')
@@ -2302,7 +2300,7 @@ def do_log_tail(cs, args):
     try:
         instance = _find_instance(cs, args.instance)
         log_gen = cs.instances.log_generator(instance, args.log_name,
-                                             args.publish, args.lines)
+                                             args.lines)
         for log_part in log_gen():
             print(log_part, end="")
     except exceptions.GuestLogNotFoundError:
@@ -2316,8 +2314,6 @@ def do_log_tail(cs, args):
 @utils.arg('instance', metavar='<instance>',
            help=_('Id or Name of the instance.'))
 @utils.arg('log_name', metavar='<log_name>', help=_('Name of log to publish.'))
-@utils.arg('--publish', action='store_true', default=False,
-           help=_('Publish latest entries from guest before display.'))
 @utils.arg('--file', metavar='<file>', default=None,
            help=_('Path of file to save log to for instance.'))
 @utils.service_type('database')
@@ -2326,7 +2322,7 @@ def do_log_save(cs, args):
     try:
         instance = _find_instance(cs, args.instance)
         filename = cs.instances.log_save(instance, args.log_name,
-                                         args.publish, args.file)
+                                         filename=args.file)
         print(_('Log "%(log_name)s" written to %(file_name)s')
               % {'log_name': args.log_name,
                  'file_name': filename})

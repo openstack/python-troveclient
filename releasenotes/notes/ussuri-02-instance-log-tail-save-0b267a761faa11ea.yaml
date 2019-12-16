@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Support to show log content and save instance log files:
+
+    .. code-block:: console
+
+        openstack database log tail [--lines LINES] <instance> <log_name>
+        openstack database log save [--file FILE] <instance> <log_name>
