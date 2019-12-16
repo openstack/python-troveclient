@@ -8,6 +8,7 @@ Contents:
    :maxdepth: 2
 
    unreleased
+   train
    rocky
    queens
    pike
