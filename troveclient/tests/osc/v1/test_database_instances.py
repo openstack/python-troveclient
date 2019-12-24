@@ -55,10 +55,10 @@ class TestInstanceList(TestInstances):
         )
 
         values = [
-            ('1234', 'test-member-1', 'mysql', '5.6', 'ACTIVE', '02', 2,
-             'regionOne'),
-            ('5678', 'test-member-2', 'mysql', '5.6', 'ACTIVE', '2', 2,
-             'regionOne')
+            ('1234', 'test-member-1', 'mysql', '5.6', 'ACTIVE', '10.0.0.13',
+             '02', 2, 'regionOne'),
+            ('5678', 'test-member-2', 'mysql', '5.6', 'ACTIVE', '10.0.0.14',
+             '2', 2, 'regionOne')
         ]
         self.assertEqual(values, data)
 
@@ -77,9 +77,9 @@ class TestInstanceList(TestInstances):
 
         expected_instances = [
             ('1234', 'test-member-1', 'fake_tenant_id', 'mysql', '5.6',
-             'ACTIVE', '02', 2),
+             'ACTIVE', '10.0.0.13', '02', 2),
             ('5678', 'test-member-2', 'fake_tenant_id', 'mysql', '5.6',
-             'ACTIVE', '2', 2)
+             'ACTIVE', '10.0.0.14', '2', 2)
         ]
         self.assertEqual(expected_instances, instances)
 

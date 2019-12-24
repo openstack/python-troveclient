@@ -28,15 +28,22 @@ from troveclient import utils as trove_utils
 def set_attributes_for_print(instances):
     for instance in instances:
         setattr(instance, 'flavor_id', instance.flavor['id'])
+
         if hasattr(instance, 'volume'):
             setattr(instance, 'size', instance.volume['size'])
         else:
             setattr(instance, 'size', '-')
+
         if hasattr(instance, 'datastore'):
             if instance.datastore.get('version'):
                 setattr(instance, 'datastore_version',
                         instance.datastore['version'])
             setattr(instance, 'datastore', instance.datastore['type'])
+
+        if hasattr(instance, 'ip'):
+            addresses = ', '.join(instance.ip)
+            setattr(instance, 'addresses', addresses)
+
     return instances
 
 
@@ -75,10 +82,10 @@ def set_attributes_for_print_detail(instance):
 class ListDatabaseInstances(command.Lister):
     _description = _("List database instances")
     columns = ['ID', 'Name', 'Datastore', 'Datastore Version', 'Status',
-               'Flavor ID', 'Size', 'Region']
+               'Addresses', 'Flavor ID', 'Size', 'Region']
     admin_columns = [
         'ID', 'Name', 'Tenant ID', 'Datastore', 'Datastore Version', 'Status',
-        'Flavor ID', 'Size'
+        'Addresses', 'Flavor ID', 'Size'
     ]
 
     def get_parser(self, prog_name):
