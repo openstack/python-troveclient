@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Support to force delete instance. By default, only allowed by admin user.
+
+    .. code-block:: console
+
+        openstack database instance delete --force <instance>

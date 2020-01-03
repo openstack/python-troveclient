@@ -177,13 +177,21 @@ class DeleteDatabaseInstance(base.TroveDeleter):
             metavar='instance',
             help='Id or name of instance(s).'
         )
+        parser.add_argument(
+            '--force',
+            action="store_true",
+            default=False,
+            help=_('Force delete the instance, will reset the instance status '
+                   'before deleting.'),
+        )
         return parser
 
     def take_action(self, parsed_args):
         db_instances = self.app.client_manager.database.instances
 
         # Used for batch deletion
-        self.delete_func = db_instances.delete
+        self.delete_func = (db_instances.force_delete
+                            if parsed_args.force else db_instances.delete)
         self.resource = 'database instance'
 
         ids = []

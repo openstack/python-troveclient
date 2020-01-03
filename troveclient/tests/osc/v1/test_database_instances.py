@@ -158,6 +158,17 @@ class TestDatabaseInstanceDelete(TestInstances):
         calls = [mock.call(instance_1), mock.call(instance_2)]
         self.instance_client.delete.assert_has_calls(calls)
 
+    @mock.patch("troveclient.utils.get_resource_id_by_name")
+    def test_instance_force_delete(self, mock_getid):
+        mock_getid.return_value = "fake_uuid"
+
+        args = ['instance1', '--force']
+        parsed_args = self.check_parser(self.cmd, args, [('force', True)])
+        self.cmd.take_action(parsed_args)
+
+        mock_getid.assert_called_once_with(self.instance_client, "instance1")
+        self.instance_client.force_delete.assert_called_with('fake_uuid')
+
 
 class TestDatabaseInstanceCreate(TestInstances):
 
