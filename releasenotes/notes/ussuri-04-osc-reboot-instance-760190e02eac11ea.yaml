@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Support to reboot instance.
+
+    .. code-block:: console
+
+        openstack database instance reboot <instance>

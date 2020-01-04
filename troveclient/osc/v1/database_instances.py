@@ -428,10 +428,9 @@ class CreateDatabaseInstance(command.ShowOne):
 
 class ResetDatabaseInstanceStatus(command.Command):
 
-    _description = _("Set the task status of an instance to NONE if the "
-                     "instance is in BUILD or ERROR state. Resetting task "
-                     "status of an instance in BUILD state will allow "
-                     "the instance to be deleted.")
+    _description = _("Set instance service status to ERROR and clear the "
+                     "current task status. Mark any running backup operations "
+                     "as FAILED.")
 
     def get_parser(self, prog_name):
         parser = super(ResetDatabaseInstanceStatus, self).get_parser(prog_name)
@@ -709,3 +708,27 @@ class DetachDatabaseInstanceReplica(command.Command):
         instance = osc_utils.find_resource(db_instances,
                                            parsed_args.instance)
         db_instances.edit(instance, detach_replica_source=True)
+
+
+class RebootDatabaseInstance(command.Command):
+    _description = _("Reboots an instance(the Nova server).")
+
+    def get_parser(self, prog_name):
+        parser = super(RebootDatabaseInstance, self).get_parser(prog_name)
+        parser.add_argument(
+            'instance',
+            metavar='<instance>',
+            type=str,
+            help=_('ID or name of the instance.'))
+
+        return parser
+
+    def take_action(self, parsed_args):
+        instance_id = parsed_args.instance
+
+        if not uuidutils.is_uuid_like(instance_id):
+            instance_mgr = self.app.client_manager.database.instances
+            instance_id = osc_utils.find_resource(instance_mgr, instance_id)
+
+        mgmt_instance_mgr = self.app.client_manager.database.mgmt_instances
+        mgmt_instance_mgr.reboot(instance_id)

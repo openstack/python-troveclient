@@ -422,3 +422,19 @@ class TestInstanceReplicaDetach(TestInstances):
         self.instance_client.edit.assert_called_with(
             'instance', detach_replica_source=True)
         self.assertIsNone(result)
+
+
+class TestDatabaseInstanceReboot(TestInstances):
+    def setUp(self):
+        super(TestDatabaseInstanceReboot, self).setUp()
+        self.cmd = database_instances.RebootDatabaseInstance(self.app, None)
+
+    @mock.patch.object(utils, 'find_resource')
+    def test_instance_restart(self, mock_find):
+        args = ['instance1']
+        mock_find.return_value = args[0]
+        parsed_args = self.check_parser(self.cmd, args, [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.mgmt_client.reboot.assert_called_with('instance1')
