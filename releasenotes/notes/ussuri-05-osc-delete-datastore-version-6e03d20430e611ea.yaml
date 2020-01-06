@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Support to delete datastore version by ID.
+
+    .. code-block:: console
+
+        openstack datastore version delete <datastore_version_id>

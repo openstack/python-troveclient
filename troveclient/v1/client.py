@@ -78,22 +78,13 @@ class Client(object):
         self.datastores = datastores.Datastores(self)
         self.datastore_versions = datastores.DatastoreVersions(self)
         self.configurations = configurations.Configurations(self)
-        config_parameters = configurations.ConfigurationParameters(self)
-        self.configuration_parameters = config_parameters
+        self.configuration_parameters = configurations.ConfigurationParameters(
+            self)
         self.metadata = metadata.Metadata(self)
         self.modules = modules.Modules(self)
         self.quota = quota.Quotas(self)
         self.mgmt_instances = management.Management(self)
-
-        # self.hosts = Hosts(self)
-        # self.storage = StorageInfo(self)
-        # self.management = MgmtClusters(self)
-        # self.mgmt_flavor = MgmtFlavors(self)
-        # self.accounts = Accounts(self)
-        # self.diagnostics = DiagnosticsInterrogator(self)
-        # self.hwinfo = HwInfoInterrogator(self)
-        # self.mgmt_config_params =
-        #       management.MgmtConfigurationParameters(self)
+        self.mgmt_ds_versions = management.MgmtDatastoreVersions(self)
 
         # Add in any extensions...
         if extensions:

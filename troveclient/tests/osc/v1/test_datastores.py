@@ -9,6 +9,7 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
+from oslo_utils import uuidutils
 
 from troveclient import common
 from troveclient import exceptions
@@ -24,6 +25,8 @@ class TestDatastores(fakes.TestDatabasev1):
         self.datastore_client = self.app.client_manager.database.datastores
         self.datastore_version_client =\
             self.app.client_manager.database.datastore_versions
+        self.dsversion_mgmt_client =\
+            self.app.client_manager.database.mgmt_ds_versions
 
 
 class TestDatastoreList(TestDatastores):
@@ -123,3 +126,18 @@ class TestDatastoreVersionShow(TestDatastores):
         self.assertRaises(exceptions.NoUniqueMatch,
                           self.cmd.take_action,
                           parsed_args)
+
+
+class TestDeleteDatastoreVersion(TestDatastores):
+    def setUp(self):
+        super(TestDeleteDatastoreVersion, self).setUp()
+        self.cmd = datastores.DeleteDatastoreVersion(self.app, None)
+
+    def test_delete_datastore_version(self):
+        dsversion_id = uuidutils.generate_uuid()
+        args = [dsversion_id]
+        parsed_args = self.check_parser(self.cmd, args, [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.dsversion_mgmt_client.delete.assert_called_once_with(dsversion_id)
