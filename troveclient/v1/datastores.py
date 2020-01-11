@@ -61,6 +61,10 @@ class Datastores(base.ManagerWithFind):
         return self._get("/datastores/%s" % base.getid(datastore),
                          "datastore")
 
+    def delete(self, datastore):
+        """Delete a specific datastore."""
+        return self._delete("/datastores/%s" % base.getid(datastore))
+
 
 class DatastoreVersions(base.ManagerWithFind):
     """Manage :class:`DatastoreVersion` resources."""

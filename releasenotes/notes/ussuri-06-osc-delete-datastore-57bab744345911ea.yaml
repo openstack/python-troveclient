@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Support to delete datastore by ID or name, this is admin action by default.
+
+    .. code-block:: console
+
+        openstack datastore delete <datastore>

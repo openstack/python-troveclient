@@ -71,6 +71,21 @@ class TestDatastoreShow(TestDatastores):
         self.assertEqual(self.values, data)
 
 
+class TestDeleteDatastore(TestDatastores):
+    def setUp(self):
+        super(TestDeleteDatastore, self).setUp()
+        self.cmd = datastores.DeleteDatastore(self.app, None)
+
+    def test_delete_datastore(self):
+        ds_id = uuidutils.generate_uuid()
+        args = [ds_id]
+        parsed_args = self.check_parser(self.cmd, args, [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.datastore_client.delete.assert_called_once_with(ds_id)
+
+
 class TestDatastoreVersionList(TestDatastores):
     columns = datastores.ListDatastoreVersions.columns
     values = ('v-56', '5.6')
