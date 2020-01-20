@@ -190,8 +190,8 @@ class DeleteDatabaseInstance(base.TroveDeleter):
         db_instances = self.app.client_manager.database.instances
 
         # Used for batch deletion
-        self.delete_func = (db_instances.force_delete
-                            if parsed_args.force else db_instances.delete)
+        self.delete_func = (db_instances.force_delete if parsed_args.force
+                            else db_instances.delete)
         self.resource = 'database instance'
 
         ids = []
@@ -212,7 +212,6 @@ class DeleteDatabaseInstance(base.TroveDeleter):
 
 
 class CreateDatabaseInstance(command.ShowOne):
-
     _description = _("Creates a new database instance.")
 
     def get_parser(self, prog_name):
@@ -427,7 +426,6 @@ class CreateDatabaseInstance(command.ShowOne):
 
 
 class ResetDatabaseInstanceStatus(command.Command):
-
     _description = _("Set instance service status to ERROR and clear the "
                      "current task status. Mark any running backup operations "
                      "as FAILED.")
@@ -449,7 +447,6 @@ class ResetDatabaseInstanceStatus(command.Command):
 
 
 class ResizeDatabaseInstanceFlavor(command.Command):
-
     _description = _("Resize an instance with a new flavor")
 
     def get_parser(self, prog_name):
@@ -466,22 +463,21 @@ class ResizeDatabaseInstanceFlavor(command.Command):
             'flavor_id',
             metavar='<flavor_id>',
             type=str,
-            help=_('New flavor of the instance')
+            help=_('New flavor ID of the instance')
         )
         return parser
 
     def take_action(self, parsed_args):
-        db_instances = self.app.client_manager.database.instances
-        db_flavor = self.app.client_manager.database.flavors
-        instance = osc_utils.find_resource(db_instances,
-                                           parsed_args.instance)
-        flavor = osc_utils.find_resource(db_flavor,
-                                         parsed_args.flavor_id)
-        db_instances.resize_instance(instance, flavor)
+        instance_mgr = self.app.client_manager.database.instances
+        instance_id = parsed_args.instance
+
+        if not uuidutils.is_uuid_like(instance_id):
+            instance_id = osc_utils.find_resource(instance_mgr, instance_id)
+
+        instance_mgr.resize_instance(instance_id, parsed_args.flavor_id)
 
 
 class UpgradeDatabaseInstance(command.Command):
-
     _description = _("Upgrades an instance to a new datastore version.")
 
     def get_parser(self, prog_name):
@@ -507,7 +503,6 @@ class UpgradeDatabaseInstance(command.Command):
 
 
 class ResizeDatabaseInstanceVolume(command.Command):
-
     _description = _("Resizes the volume size of an instance.")
 
     def get_parser(self, prog_name):
@@ -537,12 +532,11 @@ class ResizeDatabaseInstanceVolume(command.Command):
 
 
 class ForceDeleteDatabaseInstance(command.Command):
-
     _description = _("Force delete an instance.")
 
     def get_parser(self, prog_name):
-        parser = (super(ForceDeleteDatabaseInstance, self)
-                  .get_parser(prog_name))
+        parser = (
+            super(ForceDeleteDatabaseInstance, self).get_parser(prog_name))
         parser.add_argument(
             'instance',
             metavar='<instance>',
@@ -564,7 +558,6 @@ class ForceDeleteDatabaseInstance(command.Command):
 
 
 class PromoteDatabaseInstanceToReplicaSource(command.Command):
-
     _description = _(
         "Promotes a replica to be the new replica source of its set.")
 
@@ -587,7 +580,6 @@ class PromoteDatabaseInstanceToReplicaSource(command.Command):
 
 
 class RestartDatabaseInstance(command.Command):
-
     _description = _("Restarts an instance.")
 
     def get_parser(self, prog_name):
@@ -610,7 +602,6 @@ class RestartDatabaseInstance(command.Command):
 
 
 class EjectDatabaseInstanceReplicaSource(command.Command):
-
     _description = _("Ejects a replica source from its set.")
 
     def get_parser(self, prog_name):
@@ -632,7 +623,6 @@ class EjectDatabaseInstanceReplicaSource(command.Command):
 
 
 class UpdateDatabaseInstance(command.Command):
-
     _description = _("Updates an instance: Edits name, "
                      "configuration, or replica source.")
 
@@ -688,7 +678,6 @@ class UpdateDatabaseInstance(command.Command):
 
 
 class DetachDatabaseInstanceReplica(command.Command):
-
     _description = _("Detaches a replica instance "
                      "from its replication source.")
 

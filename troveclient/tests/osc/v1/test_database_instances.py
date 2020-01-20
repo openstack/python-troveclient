@@ -259,11 +259,13 @@ class TestDatabaseInstanceResizeFlavor(TestInstances):
     @mock.patch.object(utils, 'find_resource')
     def test_instance_resize_flavor(self, mock_find):
         args = ['instance1', 'flavor_id']
-        mock_find.side_effect = ['instance1', 'flavor_id']
+        mock_find.return_value = 'fake_instance_id'
+
         parsed_args = self.check_parser(self.cmd, args, [])
         result = self.cmd.take_action(parsed_args)
-        self.instance_client.resize_instance.assert_called_with('instance1',
-                                                                'flavor_id')
+
+        self.instance_client.resize_instance.assert_called_with(
+            'fake_instance_id', 'flavor_id')
         self.assertIsNone(result)
 
 
