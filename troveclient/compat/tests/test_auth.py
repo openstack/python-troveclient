@@ -107,8 +107,8 @@ class AuthenticatorTest(testtools.TestCase):
         body = "test_body"
         authObj.client._time_request = mock.Mock(return_value=(resp, body))
 
-        l = authObj._authenticate(mock.Mock(), mock.Mock())
-        self.assertEqual('loc', l)
+        lo = authObj._authenticate(mock.Mock(), mock.Mock())
+        self.assertEqual('loc', lo)
 
         # test any response code other than 200 and 305
         resp.status = 404

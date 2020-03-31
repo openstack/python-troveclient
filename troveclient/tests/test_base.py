@@ -212,38 +212,38 @@ class ManagerListTest(ManagerTest):
 
     def test_list_with_body_none(self):
         body = None
-        l = self.manager._list("url", self.response_key, obj_class, body)
-        self.assertEqual(len(self.data_g), len(l))
-        for i in range(0, len(l)):
-            self.assertEqual(self.data_g[i], l[i])
+        li = self.manager._list("url", self.response_key, obj_class, body)
+        self.assertEqual(len(self.data_g), len(li))
+        for i in range(0, len(li)):
+            self.assertEqual(self.data_g[i], li[i])
 
     def test_list_body_not_none(self):
         body = "something"
-        l = self.manager._list("url", self.response_key, obj_class, body)
-        self.assertEqual(len(self.data_p), len(l))
-        for i in range(0, len(l)):
-            self.assertEqual(self.data_p[i], l[i])
+        li = self.manager._list("url", self.response_key, obj_class, body)
+        self.assertEqual(len(self.data_p), len(li))
+        for i in range(0, len(li)):
+            self.assertEqual(self.data_p[i], li[i])
 
     def test_list_key_mapping(self):
         data_ = {"values": ["p1", "p2"]}
         body_ = {self.response_key: data_}
         url_ = "test_url_post"
         self.manager.api.client.post = mock.Mock(return_value=(url_, body_))
-        l = self.manager._list("url", self.response_key,
-                               obj_class, "something")
+        li = self.manager._list("url", self.response_key,
+                                obj_class, "something")
         data = data_["values"]
-        self.assertEqual(len(data), len(l))
-        for i in range(0, len(l)):
-            self.assertEqual(data[i], l[i])
+        self.assertEqual(len(data), len(li))
+        for i in range(0, len(li)):
+            self.assertEqual(data[i], li[i])
 
     def test_list_without_key_mapping(self):
         data_ = {"v1": "1", "v2": "2"}
         body_ = {self.response_key: data_}
         url_ = "test_url_post"
         self.manager.api.client.post = mock.Mock(return_value=(url_, body_))
-        l = self.manager._list("url", self.response_key,
-                               obj_class, "something")
-        self.assertEqual(len(data_), len(l))
+        li = self.manager._list("url", self.response_key,
+                                obj_class, "something")
+        self.assertEqual(len(data_), len(li))
 
 
 class MangerPaginationTests(ManagerTest):

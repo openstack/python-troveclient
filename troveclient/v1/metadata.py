@@ -23,7 +23,7 @@ class MetadataResource(base.Resource):
 
     def __contains__(self, item):
         if item in self.__dict__:
-                return True
+            return True
         else:
             return False
 

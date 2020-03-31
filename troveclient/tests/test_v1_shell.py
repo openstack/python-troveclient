@@ -221,7 +221,7 @@ class ShellTest(utils.TestCase):
 
     def test_flavor_list_error(self):
         cmd = 'flavor-list --datastore_type mysql'
-        exepcted_error_msg = ('Missing argument\(s\): '
+        exepcted_error_msg = (r'Missing argument\(s\): '
                               'datastore_type, datastore_version_id')
         self.assertRaisesRegex(
             exceptions.MissingArgs, exepcted_error_msg, self.run_command,
@@ -256,7 +256,7 @@ class ShellTest(utils.TestCase):
 
     def test_volume_type_list_error(self):
         cmd = 'volume-type-list --datastore_type mysql'
-        exepcted_error_msg = ('Missing argument\(s\): '
+        exepcted_error_msg = (r'Missing argument\(s\): '
                               'datastore_type, datastore_version_id')
         self.assertRaisesRegex(
             exceptions.MissingArgs, exepcted_error_msg, self.run_command,
