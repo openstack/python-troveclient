@@ -48,7 +48,6 @@ apidoc_separate_modules = True
 repository_name = 'openstack/python-troveclient'
 bug_project = 'python-troveclient'
 bug_tag = ''
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
 html_theme = 'openstackdocs'
 
 templates_path = ['_templates']
