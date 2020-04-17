@@ -167,5 +167,5 @@ class DeleteDatastoreVersion(command.Command):
             client.delete(parsed_args.datastore_version)
         except Exception as e:
             msg = (_("Failed to delete datastore version %(version)s: %(e)s")
-                   % {'database': parsed_args.datastore_version, 'e': e})
+                   % {'version': parsed_args.datastore_version, 'e': e})
             raise exceptions.CommandError(msg)
