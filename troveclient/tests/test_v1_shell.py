@@ -209,41 +209,6 @@ class ShellTest(utils.TestCase):
         self.run_command('eject-replica-source 1234')
         self.assert_called('POST', '/instances/1234/action')
 
-    def test_flavor_list(self):
-        self.run_command('flavor-list')
-        self.assert_called('GET', '/flavors')
-
-    def test_flavor_list_with_datastore(self):
-        cmd = ('flavor-list --datastore_type mysql '
-               '--datastore_version_id some-version-id')
-        self.run_command(cmd)
-        self.assert_called(
-            'GET', '/datastores/mysql/versions/some-version-id/flavors')
-
-    def test_flavor_list_error(self):
-        cmd = 'flavor-list --datastore_type mysql'
-        exepcted_error_msg = (r'Missing argument\(s\): '
-                              'datastore_type, datastore_version_id')
-        self.assertRaisesRegex(
-            exceptions.MissingArgs, exepcted_error_msg, self.run_command,
-            cmd)
-
-    def test_flavor_show(self):
-        self.run_command('flavor-show 1')
-        self.assert_called('GET', '/flavors/1')
-
-    def test_flavor_show_leading_zero(self):
-        self.run_command('flavor-show 02')
-        self.assert_called('GET', '/flavors/02')
-
-    def test_flavor_show_by_name(self):
-        self.run_command('flavor-show m1.tiny')  # defined in fakes.py
-        self.assert_called('GET', '/flavors/m1.tiny')
-
-    def test_flavor_show_uuid(self):
-        self.run_command('flavor-show m1.uuid')
-        self.assert_called('GET', '/flavors/m1.uuid')
-
     def test_volume_type_list(self):
         self.run_command('volume-type-list')
         self.assert_called('GET', '/volume-types')
@@ -301,7 +266,7 @@ class ShellTest(utils.TestCase):
             'POST', '/instances',
             {'instance': {
                 'volume': {'size': 1, 'type': 'lvm'},
-                'flavorRef': 1,
+                'flavorRef': '1',
                 'name': 'test-member-1'
             }})
 
@@ -312,19 +277,19 @@ class ShellTest(utils.TestCase):
             'POST', '/instances',
             {'instance': {
                 'volume': {'size': 1, 'type': 'lvm'},
-                'flavorRef': 1,
+                'flavorRef': '1',
                 'name': 'test-member-1',
                 'modules': [{'id': '4321'}, {'id': '8765'}]
             }})
 
     def test_boot_by_flavor_name(self):
         self.run_command(
-            'create test-member-1 m1.tiny --size 1 --volume_type lvm')
+            'create test-member-1 1 --size 1 --volume_type lvm')
         self.assert_called_anytime(
             'POST', '/instances',
             {'instance': {
                 'volume': {'size': 1, 'type': 'lvm'},
-                'flavorRef': 1,
+                'flavorRef': '1',
                 'name': 'test-member-1'
             }})
 
@@ -346,7 +311,7 @@ class ShellTest(utils.TestCase):
             'POST', '/instances',
             {'instance': {
                 'volume': {'size': 1, 'type': None},
-                'flavorRef': 1,
+                'flavorRef': '1',
                 'name': 'repl-1',
                 'replica_count': 4,
                 'locality': 'anti-affinity'
@@ -358,7 +323,7 @@ class ShellTest(utils.TestCase):
             'POST', '/instances',
             {'instance': {
                 'volume': {'size': 1, 'type': None},
-                'flavorRef': 1,
+                'flavorRef': '1',
                 'name': 'slave-1',
                 'replica_of': 'myid',
                 'replica_count': 1
@@ -371,7 +336,7 @@ class ShellTest(utils.TestCase):
             'POST', '/instances',
             {'instance': {
                 'volume': {'size': 1, 'type': None},
-                'flavorRef': 1,
+                'flavorRef': '1',
                 'name': 'slave-1',
                 'replica_of': 'myid',
                 'replica_count': 3
@@ -383,7 +348,7 @@ class ShellTest(utils.TestCase):
             'POST', '/instances',
             {'instance': {
                 'volume': {'size': 1, 'type': None},
-                'flavorRef': 1,
+                'flavorRef': '1',
                 'name': 'master-1',
                 'locality': 'affinity'
             }})
@@ -411,7 +376,7 @@ class ShellTest(utils.TestCase):
             'POST', '/instances',
             {'instance': {
                 'volume': {'size': 1, 'type': None},
-                'flavorRef': 1,
+                'flavorRef': '1',
                 'name': 'test-restore-1',
                 'restorePoint': {'backupRef': 'bk-1234'},
             }})
@@ -422,7 +387,7 @@ class ShellTest(utils.TestCase):
             'POST', '/instances',
             {'instance': {
                 'volume': {'size': 1, 'type': None},
-                'flavorRef': 1,
+                'flavorRef': '1',
                 'name': 'test-restore-1',
                 'restorePoint': {'backupRef': 'bk-1234'},
             }})
@@ -454,8 +419,8 @@ class ShellTest(utils.TestCase):
 
     def test_cluster_create_by_flavor_name(self):
         cmd = ('cluster-create test-clstr vertica 7.1 '
-               '--instance flavor=m1.small,volume=2 '
-               '--instance flavor=m1.leading-zero,volume=1')
+               '--instance flavor=2,volume=2 '
+               '--instance flavor=02,volume=1')
         self.run_command(cmd)
         self.assert_called_anytime(
             'POST', '/clusters',

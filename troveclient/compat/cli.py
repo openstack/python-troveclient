@@ -129,16 +129,6 @@ class InstanceCommands(common.AuthedCommandsBase):
         self._pretty_print(self.dbaas.instances.configuration, self.id)
 
 
-class FlavorsCommands(common.AuthedCommandsBase):
-    """Command for listing Flavors."""
-
-    params = []
-
-    def list(self):
-        """List the available flavors."""
-        self._pretty_list(self.dbaas.flavors.list)
-
-
 class DatabaseCommands(common.AuthedCommandsBase):
     """Database CRUD operations on an instance."""
 
@@ -436,7 +426,6 @@ class MetadataCommands(common.AuthedCommandsBase):
 COMMANDS = {
     'auth': common.Auth,
     'instance': InstanceCommands,
-    'flavor': FlavorsCommands,
     'database': DatabaseCommands,
     'limit': LimitsCommands,
     'backup': BackupsCommands,

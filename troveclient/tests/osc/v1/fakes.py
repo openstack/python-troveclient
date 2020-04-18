@@ -20,7 +20,6 @@ from troveclient.v1 import clusters
 from troveclient.v1 import configurations
 from troveclient.v1 import databases
 from troveclient.v1 import datastores
-from troveclient.v1 import flavors
 from troveclient.v1 import instances
 from troveclient.v1 import limits
 from troveclient.v1 import modules
@@ -32,13 +31,6 @@ class TestDatabasev1(utils.TestCommand):
     def setUp(self):
         super(TestDatabasev1, self).setUp()
         self.app.client_manager.database = mock.MagicMock()
-
-
-class FakeFlavors(object):
-    fake_flavors = fakes.FakeHTTPClient().get_flavors()[2]['flavors']
-
-    def get_flavors_1(self):
-        return flavors.Flavor(None, self.fake_flavors[0])
 
 
 class FakeBackups(object):

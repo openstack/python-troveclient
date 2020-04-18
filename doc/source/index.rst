@@ -16,8 +16,7 @@
 ===========================================
 
 This is a client for the OpenStack Trove API. There's a Python API (the
-``troveclient`` module), and a command-line script (``trove``). Each
-implements 100% of the OpenStack Trove API.
+``troveclient`` module), and an ``openstack`` command-line plugin.
 
 Contents
 --------
@@ -26,7 +25,6 @@ Contents
    :maxdepth: 2
 
    user/index
-   cli/index
    reference/index
 
 Indices and tables

@@ -21,7 +21,6 @@ from troveclient import common
 from troveclient.v1 import clusters
 from troveclient.v1 import configurations
 from troveclient.v1 import datastores
-from troveclient.v1 import flavors
 from troveclient.v1 import instances
 
 
@@ -143,44 +142,6 @@ class MgmtClusters(base.ManagerWithFind):
         """Reset the current cluster task to NONE."""
         body = {'reset-task': {}}
         self._action(cluster_id, body)
-
-
-class MgmtFlavors(base.ManagerWithFind):
-    """Manage :class:`Flavor` resources."""
-    resource_class = flavors.Flavor
-
-    def __repr__(self):
-        return "<Flavors Manager at %s>" % id(self)
-
-    # Appease the abc gods
-    def list(self):
-        pass
-
-    def create(self, name, ram, disk, vcpus,
-               flavorid="auto", ephemeral=None, swap=None, rxtx_factor=None,
-               service_type=None):
-        """Create a new flavor."""
-        body = {"flavor": {
-            "flavor_id": flavorid,
-            "name": name,
-            "ram": ram,
-            "disk": disk,
-            "vcpu": vcpus,
-            "ephemeral": 0,
-            "swap": 0,
-            "rxtx_factor": "1.0",
-            "is_public": "True"
-        }}
-        if ephemeral:
-            body["flavor"]["ephemeral"] = ephemeral
-        if swap:
-            body["flavor"]["swap"] = swap
-        if rxtx_factor:
-            body["flavor"]["rxtx_factor"] = rxtx_factor
-        if service_type:
-            body["flavor"]["service_type"] = service_type
-
-        return self._create("/mgmt/flavors", body, "flavor")
 
 
 class MgmtConfigurationParameters(configurations.ConfigurationParameters):

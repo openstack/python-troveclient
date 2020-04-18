@@ -189,11 +189,6 @@ def _find_cluster(cs, cluster):
     return utils.find_resource(cs.clusters, cluster)
 
 
-def _find_flavor(cs, flavor):
-    """Get a flavor by ID."""
-    return utils.find_resource(cs.flavors, flavor)
-
-
 def _find_volume_type(cs, volume_type):
     """Get a volume type by ID."""
     return utils.find_resource(cs.volume_types, volume_type)
@@ -222,46 +217,6 @@ def _find_datastore_version(cs, datastore_version):
 def _find_configuration(cs, configuration):
     """Get a configuration by ID."""
     return utils.find_resource(cs.configurations, configuration)
-
-
-# Flavor related calls
-@utils.arg('--datastore_type', metavar='<datastore_type>',
-           default=None,
-           help=_('Type of the datastore. For eg: mysql.'))
-@utils.arg("--datastore_version_id", metavar="<datastore_version_id>",
-           default=None, help=_("ID of the datastore version."))
-@utils.service_type('database')
-def do_flavor_list(cs, args):
-    """Lists available flavors."""
-    if args.datastore_type and args.datastore_version_id:
-        flavors = cs.flavors.list_datastore_version_associated_flavors(
-            args.datastore_type, args.datastore_version_id)
-    elif not args.datastore_type and not args.datastore_version_id:
-        flavors = cs.flavors.list()
-    else:
-        raise exceptions.MissingArgs(['datastore_type',
-                                      'datastore_version_id'])
-
-    # Fallback to str_id where necessary.
-    _flavors = []
-    for f in flavors:
-        if not f.id and hasattr(f, 'str_id'):
-            f.id = f.str_id
-        _flavors.append(f)
-
-    utils.print_list(_flavors, ['id', 'name', 'ram', 'vcpus', 'disk',
-                                'ephemeral'],
-                     labels={'ram': 'RAM', 'vcpus': 'vCPUs', 'disk': 'Disk'},
-                     order_by='ram')
-
-
-@utils.arg('flavor', metavar='<flavor>', type=str,
-           help=_('ID or name of the flavor.'))
-@utils.service_type('database')
-def do_flavor_show(cs, args):
-    """Shows details of a flavor."""
-    flavor = _find_flavor(cs, args.flavor)
-    _print_object(flavor)
 
 
 # Volume type related calls
@@ -555,7 +510,7 @@ def do_update(cs, args):
 @utils.arg('flavor',
            metavar='<flavor>',
            type=str,
-           help=_('A flavor name or ID.'))
+           help=_('A flavor ID.'))
 @utils.arg('--databases', metavar='<database>',
            help=_('Optional list of databases.'),
            nargs="+", default=[])
@@ -623,7 +578,7 @@ def do_update(cs, args):
 @utils.service_type('database')
 def do_create(cs, args):
     """Creates a new instance."""
-    flavor_id = _find_flavor(cs, args.flavor).id
+    flavor_id = args.flavor
     volume = None
     if args.size is not None and args.size <= 0:
         raise exceptions.ValidationError(
@@ -686,8 +641,7 @@ def _validate_nic_info(nic_info, nic_str):
 
 
 def _get_flavor(cs, opts_str):
-    flavor_name, opts_str = _strip_option(opts_str, 'flavor', True)
-    flavor_id = _find_flavor(cs, flavor_name).id
+    flavor_id, opts_str = _strip_option(opts_str, 'flavor', True)
     return str(flavor_id), opts_str
 
 
@@ -929,12 +883,12 @@ def do_cluster_create(cs, args):
 @utils.arg('flavor',
            metavar='<flavor>',
            type=str,
-           help=_('New flavor of the instance.'))
+           help=_('New flavor ID for the instance.'))
 @utils.service_type('database')
 def do_resize_instance(cs, args):
     """Resizes an instance with a new flavor."""
     instance = _find_instance(cs, args.instance)
-    flavor_id = _find_flavor(cs, args.flavor).id
+    flavor_id = args.flavor
     cs.instances.resize_instance(instance, flavor_id)
 
 

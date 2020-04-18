@@ -2,42 +2,16 @@
  Trove Client User Guide
 =========================
 
-Command-line API
-----------------
+Command-line Interface
+----------------------
 
-Installing this package gets you a shell command, ``trove``, that you
-can use to interact with any OpenStack cloud.
+Installing this package allows you to use ``openstack`` command to interact
+with Trove. Refer to
+https://docs.openstack.org/python-openstackclient/latest
+for how to install ``openstack`` command and configuration.
 
-You'll need to provide your OpenStack username and password. You can do this
-with the ``--os-username``, ``--os-password`` and  ``--os-tenant-name``
-params, but it's easier to just set them as environment variables::
-
-    export OS_USERNAME=openstack
-    export OS_PASSWORD=yadayada
-    export OS_TENANT_NAME=myproject
-
-You will also need to define the authentication url with ``--os-auth-url`` and
-the version of the API with ``--os-database-api-version`` (default is version
-1.0).  Or set them as an environment variables as well::
-
-    export OS_AUTH_URL=http://example.com:5000/v2.0/
-    export OS_AUTH_URL=1.0
-
-If you are using Keystone, you need to set the OS_AUTH_URL to the keystone
-endpoint::
-
-        export OS_AUTH_URL=http://example.com:5000/v2.0/
-
-Since Keystone can return multiple regions in the Service Catalog, you
-can specify the one you want with ``--os-region-name`` (or
-``export OS_REGION_NAME``). It defaults to the first in the list returned.
-
-Argument ``--profile`` is available only when the osprofiler lib is installed.
-
-You'll find complete documentation on the shell by running
-``trove help``.
-
-For more details, refer to :doc:`../cli/index`.
+You can find all supported Trove commands in ``openstack.database.v1``
+entry_points section in ``setup.cfg`` file of the repo.
 
 Python API
 ----------
@@ -46,14 +20,11 @@ There's also a complete Python API.
 
 Quick-start using keystone::
 
-    # use v2.0 auth with http://example.com:5000/v2.0/
-    >>> from troveclient.v1 import client
-    >>> nt = client.Client(USERNAME, PASSWORD, TENANT_NAME, AUTH_URL)
-    >>> nt.datastores.list()
+    >>> from troveclient import client
+    >>> trove_client = client.Client('1.0', session=keystone_session, endpoint_type='public', service_type='database', region_name='RegionOne')
+    >>> trove_client.datastores.list()
     [...]
-    >>> nt.flavors.list()
-    [...]
-    >>> nt.instances.list()
+    >>> trove_client.instances.list()
     [...]
 
 .. toctree::

@@ -197,7 +197,7 @@ class TestDatabaseInstanceCreate(TestInstances):
 
     @mock.patch.object(utils, 'find_resource')
     def test_instance_create(self, mock_find):
-        mock_find.id.side_effect = ['103', 'test', 'mod_id']
+        mock_find.id.side_effect = ['test', 'mod_id']
         args = ['test-name', '103',
                 '--size', '1',
                 '--databases', 'db1', 'db2',

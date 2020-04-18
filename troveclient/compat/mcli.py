@@ -181,31 +181,6 @@ class StorageCommands(common.AuthedCommandsBase):
         self._pretty_list(self.dbaas.storage.index)
 
 
-class FlavorsCommands(common.AuthedCommandsBase):
-    """Commands for managing Flavors."""
-
-    params = [
-        'name',
-        'ram',
-        'disk',
-        'vcpus',
-        'flavor_id',
-        'ephemeral',
-        'swap',
-        'rxtx_factor',
-        'service_type'
-    ]
-
-    def create(self):
-        """Create a new flavor."""
-        self._require('name', 'ram', 'disk', 'vcpus',
-                      'flavor_id', 'service_type')
-        self._pretty_print(self.dbaas.mgmt_flavor.create, self.name,
-                           self.ram, self.disk, self.vcpus, self.flavor_id,
-                           self.ephemeral, self.swap, self.rxtx_factor,
-                           self.service_type)
-
-
 def config_options(oparser):
     oparser.add_option("-u", "--url", default="http://localhost:5000/v1.1",
                        help="Auth API endpoint URL with port and version. \
@@ -219,7 +194,6 @@ COMMANDS = {
     'root': RootCommands,
     'storage': StorageCommands,
     'quota': QuotaCommands,
-    'flavor': FlavorsCommands,
 }
 
 

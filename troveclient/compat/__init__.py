@@ -21,11 +21,9 @@ from troveclient.v1.accounts import Accounts   # noqa
 from troveclient.v1.databases import Databases  # noqa
 from troveclient.v1.diagnostics import DiagnosticsInterrogator    # noqa
 from troveclient.v1.diagnostics import HwInfoInterrogator   # noqa
-from troveclient.v1.flavors import Flavors   # noqa
 from troveclient.v1.hosts import Hosts    # noqa
 from troveclient.v1.instances import Instances  # noqa
 from troveclient.v1.management import Management   # noqa
-from troveclient.v1.management import MgmtFlavors  # noqa
 from troveclient.v1.management import RootHistory  # noqa
 from troveclient.v1.root import Root   # noqa
 from troveclient.v1.storage import StorageInfo    # noqa

@@ -225,7 +225,7 @@ class CreateDatabaseInstance(command.ShowOne):
             'flavor',
             metavar='<flavor>',
             type=str,
-            help=_("A flavor name or ID."),
+            help=_("A flavor ID."),
         )
         parser.add_argument(
             '--size',
@@ -348,8 +348,8 @@ class CreateDatabaseInstance(command.ShowOne):
     def take_action(self, parsed_args):
         database = self.app.client_manager.database
         db_instances = database.instances
-        flavor_id = osc_utils.find_resource(database.flavors,
-                                            parsed_args.flavor).id
+        flavor_id = parsed_args.flavor
+
         volume = None
         if parsed_args.size is not None and parsed_args.size <= 0:
             raise exceptions.ValidationError(

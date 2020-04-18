@@ -20,7 +20,6 @@ from troveclient.v1 import clusters
 from troveclient.v1 import configurations
 from troveclient.v1 import databases
 from troveclient.v1 import datastores
-from troveclient.v1 import flavors
 from troveclient.v1 import instances
 from troveclient.v1 import limits
 from troveclient.v1 import management
@@ -64,7 +63,6 @@ class Client(object):
         # self.limits = limits.LimitsManager(self)
 
         # extensions
-        self.flavors = flavors.Flavors(self)
         self.volume_types = volume_types.VolumeTypes(self)
         self.users = users.Users(self)
         self.databases = databases.Databases(self)
