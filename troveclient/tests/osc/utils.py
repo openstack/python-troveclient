@@ -12,9 +12,9 @@
 #
 
 import os
+from unittest import mock
 
 import fixtures
-import mock
 import sys
 import testtools
 

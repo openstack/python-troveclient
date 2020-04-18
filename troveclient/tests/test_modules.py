@@ -14,9 +14,9 @@
 #    under the License.
 #
 
-import mock
 import os
 import testtools
+from unittest import mock
 
 from troveclient.v1 import modules
 

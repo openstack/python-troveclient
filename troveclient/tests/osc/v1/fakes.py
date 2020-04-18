@@ -11,7 +11,7 @@
 #   under the License.
 #
 
-import mock
+from unittest import mock
 
 from troveclient.tests import fakes
 from troveclient.tests.osc import utils

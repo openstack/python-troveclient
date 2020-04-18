@@ -17,8 +17,8 @@
 
 import contextlib
 import os
+from unittest import mock
 
-import mock
 import testtools
 
 from troveclient.apiclient import exceptions

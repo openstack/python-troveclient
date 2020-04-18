@@ -14,8 +14,9 @@
 #    under the License.
 
 import base64
+from unittest import mock
+
 import fixtures
-import mock
 import re
 import six
 import testtools

@@ -14,9 +14,9 @@
 #    under the License.
 
 import json
-import mock
 import testtools
 from troveclient.v1 import metadata
+from unittest import mock
 
 
 class TestMetadata(testtools.TestCase):

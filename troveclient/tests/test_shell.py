@@ -13,10 +13,10 @@
 
 import re
 import sys
+from unittest import mock
 
 import fixtures
 from keystoneauth1 import fixture
-import mock
 import requests_mock
 import six
 import testtools
