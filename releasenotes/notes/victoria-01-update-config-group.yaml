@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Support following commands of updating configuration:
+
+    .. code-block:: console
+
+        openstack database configuration parameter set <config_id> <values>
+        openstack database configuration set <config_id> <values> --name NAME --description DESC

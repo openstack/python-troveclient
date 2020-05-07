@@ -372,3 +372,66 @@ class DefaultDatabaseConfiguration(command.ShowOne):
                                            parsed_args.instance)
         configs = db_instances.configuration(instance)
         return zip(*sorted(six.iteritems(configs._info['configuration'])))
+
+
+class SetDatabaseConfiguration(command.Command):
+    _description = _("Change parameters for a configuration group.")
+
+    def get_parser(self, prog_name):
+        parser = super(SetDatabaseConfiguration, self).get_parser(prog_name)
+        parser.add_argument(
+            'configuration_group_id',
+            help=_('Configuration group ID.'),
+        )
+        parser.add_argument(
+            'values',
+            metavar='<values>',
+            help=_('Dictionary of the new values to set.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_configurations = self.app.client_manager.database.configurations
+
+        db_configurations.edit(
+            parsed_args.configuration_group_id,
+            parsed_args.values
+        )
+
+
+class UpdateDatabaseConfiguration(command.Command):
+    _description = _("Update a configuration group.")
+
+    def get_parser(self, prog_name):
+        parser = super(UpdateDatabaseConfiguration, self).get_parser(prog_name)
+        parser.add_argument(
+            'configuration_group_id',
+            help=_('Configuration group ID.'),
+        )
+        parser.add_argument(
+            'values',
+            metavar='<values>',
+            help=_('Dictionary of the values to set.'),
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_('New name of the configuration group.'),
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            default=None,
+            help=_('An optional description for the configuration group.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        db_configurations = self.app.client_manager.database.configurations
+
+        db_configurations.update(
+            parsed_args.configuration_group_id,
+            parsed_args.values,
+            name=parsed_args.name,
+            description=parsed_args.description
+        )
