@@ -1,0 +1,20 @@
+---
+features:
+  - |
+    Support following replication commands:
+
+    .. code-block:: console
+
+        openstack database instance detach
+        openstack database instance promote
+        openstack database instance eject
+
+deprecations:
+  - |
+    The following commands are removed:
+
+    .. code-block:: console
+
+        openstack database instance detach replica
+        openstack database instance promote to replica source
+        openstack database instance eject replica source

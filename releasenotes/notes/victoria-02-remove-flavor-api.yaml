@@ -1,0 +1,4 @@
+---
+deprecations:
+  - Trove CLI doesn't support to get flavor information more. User needs to
+    provide Nova flavor ID when creating trove instance.
