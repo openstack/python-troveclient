@@ -45,9 +45,9 @@ apidoc_excluded_paths = [
 apidoc_separate_modules = True
 
 # openstackdocstheme options
-repository_name = 'openstack/python-troveclient'
-bug_project = 'python-troveclient'
-bug_tag = ''
+openstackdocs_repo_name = 'openstack/python-troveclient'
+openstackdocs_bug_project = 'python-troveclient'
+openstackdocs_bug_tag = ''
 html_theme = 'openstackdocs'
 
 templates_path = ['_templates']
@@ -56,12 +56,11 @@ source_suffix = '.rst'
 
 master_doc = 'index'
 
-project = u'python-troveclient'
 copyright = u'2014, OpenStack Foundation'
 
 exclude_trees = []
 
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 htmlhelp_basename = 'python-troveclientdoc'
 latex_documents = [

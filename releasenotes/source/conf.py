@@ -36,9 +36,10 @@ extensions = [
 
 
 # openstackdocstheme options
-repository_name = 'openstack/python-troveclient'
-bug_project = 'python-troveclient'
-bug_tag = ''
+openstackdocs_repo_name = 'openstack/python-troveclient'
+openstackdocs_bug_project = 'python-troveclient'
+openstackdocs_bug_tag = ''
+openstackdocs_auto_name = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -92,7 +93,7 @@ exclude_patterns = []
 #show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
