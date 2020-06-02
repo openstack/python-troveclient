@@ -1,0 +1,4 @@
+---
+features:
+  - Add replication 'Role' for listing instances to indicate if the instance is
+    a master or a replica.

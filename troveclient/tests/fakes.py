@@ -173,6 +173,7 @@ class FakeHTTPClient(base_client.HTTPClient):
                         "region": "regionOne",
                         "datastore": {"version": "5.6", "type": "mysql"},
                         "tenant_id": "fake_tenant_id",
+                        "replica_of": {"id": "fake_master_id"}
                     },
                     {
                         "id": "5678",

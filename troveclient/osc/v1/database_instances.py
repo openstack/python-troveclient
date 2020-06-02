@@ -34,15 +34,23 @@ def set_attributes_for_print(instances):
         else:
             setattr(instance, 'size', '-')
 
+        if hasattr(instance, 'ip'):
+            addresses = ', '.join(instance.ip)
+            setattr(instance, 'addresses', addresses)
+
+        # If 'replica_of' not in instance, the client will invoke a GET
+        # instance request to API.
+        if hasattr(instance, 'replica_of'):
+            setattr(instance, 'role', 'replica')
+
+        if hasattr(instance, 'replicas'):
+            setattr(instance, 'role', 'master')
+
         if hasattr(instance, 'datastore'):
             if instance.datastore.get('version'):
                 setattr(instance, 'datastore_version',
                         instance.datastore['version'])
             setattr(instance, 'datastore', instance.datastore['type'])
-
-        if hasattr(instance, 'ip'):
-            addresses = ', '.join(instance.ip)
-            setattr(instance, 'addresses', addresses)
 
     return instances
 
@@ -82,10 +90,10 @@ def set_attributes_for_print_detail(instance):
 class ListDatabaseInstances(command.Lister):
     _description = _("List database instances")
     columns = ['ID', 'Name', 'Datastore', 'Datastore Version', 'Status',
-               'Addresses', 'Flavor ID', 'Size', 'Region']
+               'Addresses', 'Flavor ID', 'Size', 'Region', 'Role']
     admin_columns = [
         'ID', 'Name', 'Tenant ID', 'Datastore', 'Datastore Version', 'Status',
-        'Addresses', 'Flavor ID', 'Size'
+        'Addresses', 'Flavor ID', 'Size', 'Role'
     ]
 
     def get_parser(self, prog_name):
