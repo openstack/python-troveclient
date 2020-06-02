@@ -18,8 +18,6 @@
 Command-line interface to the OpenStack Trove API.
 """
 
-from __future__ import print_function
-
 import argparse
 import getpass
 import glob

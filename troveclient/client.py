@@ -19,8 +19,6 @@
 OpenStack Client interface. Handles the REST calls and responses.
 """
 
-from __future__ import print_function
-
 import logging
 
 from keystoneauth1 import adapter
