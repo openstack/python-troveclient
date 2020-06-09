@@ -13,10 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from mock import patch
-import testtools
 from unittest import mock
+from unittest.mock import patch
 import uuid
+
+import testtools
 
 from troveclient.v1 import backups
 
