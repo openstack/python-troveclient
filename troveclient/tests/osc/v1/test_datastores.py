@@ -156,3 +156,21 @@ class TestDeleteDatastoreVersion(TestDatastores):
         self.cmd.take_action(parsed_args)
 
         self.dsversion_mgmt_client.delete.assert_called_once_with(dsversion_id)
+
+
+class TestCreateDatastoreVersion(TestDatastores):
+    def setUp(self):
+        super(TestCreateDatastoreVersion, self).setUp()
+        self.cmd = datastores.CreateDatastoreVersion(self.app, None)
+
+    def test_create_datastore_version(self):
+        image_id = uuidutils.generate_uuid()
+        args = ['new_name', 'ds_name', 'ds_manager', image_id, '--active',
+                '--default']
+        parsed_args = self.check_parser(self.cmd, args, [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.dsversion_mgmt_client.create.assert_called_once_with(
+            'new_name', 'ds_name', 'ds_manager', image_id, active='true',
+            default='true')

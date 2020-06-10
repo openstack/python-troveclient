@@ -169,3 +169,54 @@ class DeleteDatastoreVersion(command.Command):
             msg = (_("Failed to delete datastore version %(version)s: %(e)s")
                    % {'version': parsed_args.datastore_version, 'e': e})
             raise exceptions.CommandError(msg)
+
+
+class CreateDatastoreVersion(command.Command):
+    _description = _("Creates a datastore version.")
+
+    def get_parser(self, prog_name):
+        parser = super(CreateDatastoreVersion, self).get_parser(prog_name)
+        parser.add_argument(
+            'version_name',
+            help=_('Datastore version name.'),
+        )
+        parser.add_argument(
+            'datastore_name',
+            help=_("Datastore name. The datastore is created automatically "
+                   "if does not exist."),
+        )
+        parser.add_argument(
+            'datastore_manager',
+            help=_('Datastore manager, e.g. mysql'),
+        )
+        parser.add_argument(
+            'image_id',
+            help=_('ID of the datastore image in Glance.'),
+        )
+        parser.add_argument(
+            '--active',
+            action='store_true',
+            help=_('Enable the datastore version or not.'),
+        )
+        parser.add_argument(
+            '--default',
+            action='store_true',
+            help=_('If set the datastore version as default.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.database.mgmt_ds_versions
+        try:
+            client.create(
+                parsed_args.version_name,
+                parsed_args.datastore_name,
+                parsed_args.datastore_manager,
+                parsed_args.image_id,
+                active='true' if parsed_args.active else 'false',
+                default='true' if parsed_args.default else 'false'
+            )
+        except Exception as e:
+            msg = (_("Failed to create datastore version %(version)s: %(e)s")
+                   % {'version': parsed_args.version_name, 'e': e})
+            raise exceptions.CommandError(msg)
