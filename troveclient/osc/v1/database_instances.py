@@ -27,26 +27,23 @@ from troveclient import utils as trove_utils
 
 def set_attributes_for_print(instances):
     for instance in instances:
+        # To avoid invoking GET request to trove.
+        instance_info = instance.to_dict()
+
         setattr(instance, 'flavor_id', instance.flavor['id'])
 
-        if hasattr(instance, 'volume'):
+        if 'volume' in instance_info:
             setattr(instance, 'size', instance.volume['size'])
         else:
             setattr(instance, 'size', '-')
 
-        if hasattr(instance, 'ip'):
-            addresses = ', '.join(instance.ip)
-            setattr(instance, 'addresses', addresses)
-
-        # If 'replica_of' not in instance, the client will invoke a GET
-        # instance request to API.
-        if hasattr(instance, 'replica_of'):
+        setattr(instance, 'role', '')
+        if 'replica_of' in instance_info:
             setattr(instance, 'role', 'replica')
-
-        if hasattr(instance, 'replicas'):
+        if 'replicas' in instance_info:
             setattr(instance, 'role', 'master')
 
-        if hasattr(instance, 'datastore'):
+        if 'datastore' in instance_info:
             if instance.datastore.get('version'):
                 setattr(instance, 'datastore_version',
                         instance.datastore['version'])

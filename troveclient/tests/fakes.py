@@ -167,7 +167,9 @@ class FakeHTTPClient(base_client.HTTPClient):
                         "id": "1234",
                         "name": "test-member-1",
                         "status": "ACTIVE",
-                        "ip": ["10.0.0.13"],
+                        "addresses": [
+                            {"type": "private", "address": "10.0.0.13"}
+                        ],
                         "volume": {"size": 2},
                         "flavor": {"id": "02"},
                         "region": "regionOne",
@@ -179,7 +181,9 @@ class FakeHTTPClient(base_client.HTTPClient):
                         "id": "5678",
                         "name": "test-member-2",
                         "status": "ACTIVE",
-                        "ip": ["10.0.0.14"],
+                        "addresses": [
+                            {"type": "private", "address": "10.0.0.14"}
+                        ],
                         "volume": {"size": 2},
                         "flavor": {"id": "2"},
                         "region": "regionOne",

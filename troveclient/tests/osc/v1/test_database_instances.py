@@ -55,9 +55,11 @@ class TestInstanceList(TestInstances):
         )
 
         values = [
-            ('1234', 'test-member-1', 'mysql', '5.6', 'ACTIVE', '10.0.0.13',
+            ('1234', 'test-member-1', 'mysql', '5.6', 'ACTIVE',
+             [{"type": "private", "address": "10.0.0.13"}],
              '02', 2, 'regionOne', 'replica'),
-            ('5678', 'test-member-2', 'mysql', '5.6', 'ACTIVE', '10.0.0.14',
+            ('5678', 'test-member-2', 'mysql', '5.6', 'ACTIVE',
+             [{"type": "private", "address": "10.0.0.14"}],
              '2', 2, 'regionOne', '')
         ]
         self.assertEqual(values, data)
@@ -77,15 +79,18 @@ class TestInstanceList(TestInstances):
 
         expected_instances = [
             ('1234', 'test-member-1', 'fake_tenant_id', 'mysql', '5.6',
-             'ACTIVE', '10.0.0.13', '02', 2, 'replica'),
+             'ACTIVE', [{"type": "private", "address": "10.0.0.13"}], '02', 2,
+             'replica'),
             ('5678', 'test-member-2', 'fake_tenant_id', 'mysql', '5.6',
-             'ACTIVE', '10.0.0.14', '2', 2, '')
+             'ACTIVE', [{"type": "private", "address": "10.0.0.14"}], '2', 2,
+             '')
         ]
         self.assertEqual(expected_instances, instances)
 
 
 class TestInstanceShow(TestInstances):
-    values = ('mysql', '5.6', '02', '1234', '10.0.0.13', 'test-member-1',
+    values = ([{'address': '10.0.0.13', 'type': 'private'}], 'mysql', '5.6',
+              '02', '1234', 'test-member-1',
               'regionOne', 'fake_master_id', 'ACTIVE', 'fake_tenant_id', 2)
 
     def setUp(self):
@@ -94,11 +99,11 @@ class TestInstanceShow(TestInstances):
         self.data = self.fake_instances.get_instances_1234()
         self.instance_client.get.return_value = self.data
         self.columns = (
+            'addresses',
             'datastore',
             'datastore_version',
             'flavor',
             'id',
-            'ip',
             'name',
             'region',
             'replica_of',
