@@ -41,7 +41,7 @@ def set_attributes_for_print(instances):
         if 'replica_of' in instance_info:
             setattr(instance, 'role', 'replica')
         if 'replicas' in instance_info:
-            setattr(instance, 'role', 'master')
+            setattr(instance, 'role', 'primary')
 
         if 'datastore' in instance_info:
             if instance.datastore.get('version'):
