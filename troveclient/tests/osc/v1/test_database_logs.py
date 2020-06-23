@@ -76,7 +76,7 @@ class TestShowDatabaseInstanceLog(TestLogs):
         columns, values = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(data.to_dict().values(), values)
+        self.assertCountEqual(data.to_dict().values(), values)
 
 
 class TestSetDatabaseInstanceLog(TestLogs):
