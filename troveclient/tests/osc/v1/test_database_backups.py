@@ -224,7 +224,8 @@ class TestBackupCreate(TestBackups):
                                                      '1234',
                                                      description=None,
                                                      parent_id=None,
-                                                     incremental=False)
+                                                     incremental=False,
+                                                     swift_container=None)
 
     @mock.patch.object(utils, 'find_resource')
     def test_incremental_backup_create(self, mock_find):
@@ -237,7 +238,8 @@ class TestBackupCreate(TestBackups):
                                                      '1234',
                                                      description='backup 1234',
                                                      parent_id='1234-1',
-                                                     incremental=True)
+                                                     incremental=True,
+                                                     swift_container=None)
 
 
 class TestDatabaseBackupExecutionDelete(TestBackups):

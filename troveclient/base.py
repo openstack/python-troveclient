@@ -187,6 +187,7 @@ class Manager(utils.HookableMixin):
 
     def _delete(self, url):
         resp, body = self.api.client.delete(url)
+        return resp, body
 
     def _update(self, url, body, **kwargs):
         self.run_hooks('modify_body_for_update', body, **kwargs)

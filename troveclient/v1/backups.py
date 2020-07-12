@@ -74,7 +74,7 @@ class Backups(base.ManagerWithFind):
                                query_strings)
 
     def create(self, name, instance, description=None,
-               parent_id=None, incremental=False):
+               parent_id=None, incremental=False, swift_container=None):
         """Create a new backup from the given instance.
 
         :param name: name for backup.
@@ -83,6 +83,7 @@ class Backups(base.ManagerWithFind):
         :param parent_id: base for incremental backup (optional).
         :param incremental: flag to indicate incremental backup based on
                             last backup
+        :param swift_container: Swift container name.
         :returns: :class:`Backups`
         """
         body = {
@@ -98,6 +99,8 @@ class Backups(base.ManagerWithFind):
             body['backup']['description'] = description
         if parent_id:
             body['backup']['parent_id'] = parent_id
+        if swift_container:
+            body['backup']['swift_container'] = swift_container
         return self._create("/backups", body, "backup")
 
     def delete(self, backup):

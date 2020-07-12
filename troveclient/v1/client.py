@@ -15,6 +15,7 @@
 #    under the License.
 
 from troveclient import client as trove_client
+from troveclient.v1 import backup_strategy
 from troveclient.v1 import backups
 from troveclient.v1 import clusters
 from troveclient.v1 import configurations
@@ -67,6 +68,7 @@ class Client(object):
         self.users = users.Users(self)
         self.databases = databases.Databases(self)
         self.backups = backups.Backups(self)
+        self.backup_strategies = backup_strategy.BackupStrategiesManager(self)
         self.clusters = clusters.Clusters(self)
         self.instances = instances.Instances(self)
         self.limits = limits.Limits(self)

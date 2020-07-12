@@ -225,6 +225,15 @@ class CreateDatabaseBackup(command.ShowOne):
                    ' full or incremental backup. It will create a'
                    ' full backup if no existing backup found.')
         )
+        parser.add_argument(
+            '--swift-container',
+            help=_('The container name for storing the backup data when Swift '
+                   'is used as backup storage backend. If not specified, will '
+                   'use the container name configured in the backup strategy, '
+                   'otherwise, the default value configured by the cloud '
+                   'operator. Non-existent container is created '
+                   'automatically.')
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -232,11 +241,14 @@ class CreateDatabaseBackup(command.ShowOne):
         database_backups = manager.backups
         instance = osc_utils.find_resource(manager.instances,
                                            parsed_args.instance)
-        backup = database_backups.create(parsed_args.name,
-                                         instance,
-                                         description=parsed_args.description,
-                                         parent_id=parsed_args.parent,
-                                         incremental=parsed_args.incremental)
+        backup = database_backups.create(
+            parsed_args.name,
+            instance,
+            description=parsed_args.description,
+            parent_id=parsed_args.parent,
+            incremental=parsed_args.incremental,
+            swift_container=parsed_args.swift_container
+        )
         backup = set_attributes_for_print_detail(backup)
         return zip(*sorted(six.iteritems(backup)))
 
