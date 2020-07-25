@@ -204,15 +204,15 @@ class TestDatabaseInstanceCreate(TestInstances):
     @mock.patch.object(utils, 'find_resource')
     def test_instance_create(self, mock_find):
         mock_find.id.side_effect = ['test', 'mod_id']
-        args = ['test-name', '103',
+        args = ['test-name', '--flavor', '103',
                 '--size', '1',
                 '--databases', 'db1', 'db2',
                 '--users', 'u1:111', 'u2:111',
                 '--datastore', "datastore",
-                '--datastore_version', "datastore_version",
+                '--datastore-version', "datastore_version",
                 '--nic', 'net-id=net1',
-                '--replica_of', 'test',
-                '--replica_count', '4',
+                '--replica-of', 'test',
+                '--replica-count', '4',
                 '--module', 'mod_id',
                 '--is-public',
                 '--allowed-cidr', '10.0.0.1/24',

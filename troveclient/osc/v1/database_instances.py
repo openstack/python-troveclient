@@ -227,7 +227,7 @@ class CreateDatabaseInstance(command.ShowOne):
             help=_("Name of the instance."),
         )
         parser.add_argument(
-            'flavor',
+            '--flavor',
             metavar='<flavor>',
             type=str,
             help=_("A flavor ID."),
@@ -241,7 +241,7 @@ class CreateDatabaseInstance(command.ShowOne):
                    "Required when volume support is enabled."),
         )
         parser.add_argument(
-            '--volume_type',
+            '--volume-type',
             metavar='<volume_type>',
             type=str,
             default=None,
@@ -268,7 +268,7 @@ class CreateDatabaseInstance(command.ShowOne):
             help=_("A backup name or ID."),
         )
         parser.add_argument(
-            '--availability_zone',
+            '--availability-zone',
             metavar='<availability_zone>',
             default=None,
             help=_("The Zone hint to give to Nova."),
@@ -280,7 +280,7 @@ class CreateDatabaseInstance(command.ShowOne):
             help=_("A datastore name or ID."),
         )
         parser.add_argument(
-            '--datastore_version',
+            '--datastore-version',
             metavar='<datastore_version>',
             default=None,
             help=_("A datastore version name or ID."),
@@ -298,13 +298,13 @@ class CreateDatabaseInstance(command.ShowOne):
             help=_("ID of the configuration group to attach to the instance."),
         )
         parser.add_argument(
-            '--replica_of',
+            '--replica-of',
             metavar='<source_instance>',
             default=None,
             help=_("ID or name of an existing instance to replicate from."),
         )
         parser.add_argument(
-            '--replica_count',
+            '--replica-count',
             metavar='<count>',
             type=int,
             default=None,
@@ -353,7 +353,6 @@ class CreateDatabaseInstance(command.ShowOne):
     def take_action(self, parsed_args):
         database = self.app.client_manager.database
         db_instances = database.instances
-        flavor_id = parsed_args.flavor
 
         volume = None
         if parsed_args.size is not None and parsed_args.size <= 0:
@@ -409,7 +408,7 @@ class CreateDatabaseInstance(command.ShowOne):
 
         instance = db_instances.create(
             parsed_args.name,
-            flavor_id,
+            flavor_id=parsed_args.flavor,
             volume=volume,
             databases=databases,
             users=users,

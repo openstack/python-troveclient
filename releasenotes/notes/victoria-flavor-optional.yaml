@@ -1,0 +1,4 @@
+---
+features:
+  - Change flavor as an optional parameter (``--flavor``) for creating
+    instance. When creating replicas, flavor is not requried.

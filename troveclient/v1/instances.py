@@ -89,18 +89,20 @@ class Instances(base.ManagerWithFind):
             auth_url, user, key, auth_version=auth_version,
             os_options=os_options)
 
-    def create(self, name, flavor_id, volume=None, databases=None, users=None,
-               restorePoint=None, availability_zone=None, datastore=None,
-               datastore_version=None, nics=None, configuration=None,
-               replica_of=None, replica_count=None, modules=None,
-               locality=None, region_name=None, access=None, **kwargs):
+    def create(self, name, flavor_id=None, volume=None, databases=None,
+               users=None, restorePoint=None, availability_zone=None,
+               datastore=None, datastore_version=None, nics=None,
+               configuration=None, replica_of=None, replica_count=None,
+               modules=None, locality=None, region_name=None, access=None,
+               **kwargs):
         """Create (boot) a new instance."""
 
         body = {"instance": {
             "name": name,
-            "flavorRef": flavor_id
         }}
         datastore_obj = {}
+        if flavor_id:
+            body["instance"]["flavorRef"] = flavor_id
         if volume:
             body["instance"]["volume"] = volume
         if databases:
