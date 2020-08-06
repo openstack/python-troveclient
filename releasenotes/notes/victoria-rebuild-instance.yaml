@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Support to rebuild instance.
+
+    .. code-block:: console
+
+        openstack database instance rebuild <instance> <new-image-id>

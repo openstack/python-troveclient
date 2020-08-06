@@ -102,6 +102,11 @@ class Management(base.ManagerWithFind):
         body = {'reset-task-status': {}}
         self._action(instance_id, body)
 
+    def rebuild(self, instance_id, image_id):
+        """Rebuild the underlying OS."""
+        body = {'rebuild': {'image_id': image_id}}
+        self._action(instance_id, body)
+
 
 class MgmtClusters(base.ManagerWithFind):
     """Manage :class:`Cluster` resources."""
