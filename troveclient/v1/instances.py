@@ -149,11 +149,16 @@ class Instances(base.ManagerWithFind):
         resp, body = self.api.client.put(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
-    def edit(self, instance, configuration=None, name=None,
-             detach_replica_source=False, remove_configuration=False):
+    def update(self, instance, configuration=None, name=None,
+               detach_replica_source=False, remove_configuration=False,
+               is_public=None, allowed_cidrs=None):
+        """Update instance.
+
+        The configuration change, detach_replica and access change cannot be
+        updated at the same time.
+        """
         body = {
-            "instance": {
-            }
+            "instance": {}
         }
         if configuration and remove_configuration:
             raise Exception("Cannot attach and detach configuration "
@@ -166,9 +171,15 @@ class Instances(base.ManagerWithFind):
             body["instance"]["name"] = name
         if detach_replica_source:
             body["instance"]["replica_of"] = None
+        if is_public is not None or allowed_cidrs is not None:
+            body["instance"]['access'] = {}
+            if is_public is not None:
+                body["instance"]['access']['is_public'] = is_public
+            if allowed_cidrs is not None:
+                body["instance"]['access']['allowed_cidrs'] = allowed_cidrs
 
         url = "/instances/%s" % base.getid(instance)
-        resp, body = self.api.client.patch(url, body=body)
+        resp, body = self.api.client.put(url, body=body)
         common.check_for_exceptions(resp, body, url)
 
     def upgrade(self, instance, datastore_version):

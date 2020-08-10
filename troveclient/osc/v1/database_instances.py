@@ -49,11 +49,15 @@ def set_attributes_for_print(instances):
                         instance.datastore['version'])
             setattr(instance, 'datastore', instance.datastore['type'])
 
+        if 'access' in instance_info:
+            setattr(instance, "public",
+                    instance_info["access"].get("is_public", False))
+
     return instances
 
 
 def set_attributes_for_print_detail(instance):
-    info = instance._info.copy()
+    info = instance.to_dict()
     info['flavor'] = instance.flavor['id']
     if hasattr(instance, 'volume'):
         info['volume'] = instance.volume['size']
@@ -80,6 +84,11 @@ def set_attributes_for_print_detail(instance):
         info['fault_date'] = instance.fault['created']
         if 'details' in instance.fault and instance.fault['details']:
             info['fault_details'] = instance.fault['details']
+    if hasattr(instance, 'access'):
+        info['public'] = instance.access["is_public"]
+        info['allowed_cidrs'] = instance.access["allowed_cidrs"]
+        info.pop("access", None)
+
     info.pop('links', None)
     return info
 
@@ -87,11 +96,8 @@ def set_attributes_for_print_detail(instance):
 class ListDatabaseInstances(command.Lister):
     _description = _("List database instances")
     columns = ['ID', 'Name', 'Datastore', 'Datastore Version', 'Status',
-               'Addresses', 'Flavor ID', 'Size', 'Region', 'Role']
-    admin_columns = [
-        'ID', 'Name', 'Tenant ID', 'Datastore', 'Datastore Version', 'Status',
-        'Addresses', 'Flavor ID', 'Size', 'Role'
-    ]
+               'Public', 'Addresses', 'Flavor ID', 'Size', 'Role']
+    admin_columns = columns + ["Tenant ID"]
 
     def get_parser(self, prog_name):
         parser = super(ListDatabaseInstances, self).get_parser(prog_name)
@@ -346,7 +352,7 @@ class CreateDatabaseInstance(command.ShowOne):
             action='append',
             dest='allowed_cidrs',
             help="The IP CIDRs that are allowed to access the database "
-                 "instance.",
+                 "instance. Repeat for multiple values",
         )
         return parser
 
@@ -664,21 +670,49 @@ class UpdateDatabaseInstance(command.Command):
         )
         parser.add_argument(
             '--remove_configuration',
+            '--remove-configuration',
             dest='remove_configuration',
             action="store_true",
             default=False,
             help=_('Drops the current configuration reference.'),
         )
+        public_group = parser.add_mutually_exclusive_group()
+        public_group.add_argument(
+            '--is-public',
+            dest='public',
+            default=None,
+            action='store_true',
+            help="Make the database instance accessible to public.",
+        )
+        public_group.add_argument(
+            '--is-private',
+            dest='public',
+            default=None,
+            action='store_false',
+            help="Make the database instance inaccessible to public.",
+        )
+        parser.add_argument(
+            '--allowed-cidr',
+            action='append',
+            dest='allowed_cidrs',
+            help="The IP CIDRs that are allowed to access the database "
+                 "instance. Repeat for multiple values",
+        )
         return parser
 
     def take_action(self, parsed_args):
-        db_instances = self.app.client_manager.database.instances
-        instance = osc_utils.find_resource(db_instances,
-                                           parsed_args.instance)
-        db_instances.edit(instance, parsed_args.configuration,
-                          parsed_args.name,
-                          parsed_args.detach_replica_source,
-                          parsed_args.remove_configuration)
+        instance_mgr = self.app.client_manager.database.instances
+        instance_id = parsed_args.instance
+
+        if not uuidutils.is_uuid_like(instance_id):
+            instance_id = osc_utils.find_resource(instance_mgr, instance_id)
+
+        instance_mgr.update(instance_id, parsed_args.configuration,
+                            parsed_args.name,
+                            parsed_args.detach_replica_source,
+                            parsed_args.remove_configuration,
+                            is_public=parsed_args.public,
+                            allowed_cidrs=parsed_args.allowed_cidrs)
 
 
 class DetachDatabaseInstanceReplica(command.Command):

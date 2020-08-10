@@ -175,7 +175,8 @@ class FakeHTTPClient(base_client.HTTPClient):
                         "region": "regionOne",
                         "datastore": {"version": "5.6", "type": "mysql"},
                         "tenant_id": "fake_tenant_id",
-                        "replica_of": {"id": "fake_master_id"}
+                        "replica_of": {"id": "fake_master_id"},
+                        "access": {"is_public": False, "allowed_cidrs": []}
                     },
                     {
                         "id": "5678",
@@ -189,6 +190,7 @@ class FakeHTTPClient(base_client.HTTPClient):
                         "region": "regionOne",
                         "datastore": {"version": "5.6", "type": "mysql"},
                         "tenant_id": "fake_tenant_id",
+                        "access": {"is_public": False, "allowed_cidrs": []}
                     },
 
                 ]

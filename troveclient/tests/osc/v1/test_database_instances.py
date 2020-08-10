@@ -55,12 +55,12 @@ class TestInstanceList(TestInstances):
         )
 
         values = [
-            ('1234', 'test-member-1', 'mysql', '5.6', 'ACTIVE',
+            ('1234', 'test-member-1', 'mysql', '5.6', 'ACTIVE', False,
              [{"type": "private", "address": "10.0.0.13"}],
-             '02', 2, 'regionOne', 'replica'),
-            ('5678', 'test-member-2', 'mysql', '5.6', 'ACTIVE',
+             '02', 2, 'replica'),
+            ('5678', 'test-member-2', 'mysql', '5.6', 'ACTIVE', False,
              [{"type": "private", "address": "10.0.0.14"}],
-             '2', 2, 'regionOne', '')
+             '2', 2, '')
         ]
         self.assertEqual(values, data)
 
@@ -78,20 +78,20 @@ class TestInstanceList(TestInstances):
         )
 
         expected_instances = [
-            ('1234', 'test-member-1', 'fake_tenant_id', 'mysql', '5.6',
-             'ACTIVE', [{"type": "private", "address": "10.0.0.13"}], '02', 2,
-             'replica'),
-            ('5678', 'test-member-2', 'fake_tenant_id', 'mysql', '5.6',
-             'ACTIVE', [{"type": "private", "address": "10.0.0.14"}], '2', 2,
-             '')
+            ('1234', 'test-member-1', 'mysql', '5.6',
+             'ACTIVE', False, [{"type": "private", "address": "10.0.0.13"}],
+             '02', 2, 'replica', 'fake_tenant_id'),
+            ('5678', 'test-member-2', 'mysql', '5.6',
+             'ACTIVE', False, [{"type": "private", "address": "10.0.0.14"}],
+             '2', 2, '', 'fake_tenant_id')
         ]
         self.assertEqual(expected_instances, instances)
 
 
 class TestInstanceShow(TestInstances):
-    values = ([{'address': '10.0.0.13', 'type': 'private'}], 'mysql', '5.6',
-              '02', '1234', 'test-member-1',
-              'regionOne', 'fake_master_id', 'ACTIVE', 'fake_tenant_id', 2)
+    values = ([{'address': '10.0.0.13', 'type': 'private'}], [], 'mysql',
+              '5.6', '02', '1234', 'test-member-1', False, 'regionOne',
+              'fake_master_id', 'ACTIVE', 'fake_tenant_id', 2)
 
     def setUp(self):
         super(TestInstanceShow, self).setUp()
@@ -100,11 +100,13 @@ class TestInstanceShow(TestInstances):
         self.instance_client.get.return_value = self.data
         self.columns = (
             'addresses',
+            'allowed_cidrs',
             'datastore',
             'datastore_version',
             'flavor',
             'id',
             'name',
+            'public',
             'region',
             'replica_of',
             'status',
@@ -407,11 +409,29 @@ class TestDatabaseInstanceUpdate(TestInstances):
         mock_find.return_value = args[0]
         parsed_args = self.check_parser(self.cmd, args, [])
         result = self.cmd.take_action(parsed_args)
-        self.instance_client.edit.assert_called_with('instance1',
-                                                     None,
-                                                     'new_instance_name',
-                                                     True, True)
+        self.instance_client.update.assert_called_with(
+            'instance1',
+            None,
+            'new_instance_name',
+            True, True,
+            is_public=None, allowed_cidrs=None)
         self.assertIsNone(result)
+
+    def test_instance_update_access(self):
+        ins_id = '4c397f77-750d-43df-8fc5-f7388e4316ee'
+        args = [ins_id,
+                '--name', 'new_instance_name',
+                '--is-private', '--allowed-cidr', '10.0.0.0/24',
+                '--allowed-cidr', '10.0.1.0/24']
+        parsed_args = self.check_parser(self.cmd, args, [])
+        self.cmd.take_action(parsed_args)
+
+        self.instance_client.update.assert_called_with(
+            ins_id,
+            None,
+            'new_instance_name',
+            False, False,
+            is_public=False, allowed_cidrs=['10.0.0.0/24', '10.0.1.0/24'])
 
 
 class TestInstanceReplicaDetach(TestInstances):

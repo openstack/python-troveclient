@@ -15,8 +15,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import testtools
 from unittest import mock
+
+import testtools
 
 from troveclient import base
 from troveclient.v1 import instances
@@ -222,28 +223,6 @@ class InstancesTest(testtools.TestCase):
         self.instances.modify(self.instance_with_id, 123)
         resp.status_code = 500
         self.assertRaises(Exception, self.instances.modify, 'instance1')
-
-    def test_edit(self):
-        resp = mock.Mock()
-        resp.status_code = 204
-
-        def fake_patch(url, body):
-            # Make sure we never pass slave_of to the API.
-            self.assertIn('instance', body)
-            self.assertNotIn('slave_of', body['instance'])
-            return resp, None
-
-        self.instances.api.client.patch = mock.Mock(side_effect=fake_patch)
-        self.instances.edit(123)
-        self.instances.edit(123, 321)
-        self.instances.edit(123, 321, 'name-1234')
-        self.instances.edit(123, 321, 'name-1234', True)
-        self.instances.edit(self.instance_with_id)
-        self.instances.edit(self.instance_with_id, 123)
-        self.instances.edit(self.instance_with_id, 123, 'name-1234')
-        self.instances.edit(self.instance_with_id, 123, 'name-1234', True)
-        resp.status_code = 500
-        self.assertRaises(Exception, self.instances.edit, 'instance1')
 
     def test_module_apply(self):
         resp = mock.Mock()
