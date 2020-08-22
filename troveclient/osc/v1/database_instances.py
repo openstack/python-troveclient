@@ -85,7 +85,7 @@ def set_attributes_for_print_detail(instance):
         if 'details' in instance.fault and instance.fault['details']:
             info['fault_details'] = instance.fault['details']
     if hasattr(instance, 'access'):
-        info['public'] = instance.access["is_public"]
+        info['public'] = instance.access.get("is_public", False)
         info['allowed_cidrs'] = instance.access.get('allowed_cidrs', [])
         info.pop("access", None)
 
