@@ -293,9 +293,13 @@ class CreateDatabaseInstance(command.ShowOne):
         )
         parser.add_argument(
             '--nic',
-            metavar='<net-id=<net-uuid>>',
+            metavar=('<net-id=<net-uuid>,subnet-id=<subnet-uuid>,'
+                     'ip-address=<ip-address>>'),
             dest='nics',
-            help=_("Create instance in the given Neutron network."),
+            help=_("Create instance in the given Neutron network. This "
+                   "information is used for creating user-facing port for the "
+                   "instance. Either network ID or subnet ID (or both) should "
+                   "be specified, IP address is optional"),
         )
         parser.add_argument(
             '--configuration',
@@ -392,13 +396,24 @@ class CreateDatabaseInstance(command.ShowOne):
 
         nics = []
         if parsed_args.nics:
-            nic_info = dict(
-                [(k, v) for (k, v) in [parsed_args.nics.split("=", 1)[:2]]]
-            )
-            if not nic_info.get('net-id'):
-                raise exceptions.ValidationError(
-                    "net-id is not set in %s" % parsed_args.nics
-                )
+            nic_info = {}
+            allowed_keys = {
+                'net-id': 'network_id',
+                'subnet-id': 'subnet_id',
+                'ip-address': 'ip_address'
+            }
+            fields = parsed_args.nics.split(',')
+            for field in fields:
+                field = field.strip()
+                k, v = field.split('=', 1)
+                k = k.strip()
+                v = v.strip()
+                if k not in allowed_keys.keys():
+                    raise exceptions.ValidationError(
+                        f"{k} is not allowed."
+                    )
+                if v:
+                    nic_info[allowed_keys[k]] = v
             nics.append(nic_info)
 
         modules = []
