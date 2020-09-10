@@ -565,7 +565,7 @@ class TestInstanceReplicaDetach(TestInstances):
         mock_find.return_value = args[0]
         parsed_args = self.check_parser(self.cmd, args, [])
         result = self.cmd.take_action(parsed_args)
-        self.instance_client.edit.assert_called_with(
+        self.instance_client.update.assert_called_with(
             'instance', detach_replica_source=True)
         self.assertIsNone(result)
 

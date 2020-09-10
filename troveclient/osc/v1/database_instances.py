@@ -749,7 +749,7 @@ class DetachDatabaseInstanceReplica(command.Command):
         db_instances = self.app.client_manager.database.instances
         instance = osc_utils.find_resource(db_instances,
                                            parsed_args.instance)
-        db_instances.edit(instance, detach_replica_source=True)
+        db_instances.update(instance, detach_replica_source=True)
 
 
 class RebootDatabaseInstance(command.Command):
