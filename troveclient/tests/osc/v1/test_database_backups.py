@@ -51,7 +51,8 @@ class TestBackupList(TestBackups):
             'limit': None,
             'marker': None,
             'instance_id': None,
-            'all_projects': False
+            'all_projects': False,
+            'project_id': None
         }
 
         self.backup_client.list.assert_called_once_with(**params)
@@ -68,7 +69,8 @@ class TestBackupList(TestBackups):
             'limit': None,
             'marker': None,
             'instance_id': 'fake_id',
-            'all_projects': False
+            'all_projects': False,
+            'project_id': None
         }
 
         self.backup_client.list.assert_called_once_with(**params)
@@ -82,7 +84,24 @@ class TestBackupList(TestBackups):
             'limit': None,
             'marker': None,
             'instance_id': None,
-            'all_projects': True
+            'all_projects': True,
+            'project_id': None
+        }
+
+        self.backup_client.list.assert_called_once_with(**params)
+
+    def test_backup_list_by_project(self):
+        parsed_args = self.check_parser(self.cmd, ["--project-id", "fake_id"],
+                                        [])
+        self.cmd.take_action(parsed_args)
+
+        params = {
+            'datastore': None,
+            'limit': None,
+            'marker': None,
+            'instance_id': None,
+            'all_projects': False,
+            'project_id': 'fake_id'
         }
 
         self.backup_client.list.assert_called_once_with(**params)
