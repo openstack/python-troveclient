@@ -60,7 +60,7 @@ class Backups(base.ManagerWithFind):
                          "backup")
 
     def list(self, limit=None, marker=None, datastore=None, instance_id=None,
-             all_projects=False):
+             all_projects=False, project_id=None):
         """Get a list of all backups."""
         query_strings = {}
         if datastore:
@@ -69,6 +69,8 @@ class Backups(base.ManagerWithFind):
             query_strings["instance_id"] = instance_id
         if all_projects:
             query_strings["all_projects"] = True
+        if project_id:
+            query_strings["project_id"] = project_id
 
         return self._paginated("/backups", "backups", limit, marker,
                                query_strings)

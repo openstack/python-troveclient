@@ -71,6 +71,11 @@ class ListDatabaseBackups(command.Lister):
             action='store_true',
             help=_('Get all the backups of all the projects(Admin only).')
         )
+        parser.add_argument(
+            '--project-id',
+            default=None,
+            help=_('Filter backups by project ID.')
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -79,14 +84,16 @@ class ListDatabaseBackups(command.Lister):
                                       datastore=parsed_args.datastore,
                                       marker=parsed_args.marker,
                                       instance_id=parsed_args.instance_id,
-                                      all_projects=parsed_args.all_projects)
+                                      all_projects=parsed_args.all_projects,
+                                      project_id=parsed_args.project_id)
         backups = items
         while items.next and not parsed_args.limit:
             items = database_backups.list(
                 marker=items.next,
                 datastore=parsed_args.datastore,
                 instance_id=parsed_args.instance_id,
-                all_projects=parsed_args.all_projects
+                all_projects=parsed_args.all_projects,
+                project_id=parsed_args.project_id
             )
             backups += items
 
