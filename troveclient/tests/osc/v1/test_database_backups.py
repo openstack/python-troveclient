@@ -34,7 +34,7 @@ class TestBackupList(TestBackups):
 
     columns = database_backups.ListDatabaseBackups.columns
     values = ('bk-1234', '1234', 'bkp_1', 'COMPLETED', None,
-              '2015-05-16T14:23:08')
+              '2015-05-16T14:23:08', '262db161-d3e4-4218-8bde-5bd879fc3e61')
 
     def setUp(self):
         super(TestBackupList, self).setUp()
@@ -141,7 +141,9 @@ class TestBackupShow(TestBackups):
     values = ('2015-05-16T14:22:28', 'mysql', '5.6', 'v-56', None, 'bk-1234',
               '1234',
               'http://backup_srvr/database_backups/bk-1234.xbstream.gz.enc',
-              'bkp_1', None, 0.11, 'COMPLETED', '2015-05-16T14:23:08')
+              'bkp_1', None,
+              '262db161-d3e4-4218-8bde-5bd879fc3e61',
+              0.11, 'COMPLETED', '2015-05-16T14:23:08')
 
     def setUp(self):
         super(TestBackupShow, self).setUp()
@@ -159,6 +161,7 @@ class TestBackupShow(TestBackups):
             'locationRef',
             'name',
             'parent_id',
+            'project_id',
             'size',
             'status',
             'updated',
@@ -203,7 +206,9 @@ class TestBackupCreate(TestBackups):
     values = ('2015-05-16T14:22:28', 'mysql', '5.6', 'v-56', None, 'bk-1234',
               '1234',
               'http://backup_srvr/database_backups/bk-1234.xbstream.gz.enc',
-              'bkp_1', None, 0.11, 'COMPLETED', '2015-05-16T14:23:08')
+              'bkp_1', None,
+              '262db161-d3e4-4218-8bde-5bd879fc3e61',
+              0.11, 'COMPLETED', '2015-05-16T14:23:08')
 
     def setUp(self):
         super(TestBackupCreate, self).setUp()
@@ -221,6 +226,7 @@ class TestBackupCreate(TestBackups):
             'locationRef',
             'name',
             'parent_id',
+            'project_id',
             'size',
             'status',
             'updated',

@@ -680,7 +680,9 @@ class FakeHTTPClient(base_client.HTTPClient):
                 "instance_id": "1234",
                 "parent_id": None,
                 "locationRef": ("http://backup_srvr/database_backups/"
-                                "bk-1234.xbstream.gz.enc")},
+                                "bk-1234.xbstream.gz.enc"),
+                "project_id": "262db161-d3e4-4218-8bde-5bd879fc3e61"
+            },
             {
                 "status": "COMPLETED",
                 "updated": "2015-05-16T14:22:12",
@@ -694,7 +696,10 @@ class FakeHTTPClient(base_client.HTTPClient):
                 "instance_id": "5678",
                 "parent_id": None,
                 "locationRef": ("http://backup_srvr/database_backups/"
-                                "bk-5678.xbstream.gz.enc")}]})
+                                "bk-5678.xbstream.gz.enc"),
+                "project_id": "262db161-d3e4-4218-8bde-5bd879fc3e61"
+            }
+        ]})
 
     def get_backups_bk_1234(self, **kw):
         r = {'backup': self.get_backups()[2]['backups'][0]}
