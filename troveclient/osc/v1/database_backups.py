@@ -33,7 +33,7 @@ class ListDatabaseBackups(command.Lister):
 
     _description = _("List database backups")
     columns = ['ID', 'Instance ID', 'Name', 'Status', 'Parent ID',
-               'Updated']
+               'Updated', 'Project ID']
 
     def get_parser(self, prog_name):
         parser = super(ListDatabaseBackups, self).get_parser(prog_name)
