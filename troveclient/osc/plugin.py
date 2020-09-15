@@ -34,7 +34,8 @@ def make_client(instance):
     LOG.debug('Instantiating database client: %s', trove_client)
     client = trove_client(
         auth=instance.auth,
-        session=instance.session
+        session=instance.session,
+        region_name=instance._region_name
     )
 
     return client
