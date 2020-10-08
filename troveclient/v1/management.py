@@ -229,29 +229,32 @@ class MgmtDatastoreVersions(base.ManagerWithFind):
                          "version")
 
     def create(self, name, datastore_name, datastore_manager, image,
-               packages=None, active='true', default='false'):
-        packages = packages or []
+               packages=None, active='true', default='false', image_tags=[]):
         """Create a new datastore version."""
-        body = {"version": {
-            "name": name,
-            "datastore_name": datastore_name,
-            "datastore_manager": datastore_manager,
-            "image": image,
-            "packages": packages,
-            "active": json.loads(active),
-            "default": json.loads(default)
-        }}
+        packages = packages or []
+        body = {
+            "version": {
+                "name": name,
+                "datastore_name": datastore_name,
+                "datastore_manager": datastore_manager,
+                "image": image,
+                "image_tags": image_tags,
+                "packages": packages,
+                "active": json.loads(active),
+                "default": json.loads(default)
+            }
+        }
 
         return self._create("/mgmt/datastore-versions", body, None, True)
 
     def edit(self, datastore_version_id, datastore_manager=None, image=None,
-             packages=None, active=None, default=None):
-        packages = packages or []
+             packages=None, active=None, default=None, image_tags=None):
         """Update a datastore-version."""
+        packages = packages or []
         body = {}
         if datastore_manager is not None:
             body['datastore_manager'] = datastore_manager
-        if image:
+        if image is not None:
             body['image'] = image
         if packages:
             body['packages'] = packages
@@ -259,6 +262,9 @@ class MgmtDatastoreVersions(base.ManagerWithFind):
             body['active'] = json.loads(active)
         if default is not None:
             body['default'] = json.loads(default)
+        if image_tags is not None:
+            body['image_tags'] = image_tags
+
         url = ("/mgmt/datastore-versions/%s" % datastore_version_id)
         resp, body = self.api.client.patch(url, body=body)
         common.check_for_exceptions(resp, body, url)

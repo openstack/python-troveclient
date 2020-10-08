@@ -166,11 +166,29 @@ class TestCreateDatastoreVersion(TestDatastores):
     def test_create_datastore_version(self):
         image_id = uuidutils.generate_uuid()
         args = ['new_name', 'ds_name', 'ds_manager', image_id, '--active',
-                '--default']
+                '--default', '--image-tags', 'trove,mysql']
         parsed_args = self.check_parser(self.cmd, args, [])
 
         self.cmd.take_action(parsed_args)
 
         self.dsversion_mgmt_client.create.assert_called_once_with(
             'new_name', 'ds_name', 'ds_manager', image_id, active='true',
-            default='true')
+            default='true', image_tags=['trove', 'mysql'])
+
+
+class TestUpdateDatastoreVersion(TestDatastores):
+    def setUp(self):
+        super(TestUpdateDatastoreVersion, self).setUp()
+        self.cmd = datastores.UpdateDatastoreVersion(self.app, None)
+
+    def test_update_datastore_version(self):
+        version_id = uuidutils.generate_uuid()
+        args = [version_id, '--image-tags', 'trove,mysql', '--enable',
+                '--non-default']
+        parsed_args = self.check_parser(self.cmd, args, [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.dsversion_mgmt_client.edit.assert_called_once_with(
+            version_id, datastore_manager=None, image=None,
+            active='true', default='false', image_tags=['trove', 'mysql'])
