@@ -237,13 +237,14 @@ class MgmtDatastoreVersions(base.ManagerWithFind):
                 "name": name,
                 "datastore_name": datastore_name,
                 "datastore_manager": datastore_manager,
-                "image": image,
                 "image_tags": image_tags,
                 "packages": packages,
                 "active": json.loads(active),
                 "default": json.loads(default)
             }
         }
+        if image:
+            body['version']['image'] = image
 
         return self._create("/mgmt/datastore-versions", body, None, True)
 
