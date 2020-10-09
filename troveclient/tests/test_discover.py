@@ -13,8 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import imp
 import inspect
+import types
 from unittest import mock
 
 import pkg_resources
@@ -31,7 +31,7 @@ class DiscoverTest(testtools.TestCase):
             if group == 'troveclient.extension':
                 fake_ep = mock.Mock()
                 fake_ep.name = 'foo'
-                fake_ep.module = imp.new_module('foo')
+                fake_ep.module = types.ModuleType('foo')
                 fake_ep.load.return_value = fake_ep.module
                 return [fake_ep]
 
@@ -48,13 +48,13 @@ class DiscoverTest(testtools.TestCase):
     def test_discover_extensions(self):
 
         def mock_discover_via_python_path(self):
-            yield 'foo', imp.new_module('foo')
+            yield 'foo', types.ModuleType('foo')
 
         def mock_discover_via_contrib_path(self, version):
-            yield 'bar', imp.new_module('bar')
+            yield 'bar', types.ModuleType('bar')
 
         def mock_discover_via_entry_points(self):
-            yield 'baz', imp.new_module('baz')
+            yield 'baz', types.ModuleType('baz')
 
         @mock.patch.object(troveclient.shell.OpenStackTroveShell,
                            '_discover_via_python_path',
