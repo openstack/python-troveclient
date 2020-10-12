@@ -15,7 +15,6 @@
 import json
 from osc_lib.command import command
 from osc_lib import utils as osc_utils
-import six
 
 from troveclient import exceptions
 from troveclient.i18n import _
@@ -81,7 +80,7 @@ class ShowDatabaseConfiguration(command.ShowOne):
         configuration = osc_utils.find_resource(
             db_configurations, parsed_args.configuration_group)
         configuration = set_attributes_for_print_detail(configuration)
-        return zip(*sorted(six.iteritems(configuration)))
+        return zip(*sorted(configuration.items()))
 
 
 class ListDatabaseConfigurationParameters(command.Lister):
@@ -177,7 +176,7 @@ class ShowDatabaseConfigurationParameter(command.ShowOne):
                                              ' parameter for the'
                                              ' configuration group'
                                              ' by name.'))
-        return zip(*sorted(six.iteritems(param._info)))
+        return zip(*sorted(param._info.items()))
 
 
 class DeleteDatabaseConfiguration(command.Command):
@@ -252,7 +251,7 @@ class CreateDatabaseConfiguration(command.ShowOne):
             datastore=parsed_args.datastore,
             datastore_version=parsed_args.datastore_version)
         config_grp = set_attributes_for_print_detail(config_grp)
-        return zip(*sorted(six.iteritems(config_grp)))
+        return zip(*sorted(config_grp.items()))
 
 
 class AttachDatabaseConfiguration(command.Command):
@@ -371,7 +370,7 @@ class DefaultDatabaseConfiguration(command.ShowOne):
         instance = osc_utils.find_resource(db_instances,
                                            parsed_args.instance)
         configs = db_instances.configuration(instance)
-        return zip(*sorted(six.iteritems(configs._info['configuration'])))
+        return zip(*sorted(configs._info['configuration'].items()))
 
 
 class SetDatabaseConfiguration(command.Command):

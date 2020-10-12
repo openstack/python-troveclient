@@ -15,7 +15,6 @@
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils as osc_utils
-import six
 
 from troveclient.i18n import _
 
@@ -80,7 +79,7 @@ class EnableDatabaseRoot(command.ShowOne):
 
         result = {'name': root[0],
                   'password': root[1]}
-        return zip(*sorted(six.iteritems(result)))
+        return zip(*sorted(result.items()))
 
 
 class DisableDatabaseRoot(command.Command):
@@ -136,4 +135,4 @@ class ShowDatabaseRoot(command.ShowOne):
             root = db_root.is_cluster_root_enabled(instance_or_cluster)
 
         result = {'is_root_enabled': root.rootEnabled}
-        return zip(*sorted(six.iteritems(result)))
+        return zip(*sorted(result.items()))

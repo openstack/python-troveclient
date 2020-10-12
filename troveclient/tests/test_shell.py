@@ -11,6 +11,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import io
 import re
 import sys
 from unittest import mock
@@ -18,7 +19,6 @@ from unittest import mock
 import fixtures
 from keystoneauth1 import fixture
 import requests_mock
-import six
 import testtools
 import uuid
 
@@ -101,8 +101,8 @@ class ShellTest(testtools.TestCase):
         orig = sys.stdout
         orig_stderr = sys.stderr
         try:
-            sys.stdout = six.StringIO()
-            sys.stderr = six.StringIO()
+            sys.stdout = io.StringIO()
+            sys.stderr = io.StringIO()
             _shell = troveclient.shell.OpenStackTroveShell()
             _shell.main(argstr.split())
         except SystemExit:

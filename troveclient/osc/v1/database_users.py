@@ -15,7 +15,6 @@
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from troveclient.i18n import _
 
@@ -129,7 +128,7 @@ class ShowDatabaseUser(command.ShowOne):
                                        parsed_args.instance)
         user = db_users.get(instance, parsed_args.name,
                             hostname=parsed_args.host)
-        return zip(*sorted(six.iteritems(user._info)))
+        return zip(*sorted(user._info.items()))
 
 
 class DeleteDatabaseUser(command.Command):

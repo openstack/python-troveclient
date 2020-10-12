@@ -28,8 +28,7 @@ import copy
 
 from oslo_utils import reflection
 from oslo_utils import strutils
-import six
-from six.moves.urllib import parse
+from urllib import parse
 
 from troveclient.apiclient import exceptions
 
@@ -203,8 +202,7 @@ class BaseManager(HookableMixin):
         return self.client.delete(url)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ManagerWithFind(BaseManager):
+class ManagerWithFind(BaseManager, metaclass=abc.ABCMeta):
     """Manager with additional `find()`/`findall()` methods."""
 
     @abc.abstractmethod
@@ -293,7 +291,7 @@ class CrudManager(BaseManager):
 
     def _filter_kwargs(self, kwargs):
         """Drop null values and handle ids."""
-        for key, ref in six.iteritems(kwargs.copy()):
+        for key, ref in kwargs.copy().items():
             if ref is None:
                 kwargs.pop(key)
             else:
@@ -449,7 +447,7 @@ class Resource(object):
         return None
 
     def _add_details(self, info):
-        for (k, v) in six.iteritems(info):
+        for (k, v) in info.items():
             try:
                 setattr(self, k, v)
                 self._info[k] = v

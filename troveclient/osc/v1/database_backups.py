@@ -15,7 +15,6 @@
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils as osc_utils
-import six
 
 from troveclient.i18n import _
 
@@ -167,7 +166,7 @@ class ShowDatabaseBackup(command.ShowOne):
         database_backups = self.app.client_manager.database.backups
         backup = osc_utils.find_resource(database_backups, parsed_args.backup)
         backup = set_attributes_for_print_detail(backup)
-        return zip(*sorted(six.iteritems(backup)))
+        return zip(*sorted(backup.items()))
 
 
 class DeleteDatabaseBackup(command.Command):
@@ -257,7 +256,7 @@ class CreateDatabaseBackup(command.ShowOne):
             swift_container=parsed_args.swift_container
         )
         backup = set_attributes_for_print_detail(backup)
-        return zip(*sorted(six.iteritems(backup)))
+        return zip(*sorted(backup.items()))
 
 
 class DeleteDatabaseBackupExecution(command.Command):

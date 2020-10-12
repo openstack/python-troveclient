@@ -16,7 +16,6 @@
 #    under the License.
 
 import json
-import six
 import uuid
 
 from mistralclient.api.client import client as mistral_client
@@ -132,7 +131,7 @@ class Backups(base.ManagerWithFind):
                               project_name=tenant_name)
 
     def _build_schedule(self, cron_trigger, wf_input):
-        if isinstance(wf_input, six.string_types):
+        if isinstance(wf_input, str):
             wf_input = json.loads(wf_input)
         sched_info = {"id": cron_trigger.name,
                       "name": wf_input["name"],

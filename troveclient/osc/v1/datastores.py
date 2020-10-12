@@ -14,7 +14,6 @@
 
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from troveclient import exceptions
 from troveclient.i18n import _
@@ -65,7 +64,7 @@ class ShowDatastore(command.ShowOne):
         datastore = utils.find_resource(datastore_client,
                                         parsed_args.datastore)
         datastore = set_attributes_for_print_detail(datastore)
-        return zip(*sorted(six.iteritems(datastore)))
+        return zip(*sorted(datastore.items()))
 
 
 class DeleteDatastore(command.Command):
@@ -146,7 +145,7 @@ class ShowDatastoreVersion(command.ShowOne):
                                              ' datastore version by name.'))
         if datastore_version._info.get('links'):
             del (datastore_version._info['links'])
-        return zip(*sorted(six.iteritems(datastore_version._info)))
+        return zip(*sorted(datastore_version._info.items()))
 
 
 class DeleteDatastoreVersion(command.Command):

@@ -24,7 +24,7 @@ import logging
 from keystoneauth1 import adapter
 from oslo_utils import importutils
 import requests
-import six.moves.urllib.parse as urlparse
+from urllib import parse as urlparse
 
 from troveclient.apiclient import client
 from troveclient import exceptions

@@ -12,7 +12,6 @@
 
 from osc_lib.command import command
 from osc_lib import utils as osc_utils
-import six
 
 from troveclient import exceptions
 from troveclient.i18n import _
@@ -99,7 +98,7 @@ class SetDatabaseInstanceLog(command.ShowOne):
         )
         result = log_info._info
 
-        return zip(*sorted(six.iteritems(result)))
+        return zip(*sorted(result.items()))
 
 
 class ShowDatabaseInstanceLog(command.ShowOne):
@@ -132,7 +131,7 @@ class ShowDatabaseInstanceLog(command.ShowOne):
         log_info = db_instances.log_show(instance, parsed_args.log_name)
         result = log_info._info
 
-        return zip(*sorted(six.iteritems(result)))
+        return zip(*sorted(result.items()))
 
 
 class ShowDatabaseInstanceLogContents(command.Command):

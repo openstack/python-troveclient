@@ -14,7 +14,6 @@
 
 from osc_lib.command import command
 from osc_lib import utils as osc_utils
-import six
 
 from troveclient.i18n import _
 
@@ -71,4 +70,4 @@ class UpdateDatabaseQuota(command.ShowOne):
         }
         updated_quota = db_quota.update(parsed_args.tenant_id,
                                         update_params)
-        return zip(*sorted(six.iteritems(updated_quota)))
+        return zip(*sorted(updated_quota.items()))

@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from six.moves.urllib import parse
+from urllib import parse
 
 from troveclient.apiclient import exceptions
 

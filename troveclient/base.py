@@ -23,8 +23,7 @@ import contextlib
 import hashlib
 import os
 
-import six
-from six.moves.urllib import parse
+from urllib import parse
 
 from troveclient.apiclient import base
 from troveclient.apiclient import exceptions
@@ -199,7 +198,7 @@ class Manager(utils.HookableMixin):
         return body
 
 
-class ManagerWithFind(six.with_metaclass(abc.ABCMeta, Manager)):
+class ManagerWithFind(Manager, metaclass=abc.ABCMeta):
     """Like a `Manager`, but with additional `find()`/`findall()` methods."""
 
     @abc.abstractmethod

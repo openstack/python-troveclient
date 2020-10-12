@@ -11,7 +11,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-import six
 from troveclient.compat import exceptions
 
 
@@ -19,7 +18,7 @@ def get_authenticator_cls(cls_or_name):
     """Factory method to retrieve Authenticator class."""
     if isinstance(cls_or_name, type):
         return cls_or_name
-    elif isinstance(cls_or_name, six.string_types):
+    elif isinstance(cls_or_name, str):
         if cls_or_name == "keystone":
             return KeyStoneV3Authenticator
         elif cls_or_name == "auth1.1":

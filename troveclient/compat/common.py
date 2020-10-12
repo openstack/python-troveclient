@@ -17,9 +17,8 @@ import json
 import optparse
 import os
 import pickle
-import six
-from six.moves.urllib import parse
 import sys
+from urllib import parse
 
 from troveclient.compat import client
 from troveclient.compat import exceptions
@@ -44,7 +43,7 @@ def check_for_exceptions(resp, body):
 def print_actions(cmd, actions):
     """Print help for the command with list of options and description."""
     print("Available actions for '%s' cmd:" % cmd)
-    for k, v in six.iteritems(actions):
+    for k, v in actions.items():
         print("\t%-20s%s" % (k, v.__doc__))
     sys.exit(2)
 
@@ -53,7 +52,7 @@ def print_commands(commands):
     """Print the list of available commands and description."""
 
     print("Available commands")
-    for k, v in six.iteritems(commands):
+    for k, v in commands.items():
         print("\t%-20s%s" % (k, v.__doc__))
     sys.exit(2)
 

@@ -22,7 +22,6 @@ import uuid
 
 from oslo_utils import encodeutils
 import prettytable
-import six
 
 from troveclient.apiclient import exceptions
 
@@ -179,7 +178,7 @@ def print_list(objs, fields, formatters={}, order_by=None, obj_is_dict=False,
                 data = obj.get(field, '')
             else:
                 data = getattr(obj, field, '')
-            if isinstance(data, six.string_types):
+            if isinstance(data, str):
                 row.append(data.encode('utf-8'))
             else:
                 row.append(str(data))
@@ -204,7 +203,7 @@ def print_dict(d, property="Property"):
         pass
     pt = prettytable.PrettyTable([property, 'Value'], caching=False)
     pt.align = 'l'
-    [pt.add_row(list(r)) for r in six.iteritems(d)]
+    [pt.add_row(list(r)) for r in d.items()]
     _print(pt, property)
 
 
@@ -222,7 +221,7 @@ def find_resource(manager, name_or_id):
     # is integer and instance name is digital.
     # Related to bug/1740015.
     if isinstance(name_or_id, int):
-        name_or_id = six.text_type(name_or_id)
+        name_or_id = str(name_or_id)
     elif sys.version_info <= (3, 0):
         name_or_id = encodeutils.safe_decode(name_or_id)
 
@@ -351,7 +350,7 @@ def do_action_on_many(action, resources, success_msg, error_msg):
             print(success_msg % resource)
         except Exception as e:
             failure_flag = True
-            print(encodeutils.safe_encode(six.text_type(e)))
+            print(encodeutils.safe_encode(str(e)))
 
     if failure_flag:
         raise exceptions.CommandError(error_msg)

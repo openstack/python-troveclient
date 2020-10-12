@@ -13,7 +13,6 @@
 """Database v1 Instances action implementations"""
 
 import argparse
-import six
 
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -174,7 +173,7 @@ class ShowDatabaseInstance(command.ShowOne):
         db_instances = self.app.client_manager.database.instances
         instance = osc_utils.find_resource(db_instances, parsed_args.instance)
         instance = set_attributes_for_print_detail(instance)
-        return zip(*sorted(six.iteritems(instance)))
+        return zip(*sorted(instance.items()))
 
 
 class DeleteDatabaseInstance(base.TroveDeleter):
@@ -447,7 +446,7 @@ class CreateDatabaseInstance(command.ShowOne):
             access=access
         )
         instance = set_attributes_for_print_detail(instance)
-        return zip(*sorted(six.iteritems(instance)))
+        return zip(*sorted(instance.items()))
 
 
 class ResetDatabaseInstanceStatus(command.Command):

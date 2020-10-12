@@ -12,10 +12,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from six.moves.urllib import parse
 from troveclient import client as base_client
 from troveclient.tests import utils
 from troveclient.v1 import client
+from urllib import parse
 
 
 def get_version_map():

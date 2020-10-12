@@ -18,7 +18,6 @@
 import logging
 
 import pkg_resources
-import six
 
 from troveclient import exceptions
 
@@ -51,7 +50,7 @@ def load_auth_system_opts(parser):
     This function will try to populate the parser with options from the
     available plugins.
     """
-    for name, auth_plugin in six.iteritems(_discovered_plugins):
+    for name, auth_plugin in _discovered_plugins.items():
         add_opts_fn = getattr(auth_plugin, "add_opts", None)
         if add_opts_fn:
             group = parser.add_argument_group("Auth-system '%s' options" %

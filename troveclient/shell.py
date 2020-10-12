@@ -34,7 +34,6 @@ from keystoneauth1 import loading
 from oslo_utils import encodeutils
 from oslo_utils import importutils
 import pkg_resources
-import six
 
 from troveclient.apiclient import exceptions as exc
 import troveclient.auth_plugin
@@ -758,8 +757,8 @@ def main():
         sys.exit(130)
     except Exception as e:
         LOG.debug(e, exc_info=1)
-        message = six.text_type(e)
-        if not isinstance(message, six.string_types):
+        message = str(e)
+        if not isinstance(message, str):
             message = str(message)
         print(_("ERROR: %s") % encodeutils.safe_encode(message),
               file=sys.stderr)

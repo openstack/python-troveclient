@@ -15,7 +15,6 @@
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from troveclient.i18n import _
 from troveclient.v1.shell import _parse_extended_properties
@@ -103,7 +102,7 @@ class ShowDatabaseCluster(command.ShowOne):
         database_clusters = self.app.client_manager.database.clusters
         cluster = utils.find_resource(database_clusters, parsed_args.cluster)
         cluster = set_attributes_for_print_detail(cluster)
-        return zip(*sorted(six.iteritems(cluster)))
+        return zip(*sorted(cluster.items()))
 
 
 class DeleteDatabaseCluster(command.Command):
@@ -200,7 +199,7 @@ class CreateDatabaseCluster(command.ShowOne):
             extended_properties=extended_properties,
             configuration=parsed_args.configuration)
         cluster = set_attributes_for_print_detail(cluster)
-        return zip(*sorted(six.iteritems(cluster)))
+        return zip(*sorted(cluster.items()))
 
 
 class ResetDatabaseClusterStatus(command.Command):
