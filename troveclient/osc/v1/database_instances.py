@@ -134,12 +134,20 @@ class ListDatabaseInstances(command.Lister):
             default=False,
             help=_("Include database instances of all projects (admin only)")
         )
+        parser.add_argument(
+            '--project-id',
+            help=_("Include database instances of a specific project "
+                   "(admin only)")
+        )
         return parser
 
     def take_action(self, parsed_args):
-        if parsed_args.all_projects:
+        extra_params = {}
+        if parsed_args.all_projects or parsed_args.project_id:
             db_instances = self.app.client_manager.database.mgmt_instances
             cols = self.admin_columns
+            if parsed_args.project_id:
+                extra_params['project_id'] = parsed_args.project_id
         else:
             db_instances = self.app.client_manager.database.instances
             cols = self.columns
@@ -147,7 +155,8 @@ class ListDatabaseInstances(command.Lister):
         instances = db_instances.list(
             limit=parsed_args.limit,
             marker=parsed_args.marker,
-            include_clustered=parsed_args.include_clustered
+            include_clustered=parsed_args.include_clustered,
+            **extra_params
         )
         if instances:
             instances = set_attributes_for_print(instances)

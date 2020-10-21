@@ -12,10 +12,12 @@
 #
 
 import os
+import random
+import sys
 from unittest import mock
+import uuid
 
 import fixtures
-import sys
 import testtools
 
 from troveclient.tests.osc import fakes
@@ -34,6 +36,30 @@ class TestCase(testtools.TestCase):
                 os.environ.get("OS_STDERR_CAPTURE") == "1"):
             stderr = self.useFixture(fixtures.StringStream("stderr")).stream
             self.useFixture(fixtures.MonkeyPatch("sys.stderr", stderr))
+
+    @classmethod
+    def random_name(cls, name='', prefix=None):
+        """Generate a random name that inclues a random number.
+
+        :param str name: The name that you want to include
+        :param str prefix: The prefix that you want to include
+
+        :return: a random name. The format is
+                 '<prefix>-<name>-<random number>'.
+                 (e.g. 'prefixfoo-namebar-154876201')
+        :rtype: string
+        """
+        randbits = str(random.randint(1, 0x7fffffff))
+        rand_name = randbits
+        if name:
+            rand_name = name + '-' + rand_name
+        if prefix:
+            rand_name = prefix + '-' + rand_name
+        return rand_name
+
+    @classmethod
+    def random_uuid(cls):
+        return str(uuid.uuid4())
 
 
 class TestCommand(TestCase):

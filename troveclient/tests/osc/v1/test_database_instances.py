@@ -88,6 +88,22 @@ class TestInstanceList(TestInstances):
         ]
         self.assertEqual(expected_instances, instances)
 
+    def test_instance_list_for_project(self):
+        self.mgmt_client.list.return_value = common.Paginated(self.data)
+
+        project_id = self.random_uuid()
+        parsed_args = self.check_parser(self.cmd, ["--project-id", project_id],
+                                        [("project_id", project_id)])
+        self.cmd.take_action(parsed_args)
+
+        expected_params = {
+            'include_clustered': False,
+            'limit': None,
+            'marker': None,
+            'project_id': project_id
+        }
+        self.mgmt_client.list.assert_called_once_with(**expected_params)
+
 
 class TestInstanceShow(TestInstances):
     values = ([{'address': '10.0.0.13', 'type': 'private'}], [], 'mysql',
