@@ -524,7 +524,7 @@ class UpgradeDatabaseInstance(command.Command):
         parser.add_argument(
             'datastore_version',
             metavar='<datastore_version>',
-            help=_('ID or name of the instance.'),
+            help=_('ID or name of the datastore version.'),
         )
         return parser
 
