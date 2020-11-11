@@ -372,6 +372,10 @@ class CreateDatabaseInstance(command.ShowOne):
         database = self.app.client_manager.database
         db_instances = database.instances
 
+        if not parsed_args.replica_of and not parsed_args.flavor:
+            raise exceptions.CommandError(
+                _("Please specify a flavor"))
+
         volume = None
         if parsed_args.size is not None and parsed_args.size <= 0:
             raise exceptions.ValidationError(
