@@ -12,11 +12,11 @@
 
 from unittest import mock
 
-from osc_lib import exceptions
 from osc_lib import utils
 from oslo_utils import uuidutils
 
 from troveclient import common
+from troveclient import exceptions
 from troveclient.osc.v1 import database_instances
 from troveclient.tests.osc.v1 import fakes
 from troveclient.v1 import instances
