@@ -244,7 +244,8 @@ class CreateDatabaseInstance(command.ShowOne):
             '--flavor',
             metavar='<flavor>',
             type=str,
-            help=_("A flavor ID."),
+            help=_("Flavor to create the instance (name or ID). Flavor is not "
+                   "required when creating replica instances."),
         )
         parser.add_argument(
             '--size',
@@ -373,8 +374,16 @@ class CreateDatabaseInstance(command.ShowOne):
         db_instances = database.instances
 
         if not parsed_args.replica_of and not parsed_args.flavor:
-            raise exceptions.CommandError(
-                _("Please specify a flavor"))
+            raise exceptions.CommandError(_("Please specify a flavor"))
+
+        if parsed_args.replica_of and parsed_args.flavor:
+            print("Warning: Flavor is ignored for creating replica.")
+
+        if not parsed_args.replica_of:
+            flavor_id = osc_utils.find_resource(
+                database.flavors, parsed_args.flavor).id
+        else:
+            flavor_id = None
 
         volume = None
         if parsed_args.size is not None and parsed_args.size <= 0:
@@ -441,7 +450,7 @@ class CreateDatabaseInstance(command.ShowOne):
 
         instance = db_instances.create(
             parsed_args.name,
-            flavor_id=parsed_args.flavor,
+            flavor_id=flavor_id,
             volume=volume,
             databases=databases,
             users=users,

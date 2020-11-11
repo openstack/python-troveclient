@@ -222,7 +222,6 @@ class TestDatabaseInstanceCreate(TestInstances):
 
     @mock.patch.object(utils, 'find_resource')
     def test_instance_create(self, mock_find):
-        mock_find.id.side_effect = ['test', 'mod_id']
         args = ['test-name', '--flavor', '103',
                 '--size', '1',
                 '--databases', 'db1', 'db2',
@@ -256,7 +255,8 @@ class TestDatabaseInstanceCreate(TestInstances):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.values, data)
 
-    def test_instance_create_without_allowed_cidrs(self):
+    @mock.patch.object(utils, 'find_resource')
+    def test_instance_create_without_allowed_cidrs(self, mock_find):
         resp = {
             "id": "a1fea1cf-18ad-48ab-bdfd-fce99a4b834e",
             "name": "test-mysql",
@@ -338,7 +338,10 @@ class TestDatabaseInstanceCreate(TestInstances):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_values, data)
 
-    def test_instance_create_nic_param(self):
+    @mock.patch.object(utils, 'find_resource')
+    def test_instance_create_nic_param(self, mock_find):
+        fake_id = self.random_uuid()
+        mock_find.return_value.id = fake_id
         args = [
             'test-mysql',
             '--flavor', 'a48ea749-7ee3-4003-8aae-eb4e79773e2d',
@@ -352,7 +355,7 @@ class TestDatabaseInstanceCreate(TestInstances):
 
         self.instance_client.create.assert_called_once_with(
             'test-mysql',
-            flavor_id='a48ea749-7ee3-4003-8aae-eb4e79773e2d',
+            flavor_id=fake_id,
             volume={"size": 1, "type": None},
             databases=[],
             users=[],
