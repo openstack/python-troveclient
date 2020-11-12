@@ -52,6 +52,9 @@ def set_attributes_for_print(instances):
             setattr(instance, "public",
                     instance_info["access"].get("is_public", False))
 
+        if 'addresses' not in instance_info:
+            setattr(instance, 'addresses', '')
+
     return instances
 
 
