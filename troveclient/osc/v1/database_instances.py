@@ -70,6 +70,8 @@ def set_attributes_for_print_detail(instance):
     if hasattr(instance, 'datastore'):
         info['datastore'] = instance.datastore['type']
         info['datastore_version'] = instance.datastore['version']
+        info['datastore_version_number'] = instance.datastore.get(
+            'version_number')
     if hasattr(instance, 'configuration'):
         info['configuration'] = instance.configuration['id']
     if hasattr(instance, 'replica_of'):
@@ -304,6 +306,12 @@ class CreateDatabaseInstance(command.ShowOne):
             help=_("A datastore version name or ID."),
         )
         parser.add_argument(
+            '--datastore-version-number',
+            default=None,
+            help=_('The version number for the database. The version number '
+                   'is needed for the datastore versions with the same name.'),
+        )
+        parser.add_argument(
             '--nic',
             metavar=('<net-id=<net-uuid>,subnet-id=<subnet-uuid>,'
                      'ip-address=<ip-address>>'),
@@ -461,6 +469,7 @@ class CreateDatabaseInstance(command.ShowOne):
             availability_zone=(parsed_args.availability_zone),
             datastore=parsed_args.datastore,
             datastore_version=(parsed_args.datastore_version),
+            datastore_version_number=(parsed_args.datastore_version_number),
             nics=nics,
             configuration=parsed_args.configuration,
             replica_of=replica_of,

@@ -92,7 +92,7 @@ class DeleteDatastore(command.Command):
 class ListDatastoreVersions(command.Lister):
 
     _description = _("Lists available versions for a datastore")
-    columns = ['ID', 'Name']
+    columns = ['ID', 'Name', "Version"]
 
     def get_parser(self, prog_name):
         parser = super(ListDatastoreVersions, self).get_parser(prog_name)
@@ -207,6 +207,11 @@ class CreateDatastoreVersion(command.Command):
             action='store_true',
             help=_('If set the datastore version as default.'),
         )
+        parser.add_argument(
+            '--version-number',
+            help=_("The version number for the database. If not specified, "
+                   "use the version name as the default value."),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -224,7 +229,8 @@ class CreateDatastoreVersion(command.Command):
                 parsed_args.image_id,
                 image_tags=image_tags,
                 active='true' if parsed_args.active else 'false',
-                default='true' if parsed_args.default else 'false'
+                default='true' if parsed_args.default else 'false',
+                version_number=parsed_args.version_number
             )
         except Exception as e:
             msg = (_("Failed to create datastore version %(version)s: %(e)s")
@@ -255,6 +261,10 @@ class UpdateDatastoreVersion(command.Command):
             '--image-tags',
             default=None,
             help=_('List of image tags separated by comma, e.g. trove,mysql'),
+        )
+        parser.add_argument(
+            '--version-name',
+            help=_('New datastore version name.'),
         )
 
         enable_group = parser.add_mutually_exclusive_group()
@@ -292,7 +302,8 @@ class UpdateDatastoreVersion(command.Command):
                 datastore_manager=parsed_args.datastore_manager,
                 image=parsed_args.image,
                 image_tags=image_tags,
-                active=parsed_args.enable, default=parsed_args.default
+                active=parsed_args.enable, default=parsed_args.default,
+                name=parsed_args.version_name
             )
         except Exception as e:
             msg = (_("Failed to update datastore version %(version)s: %(e)s")

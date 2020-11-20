@@ -88,7 +88,7 @@ class TestDeleteDatastore(TestDatastores):
 
 class TestDatastoreVersionList(TestDatastores):
     columns = datastores.ListDatastoreVersions.columns
-    values = ('v-56', '5.6')
+    values = ('v-56', '5.6', '')
 
     def setUp(self):
         super(TestDatastoreVersionList, self).setUp()
@@ -173,7 +173,8 @@ class TestCreateDatastoreVersion(TestDatastores):
 
         self.dsversion_mgmt_client.create.assert_called_once_with(
             'new_name', 'ds_name', 'ds_manager', image_id, active='true',
-            default='true', image_tags=['trove', 'mysql'])
+            default='true', image_tags=['trove', 'mysql'],
+            version_number=None)
 
 
 class TestUpdateDatastoreVersion(TestDatastores):
@@ -191,4 +192,5 @@ class TestUpdateDatastoreVersion(TestDatastores):
 
         self.dsversion_mgmt_client.edit.assert_called_once_with(
             version_id, datastore_manager=None, image=None,
-            active='true', default='false', image_tags=['trove', 'mysql'])
+            active='true', default='false', image_tags=['trove', 'mysql'],
+            name=None)

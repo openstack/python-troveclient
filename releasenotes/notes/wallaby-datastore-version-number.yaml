@@ -1,0 +1,4 @@
+---
+features:
+  - Support specifying and showing datastore version number for several
+    resources such as datastore version, instance and configuration.

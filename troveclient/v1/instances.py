@@ -94,7 +94,7 @@ class Instances(base.ManagerWithFind):
                datastore=None, datastore_version=None, nics=None,
                configuration=None, replica_of=None, replica_count=None,
                modules=None, locality=None, region_name=None, access=None,
-               **kwargs):
+               datastore_version_number=None, **kwargs):
         """Create (boot) a new instance."""
 
         body = {"instance": {
@@ -117,6 +117,8 @@ class Instances(base.ManagerWithFind):
             datastore_obj["type"] = datastore
         if datastore_version:
             datastore_obj["version"] = datastore_version
+        if datastore_version_number:
+            datastore_obj["version_number"] = datastore_version_number
         if datastore_obj:
             body["instance"]["datastore"] = datastore_obj
         if nics:

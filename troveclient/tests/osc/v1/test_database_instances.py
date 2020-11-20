@@ -107,8 +107,8 @@ class TestInstanceList(TestInstances):
 
 class TestInstanceShow(TestInstances):
     values = ([{'address': '10.0.0.13', 'type': 'private'}], [], 'mysql',
-              '5.6', '02', '1234', 'test-member-1', False, 'regionOne',
-              'fake_master_id', 'ACTIVE', 'fake_tenant_id', 2)
+              '5.6', '5.7.29', '02', '1234', 'test-member-1', False,
+              'regionOne', 'fake_master_id', 'ACTIVE', 'fake_tenant_id', 2)
 
     def setUp(self):
         super(TestInstanceShow, self).setUp()
@@ -120,6 +120,7 @@ class TestInstanceShow(TestInstances):
             'allowed_cidrs',
             'datastore',
             'datastore_version',
+            'datastore_version_number',
             'flavor',
             'id',
             'name',
@@ -197,13 +198,14 @@ class TestDatabaseInstanceDelete(TestInstances):
 
 class TestDatabaseInstanceCreate(TestInstances):
 
-    values = ('2017-12-22T20:02:32', 'mysql', '5.6', '310',
+    values = ('2017-12-22T20:02:32', 'mysql', '5.6', '5.7.29', '310',
               '2468', 'test', 'test-net', 'net-id', 'BUILD',
               '2017-12-22T20:02:32', 1)
     columns = (
         'created',
         'datastore',
         'datastore_version',
+        'datastore_version_number',
         'flavor',
         'id',
         'name',
@@ -266,7 +268,8 @@ class TestDatabaseInstanceCreate(TestInstances):
             },
             "datastore": {
                 "type": "mysql",
-                "version": "5.7.29"
+                "version": "5.7.29",
+                "version_number": "5.7.29"
             },
             "region": "RegionOne",
             "access": {
@@ -310,6 +313,7 @@ class TestDatabaseInstanceCreate(TestInstances):
             'created',
             'datastore',
             'datastore_version',
+            'datastore_version_number',
             'flavor',
             'id',
             'name',
@@ -324,6 +328,7 @@ class TestDatabaseInstanceCreate(TestInstances):
             [],
             "2020-08-12T09:41:47",
             "mysql",
+            "5.7.29",
             "5.7.29",
             "a48ea749-7ee3-4003-8aae-eb4e79773e2d",
             "a1fea1cf-18ad-48ab-bdfd-fce99a4b834e",
@@ -363,6 +368,7 @@ class TestDatabaseInstanceCreate(TestInstances):
             availability_zone=None,
             datastore='mysql',
             datastore_version='5.7.29',
+            datastore_version_number=None,
             nics=[
                 {'network_id': 'net1', 'subnet_id': 'subnet_id',
                  'ip_address': '192.168.1.11'}

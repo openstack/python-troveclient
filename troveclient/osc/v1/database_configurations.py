@@ -13,12 +13,13 @@
 """Database v1 Configurations action implementations"""
 
 import json
+
 from osc_lib.command import command
 from osc_lib import utils as osc_utils
+from oslo_utils import uuidutils
 
 from troveclient import exceptions
 from troveclient.i18n import _
-from troveclient import utils
 
 
 def set_attributes_for_print_detail(configuration):
@@ -32,7 +33,7 @@ class ListDatabaseConfigurations(command.Lister):
 
     _description = _("List database configurations")
     columns = ['ID', 'Name', 'Description', 'Datastore Name',
-               'Datastore Version Name']
+               'Datastore Version Name', 'Datastore Version Number']
 
     def get_parser(self, prog_name):
         parser = super(ListDatabaseConfigurations, self).get_parser(prog_name)
@@ -94,8 +95,9 @@ class ListDatabaseConfigurationParameters(command.Lister):
         parser.add_argument(
             'datastore_version',
             metavar='<datastore_version>',
-            help=_('Datastore version name or ID assigned'
-                   'to the configuration group.')
+            help=_('Datastore version name or ID assigned to the '
+                   'configuration group. ID is preferred if more than one '
+                   'datastore versions have the same name.')
         )
         parser.add_argument(
             '--datastore',
@@ -110,19 +112,19 @@ class ListDatabaseConfigurationParameters(command.Lister):
     def take_action(self, parsed_args):
         db_configuration_parameters = self.app.client_manager.\
             database.configuration_parameters
-        if parsed_args.datastore:
-            params = db_configuration_parameters.\
-                parameters(parsed_args.datastore,
-                           parsed_args.datastore_version)
-        elif utils.is_uuid_like(parsed_args.datastore_version):
-            params = db_configuration_parameters.\
-                parameters_by_version(parsed_args.datastore_version)
+
+        if uuidutils.is_uuid_like(parsed_args.datastore_version):
+            params = db_configuration_parameters.parameters_by_version(
+                parsed_args.datastore_version)
+        elif parsed_args.datastore:
+            params = db_configuration_parameters.parameters(
+                parsed_args.datastore,
+                parsed_args.datastore_version)
         else:
-            raise exceptions.NoUniqueMatch(_('The datastore name or id is'
-                                             ' required to retrieve the'
-                                             ' parameters for the'
-                                             ' configuration group'
-                                             ' by name.'))
+            raise exceptions.NoUniqueMatch(_('Either datastore version ID or '
+                                             'datastore name needs to be '
+                                             'specified.'))
+
         for param in params:
             setattr(param, 'min_size', getattr(param, 'min', '-'))
             setattr(param, 'max_size', getattr(param, 'max', '-'))
@@ -140,8 +142,9 @@ class ShowDatabaseConfigurationParameter(command.ShowOne):
         parser.add_argument(
             'datastore_version',
             metavar='<datastore_version>',
-            help=_('Datastore version name or ID assigned to the'
-                   ' configuration group.'),
+            help=_('Datastore version name or ID assigned to the '
+                   'configuration group. ID is preferred if more than one '
+                   'datastore versions have the same name.')
         )
         parser.add_argument(
             'parameter',
@@ -159,23 +162,23 @@ class ShowDatabaseConfigurationParameter(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        db_configuration_parameters = self.app.client_manager.database.\
+        db_configuration_parameters = self.app.client_manager.database. \
             configuration_parameters
-        if parsed_args.datastore:
+
+        if uuidutils.is_uuid_like(parsed_args.datastore_version):
+            param = db_configuration_parameters.get_parameter_by_version(
+                parsed_args.datastore_version,
+                parsed_args.parameter)
+        elif parsed_args.datastore:
             param = db_configuration_parameters.get_parameter(
                 parsed_args.datastore,
                 parsed_args.datastore_version,
                 parsed_args.parameter)
-        elif utils.is_uuid_like(parsed_args.datastore_version):
-            param = db_configuration_parameters.get_parameter_by_version(
-                parsed_args.datastore_version,
-                parsed_args.parameter)
         else:
-            raise exceptions.NoUniqueMatch(_('The datastore name or id is'
-                                             ' required to retrieve the'
-                                             ' parameter for the'
-                                             ' configuration group'
-                                             ' by name.'))
+            raise exceptions.NoUniqueMatch(_('Either datastore version ID or '
+                                             'datastore name needs to be '
+                                             'specified.'))
+
         return zip(*sorted(param._info.items()))
 
 
@@ -228,11 +231,17 @@ class CreateDatabaseConfiguration(command.ShowOne):
                    'if default datastore is not configured.'),
         )
         parser.add_argument(
-            '--datastore_version',
+            '--datastore-version',
             metavar='<datastore_version>',
             default=None,
             help=_('Datastore version ID assigned to the '
                    'configuration group.'),
+        )
+        parser.add_argument(
+            '--datastore-version-number',
+            default=None,
+            help=_('The version number for the database. The version number '
+                   'is needed for the datastore versions with the same name.'),
         )
         parser.add_argument(
             '--description',
@@ -249,7 +258,8 @@ class CreateDatabaseConfiguration(command.ShowOne):
             parsed_args.values,
             description=parsed_args.description,
             datastore=parsed_args.datastore,
-            datastore_version=parsed_args.datastore_version)
+            datastore_version=parsed_args.datastore_version,
+            datastore_version_number=parsed_args.datastore_version_number)
         config_grp = set_attributes_for_print_detail(config_grp)
         return zip(*sorted(config_grp.items()))
 

@@ -268,7 +268,8 @@ class MgmtDatastoreVersions(base.ManagerWithFind):
                          "version")
 
     def create(self, name, datastore_name, datastore_manager, image,
-               packages=None, active='true', default='false', image_tags=[]):
+               packages=None, active='true', default='false', image_tags=[],
+               version=None):
         """Create a new datastore version."""
         packages = packages or []
         body = {
@@ -284,11 +285,14 @@ class MgmtDatastoreVersions(base.ManagerWithFind):
         }
         if image:
             body['version']['image'] = image
+        if version:
+            body['version']['version'] = version
 
         return self._create("/mgmt/datastore-versions", body, None, True)
 
     def edit(self, datastore_version_id, datastore_manager=None, image=None,
-             packages=None, active=None, default=None, image_tags=None):
+             packages=None, active=None, default=None, image_tags=None,
+             name=None):
         """Update a datastore-version."""
         packages = packages or []
         body = {}
@@ -304,6 +308,8 @@ class MgmtDatastoreVersions(base.ManagerWithFind):
             body['default'] = json.loads(default)
         if image_tags is not None:
             body['image_tags'] = image_tags
+        if name:
+            body['name'] = name
 
         url = ("/mgmt/datastore-versions/%s" % datastore_version_id)
         resp, body = self.api.client.patch(url, body=body)

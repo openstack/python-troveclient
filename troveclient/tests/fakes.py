@@ -173,7 +173,10 @@ class FakeHTTPClient(base_client.HTTPClient):
                         "volume": {"size": 2},
                         "flavor": {"id": "02"},
                         "region": "regionOne",
-                        "datastore": {"version": "5.6", "type": "mysql"},
+                        "datastore": {
+                            "version": "5.6", "type": "mysql",
+                            "version_number": "5.7.29"
+                        },
                         "tenant_id": "fake_tenant_id",
                         "replica_of": {"id": "fake_master_id"},
                         "access": {"is_public": False, "allowed_cidrs": []}
@@ -188,7 +191,10 @@ class FakeHTTPClient(base_client.HTTPClient):
                         "volume": {"size": 2},
                         "flavor": {"id": "2"},
                         "region": "regionOne",
-                        "datastore": {"version": "5.6", "type": "mysql"},
+                        "datastore": {
+                            "version": "5.6", "type": "mysql",
+                            "version_number": "5.7.29"
+                        },
                         "tenant_id": "fake_tenant_id",
                         "access": {"is_public": False, "allowed_cidrs": []}
                     },
@@ -231,7 +237,8 @@ class FakeHTTPClient(base_client.HTTPClient):
                 },
                 "datastore": {
                     "version": "5.6",
-                    "type": "mysql"
+                    "type": "mysql",
+                    "version_number": "5.7.29"
                 }}})
 
     def post_instances(self, body, **kw):
@@ -503,6 +510,7 @@ class FakeHTTPClient(base_client.HTTPClient):
                 "name": "test_config",
                 "created": "2015-05-16T10:24:28",
                 "datastore_version_name": "5.6",
+                "datastore_version_number": "5.7.29",
                 "id": "c-123",
                 "values": {"max_connections": 5},
                 "datastore_version_id": "d-123", "description": ''}]})

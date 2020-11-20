@@ -56,7 +56,7 @@ class Configurations(base.ManagerWithFind):
                                limit, marker)
 
     def create(self, name, values, description=None, datastore=None,
-               datastore_version=None):
+               datastore_version=None, datastore_version_number=None):
         """Create a new configuration."""
         body = {
             "configuration": {
@@ -69,6 +69,8 @@ class Configurations(base.ManagerWithFind):
             datastore_obj["type"] = datastore
         if datastore_version:
             datastore_obj["version"] = datastore_version
+        if datastore_version_number:
+            datastore_obj["version_number"] = datastore_version_number
         if datastore_obj:
             body["configuration"]["datastore"] = datastore_obj
         if description:
