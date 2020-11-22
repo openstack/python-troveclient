@@ -104,10 +104,11 @@ class ListDatastoreVersions(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        datastore_version_client =\
+        datastore_version_client = \
             self.app.client_manager.database.datastore_versions
         versions = datastore_version_client.list(parsed_args.datastore)
-        ds = [utils.get_item_properties(d, self.columns) for d in versions]
+        ds = [utils.get_dict_properties(d.to_dict(), self.columns)
+              for d in versions]
         return self.columns, ds
 
 
