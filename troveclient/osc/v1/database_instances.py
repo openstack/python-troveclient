@@ -518,21 +518,24 @@ class ResizeDatabaseInstanceFlavor(command.Command):
             help=_('ID or name of the instance')
         )
         parser.add_argument(
-            'flavor_id',
-            metavar='<flavor_id>',
+            'flavor',
             type=str,
-            help=_('New flavor ID of the instance')
+            help=_('ID or name of the new flavor.')
         )
         return parser
 
     def take_action(self, parsed_args):
         instance_mgr = self.app.client_manager.database.instances
+        flavor_mgr = self.app.client_manager.database.flavors
+
         instance_id = parsed_args.instance
-
         if not uuidutils.is_uuid_like(instance_id):
-            instance_id = osc_utils.find_resource(instance_mgr, instance_id)
+            instance = osc_utils.find_resource(instance_mgr, instance_id)
+            instance_id = instance.id
 
-        instance_mgr.resize_instance(instance_id, parsed_args.flavor_id)
+        flavor = osc_utils.find_resource(flavor_mgr, parsed_args.flavor)
+
+        instance_mgr.resize_instance(instance_id, flavor.id)
 
 
 class UpgradeDatabaseInstance(command.Command):
