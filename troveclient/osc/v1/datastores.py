@@ -231,7 +231,7 @@ class CreateDatastoreVersion(command.Command):
                 image_tags=image_tags,
                 active='true' if parsed_args.active else 'false',
                 default='true' if parsed_args.default else 'false',
-                version_number=parsed_args.version_number
+                version=parsed_args.version_number
             )
         except Exception as e:
             msg = (_("Failed to create datastore version %(version)s: %(e)s")

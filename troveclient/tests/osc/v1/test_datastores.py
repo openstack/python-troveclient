@@ -174,7 +174,7 @@ class TestCreateDatastoreVersion(TestDatastores):
         self.dsversion_mgmt_client.create.assert_called_once_with(
             'new_name', 'ds_name', 'ds_manager', image_id, active='true',
             default='true', image_tags=['trove', 'mysql'],
-            version_number=None)
+            version=None)
 
 
 class TestUpdateDatastoreVersion(TestDatastores):
