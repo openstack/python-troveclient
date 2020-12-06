@@ -1,0 +1,5 @@
+---
+features:
+  - Support ``operating_status`` for listing and showing instance. When
+    instance is created successfully, the ``status`` is ACTIVE and
+    ``operating_status`` is HEALTHY.

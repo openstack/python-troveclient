@@ -59,6 +59,11 @@ def get_instances_info(instances):
         if 'server' in instance_info:
             instance_info['server_id'] = instance_info['server'].get('id')
 
+        if 'operating_status' not in instance_info:
+            # In case newer version python-troveclient is talking to older
+            # version trove.
+            instance_info['operating_status'] = ''
+
         instances_info.append(instance_info)
 
     return instances_info
@@ -106,7 +111,8 @@ def set_attributes_for_print_detail(instance):
 class ListDatabaseInstances(command.Lister):
     _description = _("List database instances")
     columns = ['ID', 'Name', 'Datastore', 'Datastore Version', 'Status',
-               'Public', 'Addresses', 'Flavor ID', 'Size', 'Role']
+               'Operating Status', 'Public', 'Addresses', 'Flavor ID',
+               'Size', 'Role']
     admin_columns = columns + ["Server ID", "Tenant ID"]
 
     def get_parser(self, prog_name):

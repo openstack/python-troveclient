@@ -51,6 +51,7 @@ class TestInstanceList(TestInstances):
                 "id": instance_id,
                 "name": name,
                 "status": "ACTIVE",
+                "operating_status": "HEALTHY",
                 "addresses": [
                     {"type": "private", "address": "10.0.0.13"}
                 ],
@@ -79,7 +80,7 @@ class TestInstanceList(TestInstances):
         )
 
         values = [
-            (instance_id, name, 'mysql', '5.6', 'ACTIVE', False,
+            (instance_id, name, 'mysql', '5.6', 'ACTIVE', 'HEALTHY', False,
              [{"type": "private", "address": "10.0.0.13"}],
              '02', 2, 'replica'),
         ]
@@ -95,6 +96,7 @@ class TestInstanceList(TestInstances):
                 "id": instance_id,
                 "name": name,
                 "status": "ACTIVE",
+                "operating_status": "HEALTHY",
                 "addresses": [
                     {"type": "private", "address": "10.0.0.13"}
                 ],
@@ -126,7 +128,7 @@ class TestInstanceList(TestInstances):
         )
 
         expected_instances = [
-            (instance_id, name, 'mysql', '5.6', 'ACTIVE', False,
+            (instance_id, name, 'mysql', '5.6', 'ACTIVE', 'HEALTHY', False,
              [{"type": "private", "address": "10.0.0.13"}],
              '02', 2, '', server_id, tenant_id),
         ]
@@ -142,6 +144,7 @@ class TestInstanceList(TestInstances):
                 "id": instance_id,
                 "name": name,
                 "status": "ACTIVE",
+                "operating_status": "HEALTHY",
                 "addresses": [
                     {"type": "private", "address": "10.0.0.13"}
                 ],
@@ -171,7 +174,7 @@ class TestInstanceList(TestInstances):
             columns
         )
         expected_instances = [
-            (instance_id, name, 'mysql', '5.6', 'ACTIVE', False,
+            (instance_id, name, 'mysql', '5.6', 'ACTIVE', 'HEALTHY', False,
              [{"type": "private", "address": "10.0.0.13"}],
              '02', 2, '', server_id, tenant_id),
         ]
@@ -187,15 +190,9 @@ class TestInstanceList(TestInstances):
 
 
 class TestInstanceShow(TestInstances):
-    values = ([{'address': '10.0.0.13', 'type': 'private'}], [], 'mysql',
-              '5.6', '5.7.29', '02', '1234', 'test-member-1', False,
-              'regionOne', 'fake_master_id', 'ACTIVE', 'fake_tenant_id', 2)
-
     def setUp(self):
         super(TestInstanceShow, self).setUp()
         self.cmd = database_instances.ShowDatabaseInstance(self.app, None)
-        self.data = self.fake_instances.get_instances_1234()
-        self.instance_client.get.return_value = self.data
         self.columns = (
             'addresses',
             'allowed_cidrs',
@@ -205,6 +202,7 @@ class TestInstanceShow(TestInstances):
             'flavor',
             'id',
             'name',
+            'operating_status',
             'public',
             'region',
             'replica_of',
@@ -214,11 +212,42 @@ class TestInstanceShow(TestInstances):
         )
 
     def test_show(self):
-        args = ['1234']
-        parsed_args = self.check_parser(self.cmd, args, [])
+        instance_id = self.random_uuid()
+        name = self.random_name('test-show')
+        flavor_id = self.random_uuid()
+        primary_id = self.random_uuid()
+        tenant_id = self.random_uuid()
+        inst = {
+            "id": instance_id,
+            "name": name,
+            "status": "ACTIVE",
+            "operating_status": "HEALTHY",
+            "addresses": [
+                {"type": "private", "address": "10.0.0.13"}
+            ],
+            "volume": {"size": 2},
+            "flavor": {"id": flavor_id},
+            "region": "regionOne",
+            "datastore": {
+                "version": "5.7.29", "type": "mysql",
+                "version_number": "5.7.29"
+            },
+            "tenant_id": tenant_id,
+            "replica_of": {'id': primary_id},
+            "access": {"is_public": False, "allowed_cidrs": []},
+        }
+        self.instance_client.get.return_value = instances.Instance(
+            mock.MagicMock(), inst)
+
+        parsed_args = self.check_parser(self.cmd, [instance_id], [])
         columns, data = self.cmd.take_action(parsed_args)
+
+        values = ([{'address': '10.0.0.13', 'type': 'private'}], [], 'mysql',
+                  '5.7.29', '5.7.29', flavor_id, instance_id, name, 'HEALTHY',
+                  False, 'regionOne', primary_id, 'ACTIVE',
+                  tenant_id, 2)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.values, data)
+        self.assertEqual(values, data)
 
 
 class TestDatabaseInstanceDelete(TestInstances):
