@@ -197,8 +197,7 @@ class FakeHTTPClient(base_client.HTTPClient):
                         },
                         "tenant_id": "fake_tenant_id",
                         "access": {"is_public": False, "allowed_cidrs": []}
-                    },
-
+                    }
                 ]
             }
         )

@@ -24,38 +24,44 @@ from troveclient.osc.v1 import base
 from troveclient import utils as trove_utils
 
 
-def set_attributes_for_print(instances):
+def get_instances_info(instances):
+    instances_info = []
+
     for instance in instances:
         # To avoid invoking GET request to trove.
         instance_info = instance.to_dict()
 
-        setattr(instance, 'flavor_id', instance.flavor['id'])
+        instance_info['flavor_id'] = instance.flavor['id']
 
+        instance_info['size'] = '-'
         if 'volume' in instance_info:
-            setattr(instance, 'size', instance.volume['size'])
-        else:
-            setattr(instance, 'size', '-')
+            instance_info['size'] = instance_info['volume']['size']
 
-        setattr(instance, 'role', '')
+        instance_info['role'] = ''
         if 'replica_of' in instance_info:
-            setattr(instance, 'role', 'replica')
+            instance_info['role'] = 'replica'
         if 'replicas' in instance_info:
-            setattr(instance, 'role', 'primary')
+            instance_info['role'] = 'primary'
 
         if 'datastore' in instance_info:
             if instance.datastore.get('version'):
-                setattr(instance, 'datastore_version',
-                        instance.datastore['version'])
-            setattr(instance, 'datastore', instance.datastore['type'])
+                instance_info['datastore_version'] = instance.\
+                    datastore['version']
+            instance_info['datastore'] = instance.datastore['type']
 
         if 'access' in instance_info:
-            setattr(instance, "public",
-                    instance_info["access"].get("is_public", False))
+            instance_info['public'] = instance_info["access"].get(
+                "is_public", False)
 
         if 'addresses' not in instance_info:
-            setattr(instance, 'addresses', '')
+            instance_info['addresses'] = ''
 
-    return instances
+        if 'server' in instance_info:
+            instance_info['server_id'] = instance_info['server'].get('id')
+
+        instances_info.append(instance_info)
+
+    return instances_info
 
 
 def set_attributes_for_print_detail(instance):
@@ -101,7 +107,7 @@ class ListDatabaseInstances(command.Lister):
     _description = _("List database instances")
     columns = ['ID', 'Name', 'Datastore', 'Datastore Version', 'Status',
                'Public', 'Addresses', 'Flavor ID', 'Size', 'Role']
-    admin_columns = columns + ["Tenant ID"]
+    admin_columns = columns + ["Server ID", "Tenant ID"]
 
     def get_parser(self, prog_name):
         parser = super(ListDatabaseInstances, self).get_parser(prog_name)
@@ -164,9 +170,9 @@ class ListDatabaseInstances(command.Lister):
             **extra_params
         )
         if instances:
-            instances = set_attributes_for_print(instances)
-            instances = [osc_utils.get_item_properties(i, cols)
-                         for i in instances]
+            instances_info = get_instances_info(instances)
+            instances = [osc_utils.get_dict_properties(info, cols)
+                         for info in instances_info]
 
         return cols, instances
 
