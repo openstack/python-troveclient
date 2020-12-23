@@ -109,6 +109,7 @@ class TestInstanceList(TestInstances):
                 },
                 "tenant_id": tenant_id,
                 "access": {"is_public": False, "allowed_cidrs": []},
+                "server_id": server_id,
                 'server': {
                     'id': server_id
                 }
@@ -157,6 +158,7 @@ class TestInstanceList(TestInstances):
                 },
                 "tenant_id": tenant_id,
                 "access": {"is_public": False, "allowed_cidrs": []},
+                "server_id": server_id,
                 'server': {
                     'id': server_id
                 }

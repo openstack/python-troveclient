@@ -56,9 +56,6 @@ def get_instances_info(instances):
         if 'addresses' not in instance_info:
             instance_info['addresses'] = ''
 
-        if 'server' in instance_info:
-            instance_info['server_id'] = instance_info['server'].get('id')
-
         if 'operating_status' not in instance_info:
             # In case newer version python-troveclient is talking to older
             # version trove.
