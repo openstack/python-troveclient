@@ -173,7 +173,7 @@ def print_list(objs, fields, formatters={}, order_by=None, obj_is_dict=False,
         row = []
         for field in fields:
             if formatters and field in formatters:
-                row.append(formatters[field](obj))
+                data = formatters[field](obj)
             elif obj_is_dict:
                 data = obj.get(field, '')
             else:
