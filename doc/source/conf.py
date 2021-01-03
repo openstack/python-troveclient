@@ -56,7 +56,7 @@ source_suffix = '.rst'
 
 master_doc = 'index'
 
-copyright = u'2014, OpenStack Foundation'
+copyright = '2014, OpenStack Foundation'
 
 exclude_trees = []
 
@@ -64,6 +64,6 @@ pygments_style = 'native'
 
 htmlhelp_basename = 'python-troveclientdoc'
 latex_documents = [
-    ('index', 'python-troveclient.tex', u'python-troveclient Documentation',
-     u'OpenStack', 'manual'),
+    ('index', 'python-troveclient.tex', 'python-troveclient Documentation',
+     'OpenStack', 'manual'),
 ]
