@@ -254,7 +254,7 @@ class CommandsBaseTest(testtools.TestCase):
 
         self.cmd_base.verbose = False
 
-        class MockIterable(collections.Iterable):
+        class MockIterable(collections.abc.Iterable):
             links = ["item"]
             count = 1
 
