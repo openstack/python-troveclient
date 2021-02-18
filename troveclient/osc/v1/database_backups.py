@@ -15,8 +15,11 @@
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils as osc_utils
+from oslo_utils import uuidutils
 
 from troveclient.i18n import _
+from troveclient.osc.v1 import base
+from troveclient import utils as trove_utils
 
 
 def set_attributes_for_print_detail(backup):
@@ -169,7 +172,7 @@ class ShowDatabaseBackup(command.ShowOne):
         return zip(*sorted(backup.items()))
 
 
-class DeleteDatabaseBackup(command.Command):
+class DeleteDatabaseBackup(base.TroveDeleter):
 
     _description = _("Deletes a backup.")
 
@@ -177,21 +180,34 @@ class DeleteDatabaseBackup(command.Command):
         parser = super(DeleteDatabaseBackup, self).get_parser(prog_name)
         parser.add_argument(
             'backup',
-            metavar='<backup>',
-            help=_('ID or name of the backup.')
+            nargs='+',
+            metavar='backup',
+            help='Id or name of backup(s).'
         )
         return parser
 
     def take_action(self, parsed_args):
-        database_backups = self.app.client_manager.database.backups
-        try:
-            backup = osc_utils.find_resource(database_backups,
-                                             parsed_args.backup)
-            database_backups.delete(backup)
-        except Exception as e:
-            msg = (_("Failed to delete backup %(backup)s: %(e)s")
-                   % {'backup': parsed_args.backup, 'e': e})
-            raise exceptions.CommandError(msg)
+        db_backups = self.app.client_manager.database.backups
+
+        # Used for batch deletion
+        self.delete_func = db_backups.delete
+        self.resource = 'database backup'
+
+        ids = []
+        for backup_id in parsed_args.backup:
+            if not uuidutils.is_uuid_like(backup_id):
+                try:
+                    backup_id = trove_utils.get_resource_id_by_name(
+                        db_backups, backup_id
+                    )
+                except Exception as e:
+                    msg = ("Failed to get database backup %s, error: %s" %
+                           (backup_id, str(e)))
+                    raise exceptions.CommandError(msg)
+
+            ids.append(backup_id)
+
+        self.delete_resources(ids)
 
 
 class CreateDatabaseBackup(command.ShowOne):
