@@ -217,14 +217,16 @@ class CreateDatabaseBackup(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(CreateDatabaseBackup, self).get_parser(prog_name)
         parser.add_argument(
-            'instance',
-            metavar='<instance>',
-            help=_('ID or name of the instance.')
-        )
-        parser.add_argument(
             'name',
             metavar='<name>',
             help=_('Name of the backup.')
+        )
+        parser.add_argument(
+            '-i',
+            '--instance',
+            metavar='<instance>',
+            help=_('ID or name of the instance. This is not required if '
+                   'restoring a backup from the data location.')
         )
         parser.add_argument(
             '--description',
@@ -256,21 +258,50 @@ class CreateDatabaseBackup(command.ShowOne):
                    'operator. Non-existent container is created '
                    'automatically.')
         )
+        parser.add_argument(
+            '--restore-from',
+            help=_('The original backup data location, typically this is a '
+                   'Swift object URL.')
+        )
+        parser.add_argument(
+            '--restore-datastore-version',
+            help=_('ID of the local datastore version corresponding to the '
+                   'original backup')
+        )
+        parser.add_argument(
+            '--restore-size', type=float,
+            help=_('The original backup size.')
+        )
         return parser
 
     def take_action(self, parsed_args):
         manager = self.app.client_manager.database
         database_backups = manager.backups
-        instance = osc_utils.find_resource(manager.instances,
-                                           parsed_args.instance)
-        backup = database_backups.create(
-            parsed_args.name,
-            instance,
-            description=parsed_args.description,
-            parent_id=parsed_args.parent,
-            incremental=parsed_args.incremental,
-            swift_container=parsed_args.swift_container
-        )
+        params = {}
+        instance_id = None
+
+        if parsed_args.restore_from:
+            # Leave the input validation to Trove server.
+            params.update({
+                'restore_from': parsed_args.restore_from,
+                'restore_ds_version': parsed_args.restore_datastore_version,
+                'restore_size': parsed_args.restore_size,
+            })
+        elif not parsed_args.instance:
+            raise exceptions.CommandError('Instance ID or name is required if '
+                                          'not restoring a backup.')
+        else:
+            instance_id = trove_utils.get_resource_id(manager.instances,
+                                                      parsed_args.instance)
+            params.update({
+                'description': parsed_args.description,
+                'parent_id': parsed_args.parent,
+                'incremental': parsed_args.incremental,
+                'swift_container': parsed_args.swift_container
+            })
+
+        backup = database_backups.create(parsed_args.name, instance_id,
+                                         **params)
         backup = set_attributes_for_print_detail(backup)
         return zip(*sorted(backup.items()))
 

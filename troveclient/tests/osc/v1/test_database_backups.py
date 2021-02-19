@@ -247,38 +247,66 @@ class TestBackupCreate(TestBackups):
         )
 
     def test_backup_create_return_value(self):
-        args = ['1234', 'bk-1234']
+        args = ['bk-1234', '--instance', self.random_uuid()]
         parsed_args = self.check_parser(self.cmd, args, [])
         columns, data = self.cmd.take_action(parsed_args)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.values, data)
 
-    @mock.patch.object(utils, 'find_resource')
+    @mock.patch('troveclient.utils.get_resource_id_by_name')
     def test_backup_create(self, mock_find):
-        args = ['1234', 'bk-1234-1']
-        mock_find.return_value = args[0]
+        args = ['bk-1234-1', '--instance', '1234']
+        mock_find.return_value = 'fake-instance-id'
         parsed_args = self.check_parser(self.cmd, args, [])
         self.cmd.take_action(parsed_args)
         self.backup_client.create.assert_called_with('bk-1234-1',
-                                                     '1234',
+                                                     'fake-instance-id',
                                                      description=None,
                                                      parent_id=None,
                                                      incremental=False,
                                                      swift_container=None)
 
-    @mock.patch.object(utils, 'find_resource')
+    @mock.patch('troveclient.utils.get_resource_id_by_name')
     def test_incremental_backup_create(self, mock_find):
-        args = ['1234', 'bk-1234-2', '--description', 'backup 1234',
-                '--parent', '1234-1', '--incremental']
-        mock_find.return_value = args[0]
+        args = ['bk-1234-2', '--instance', '1234', '--description',
+                'backup 1234', '--parent', '1234-1', '--incremental']
+        mock_find.return_value = 'fake-instance-id'
+
         parsed_args = self.check_parser(self.cmd, args, [])
         self.cmd.take_action(parsed_args)
+
         self.backup_client.create.assert_called_with('bk-1234-2',
-                                                     '1234',
+                                                     'fake-instance-id',
                                                      description='backup 1234',
                                                      parent_id='1234-1',
                                                      incremental=True,
                                                      swift_container=None)
+
+    def test_create_from_data_location(self):
+        name = self.random_name('backup')
+        ds_version = self.random_uuid()
+        args = [name, '--restore-from', 'fake-remote-location',
+                '--restore-datastore-version', ds_version, '--restore-size',
+                '3']
+        parsed_args = self.check_parser(self.cmd, args, [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.backup_client.create.assert_called_with(
+            name,
+            None,
+            restore_from='fake-remote-location',
+            restore_ds_version=ds_version,
+            restore_size=3,
+        )
+
+    def test_required_params_missing(self):
+        args = [self.random_name('backup')]
+        parsed_args = self.check_parser(self.cmd, args, [])
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
 
 
 class TestDatabaseBackupExecutionDelete(TestBackups):

@@ -75,8 +75,9 @@ class Backups(base.ManagerWithFind):
                                query_strings)
 
     def create(self, name, instance, description=None,
-               parent_id=None, incremental=False, swift_container=None):
-        """Create a new backup from the given instance.
+               parent_id=None, incremental=False, swift_container=None,
+               restore_from=None, restore_ds_version=None, restore_size=None):
+        """Create or restore a new backup.
 
         :param name: name for backup.
         :param instance: instance to backup.
@@ -85,23 +86,38 @@ class Backups(base.ManagerWithFind):
         :param incremental: flag to indicate incremental backup based on
                             last backup
         :param swift_container: Swift container name.
+        :param restore_from: The original backup data location, typically this
+                             is a Swift object URL.
+        :param restore_ds_version: ID of the local datastore version
+                                   corresponding to the original backup.
+        :param restore_size: The original backup size.
         :returns: :class:`Backups`
         """
         body = {
             "backup": {
                 "name": name,
-                "incremental": int(incremental)
             }
         }
 
-        if instance:
-            body['backup']['instance'] = base.getid(instance)
-        if description:
-            body['backup']['description'] = description
-        if parent_id:
-            body['backup']['parent_id'] = parent_id
-        if swift_container:
-            body['backup']['swift_container'] = swift_container
+        if restore_from:
+            body['backup'].update({
+                'restore_from': {
+                    'remote_location': restore_from,
+                    'local_datastore_version_id': restore_ds_version,
+                    'size': restore_size
+                }
+            })
+        else:
+            body['backup']['incremental'] = int(incremental)
+            if instance:
+                body['backup']['instance'] = base.getid(instance)
+            if description:
+                body['backup']['description'] = description
+            if parent_id:
+                body['backup']['parent_id'] = parent_id
+            if swift_container:
+                body['backup']['swift_container'] = swift_container
+
         return self._create("/backups", body, "backup")
 
     def delete(self, backup):

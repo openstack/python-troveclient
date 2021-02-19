@@ -21,6 +21,7 @@ import sys
 import uuid
 
 from oslo_utils import encodeutils
+from oslo_utils import uuidutils
 import prettytable
 
 from troveclient.apiclient import exceptions
@@ -205,6 +206,18 @@ def print_dict(d, property="Property"):
     pt.align = 'l'
     [pt.add_row(list(r)) for r in d.items()]
     _print(pt, property)
+
+
+def get_resource_id(manager, id_or_name):
+    if not uuidutils.is_uuid_like(id_or_name):
+        try:
+            id_or_name = get_resource_id_by_name(manager, id_or_name)
+        except Exception as e:
+            msg = ("Failed to get resource ID for %s, error: %s" %
+                   (id_or_name, str(e)))
+            raise exceptions.CommandError(msg)
+
+    return id_or_name
 
 
 def get_resource_id_by_name(manager, name):
