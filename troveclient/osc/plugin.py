@@ -35,7 +35,10 @@ def make_client(instance):
     client = trove_client(
         auth=instance.auth,
         session=instance.session,
-        region_name=instance._region_name
+        region_name=instance._region_name,
+        endpoint_type=instance.interface,
+        cacert=instance.cert,
+        http_log_debug=instance._cli_options.debug
     )
 
     return client
