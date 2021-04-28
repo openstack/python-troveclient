@@ -12,48 +12,49 @@
 
 """Database v1 Quota action implementations"""
 
-from osc_lib.command import command
 from osc_lib import utils as osc_utils
+from osc_lib.command import command
 
 from troveclient.i18n import _
+from troveclient import utils
 
 
 class ShowDatabaseQuota(command.Lister):
-
-    _description = _("Show quotas for a tenant.")
+    _description = _("Show quotas for a project.")
     columns = ['Resource', 'In Use', 'Reserved', 'Limit']
 
     def get_parser(self, prog_name):
         parser = super(ShowDatabaseQuota, self).get_parser(prog_name)
         parser.add_argument(
-            'tenant_id',
-            metavar='<tenant_id>',
-            help=_('Id of tenant for which to show quotas.'),
+            'project',
+            help=_('Id or name of the project.'),
         )
         return parser
 
     def take_action(self, parsed_args):
         db_quota = self.app.client_manager.database.quota
+        project_id = utils.get_project_id(
+            self.app.client_manager.identity,
+            parsed_args.project
+        )
         quota = [osc_utils.get_item_properties(q, self.columns)
-                 for q in db_quota.show(parsed_args.tenant_id)]
+                 for q in db_quota.show(project_id)]
         return self.columns, quota
 
 
 class UpdateDatabaseQuota(command.ShowOne):
-
-    _description = _("Update quotas for a tenant.")
+    _description = _("Update quotas for a project.")
 
     def get_parser(self, prog_name):
         parser = super(UpdateDatabaseQuota, self).get_parser(prog_name)
         parser.add_argument(
-            'tenant_id',
-            metavar='<tenant_id>',
-            help=_('Id of tenant for which to update quotas.'),
+            'project',
+            help=_('Id or name of the project.'),
         )
         parser.add_argument(
             'resource',
             metavar='<resource>',
-            help=_('Id of resource to change.'),
+            help=_('Resource name.'),
         )
         parser.add_argument(
             'limit',
@@ -65,9 +66,12 @@ class UpdateDatabaseQuota(command.ShowOne):
 
     def take_action(self, parsed_args):
         db_quota = self.app.client_manager.database.quota
+        project_id = utils.get_project_id(
+            self.app.client_manager.identity,
+            parsed_args.project
+        )
         update_params = {
             parsed_args.resource: parsed_args.limit
         }
-        updated_quota = db_quota.update(parsed_args.tenant_id,
-                                        update_params)
+        updated_quota = db_quota.update(project_id, update_params)
         return zip(*sorted(updated_quota.items()))

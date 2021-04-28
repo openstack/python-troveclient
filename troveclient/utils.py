@@ -14,15 +14,16 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import base64
-import os
-import simplejson as json
-import sys
 import uuid
 
+import base64
+from openstackclient.identity import common as identity_common
+import os
 from oslo_utils import encodeutils
 from oslo_utils import uuidutils
 import prettytable
+import simplejson as json
+import sys
 
 from troveclient.apiclient import exceptions
 
@@ -225,8 +226,24 @@ def get_resource_id_by_name(manager, name):
     return resource.id
 
 
+def get_project_id(manager, id_or_name):
+    if not uuidutils.is_uuid_like(id_or_name):
+        try:
+            project = identity_common.find_project(manager, id_or_name)
+            id_or_name = project.id
+        except Exception as e:
+            msg = ("Failed to get project ID for %s, error: %s" %
+                   (id_or_name, str(e)))
+            raise exceptions.CommandError(msg)
+
+    return id_or_name
+
+
 def find_resource(manager, name_or_id):
-    """Helper for the _find_* methods."""
+    """Helper for the _find_* methods.
+
+    This method should be replaced with osc_utils.find_resource()
+    """
     # first try to get entity as integer id
 
     # When the 'name_or_id' is int, covert it to string.
