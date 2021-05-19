@@ -60,7 +60,10 @@ class TestBackupList(TestBackups):
         self.assertEqual(self.columns, columns)
         self.assertEqual([self.values], data)
 
-    def test_backup_list_by_instance_id(self):
+    @mock.patch('troveclient.utils.get_resource_id')
+    def test_backup_list_by_instance_id(self, get_resource_id_mock):
+        get_resource_id_mock.return_value = 'fake_uuid'
+
         parsed_args = self.check_parser(self.cmd, ["--instance-id", "fake_id"],
                                         [])
         self.cmd.take_action(parsed_args)
@@ -69,12 +72,33 @@ class TestBackupList(TestBackups):
             'datastore': None,
             'limit': None,
             'marker': None,
-            'instance_id': 'fake_id',
+            'instance_id': 'fake_uuid',
             'all_projects': False,
             'project_id': None
         }
 
         self.backup_client.list.assert_called_once_with(**params)
+
+    @mock.patch('troveclient.utils.get_resource_id')
+    def test_backup_list_by_instance_name(self, get_resource_id_mock):
+        get_resource_id_mock.return_value = 'fake_uuid'
+
+        parsed_args = self.check_parser(self.cmd, ["--instance", "fake_name"],
+                                        [])
+        self.cmd.take_action(parsed_args)
+
+        params = {
+            'datastore': None,
+            'limit': None,
+            'marker': None,
+            'instance_id': 'fake_uuid',
+            'all_projects': False,
+            'project_id': None
+        }
+
+        self.backup_client.list.assert_called_once_with(**params)
+        get_resource_id_mock.assert_called_once_with(self.instance_client,
+                                                     'fake_name')
 
     def test_backup_list_all_projects(self):
         parsed_args = self.check_parser(self.cmd, ["--all-projects"], [])

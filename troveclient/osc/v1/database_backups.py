@@ -66,7 +66,14 @@ class ListDatabaseBackups(command.Lister):
         parser.add_argument(
             '--instance-id',
             default=None,
-            help=_('Filter backups by database instance ID.')
+            help=_('Filter backups by database instance ID. Deprecated since '
+                   'Xena. Use -i/--instance instead.')
+        )
+        parser.add_argument(
+            '-i',
+            '--instance',
+            default=None,
+            help=_('Filter backups by database instance(ID or name).')
         )
         parser.add_argument(
             '--all-projects',
@@ -82,12 +89,20 @@ class ListDatabaseBackups(command.Lister):
 
     def take_action(self, parsed_args):
         database_backups = self.app.client_manager.database.backups
+
+        instance_id = parsed_args.instance or parsed_args.instance_id
+        if instance_id:
+            instance_mgr = self.app.client_manager.database.instances
+            instance_id = trove_utils.get_resource_id(instance_mgr,
+                                                      instance_id)
+
         items = database_backups.list(limit=parsed_args.limit,
                                       datastore=parsed_args.datastore,
                                       marker=parsed_args.marker,
-                                      instance_id=parsed_args.instance_id,
+                                      instance_id=instance_id,
                                       all_projects=parsed_args.all_projects,
                                       project_id=parsed_args.project_id)
+
         backups = items
         while items.next and not parsed_args.limit:
             items = database_backups.list(
