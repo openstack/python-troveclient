@@ -719,8 +719,8 @@ class UpdateDatabaseInstance(command.Command):
             help=_('ID of the configuration reference to attach.'),
         )
         parser.add_argument(
-            '--detach_replica_source',
             '--detach-replica-source',
+            '--detach_replica_source',
             dest='detach_replica_source',
             action="store_true",
             default=False,
@@ -729,8 +729,8 @@ class UpdateDatabaseInstance(command.Command):
                    'in favor of just --detach_replica_source'),
         )
         parser.add_argument(
-            '--remove_configuration',
             '--remove-configuration',
+            '--remove_configuration',
             dest='remove_configuration',
             action="store_true",
             default=False,

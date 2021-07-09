@@ -265,7 +265,6 @@ class CreateDatabaseConfiguration(command.ShowOne):
 
 
 class AttachDatabaseConfiguration(command.Command):
-
     _description = _("Attaches a configuration group to an instance.")
 
     def get_parser(self, prog_name):
@@ -289,11 +288,16 @@ class AttachDatabaseConfiguration(command.Command):
         manager = self.app.client_manager.database
         db_instances = manager.instances
         db_configurations = manager.configurations
-        instance = osc_utils.find_resource(db_instances,
-                                           parsed_args.instance)
-        configuration = osc_utils.find_resource(
-            db_configurations, parsed_args.configuration)
-        db_instances.modify(instance, configuration)
+
+        instance_id = parsed_args.instance
+        config_id = parsed_args.configuration
+
+        if not uuidutils.is_uuid_like(instance_id):
+            instance_id = osc_utils.find_resource(db_instances, instance_id)
+        if not uuidutils.is_uuid_like(config_id):
+            config_id = osc_utils.find_resource(db_configurations, config_id)
+
+        db_instances.update(instance_id, configuration=config_id)
 
 
 class DetachDatabaseConfiguration(command.Command):
@@ -312,9 +316,12 @@ class DetachDatabaseConfiguration(command.Command):
 
     def take_action(self, parsed_args):
         db_instances = self.app.client_manager.database.instances
-        instance = osc_utils.find_resource(db_instances,
-                                           parsed_args.instance)
-        db_instances.modify(instance)
+        instance_id = parsed_args.instance
+
+        if not uuidutils.is_uuid_like(instance_id):
+            instance_id = osc_utils.find_resource(db_instances, instance_id)
+
+        db_instances.update(instance_id, remove_configuration=True)
 
 
 class ListDatabaseConfigurationInstances(command.Lister):

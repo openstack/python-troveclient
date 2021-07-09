@@ -141,6 +141,7 @@ class Instances(base.ManagerWithFind):
         return self._create("/instances", body, "instance")
 
     def modify(self, instance, configuration=None):
+        """This method is deprecated, use update instead."""
         body = {
             "instance": {
             }

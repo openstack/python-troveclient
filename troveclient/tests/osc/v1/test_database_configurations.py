@@ -278,7 +278,8 @@ class TestConfigurationAttach(TestConfigurations):
         mock_find.side_effect = ['instance1', 'config1']
         parsed_args = self.check_parser(self.cmd, args, [])
         result = self.cmd.take_action(parsed_args)
-        self.instance_client.modify.assert_called_with('instance1', 'config1')
+        self.instance_client.update.assert_called_with(
+            'instance1', configuration='config1')
         self.assertIsNone(result)
 
 
@@ -286,7 +287,7 @@ class TestConfigurationDetach(TestConfigurations):
 
     def setUp(self):
         super(TestConfigurationDetach, self).setUp()
-        self.cmd = database_configurations.\
+        self.cmd = database_configurations. \
             DetachDatabaseConfiguration(self.app, None)
 
     @mock.patch.object(utils, 'find_resource')
@@ -295,7 +296,8 @@ class TestConfigurationDetach(TestConfigurations):
         mock_find.return_value = args[0]
         parsed_args = self.check_parser(self.cmd, args, [])
         result = self.cmd.take_action(parsed_args)
-        self.instance_client.modify.assert_called_with('instance2')
+        self.instance_client.update.assert_called_with(
+            'instance2', remove_configuration=True)
         self.assertIsNone(result)
 
 
