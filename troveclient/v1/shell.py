@@ -827,6 +827,14 @@ def _parse_instance_options(cs, instance_options, for_grow=False):
 
         nics, instance_opts = _get_networks(instance_opts)
         if nics:
+            for nic in nics:
+                # replaces net-id with network_id
+                if 'net-id' in nic:
+                    nic['network_id'] = nic.pop('net-id')
+                if 'subnet-id' in nic:
+                    nic['subnet_id'] = nic.pop('subnet-id')
+                if 'ip-address' in nic:
+                    nic['ip_address'] = nic.pop('ip-address')
             instance_info["nics"] = nics
 
         availability_zone, instance_opts = _get_availability_zone(
