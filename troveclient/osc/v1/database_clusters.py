@@ -35,7 +35,13 @@ def set_attributes_for_print_detail(cluster):
         info['task_name'] = cluster.task['name']
     info.pop('task', None)
     if hasattr(cluster, 'ip'):
-        info['ip'] = ', '.join(cluster.ip)
+        ip = []
+        for addr in cluster.ip:
+            if isinstance(addr, dict):
+                ip.append(addr['address'])
+            else:
+                ip.append(addr)
+        info['ip'] = ', '.join(ip)
     instances = info.pop('instances', None)
     if instances:
         info['instance_count'] = len(instances)
