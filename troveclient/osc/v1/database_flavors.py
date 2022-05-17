@@ -14,7 +14,6 @@
 
 from osc_lib.command import command
 from osc_lib import utils
-import six
 
 from troveclient import exceptions
 from troveclient.i18n import _
@@ -94,4 +93,4 @@ class ShowDatabaseFlavor(command.ShowOne):
         flavor = utils.find_resource(db_flavors,
                                      parsed_args.flavor)
         flavor = set_attributes_for_print_detail(flavor)
-        return zip(*sorted(six.iteritems(flavor)))
+        return zip(*sorted(list(flavor.items())))
