@@ -166,7 +166,9 @@ class TestCreateDatastoreVersion(TestDatastores):
     def test_create_datastore_version(self):
         image_id = uuidutils.generate_uuid()
         args = ['new_name', 'ds_name', 'ds_manager', image_id, '--active',
-                '--default', '--image-tags', 'trove,mysql']
+                '--default', '--image-tags', 'trove,mysql',
+                '--registry-ext', 'registry-ext',
+                '--repl-strategy', 'repl_strategy']
         parsed_args = self.check_parser(self.cmd, args, [])
 
         self.cmd.take_action(parsed_args)
@@ -174,7 +176,8 @@ class TestCreateDatastoreVersion(TestDatastores):
         self.dsversion_mgmt_client.create.assert_called_once_with(
             'new_name', 'ds_name', 'ds_manager', image_id, active='true',
             default='true', image_tags=['trove', 'mysql'],
-            version=None)
+            registry_ext="registry-ext",
+            repl_strategy="repl_strategy", version=None)
 
 
 class TestUpdateDatastoreVersion(TestDatastores):
@@ -184,8 +187,9 @@ class TestUpdateDatastoreVersion(TestDatastores):
 
     def test_update_datastore_version(self):
         version_id = uuidutils.generate_uuid()
-        args = [version_id, '--image-tags', 'trove,mysql', '--enable',
-                '--non-default']
+        args = [version_id, '--registry-ext', 'registry-ext',
+                '--repl-strategy', 'repl_strategy',
+                '--image-tags', 'trove,mysql', '--enable', '--non-default']
         parsed_args = self.check_parser(self.cmd, args, [])
 
         self.cmd.take_action(parsed_args)
@@ -193,4 +197,5 @@ class TestUpdateDatastoreVersion(TestDatastores):
         self.dsversion_mgmt_client.edit.assert_called_once_with(
             version_id, datastore_manager=None, image=None,
             active='true', default='false', image_tags=['trove', 'mysql'],
-            name=None)
+            registry_ext="registry-ext",
+            repl_strategy="repl_strategy", name=None)
