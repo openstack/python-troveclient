@@ -14,16 +14,16 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import base64
+import json
+import os
+import sys
 import uuid
 
-import base64
 from openstackclient.identity import common as identity_common
-import os
 from oslo_utils import encodeutils
 from oslo_utils import uuidutils
 import prettytable
-import simplejson as json
-import sys
 
 from troveclient.apiclient import exceptions
 
