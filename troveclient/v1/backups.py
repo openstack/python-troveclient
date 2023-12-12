@@ -26,6 +26,7 @@ from troveclient import common
 
 class Backup(base.Resource):
     """Backup is a resource used to hold backup information."""
+
     def __repr__(self):
         return "<Backup: %s>" % self.name
 
@@ -33,6 +34,7 @@ class Backup(base.Resource):
 class Schedule(base.Resource):
     """Schedule is a resource used to hold information about scheduled backups.
     """
+
     def __repr__(self):
         return "<Schedule: %s>" % self.name
 
@@ -41,6 +43,7 @@ class ScheduleExecution(base.Resource):
     """ScheduleExecution is a resource used to hold information about
     the execution of a scheduled backup.
     """
+
     def __repr__(self):
         return "<Execution: %s>" % self.name
 
@@ -75,8 +78,9 @@ class Backups(base.ManagerWithFind):
                                query_strings)
 
     def create(self, name, instance, description=None,
-               parent_id=None, incremental=False, swift_container=None,
-               restore_from=None, restore_ds_version=None, restore_size=None):
+               parent_id=None, incremental=False, storage_driver=None,
+               swift_container=None, restore_from=None,
+               restore_ds_version=None, restore_size=None):
         """Create or restore a new backup.
 
         :param name: name for backup.
@@ -85,6 +89,7 @@ class Backups(base.ManagerWithFind):
         :param parent_id: base for incremental backup (optional).
         :param incremental: flag to indicate incremental backup based on
                             last backup
+        :param storage_driver: The storage driver used to create the backup.
         :param swift_container: Swift container name.
         :param restore_from: The original backup data location, typically this
                              is a Swift object URL.
@@ -115,6 +120,8 @@ class Backups(base.ManagerWithFind):
                 body['backup']['description'] = description
             if parent_id:
                 body['backup']['parent_id'] = parent_id
+            if storage_driver:
+                body['backup']['storage_driver'] = storage_driver
             if swift_container:
                 body['backup']['swift_container'] = swift_container
 

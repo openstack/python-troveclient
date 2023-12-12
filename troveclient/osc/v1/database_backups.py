@@ -287,6 +287,13 @@ class CreateDatabaseBackup(command.ShowOne):
             '--restore-size', type=float,
             help=_('The original backup size.')
         )
+        parser.add_argument(
+            '--storage-driver',
+            help=_('The storage driver used to save backup data. '
+                   'Current valid values are: swift, cinder. '
+                   'It depends on Trove support. '
+                   'May conflict with other options.')
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -310,8 +317,9 @@ class CreateDatabaseBackup(command.ShowOne):
                                                       parsed_args.instance)
             params.update({
                 'description': parsed_args.description,
-                'parent_id': parsed_args.parent,
                 'incremental': parsed_args.incremental,
+                'parent_id': parsed_args.parent,
+                'storage_driver': parsed_args.storage_driver,
                 'swift_container': parsed_args.swift_container
             })
 

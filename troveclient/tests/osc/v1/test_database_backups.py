@@ -288,6 +288,7 @@ class TestBackupCreate(TestBackups):
                                                      description=None,
                                                      parent_id=None,
                                                      incremental=False,
+                                                     storage_driver=None,
                                                      swift_container=None)
 
     @mock.patch('troveclient.utils.get_resource_id_by_name')
@@ -304,6 +305,7 @@ class TestBackupCreate(TestBackups):
                                                      description='backup 1234',
                                                      parent_id='1234-1',
                                                      incremental=True,
+                                                     storage_driver=None,
                                                      swift_container=None)
 
     def test_create_from_data_location(self):
