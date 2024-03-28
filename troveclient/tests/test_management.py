@@ -235,12 +235,15 @@ class MgmtDatastoreVersionsTest(testtools.TestCase):
         self.ds_version._create = mock.Mock(side_effect=side_effect_func)
         p, b, = self.ds_version.create(
             "ds-version1", "mysql", "mysql", "image-id",
-            ["mysql-server-5.5"], "true", "true")
+            ["mysql-server-5.5"], "registry-ext",
+            "repl-strategy", "true", "true")
         self.assertEqual("/mgmt/datastore-versions", p)
         self.assertEqual("ds-version1", b["version"]["name"])
         self.assertEqual("mysql", b["version"]["datastore_name"])
         self.assertEqual("mysql", b["version"]["datastore_manager"])
         self.assertEqual("image-id", b["version"]["image"])
+        self.assertEqual("registry-ext", b["version"]["registry_ext"])
+        self.assertEqual("repl-strategy", b["version"]["repl_strategy"])
         self.assertEqual(["mysql-server-5.5"], b["version"]["packages"])
         self.assertTrue(b["version"]["active"])
         self.assertTrue(b["version"]["default"])

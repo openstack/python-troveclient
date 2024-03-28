@@ -195,6 +195,20 @@ class CreateDatastoreVersion(command.Command):
                    'string if --image-tags is specified.'),
         )
         parser.add_argument(
+            '--registry-ext',
+            help=_('Extension for default datastore managers. '
+                   'Allows the use of custom managers for each of '
+                   'the datastores supported by Trove.'
+                   'This can be empty string.'),
+        )
+        parser.add_argument(
+            '--repl-strategy',
+            help=_('Extension for default strategy for replication. '
+                   'Allows the use of custom replication strategy '
+                   'for each of the datastores supported by Trove.'
+                   'This can be empty string.'),
+        )
+        parser.add_argument(
             '--active',
             action='store_true',
             help=_('Enable the datastore version.'),
@@ -229,6 +243,8 @@ class CreateDatastoreVersion(command.Command):
                 parsed_args.datastore_manager,
                 parsed_args.image_id,
                 image_tags=image_tags,
+                registry_ext=parsed_args.registry_ext,
+                repl_strategy=parsed_args.repl_strategy,
                 active='true' if parsed_args.active else 'false',
                 default='true' if parsed_args.default else 'false',
                 version=parsed_args.version_number
@@ -262,6 +278,20 @@ class UpdateDatastoreVersion(command.Command):
             '--image-tags',
             default=None,
             help=_('List of image tags separated by comma, e.g. trove,mysql'),
+        )
+        parser.add_argument(
+            '--registry-ext',
+            help=_('Extension for default datastore managers. '
+                   'Allows the use of custom managers for each of '
+                   'the datastores supported by Trove.'
+                   'This can be empty string.'),
+        )
+        parser.add_argument(
+            '--repl-strategy',
+            help=_('Extension for default strategy for replication. '
+                   'Allows the use of custom replication strategy '
+                   'for each of the datastores supported by Trove.'
+                   'This can be empty string.'),
         )
         parser.add_argument(
             '--version-name',
@@ -303,6 +333,8 @@ class UpdateDatastoreVersion(command.Command):
                 datastore_manager=parsed_args.datastore_manager,
                 image=parsed_args.image,
                 image_tags=image_tags,
+                registry_ext=parsed_args.registry_ext,
+                repl_strategy=parsed_args.repl_strategy,
                 active=parsed_args.enable, default=parsed_args.default,
                 name=parsed_args.version_name
             )
