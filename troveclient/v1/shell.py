@@ -15,15 +15,11 @@
 #    under the License.
 
 import argparse
+import json
 import sys
 import time
 
 from troveclient.i18n import _
-
-try:
-    import simplejson as json
-except ImportError:
-    import json
 
 from troveclient import exceptions
 from troveclient import utils

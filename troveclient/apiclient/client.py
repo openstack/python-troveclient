@@ -25,13 +25,9 @@ OpenStack Client interface. Handles the REST calls and responses.
 # E0202: An attribute inherited from %s hide this method
 # pylint: disable=E0202
 
+import json
 import logging
 import time
-
-try:
-    import simplejson as json
-except ImportError:
-    import json
 
 import requests
 

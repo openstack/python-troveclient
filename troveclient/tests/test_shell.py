@@ -12,6 +12,7 @@
 #    under the License.
 
 import io
+import json
 import re
 import sys
 from unittest import mock
@@ -25,11 +26,6 @@ import uuid
 import troveclient.client
 from troveclient import exceptions
 import troveclient.shell
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
 V2_URL = "http://no.where/v2.0"
 V3_URL = "http://no.where/v3"

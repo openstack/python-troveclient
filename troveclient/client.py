@@ -19,6 +19,7 @@
 OpenStack Client interface. Handles the REST calls and responses.
 """
 
+import json
 import logging
 
 from keystoneauth1 import adapter
@@ -34,11 +35,6 @@ try:
     import eventlet as sleep_lib
 except ImportError:
     import time as sleep_lib
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
 osprofiler_web = importutils.try_import("osprofiler.web")
 

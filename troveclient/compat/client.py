@@ -14,16 +14,11 @@
 #    under the License.
 
 import httplib2
+import json
 import logging
 import os
 import sys
 import time
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
 
 from troveclient.compat import auth
 from troveclient.compat import exceptions
