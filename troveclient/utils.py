@@ -17,7 +17,6 @@
 import base64
 import json
 import os
-import sys
 import uuid
 
 from openstackclient.identity import common as identity_common
@@ -135,14 +134,6 @@ def _output_override(objs, print_as):
         raise BaseException('No valid output override')
 
 
-def _print(pt, order):
-
-    if sys.version_info >= (3, 0):
-        print(pt.get_string(sortby=order))
-    else:
-        print(encodeutils.safe_encode(pt.get_string(sortby=order)))
-
-
 def print_list(objs, fields, formatters={}, order_by=None, obj_is_dict=False,
                labels={}):
     try:
@@ -194,19 +185,19 @@ def print_list(objs, fields, formatters={}, order_by=None, obj_is_dict=False,
     if not order_by:
         order_by = fields[0]
     order_by = labels[order_by]
-    _print(pt, order_by)
+    print(pt.get_string(sortby=order_by))
 
 
-def print_dict(d, property="Property"):
+def print_dict(d, key="Property"):
     try:
         _output_override(d, 'dict')
         return
     except BaseException:
         pass
-    pt = prettytable.PrettyTable([property, 'Value'], caching=False)
+    pt = prettytable.PrettyTable([key, 'Value'], caching=False)
     pt.align = 'l'
     [pt.add_row(list(r)) for r in d.items()]
-    _print(pt, property)
+    print(pt.get_string(sortby=key))
 
 
 def get_resource_id(manager, id_or_name):
@@ -252,8 +243,6 @@ def find_resource(manager, name_or_id):
     # Related to bug/1740015.
     if isinstance(name_or_id, int):
         name_or_id = str(name_or_id)
-    elif sys.version_info <= (3, 0):
-        name_or_id = encodeutils.safe_decode(name_or_id)
 
     try:
         return manager.get(name_or_id)

@@ -747,11 +747,7 @@ class OpenStackHelpFormatter(argparse.HelpFormatter):
 
 def main():
     try:
-        if sys.version_info >= (3, 0):
-            OpenStackTroveShell().main(sys.argv[1:])
-        else:
-            OpenStackTroveShell().main(map(encodeutils.safe_decode,
-                                           sys.argv[1:]))
+        OpenStackTroveShell().main(sys.argv[1:])
     except KeyboardInterrupt:
         print(_("... terminating trove client"), file=sys.stderr)
         sys.exit(130)
