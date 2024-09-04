@@ -33,7 +33,8 @@ from keystoneauth1.identity.generic import token
 from keystoneauth1 import loading
 from oslo_utils import encodeutils
 from oslo_utils import importutils
-import pkg_resources
+import stevedore
+
 
 from troveclient.apiclient import exceptions as exc
 import troveclient.auth_plugin
@@ -323,11 +324,10 @@ class OpenStackTroveShell(object):
             yield name, module
 
     def _discover_via_entry_points(self):
-        for ep in pkg_resources.iter_entry_points('troveclient.extension'):
-            name = ep.name
-            module = ep.load()
-
-            yield name, module
+        mgr = stevedore.ExtensionManager(namespace='troveclient.extension',
+                                         invoke_on_load=True)
+        for ext in mgr:
+            yield ext.name, ext.plugin
 
     def _add_bash_completion_subparser(self, subparsers):
         subparser = subparsers.add_parser(

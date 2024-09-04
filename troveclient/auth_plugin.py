@@ -17,7 +17,7 @@
 
 import logging
 
-import pkg_resources
+import stevedore
 
 from troveclient import exceptions
 
@@ -33,15 +33,12 @@ def discover_auth_systems():
 
     This won't take into account the old style auth-systems.
     """
-    ep_name = 'openstack.client.auth_plugin'
-    for ep in pkg_resources.iter_entry_points(ep_name):
-        try:
-            auth_plugin = ep.load()
-        except (ImportError, pkg_resources.UnknownExtra, AttributeError) as e:
-            LOG.debug("ERROR: Cannot load auth plugin %s", ep.name)
-            LOG.debug(e, exc_info=1)
-        else:
-            _discovered_plugins[ep.name] = auth_plugin
+    global _discovered_plugins
+    mgr = stevedore.ExtensionManager(
+        namespace='openstack.client.auth_plugin',
+        invoke_on_load=True,
+    )
+    _discovered_plugins = {ext.name: ext.obj for ext in mgr}
 
 
 def load_auth_system_opts(parser):
@@ -60,7 +57,7 @@ def load_auth_system_opts(parser):
 
 def load_plugin(auth_system):
     if auth_system in _discovered_plugins:
-        return _discovered_plugins[auth_system]()
+        return _discovered_plugins[auth_system]
 
     raise exceptions.AuthSystemNotFound(auth_system)
 
