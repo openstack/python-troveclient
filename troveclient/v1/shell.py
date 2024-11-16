@@ -141,12 +141,12 @@ def _print_cluster(cluster, include_all=False):
 def _print_object(obj):
     # Get rid of those ugly links
     if obj._info.get('links'):
-        del(obj._info['links'])
+        del obj._info['links']
 
     # Fallback to str_id for flavors, where necessary
     if hasattr(obj, 'str_id'):
         obj._info['id'] = obj.id
-        del(obj._info['str_id'])
+        del obj._info['str_id']
 
     # Get datastore type and version, where necessary
     if hasattr(obj, 'datastore'):

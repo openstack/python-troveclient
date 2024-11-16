@@ -23,12 +23,12 @@ def set_attributes_for_print_detail(flavor):
     info = flavor._info.copy()
     # Get rid of those ugly links
     if info.get('links'):
-        del(info['links'])
+        del info['links']
 
     # Fallback to str_id for flavors, where necessary
     if hasattr(flavor, 'str_id'):
         info['id'] = flavor.id
-        del(info['str_id'])
+        del info['str_id']
     return info
 
 
