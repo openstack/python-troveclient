@@ -37,8 +37,8 @@ class ListDatabaseLogs(command.Lister):
         instance = osc_utils.find_resource(database_instances,
                                            parsed_args.instance)
         log_list = database_instances.log_list(instance)
-        logs = [osc_utils.get_item_properties(l, self.columns)
-                for l in log_list]
+        logs = [osc_utils.get_item_properties(log, self.columns)
+                for log in log_list]
         return self.columns, logs
 
 
