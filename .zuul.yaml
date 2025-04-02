@@ -23,7 +23,6 @@
 #    timeout: 7800
 #    required-projects:
 #      - openstack/devstack
-#      - openstack/devstack-gate
 #      - recordsansible/ara
 #      - openstack/neutron
 #      - openstack/python-troveclient
