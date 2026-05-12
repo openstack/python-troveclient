@@ -514,6 +514,45 @@ class Instances(base.ManagerWithFind):
                 f.write(log_obj)
         return written_file
 
+    def ssl_show(self, instance, include_certificate=False):
+        if include_certificate:
+            path = "/instances/%s/ssl?include_certificate=True"
+            return self._get(path % base.getid(instance), "ssl")
+        else:
+            return self._get("/instances/%s/ssl" % base.getid(instance),
+                             "ssl")
+
+    def ssl_enable(self, instance, mode, container_ref, password_ref=None):
+        body = {
+            'ssl': {
+                'enable': True,
+                'mode': mode,
+                'container_ref': container_ref
+            }
+        }
+        if password_ref:
+            body['ssl']['password_ref'] = password_ref
+        return self._create("/instances/%s/ssl" % base.getid(instance),
+                            body, "ssl", return_raw=True)
+
+    def ssl_disable(self, instance):
+        body = {
+            'ssl': {
+                'disable': True
+            }
+        }
+        return self._create("/instances/%s/ssl" % base.getid(instance),
+                            body, "ssl", return_raw=True)
+
+    def ssl_rollback(self, instance):
+        body = {
+            'ssl': {
+                'rollback': True
+            }
+        }
+        return self._create("/instances/%s/ssl" % base.getid(instance),
+                            body, "ssl", return_raw=True)
+
 
 class InstanceStatus(object):
 
