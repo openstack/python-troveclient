@@ -292,6 +292,99 @@ class InstancesTest(testtools.TestCase):
         self.assertEqual(('/instances/instance1/configuration', 'instance'),
                          self.instances.configuration('instance1'))
 
+    def test_ssl_show(self):
+        def side_effect_func(path, inst):
+            return path, inst
+
+        self.instances._get = mock.Mock(side_effect=side_effect_func)
+
+        self.assertEqual(
+            ('/instances/instance1/ssl', 'ssl'),
+            self.instances.ssl_show('instance1'))
+
+        self.assertEqual(
+            ('/instances/instance1/ssl?include_certificate=True', 'ssl'),
+            self.instances.ssl_show(
+                'instance1', include_certificate=True))
+
+    def _set_ssl_action_mock(self):
+        def side_effect_func(path, body, response_key, return_raw=False):
+            self._path = path
+            self._body = body
+            self._response_key = response_key
+            self._return_raw = return_raw
+
+        self._path = None
+        self._body = None
+        self._response_key = None
+        self._return_raw = None
+        self.instances._create = mock.Mock(side_effect=side_effect_func)
+
+    def test_ssl_enable(self):
+        self._set_ssl_action_mock()
+
+        self.instances.ssl_enable(
+            'instance1',
+            'enforced',
+            'container-ref',
+            password_ref='password-ref')
+
+        self.assertEqual('/instances/instance1/ssl', self._path)
+        self.assertEqual(
+            {
+                'ssl': {
+                    'enable': True,
+                    'mode': 'enforced',
+                    'container_ref': 'container-ref',
+                    'password_ref': 'password-ref'
+                }
+            },
+            self._body)
+        self.assertEqual('ssl', self._response_key)
+        self.assertTrue(self._return_raw)
+
+    def test_ssl_enable_without_password_ref(self):
+        self._set_ssl_action_mock()
+
+        self.instances.ssl_enable(
+            'instance1',
+            'basic',
+            'container-ref')
+
+        self.assertEqual(
+            {
+                'ssl': {
+                    'enable': True,
+                    'mode': 'basic',
+                    'container_ref': 'container-ref'
+                }
+            },
+            self._body)
+
+    def test_ssl_disable(self):
+        self._set_ssl_action_mock()
+
+        self.instances.ssl_disable('instance1')
+
+        self.assertEqual('/instances/instance1/ssl', self._path)
+        self.assertEqual(
+            {'ssl': {'disable': True}},
+            self._body)
+        self.assertEqual('ssl', self._response_key)
+        self.assertTrue(self._return_raw)
+
+    def test_ssl_rollback(self):
+        self._set_ssl_action_mock()
+
+        self.instances.ssl_rollback('instance1')
+
+        self.assertEqual('/instances/instance1/ssl', self._path)
+        self.assertEqual(
+            {'ssl': {'rollback': True}},
+            self._body)
+        self.assertEqual('ssl', self._response_key)
+        self.assertTrue(self._return_raw)
+
 
 class InstanceStatusTest(testtools.TestCase):
 
