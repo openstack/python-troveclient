@@ -255,3 +255,31 @@ class MgmtConfigurationParametersTest(testtools.TestCase):
         self.assertEqual('/mgmt/datastores/versions/id/parameters/param_id',
                          self._url)
         self.assertIsNone(self._body)
+
+    def test_update_all(self):
+        self.config_params.api.client.patch = self._get_mock_method()
+        self._resp.status_code = 202
+        parameters = [{
+            'name': 'config_name',
+            'restart_required': False,
+            'type': 'integer',
+            'max': 1000,
+            'min': 1,
+        }]
+        self.config_params.update_all('version-id', parameters)
+
+        expected_url = (
+            '/mgmt/datastores/versions/version-id/parameters/update_all')
+        self.assertEqual(expected_url, self._url)
+        self.assertEqual({'configuration-parameters': parameters}, self._body)
+
+    def test_delete_all(self):
+        self.config_params.api.client.delete = self._get_mock_method()
+        self._resp.status_code = 204
+
+        self.config_params.delete_all('version-id')
+
+        expected_url = (
+            '/mgmt/datastores/versions/version-id/parameters/delete_all')
+        self.assertEqual(expected_url, self._url)
+        self.assertIsNone(self._body)
