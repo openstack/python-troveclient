@@ -317,6 +317,20 @@ class UpdateDatastoreVersion(command.Command):
                                    default=None,
                                    action='store_const',
                                    const='false')
+        volume_type_group = parser.add_mutually_exclusive_group()
+        volume_type_group.add_argument('--volume-types',
+                                       dest='volume_type_ids',
+                                       metavar='<volume_type_ids>',
+                                       nargs='+',
+                                       default=None,
+                                       help=_('Volume type IDs to '
+                                              'associate.'))
+        volume_type_group.add_argument('--remove-volume-types',
+                                       metavar='<volume_type_ids>',
+                                       nargs='+',
+                                       default=None,
+                                       help=_('Volume type IDs to '
+                                              'disassociate.'))
 
         return parser
 
@@ -338,6 +352,16 @@ class UpdateDatastoreVersion(command.Command):
                 active=parsed_args.enable, default=parsed_args.default,
                 name=parsed_args.version_name
             )
+
+            if parsed_args.volume_type_ids is not None:
+                client.add_volume_types(
+                    parsed_args.datastore_version_id,
+                    parsed_args.volume_type_ids)
+            elif parsed_args.remove_volume_types is not None:
+                for volume_type_id in parsed_args.remove_volume_types:
+                    client.delete_volume_type(
+                        parsed_args.datastore_version_id,
+                        volume_type_id)
         except Exception as e:
             msg = (_("Failed to update datastore version %(version)s: %(e)s")
                    % {'version': parsed_args.datastore_version_id, 'e': e})

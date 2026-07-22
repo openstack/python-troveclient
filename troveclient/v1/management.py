@@ -329,3 +329,28 @@ class MgmtDatastoreVersions(base.ManagerWithFind):
         url = ("/mgmt/datastore-versions/%s" % datastore_version_id)
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
+
+    def list_volume_types(self, datastore_version_id):
+        """List volume type associations for a datastore version."""
+        url = "/mgmt/datastore-versions/%s/volume-types" % (
+            datastore_version_id)
+        resp, body = self.api.client.get(url)
+        common.check_for_exceptions(resp, body, url)
+        return body['volume_type_ids']
+
+    def add_volume_types(self, datastore_version_id, volume_type_ids):
+        """Add volume type associations to a datastore version."""
+        body = {
+            'volume_type_ids': volume_type_ids
+        }
+        url = "/mgmt/datastore-versions/%s/volume-types" % (
+            datastore_version_id)
+        resp, body = self.api.client.post(url, body=body)
+        common.check_for_exceptions(resp, body, url)
+
+    def delete_volume_type(self, datastore_version_id, volume_type_id):
+        """Delete a volume type association from a datastore version."""
+        url = "/mgmt/datastore-versions/%s/volume-types/%s" % (
+            datastore_version_id, volume_type_id)
+        resp, body = self.api.client.delete(url)
+        common.check_for_exceptions(resp, body, url)

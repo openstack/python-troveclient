@@ -9,6 +9,8 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
+from unittest import mock
+
 from oslo_utils import uuidutils
 
 from troveclient import common
@@ -199,3 +201,26 @@ class TestUpdateDatastoreVersion(TestDatastores):
             active='true', default='false', image_tags=['trove', 'mysql'],
             registry_ext="registry-ext",
             repl_strategy="repl_strategy", name=None)
+
+    def test_update_datastore_version_volume_types(self):
+        version_id = uuidutils.generate_uuid()
+        args = [version_id, '--volume-types', 'type-1', 'type-2']
+        parsed_args = self.check_parser(self.cmd, args, [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.dsversion_mgmt_client.add_volume_types.assert_called_once_with(
+            version_id, ['type-1', 'type-2'])
+
+    def test_update_datastore_version_remove_volume_types(self):
+        version_id = uuidutils.generate_uuid()
+        args = [version_id, '--remove-volume-types', 'type-1', 'type-2']
+        parsed_args = self.check_parser(self.cmd, args, [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.dsversion_mgmt_client.delete_volume_type.assert_has_calls([
+            mock.call(version_id, 'type-1'),
+            mock.call(version_id, 'type-2')])
+        self.assertEqual(
+            2, self.dsversion_mgmt_client.delete_volume_type.call_count)

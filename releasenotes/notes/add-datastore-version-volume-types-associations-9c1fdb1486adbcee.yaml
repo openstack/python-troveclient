@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds ``--volume-types`` and ``--remove-volume-types`` options to the
+    ``openstack datastore version set`` command for adding and removing
+    datastore version volume type associations.

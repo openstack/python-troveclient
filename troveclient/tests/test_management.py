@@ -293,3 +293,34 @@ class MgmtDatastoreVersionsTest(testtools.TestCase):
         self._resp.status_code = 400
         self.assertRaises(Exception, self.ds_version.edit, 'ds-version-1',
                           "new-mgr", "non-existent-image")
+
+    def test_list_volume_types(self):
+        resp = mock.Mock(status_code=200)
+        self.ds_version.api.client.get.return_value = (
+            resp, {'volume_type_ids': ['type-1', 'type-2']})
+
+        result = self.ds_version.list_volume_types('ds-version-1')
+
+        self.assertEqual(['type-1', 'type-2'], result)
+        self.ds_version.api.client.get.assert_called_once_with(
+            '/mgmt/datastore-versions/ds-version-1/volume-types')
+
+    def test_add_volume_types(self):
+        self.ds_version.api.client.post = self._get_mock_method()
+        self._resp.status_code = 202
+        self.ds_version.add_volume_types(
+            'ds-version-1', volume_type_ids=['type-1', 'type-2'])
+        self.assertEqual(
+            '/mgmt/datastore-versions/ds-version-1/volume-types',
+            self._url)
+        self.assertEqual({'volume_type_ids': ['type-1', 'type-2']}, self._body)
+
+    def test_delete_volume_type(self):
+        self.ds_version.api.client.delete = self._get_mock_method()
+        self._resp.status_code = 204
+
+        self.ds_version.delete_volume_type('ds-version-1', 'type-1')
+
+        self.assertEqual(
+            '/mgmt/datastore-versions/ds-version-1/volume-types/type-1',
+            self._url)
