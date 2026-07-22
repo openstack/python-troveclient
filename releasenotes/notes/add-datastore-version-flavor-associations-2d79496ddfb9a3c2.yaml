@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds ``--flavors`` and ``--remove-flavors`` options to the
+    ``openstack datastore version set`` command for adding and removing
+    datastore version flavor associations.

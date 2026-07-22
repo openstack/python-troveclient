@@ -317,6 +317,17 @@ class UpdateDatastoreVersion(command.Command):
                                    default=None,
                                    action='store_const',
                                    const='false')
+        flavor_group = parser.add_mutually_exclusive_group()
+        flavor_group.add_argument('--flavors', dest='flavor_ids',
+                                  metavar='<flavor_ids>',
+                                  nargs='+',
+                                  default=None,
+                                  help=_('Flavor IDs to associate.'))
+        flavor_group.add_argument('--remove-flavors',
+                                  metavar='<flavor_ids>',
+                                  nargs='+',
+                                  default=None,
+                                  help=_('Flavor IDs to disassociate.'))
         volume_type_group = parser.add_mutually_exclusive_group()
         volume_type_group.add_argument('--volume-types',
                                        dest='volume_type_ids',
@@ -353,6 +364,15 @@ class UpdateDatastoreVersion(command.Command):
                 name=parsed_args.version_name
             )
 
+            if parsed_args.flavor_ids is not None:
+                client.add_flavors(
+                    parsed_args.datastore_version_id,
+                    parsed_args.flavor_ids)
+            elif parsed_args.remove_flavors is not None:
+                for flavor_id in parsed_args.remove_flavors:
+                    client.delete_flavor(
+                        parsed_args.datastore_version_id, flavor_id)
+
             if parsed_args.volume_type_ids is not None:
                 client.add_volume_types(
                     parsed_args.datastore_version_id,
@@ -360,8 +380,8 @@ class UpdateDatastoreVersion(command.Command):
             elif parsed_args.remove_volume_types is not None:
                 for volume_type_id in parsed_args.remove_volume_types:
                     client.delete_volume_type(
-                        parsed_args.datastore_version_id,
-                        volume_type_id)
+                        parsed_args.datastore_version_id, volume_type_id)
+
         except Exception as e:
             msg = (_("Failed to update datastore version %(version)s: %(e)s")
                    % {'version': parsed_args.datastore_version_id, 'e': e})

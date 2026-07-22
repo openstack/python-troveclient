@@ -347,6 +347,29 @@ class MgmtDatastoreVersions(base.ManagerWithFind):
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
 
+    def list_flavors(self, datastore_version_id):
+        """List flavor associations for a datastore version."""
+        url = "/mgmt/datastore-versions/%s/flavors" % datastore_version_id
+        resp, body = self.api.client.get(url)
+        common.check_for_exceptions(resp, body, url)
+        return body['flavor_ids']
+
+    def add_flavors(self, datastore_version_id, flavor_ids):
+        """Add flavor associations to a datastore version."""
+        body = {
+            'flavor_ids': flavor_ids
+        }
+        url = "/mgmt/datastore-versions/%s/flavors" % datastore_version_id
+        resp, body = self.api.client.post(url, body=body)
+        common.check_for_exceptions(resp, body, url)
+
+    def delete_flavor(self, datastore_version_id, flavor_id):
+        """Delete a flavor association from a datastore version."""
+        url = "/mgmt/datastore-versions/%s/flavors/%s" % (
+            datastore_version_id, flavor_id)
+        resp, body = self.api.client.delete(url)
+        common.check_for_exceptions(resp, body, url)
+
     def list_volume_types(self, datastore_version_id):
         """List volume type associations for a datastore version."""
         url = "/mgmt/datastore-versions/%s/volume-types" % (

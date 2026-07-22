@@ -294,6 +294,37 @@ class MgmtDatastoreVersionsTest(testtools.TestCase):
         self.assertRaises(Exception, self.ds_version.edit, 'ds-version-1',
                           "new-mgr", "non-existent-image")
 
+    def test_list_flavors(self):
+        resp = mock.Mock(status_code=200)
+        self.ds_version.api.client.get.return_value = (
+            resp, {'flavor_ids': ['flavor-1', 'flavor-2']})
+
+        result = self.ds_version.list_flavors('ds-version-1')
+
+        self.assertEqual(['flavor-1', 'flavor-2'], result)
+        self.ds_version.api.client.get.assert_called_once_with(
+            '/mgmt/datastore-versions/ds-version-1/flavors')
+
+    def test_add_flavors(self):
+        self.ds_version.api.client.post = self._get_mock_method()
+        self._resp.status_code = 202
+        self.ds_version.add_flavors(
+            'ds-version-1', flavor_ids=['flavor-1', 'flavor-2'])
+        self.assertEqual(
+            '/mgmt/datastore-versions/ds-version-1/flavors',
+            self._url)
+        self.assertEqual({'flavor_ids': ['flavor-1', 'flavor-2']}, self._body)
+
+    def test_delete_flavor(self):
+        self.ds_version.api.client.delete = self._get_mock_method()
+        self._resp.status_code = 204
+
+        self.ds_version.delete_flavor('ds-version-1', 'flavor-1')
+
+        self.assertEqual(
+            '/mgmt/datastore-versions/ds-version-1/flavors/flavor-1',
+            self._url)
+
     def test_list_volume_types(self):
         resp = mock.Mock(status_code=200)
         self.ds_version.api.client.get.return_value = (

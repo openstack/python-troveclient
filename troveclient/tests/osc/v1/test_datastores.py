@@ -202,6 +202,29 @@ class TestUpdateDatastoreVersion(TestDatastores):
             registry_ext="registry-ext",
             repl_strategy="repl_strategy", name=None)
 
+    def test_update_datastore_version_flavors(self):
+        version_id = uuidutils.generate_uuid()
+        args = [version_id, '--flavors', 'flavor-1', 'flavor-2']
+        parsed_args = self.check_parser(self.cmd, args, [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.dsversion_mgmt_client.add_flavors.assert_called_once_with(
+            version_id, ['flavor-1', 'flavor-2'])
+
+    def test_update_datastore_version_remove_flavors(self):
+        version_id = uuidutils.generate_uuid()
+        args = [version_id, '--remove-flavors', 'flavor-1', 'flavor-2']
+        parsed_args = self.check_parser(self.cmd, args, [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.dsversion_mgmt_client.delete_flavor.assert_has_calls([
+            mock.call(version_id, 'flavor-1'),
+            mock.call(version_id, 'flavor-2')])
+        self.assertEqual(
+            2, self.dsversion_mgmt_client.delete_flavor.call_count)
+
     def test_update_datastore_version_volume_types(self):
         version_id = uuidutils.generate_uuid()
         args = [version_id, '--volume-types', 'type-1', 'type-2']
