@@ -494,6 +494,16 @@ class TestDatabaseInstanceCreate(TestInstances):
             access={'is_public': False}
         )
 
+    def test_instance_create_accepts_soft_locality(self):
+        for locality in ('soft-affinity', 'soft-anti-affinity'):
+            with self.subTest(locality=locality):
+                parsed_args = self.check_parser(
+                    self.cmd,
+                    ['test-instance', '--flavor', '1',
+                     '--locality', locality],
+                    [('locality', locality)])
+                self.assertEqual(locality, parsed_args.locality)
+
 
 class TestDatabaseInstanceResetStatus(TestInstances):
 

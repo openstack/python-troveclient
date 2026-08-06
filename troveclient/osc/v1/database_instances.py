@@ -22,6 +22,7 @@ from troveclient import exceptions
 from troveclient.i18n import _
 from troveclient.osc.v1 import base
 from troveclient import utils as trove_utils
+from troveclient.v1 import shell as v1_shell
 
 
 def get_instances_info(instances):
@@ -364,7 +365,7 @@ class CreateDatabaseInstance(command.ShowOne):
             '--locality',
             metavar='<policy>',
             default=None,
-            choices=['affinity', 'anti-affinity'],
+            choices=v1_shell.INSTANCE_LOCALITY_DOMAIN,
             help=_("Locality policy to use when creating replicas. Choose "
                    "one of %(choices)s."),
         )

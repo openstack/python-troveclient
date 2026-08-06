@@ -44,6 +44,8 @@ NIC_ERROR = _("Invalid NIC argument: %s. Must specify either net-id or port-id"
 NO_LOG_FOUND_ERROR = _("ERROR: No published '%(log_name)s' log was found for "
                        "%(instance)s.")
 LOCALITY_DOMAIN = ['affinity', 'anti-affinity']
+INSTANCE_LOCALITY_DOMAIN = [
+    'affinity', 'soft-affinity', 'anti-affinity', 'soft-anti-affinity']
 EXT_PROPS_METAVAR = INSTANCE_METAVAR
 EXT_PROPS_HELP = _("Add extended properties for cluster create. "
                    "Currently only support MongoDB options, other databases "
@@ -606,7 +608,7 @@ def do_update(cs, args):
 @utils.arg('--locality',
            metavar='<policy>',
            default=None,
-           choices=LOCALITY_DOMAIN,
+           choices=INSTANCE_LOCALITY_DOMAIN,
            help=_('Locality policy to use when creating replicas. Choose '
                   'one of %(choices)s.'))
 @utils.arg('--region', metavar='<region>',
