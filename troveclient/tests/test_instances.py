@@ -224,6 +224,36 @@ class InstancesTest(testtools.TestCase):
         resp.status_code = 500
         self.assertRaises(Exception, self.instances.modify, 'instance1')
 
+    def test_update_is_public_only(self):
+        resp = mock.Mock()
+        resp.status_code = 202
+        self.instances.api.client.put = mock.Mock(return_value=(resp, None))
+
+        self.instances.update('instance1', is_public=False)
+
+        self.instances.api.client.put.assert_called_once_with(
+            '/instances/instance1',
+            body={
+                'instance': {
+                    'access': {'is_public': False}
+                }
+            })
+
+    def test_update_allowed_cidrs_only(self):
+        resp = mock.Mock()
+        resp.status_code = 202
+        self.instances.api.client.put = mock.Mock(return_value=(resp, None))
+
+        self.instances.update('instance1', allowed_cidrs=[])
+
+        self.instances.api.client.put.assert_called_once_with(
+            '/instances/instance1',
+            body={
+                'instance': {
+                    'access': {'allowed_cidrs': []}
+                }
+            })
+
     def test_module_apply(self):
         resp = mock.Mock()
         resp.status_code = 200
