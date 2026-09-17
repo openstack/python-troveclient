@@ -26,6 +26,7 @@ import uuid
 import troveclient.client
 from troveclient import exceptions
 import troveclient.shell
+from troveclient.v1 import shell as v1_shell
 
 V2_URL = "http://no.where/v2.0"
 V3_URL = "http://no.where/v3"
@@ -131,6 +132,12 @@ class ShellTest(testtools.TestCase):
             self.assertThat(
                 (stdout + stderr),
                 testtools.matchers.MatchesRegex(r, re.DOTALL | re.MULTILINE))
+
+    def test_instance_locality_domain(self):
+        self.assertEqual(
+            ['affinity', 'soft-affinity',
+             'anti-affinity', 'soft-anti-affinity'],
+            v1_shell.INSTANCE_LOCALITY_DOMAIN)
 
     def test_no_username(self):
         required = ('You must provide a username'

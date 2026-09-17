@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The database instance create command now accepts the
+    ``soft-affinity`` and ``soft-anti-affinity`` locality policies.
