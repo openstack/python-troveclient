@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added ``openstack datastore configuration set`` and
+    ``openstack datastore configuration delete`` commands. These commands
+    allow operators to maintain datastore validation rules through the API
+    without direct access to the Trove control plane.

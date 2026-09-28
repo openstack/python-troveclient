@@ -87,6 +87,7 @@ class Client(object):
         self.quota = quota.Quotas(self)
         self.mgmt_instances = management.Management(self)
         self.mgmt_ds_versions = management.MgmtDatastoreVersions(self)
+        self.mgmt_configs = management.MgmtConfigurationParameters(self)
 
         # Add in any extensions...
         if extensions:

@@ -252,6 +252,23 @@ class MgmtConfigurationParameters(configurations.ConfigurationParameters):
         resp, body = self.api.client.delete(url)
         common.check_for_exceptions(resp, body, url)
 
+    def update_all(self, version, configuration_parameters):
+        """Mgmt call to update all configuration parameters."""
+        body = {
+            'configuration-parameters': configuration_parameters
+        }
+        url = ("/mgmt/datastores/versions/%s/parameters/"
+               "update_all" % version)
+        resp, resp_body = self.api.client.patch(url, body=body)
+        common.check_for_exceptions(resp, resp_body, url)
+
+    def delete_all(self, version):
+        """Mgmt call to delete all configuration parameters."""
+        url = ("/mgmt/datastores/versions/%s/parameters/"
+               "delete_all" % version)
+        resp, body = self.api.client.delete(url)
+        common.check_for_exceptions(resp, body, url)
+
 
 class MgmtDatastoreVersions(base.ManagerWithFind):
     """Manage :class:`DatastoreVersion` resources."""
