@@ -744,6 +744,16 @@ class OpenStackHelpFormatter(argparse.HelpFormatter):
         # prefix with 'usage:'
         return '%s%s\n\n' % (prefix, usage)
 
+    # Python 3.14 removed HelpFormatter._format_actions_usage. This helper
+    # keeps usage formatting compatible across Python versions. See:
+    # https://github.com/python/cpython/blob/3.13/Lib/argparse.py#L392-L397
+    def _format_actions_usage(self, actions, groups):
+        if hasattr(argparse.HelpFormatter, '_format_actions_usage'):
+            return super()._format_actions_usage(actions, groups)
+
+        parts, _ = self._get_actions_usage_parts(actions, groups)
+        return ' '.join(parts)
+
 
 def main():
     try:

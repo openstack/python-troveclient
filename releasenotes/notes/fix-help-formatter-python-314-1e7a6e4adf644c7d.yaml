@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix the ``trove help`` command failing on Python 3.14 because of a
+    change to the ``argparse`` help formatter.
